@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>認識球體與截面探究 - 互動教學網頁</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js CDN for 3D Interactive Visualizations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(160deg, #1e1b4b 0%, #312e81 25%, #4338ca 45%, #6366f1 65%, #f43f5e 88%, #fbcfe8 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        /* Glassmorphism Card Style */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        /* Shinkai Glow Button Styling */
+        .shinkai-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #ec4899 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+        }
+
+        .shinkai-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.45);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Canvas Container responsive border */
+        canvas {
+            border-radius: 1rem;
+            outline: none;
+        }
+
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.5);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="pb-12 text-slate-800">
+
+    <!-- 閒雲數學小棧 Logo (放置於最上方) -->
+    <div class="max-w-6xl mx-auto pt-4">
+        <!-- 修改：使用轉換後的 Google Drive 直接連結 -->
+        <div class="w-full max-w-4xl flex items-center justify-start mb-2 px-4 fade-in">
+            <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+            <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+        </div>
+    </div>
+
+    <!-- Top Navigation Header -->
+    <header class="glass-nav sticky top-0 z-50 px-4 py-3 mb-6 shadow-sm mt-2">
+        <div class="max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center text-white text-xl shadow-md">
+                    <i class="fa-solid fa-globe"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-900 via-indigo-700 to-pink-600">
+                        認識球體與切面探究
+                    </h1>
+                    <p class="text-xs text-indigo-900 font-medium">國小五上數學 5-4 互動學習網頁</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-6xl mx-auto px-4">
+        
+        <!-- Tab Navigation Buttons -->
+        <div class="flex flex-wrap gap-2 mb-6 justify-center">
+            <button id="tab1-btn" onclick="switchTab('tab1')" class="tab-btn active px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center gap-2">
+                <i class="fa-solid fa-rotate"></i> 1. 球體的形成 (旋轉與組合)
+            </button>
+            <button id="tab2-btn" onclick="switchTab('tab2')" class="tab-btn bg-white/80 text-slate-700 hover:bg-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center gap-2">
+                <i class="fa-solid fa-scissors"></i> 2. 球體切面與切位置探究
+            </button>
+            <button id="tab3-btn" onclick="switchTab('tab3')" class="tab-btn bg-white/80 text-slate-700 hover:bg-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center gap-2">
+                <i class="fa-solid fa-list-check"></i> 3. 隨堂歷程性評量
+            </button>
+        </div>
+
+        <!-- TAB 1: 旋轉與組合 (Sphere Formation) -->
+        <section id="tab1" class="tab-content block space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- 3D Viewport Panel -->
+                <div class="lg:col-span-7 glass-card rounded-2xl p-4 flex flex-col justify-between min-h-[420px]">
+                    <div class="flex justify-between items-center mb-2 px-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md">3D 模擬視窗</span>
+                        <span id="tab1-status" class="text-xs text-slate-500"><i class="fa-solid fa-hand-pointer mr-1"></i>按住滑鼠拖拽可旋轉視角</span>
+                    </div>
+                    <div id="canvas-container-1" class="w-full h-[320px] bg-gradient-to-b from-slate-900 to-indigo-950 rounded-xl relative overflow-hidden flex items-center justify-center">
+                        <!-- Canvas 1 dynamically injected here -->
+                    </div>
+                    <div class="mt-3 flex justify-around text-xs text-slate-600 bg-white/50 py-2 rounded-lg">
+                        <span><i class="fa-solid fa-circle text-indigo-500 mr-1"></i>半徑：<strong class="text-indigo-800">3 cm</strong></span>
+                        <span><i class="fa-solid fa-ruler-combined text-indigo-500 mr-1"></i>直徑：<strong class="text-indigo-800">6 cm</strong></span>
+                    </div>
+                </div>
+
+                <!-- Controls & Concept Panel -->
+                <div class="lg:col-span-5 glass-card rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-indigo-950 mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-lightbulb text-amber-500"></i> 動手做做看：球是如何形成的？
+                        </h2>
+                        <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                            切換兩種實驗模式，觀察平面圖形（圓形/半圓）如何透過<b>視覺暫留</b>或<b>空間組合</b>變成一顆球體！
+                        </p>
+
+                        <!-- Sub Mode Toggle Buttons -->
+                        <div class="grid grid-cols-2 gap-2 mb-4 bg-indigo-50/70 p-1 rounded-xl">
+                            <button id="mode-spin-btn" onclick="setTab1Mode('spin')" class="py-1.5 text-xs font-bold rounded-lg bg-white text-indigo-700 shadow-sm transition">
+                                模式 A：竹筷快速旋轉
+                            </button>
+                            <button id="mode-combine-btn" onclick="setTab1Mode('combine')" class="py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:text-indigo-700 transition">
+                                模式 B：半圓卡片組合
+                            </button>
+                        </div>
+
+                        <!-- Spin Controls -->
+                        <div id="spin-controls" class="space-y-4">
+                            <div class="bg-indigo-50/50 p-3.5 rounded-xl border border-indigo-100">
+                                <label class="text-xs font-bold text-slate-700 flex justify-between mb-1">
+                                    <span>旋轉速度 (竹筷轉速)：</span>
+                                    <span id="spin-speed-val" class="text-indigo-600">低速</span>
+                                </label>
+                                <input id="spin-speed-slider" type="range" min="0" max="100" value="15" class="w-full h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" oninput="updateSpinSpeed(this.value)">
+                            </div>
+                            <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900">
+                                <strong class="block mb-1"><i class="fa-solid fa-eye text-amber-600"></i> 教學觀察重點：</strong>
+                                垂直轉動竹筷時，紙卡快速旋轉會因為視覺暫留，看起來像一顆<b>球體</b>！無數個圓共用同一條中心軸旋轉。
+                            </div>
+                        </div>
+
+                        <!-- Combine Controls (Hidden by default) -->
+                        <div id="combine-controls" class="space-y-4 hidden">
+                            <div class="bg-indigo-50/50 p-3.5 rounded-xl border border-indigo-100">
+                                <label class="text-xs font-bold text-slate-700 flex justify-between mb-1">
+                                    <span>半圓卡片張數：</span>
+                                    <span id="slice-count-val" class="text-indigo-600">2 張 (1個完整圓)</span>
+                                </label>
+                                <input id="slice-count-slider" type="range" min="2" max="50" step="2" value="2" class="w-full h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" oninput="updateSliceCount(this.value)">
+                            </div>
+                            <div class="p-3 bg-teal-50 border border-teal-200 rounded-xl text-xs text-teal-900">
+                                <strong class="block mb-1"><i class="fa-solid fa-puzzle-piece text-teal-600"></i> 教學觀察重點：</strong>
+                                把越來越多張相同的半圓形卡片黏在一起展開，當半圓數量非常多時，就會組合成一顆光滑的<b>紙球</b>。
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-200/60 text-xs text-slate-500">
+                        觀念導引：球面上每一個點到球心的距離都<b>一樣長</b>，這個距離稱為<b>半徑</b>。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: 球體切面探究 (Sphere Slicing Explorer) -->
+        <section id="tab2" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- 3D Sphere Cut Viewport -->
+                <div class="lg:col-span-7 glass-card rounded-2xl p-4 flex flex-col justify-between min-h-[420px]">
+                    <div class="flex justify-between items-center mb-2 px-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-2.5 py-1 rounded-md">3D 剖切視覺化</span>
+                        <span class="text-xs text-slate-500"><i class="fa-solid fa-arrows-up-down-left-right mr-1"></i>可拖曳調整剖面位置</span>
+                    </div>
+                    <div id="canvas-container-2" class="w-full h-[320px] bg-gradient-to-b from-indigo-950 via-slate-900 to-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center">
+                        <!-- Canvas 2 dynamically injected here -->
+                    </div>
+                    <!-- Live Stats Overlay Bar -->
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs mt-3">
+                        <div class="bg-indigo-50/80 p-2 rounded-lg border border-indigo-100">
+                            <div class="text-slate-500">離球心距離 (d)</div>
+                            <div id="stat-dist" class="font-bold text-indigo-700 text-sm">0 cm</div>
+                        </div>
+                        <div class="bg-pink-50/80 p-2 rounded-lg border border-pink-100">
+                            <div class="text-slate-500">切面形狀</div>
+                            <div class="font-bold text-pink-700 text-sm">圓形 <i class="fa-solid fa-circle text-xs"></i></div>
+                        </div>
+                        <div class="bg-emerald-50/80 p-2 rounded-lg border border-emerald-100">
+                            <div class="text-slate-500">切面圓半徑 (r)</div>
+                            <div id="stat-radius" class="font-bold text-emerald-700 text-sm">3.0 cm (最大)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cutting Interactive Controls Panel -->
+                <div class="lg:col-span-5 glass-card rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-indigo-950 mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-scissors text-rose-500"></i> 切割位置與切面大小探究
+                        </h2>
+                        <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                            移動下方滑桿或點擊課本預設位置（ㄅ、ㄆ、ㄇ），觀察球體切開後的面是什麼形狀，以及切面大小如何變化。
+                        </p>
+
+                        <!-- Preset Cut Buttons from textbook page 78/79 -->
+                        <div class="mb-4">
+                            <label class="text-xs font-bold text-slate-700 block mb-1.5">課本問題情境快捷選擇：</label>
+                            <div id="preset-buttons-group" class="grid grid-cols-3 gap-2 transition-opacity duration-300">
+                                <button onclick="setCutPreset('po')" class="py-2 px-1 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 text-xs font-bold transition text-center border border-rose-300">
+                                    位置 ㄆ<br><span class="text-[10px] font-normal">(經過球心)</span>
+                                </button>
+                                <button onclick="setCutPreset('bo')" class="py-2 px-1 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-800 text-xs font-bold transition text-center border border-amber-300">
+                                    位置 ㄅ<br><span class="text-[10px] font-normal">(中等距離)</span>
+                                </button>
+                                <button onclick="setCutPreset('mo')" class="py-2 px-1 rounded-xl bg-green-100 hover:bg-green-200 text-green-800 text-xs font-bold transition text-center border border-green-300">
+                                    位置 ㄇ<br><span class="text-[10px] font-normal">(邊緣距離)</span>
+                                </button>
+                            </div>
+                            <!-- 新增比較模式按鈕 -->
+                            <button id="btn-compare" onclick="toggleCompareMode()" class="mt-3 w-full py-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-800 text-sm font-bold transition text-center border border-amber-300 shadow-sm flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-layer-group"></i> 同時顯示 ㄅ、ㄆ、ㄇ 切面比較
+                            </button>
+                        </div>
+
+                        <!-- Cut Position Slider & Separate Button -->
+                        <div id="slider-container" class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-4 transition-opacity duration-300">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="text-xs font-bold text-slate-700 flex items-center gap-1">
+                                    <span>剖切面位置：</span>
+                                    <span id="cut-pos-val" class="text-rose-600 font-bold">位置 ㄆ (球心)</span>
+                                </label>
+                                <!-- 新增分離觀察按鈕 -->
+                                <button id="btn-separate" onclick="toggleSeparate()" class="px-3 py-1 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 text-xs font-bold rounded shadow-sm transition flex items-center gap-1">
+                                    <i class="fa-solid fa-arrows-left-right"></i> 分開觀察
+                                </button>
+                            </div>
+                            <input id="cut-slider" type="range" min="-2.8" max="2.8" step="0.1" value="0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-rose-500" oninput="updateCutPosition(this.value)">
+                            <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+                                <span>左邊緣 (ㄇ)</span>
+                                <span>球心 (ㄆ)</span>
+                                <span>右邊緣 (ㄇ)</span>
+                            </div>
+                        </div>
+
+                        <!-- Educational Findings Box -->
+                        <div id="cut-info-box" class="p-3.5 bg-indigo-50/80 border border-indigo-200 rounded-xl text-xs space-y-1.5">
+                            <div class="font-bold text-indigo-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-circle-check text-indigo-600"></i> <span id="cut-title">通過球心的切面 (位置 ㄆ)</span>
+                            </div>
+                            <p id="cut-desc" class="text-indigo-800 leading-relaxed">
+                                將球平分成兩半時，切開的圓<b>最大</b>！這個圓的圓心就是<b>球心</b>，圓的半徑就是<b>球的半徑</b>。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-200/60 text-xs text-rose-700 font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-lightbulb"></i> 結論比較：( ㄇ ) &lt; ( ㄅ ) &lt; ( ㄆ )，越靠近球心切面越大！
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: 歷程性評量 (Assessment Quiz) -->
+        <section id="tab3" class="tab-content hidden space-y-6">
+            <div class="glass-card rounded-2xl p-6">
+                <div class="flex justify-between items-center pb-4 mb-6 border-b border-slate-200">
+                    <div>
+                        <h2 class="text-xl font-bold text-indigo-950 flex items-center gap-2">
+                            <i class="fa-solid fa-graduation-cap text-indigo-600"></i> 隨堂小測驗：學習概念評量
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">共 5 題，請選出正確答案，即時獲得反饋並進行修正！</p>
+                    </div>
+                    <div class="text-right">
+                        <span id="score-badge" class="px-3 py-1 bg-indigo-100 text-indigo-800 font-bold text-sm rounded-full">
+                            得分：<span id="score-val">0</span> / 100
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Quiz Questions Form Container -->
+                <div id="quiz-container" class="space-y-6">
+                    <!-- Dynamic Questions injected via JS -->
+                </div>
+
+                <div class="mt-8 pt-4 border-t border-slate-200 flex justify-between items-center">
+                    <button onclick="resetQuiz()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> 重新作答
+                    </button>
+                    <button onclick="submitQuiz()" class="shinkai-btn px-6 py-2.5 rounded-xl text-xs font-bold">
+                        <i class="fa-solid fa-paper-plane mr-1"></i> 提交所有答案
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        /* -------------------------------------------------------------
+           GLOBAL STATE VARIABLES
+           ------------------------------------------------------------- */
+        let currentTab = 'tab1';
+        let tab1Mode = 'spin'; // 'spin' or 'combine'
+        
+        // Three.js Scene 1 variables
+        let scene1, camera1, renderer1;
+        let spinGroup, discMesh, ghostSphereMesh, stickMesh;
+        let sliceGroup;
+        let spinSpeed = 0.05;
+        let isSpinning = true;
+        let sliceCount = 2;
+
+        // Three.js Scene 2 variables
+        let scene2, camera2, renderer2;
+        let sphereLeft, sphereRight, wireLeft, wireRight;
+        let capLeft, capRight, outlineLeft, outlineRight;
+        let cutPlaneMesh, centerPointMesh;
+        let clipPlaneLeft, clipPlaneRight;
+        let currentCutOffset = 0; // -2.8 to 2.8
+        let isSeparated = false;
+        let sepAnimValue = 0;
+        let compareGroup;
+        let isCompareMode = false;
+
+        /* -------------------------------------------------------------
+           ONLOAD INITIALIZATION
+           ------------------------------------------------------------- */
+        window.onload = function() {
+            initScene1();
+            initScene2();
+            initQuiz();
+            
+            // Handle Responsive Window Resize
+            window.addEventListener('resize', onWindowResize, false);
+            
+            // Start Animation Loops
+            animate1();
+            animate2();
+        };
+
+        /* -------------------------------------------------------------
+           SCENE 1: SPHERE FORMATION (ROTATION & FANOUT)
+           ------------------------------------------------------------- */
+        function initScene1() {
+            const container = document.getElementById('canvas-container-1');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            scene1 = new THREE.Scene();
+            // 使用長焦鏡頭 (FOV 30) 並將攝影機高度歸零 (y: 0)，確保水平正視，徹底消除俯視產生的軸心歪斜錯覺
+            camera1 = new THREE.PerspectiveCamera(30, width / height, 0.1, 1000);
+            camera1.position.set(0, 0, 9.5);
+            camera1.lookAt(0, 0, 0);
+
+            renderer1 = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer1.setSize(width, height);
+            renderer1.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer1.domElement);
+
+            // Ambient & Directional Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene1.add(ambientLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(5, 10, 7);
+            scene1.add(dirLight);
+
+            // Group for spinning object
+            spinGroup = new THREE.Group();
+            scene1.add(spinGroup);
+
+            // Stick (竹筷 - 貫穿圓心的中心軸)
+            const stickGeo = new THREE.CylinderGeometry(0.05, 0.05, 6.2, 16);
+            const stickMat = new THREE.MeshStandardMaterial({ 
+                color: 0xd97706, 
+                roughness: 0.5,
+                metalness: 0.1
+            });
+            stickMesh = new THREE.Mesh(stickGeo, stickMat);
+            // 移除原本強制最上層渲染的設定，恢復真實 3D 深度，解決紙卡轉到前方卻被竹筷遮擋的矛盾錯覺
+            spinGroup.add(stickMesh);
+
+            // 2D Paper Circle (圓形紙卡)
+            const discGeo = new THREE.CircleGeometry(2, 64);
+            const discMat = new THREE.MeshStandardMaterial({ 
+                color: 0x3b82f6, 
+                side: THREE.DoubleSide,
+                roughness: 0.3,
+                metalness: 0.1
+            });
+            discMesh = new THREE.Mesh(discGeo, discMat);
+
+            // 為圓形紙卡加上白色清晰邊框，強化圓形邊界與中心軸的對稱感
+            const discEdgesGeo = new THREE.EdgesGeometry(discGeo);
+            const discLineMat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
+            const discOutline = new THREE.LineSegments(discEdgesGeo, discLineMat);
+            discMesh.add(discOutline);
+
+            spinGroup.add(discMesh);
+
+            // Visual illusion ghost sphere (旋轉造成的暫留球體)
+            const ghostGeo = new THREE.SphereGeometry(2, 32, 32);
+            const ghostMat = new THREE.MeshStandardMaterial({
+                color: 0x60a5fa,
+                transparent: true,
+                opacity: 0.15,
+                wireframe: true
+            });
+            ghostSphereMesh = new THREE.Mesh(ghostGeo, ghostMat);
+            ghostSphereMesh.visible = true;
+            scene1.add(ghostSphereMesh);
+
+            // Group for semi-circle slices (組合模式)
+            sliceGroup = new THREE.Group();
+            sliceGroup.visible = false;
+            scene1.add(sliceGroup);
+
+            rebuildSlices(sliceCount);
+            
+            // Mouse Interaction Drag to rotate camera angle
+            addDragControls(renderer1.domElement, (deltaX, deltaY) => {
+                scene1.rotation.y += deltaX * 0.01;
+                scene1.rotation.x += deltaY * 0.01; // 加入上下拖曳 (俯仰) 控制
+            });
+        }
+
+        function rebuildSlices(count) {
+            // Clear existing slices
+            while(sliceGroup.children.length > 0){ 
+                sliceGroup.remove(sliceGroup.children[0]); 
+            }
+
+            const radius = 2;
+            // Create semicircle geometry aligned with Y-axis as diameter (-PI/2 to PI/2)
+            const semiGeo = new THREE.CircleGeometry(radius, 32, -Math.PI / 2, Math.PI);
+            
+            // Edge outline geometry for crisp paper card effect
+            const edgesGeo = new THREE.EdgesGeometry(semiGeo);
+            const lineMat = new THREE.LineBasicMaterial({ color: 0x0f766e, linewidth: 1.5 });
+
+            for(let i = 0; i < count; i++) {
+                const angle = (Math.PI * 2 / count) * i;
+                // Soft green/teal paper material matching textbook style
+                const hue = 0.45 + (i % 2) * 0.02; 
+                const mat = new THREE.MeshStandardMaterial({
+                    color: new THREE.Color().setHSL(hue, 0.55, 0.65),
+                    side: THREE.DoubleSide,
+                    roughness: 0.4,
+                    metalness: 0.05,
+                    transparent: true,
+                    opacity: 0.92
+                });
+                
+                const mesh = new THREE.Mesh(semiGeo, mat);
+                mesh.rotation.y = angle;
+
+                // Add crisp outline to accentuate paper edges
+                const wireframe = new THREE.LineSegments(edgesGeo, lineMat);
+                mesh.add(wireframe);
+
+                sliceGroup.add(mesh);
+            }
+        }
+
+        function updateSpinSpeed(val) {
+            // 降低最高極限轉速至 0.8 rad/frame，避免因螢幕更新率產生的頻閃現象（看起來像發抖或倒轉）
+            spinSpeed = (val / 100) * 0.8;
+            const label = document.getElementById('spin-speed-val');
+            if (val < 15) label.innerText = '低速';
+            else if (val < 50) label.innerText = '中速 (漸漸形成球形)';
+            else if (val < 85) label.innerText = '高速 (清晰球體視覺暫留)';
+            else label.innerText = '極高速 (順暢旋轉)';
+        }
+
+        function animate1() {
+            requestAnimationFrame(animate1);
+            if (currentTab === 'tab1') {
+                if (tab1Mode === 'spin') {
+                    spinGroup.rotation.y += spinSpeed;
+                    // Adjust ghost sphere opacity according to spin speed
+                    ghostSphereMesh.material.opacity = Math.min(0.6, spinSpeed * 2.5);
+                }
+                renderer1.render(scene1, camera1);
+            }
+        }
+
+        /* -------------------------------------------------------------
+           SCENE 2: SPHERE CUTTING & CROSS-SECTION EXPLORATION
+           ------------------------------------------------------------- */
+        function initScene2() {
+            const container = document.getElementById('canvas-container-2');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            scene2 = new THREE.Scene();
+            camera2 = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+            camera2.position.set(3, 3, 7);
+            camera2.lookAt(0, 0, 0);
+
+            renderer2 = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer2.setSize(width, height);
+            renderer2.setPixelRatio(window.devicePixelRatio);
+            // 啟用區域剖切 (Local Clipping) 實現兩側分離功能
+            renderer2.localClippingEnabled = true;
+            container.appendChild(renderer2.domElement);
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene2.add(ambientLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+            dirLight.position.set(8, 12, 10);
+            scene2.add(dirLight);
+
+            const R = 2.5; // Main sphere radius in 3D units
+
+            // 動態剖切面 (左右各一，將在 animate 迴圈內根據視角轉換為世界座標系)
+            clipPlaneLeft = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
+            clipPlaneRight = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0);
+
+            // Base Geometry
+            const sphereGeo = new THREE.SphereGeometry(R, 48, 48);
+            const wireGeo = new THREE.SphereGeometry(R, 20, 20);
+
+            // 球體材質設計，並綁定對應的 Clipping Plane
+            const sphereMatBase = {
+                color: 0x2563eb,
+                emissive: 0x1d4ed8,
+                emissiveIntensity: 0.4,
+                transparent: true,
+                opacity: 0.85,
+                roughness: 0.1,
+                transmission: 0.2,
+                side: THREE.DoubleSide
+            };
+            const sphereMatL = new THREE.MeshPhysicalMaterial({ ...sphereMatBase, clippingPlanes: [clipPlaneLeft] });
+            const sphereMatR = new THREE.MeshPhysicalMaterial({ ...sphereMatBase, clippingPlanes: [clipPlaneRight] });
+
+            sphereLeft = new THREE.Mesh(sphereGeo, sphereMatL);
+            sphereRight = new THREE.Mesh(sphereGeo, sphereMatR);
+            scene2.add(sphereLeft);
+            scene2.add(sphereRight);
+
+            // 結構網格材質 (同步剖切)
+            const wireMatBase = { color: 0x818cf8, wireframe: true, transparent: true, opacity: 0.15 };
+            const wireMatL = new THREE.MeshBasicMaterial({ ...wireMatBase, clippingPlanes: [clipPlaneLeft] });
+            const wireMatR = new THREE.MeshBasicMaterial({ ...wireMatBase, clippingPlanes: [clipPlaneRight] });
+            
+            wireLeft = new THREE.Mesh(wireGeo, wireMatL);
+            wireRight = new THREE.Mesh(wireGeo, wireMatR);
+            scene2.add(wireLeft);
+            scene2.add(wireRight);
+
+            // Sphere Center Point (球心)
+            const centerGeo = new THREE.SphereGeometry(0.1, 16, 16);
+            const centerMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
+            centerPointMesh = new THREE.Mesh(centerGeo, centerMat);
+            scene2.add(centerPointMesh);
+
+            // Cutting Plane Mesh (半透明剖切面)
+            const planeGeo = new THREE.PlaneGeometry(6, 6);
+            const planeMat = new THREE.MeshStandardMaterial({
+                color: 0xf43f5e, side: THREE.DoubleSide, transparent: true, opacity: 0.4, depthWrite: false
+            });
+            cutPlaneMesh = new THREE.Mesh(planeGeo, planeMat);
+            cutPlaneMesh.rotation.y = Math.PI / 2;
+            scene2.add(cutPlaneMesh);
+
+            // Intersection Cross-Section Circle Disks (切面實心圓)
+            const circleGeo = new THREE.CircleGeometry(R, 64);
+            
+            // 完美解決透明度 Z-fighting 的材質設定，區分前向與後向
+            const capMatL = new THREE.MeshBasicMaterial({
+                color: 0xfb7185, side: THREE.DoubleSide, transparent: true, opacity: 0.85, depthWrite: false, depthTest: false
+            });
+            const capMatR = new THREE.MeshBasicMaterial({
+                color: 0xfb7185, side: THREE.DoubleSide, transparent: true, opacity: 0.85, depthWrite: false, depthTest: false
+            });
+
+            capLeft = new THREE.Mesh(circleGeo, capMatL);
+            capLeft.rotation.y = Math.PI / 2;
+            capLeft.renderOrder = 999; 
+            scene2.add(capLeft);
+
+            capRight = new THREE.Mesh(circleGeo, capMatR);
+            capRight.rotation.y = Math.PI / 2;
+            capRight.renderOrder = 999;
+            scene2.add(capRight);
+
+            // Cut Circle Edge Highlight Ring (切面邊緣白色光環)
+            const ringGeo = new THREE.BufferGeometry();
+            const ringMat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 3, depthTest: false });
+            outlineLeft = new THREE.LineLoop(ringGeo, ringMat);
+            outlineLeft.renderOrder = 1000;
+            outlineRight = new THREE.LineLoop(ringGeo, ringMat);
+            outlineRight.renderOrder = 1000;
+            scene2.add(outlineLeft);
+            scene2.add(outlineRight);
+
+            // --- 新增：同時比較ㄅㄆㄇ切面的群組 ---
+            compareGroup = new THREE.Group();
+            compareGroup.visible = false;
+            scene2.add(compareGroup);
+
+            // ㄆ(0), ㄅ(-1.3 左側), ㄇ(-2.2 移至左側與ㄅ同邊，方便比較)
+            const comparePositions = [
+                { offset: 0, color: 0xfb7185 },    // ㄆ: 粉紅色 (Rose)
+                { offset: -1.3, color: 0xfbbf24 }, // ㄅ: 淺黃色 (Amber)
+                { offset: -2.2, color: 0x4ade80 }  // ㄇ: 淺綠色 (Green)
+            ];
+
+            comparePositions.forEach(pos => {
+                const r = Math.sqrt(Math.max(0, R * R - pos.offset * pos.offset));
+                
+                const geo = new THREE.CircleGeometry(r, 64);
+                // 改用單一雙面材質，並設定透明粉紅色 (opacity: 0.65)
+                const mat = new THREE.MeshBasicMaterial({ 
+                    color: pos.color, 
+                    side: THREE.DoubleSide, 
+                    transparent: true, 
+                    opacity: 0.65, // 呈現清晰的透明粉紅區塊
+                    depthWrite: false,
+                    depthTest: false // 強制無視外層球體的遮擋，保證絕對顯示
+                });
+                
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.rotation.y = Math.PI / 2;
+                mesh.position.x = pos.offset;
+                mesh.renderOrder = 999; // 強制提高渲染層級，確保繪製於半透明球體之上
+                
+                // 切面邊緣白線
+                const edgeGeo = new THREE.BufferGeometry();
+                const points = [];
+                for (let i = 0; i <= 64; i++) {
+                    const theta = (i / 64) * Math.PI * 2;
+                    points.push(new THREE.Vector3(0, r * Math.sin(theta), r * Math.cos(theta)));
+                }
+                edgeGeo.setFromPoints(points);
+                const edgeMat = new THREE.LineBasicMaterial({ 
+                    color: 0xffffff, 
+                    linewidth: 3,
+                    depthWrite: false,
+                    depthTest: false // 邊線同樣無視遮擋
+                });
+                const outline = new THREE.LineLoop(edgeGeo, edgeMat);
+                outline.position.x = pos.offset;
+                outline.renderOrder = 1000; // 確保白線在最頂層
+                
+                compareGroup.add(mesh);
+                compareGroup.add(outline);
+            });
+
+            // Update Cut Visuals for initial position (center = 0)
+            updateCutVisuals(0);
+
+            // Mouse Drag Controls
+            addDragControls(renderer2.domElement, (deltaX, deltaY) => {
+                scene2.rotation.y += deltaX * 0.01;
+                scene2.rotation.x += deltaY * 0.01;
+            });
+        }
+
+        function updateCutVisuals(offset) {
+            const R = 2.5; // Sphere Radius
+            currentCutOffset = Math.max(-2.45, Math.min(2.45, offset)); // clamp to avoid edge precision bugs
+
+            // Calculate cross section radius r = sqrt(R^2 - d^2)
+            const r = Math.sqrt(Math.max(0, R * R - currentCutOffset * currentCutOffset));
+
+            // Scale cap disks
+            if (capLeft) capLeft.scale.set(r / R, r / R, 1);
+            if (capRight) capRight.scale.set(r / R, r / R, 1);
+
+            // Update outline ring geometry (Local coordinate X is 0)
+            const points = [];
+            const segments = 64;
+            for (let i = 0; i <= segments; i++) {
+                const theta = (i / segments) * Math.PI * 2;
+                points.push(new THREE.Vector3(0, r * Math.sin(theta), r * Math.cos(theta)));
+            }
+            if (outlineLeft) {
+                outlineLeft.geometry.dispose();
+                outlineLeft.geometry = new THREE.BufferGeometry().setFromPoints(points);
+            }
+            if (outlineRight) {
+                outlineRight.geometry.dispose();
+                outlineRight.geometry = new THREE.BufferGeometry().setFromPoints(points);
+            }
+
+            // Update UI Stats Cards (Mapping 3D unit R=2.5 to 3.0cm text book scale)
+            const realD = Math.abs((currentCutOffset / R) * 3).toFixed(1);
+            const realR = ((r / R) * 3).toFixed(1);
+
+            document.getElementById('stat-dist').innerText = `${realD} cm`;
+            document.getElementById('stat-radius').innerText = `${realR} cm ${realD === '0.0' ? '(最大)' : ''}`;
+
+            // Update UI Info Text based on cut position
+            const infoTitle = document.getElementById('cut-title');
+            const infoDesc = document.getElementById('cut-desc');
+            const sliderLabel = document.getElementById('cut-pos-val');
+            
+            let targetColor = 0xfb7185; // 預設粉紅色
+
+            if (Math.abs(currentCutOffset) < 0.2) {
+                sliderLabel.innerText = '位置 ㄆ (球心)';
+                sliderLabel.className = 'font-bold text-rose-600';
+                infoTitle.innerText = '通過球心的最大切面 (位置 ㄆ)';
+                infoDesc.innerHTML = '切面經過球心時，切開的圓<b>最大</b>（半徑等於球半徑 3cm）。此切面剛好將球體平分成兩個半球！';
+                targetColor = 0xfb7185; // 粉紅色
+            } else if (Math.abs(currentCutOffset) < 1.8) {
+                sliderLabel.innerText = '位置 ㄅ (中等距離)';
+                sliderLabel.className = 'font-bold text-amber-600';
+                infoTitle.innerText = '遠離球心的切面 (位置 ㄅ)';
+                infoDesc.innerHTML = '切面不經過球心，切開的面依然是<b>圓形</b>，但圓的半徑比最大切面<b>小</b>。';
+                targetColor = 0xfbbf24; // 淺黃色
+            } else {
+                sliderLabel.innerText = '位置 ㄇ (邊緣)';
+                sliderLabel.className = 'font-bold text-green-600';
+                infoTitle.innerText = '靠近邊緣的切面 (位置 ㄇ)';
+                infoDesc.innerHTML = '距離球心最遠，切開的面是<b>較小的圓形</b>。得出結論：距離球心越遠，切開的圓形越小！';
+                targetColor = 0x4ade80; // 淺綠色
+            }
+
+            // 動態更新實心切面與半透明剖切面的顏色
+            if(capLeft) capLeft.material.color.setHex(targetColor);
+            if(capRight) capRight.material.color.setHex(targetColor);
+            if(cutPlaneMesh) cutPlaneMesh.material.color.setHex(targetColor);
+        }
+
+        function animate2() {
+            requestAnimationFrame(animate2);
+            if (currentTab === 'tab2') {
+                // Separation Animation Tweening
+                const sepDist = isSeparated ? 1.5 : 0;
+                sepAnimValue += (sepDist - sepAnimValue) * 0.12;
+
+                const L_offset = -sepAnimValue;
+                const R_offset = sepAnimValue;
+
+                if (sphereLeft && scene2) {
+                    // Update Meshes Local Position
+                    sphereLeft.position.x = L_offset;
+                    wireLeft.position.x = L_offset;
+                    capLeft.position.x = currentCutOffset + L_offset - 0.002;
+                    outlineLeft.position.x = currentCutOffset + L_offset;
+
+                    sphereRight.position.x = R_offset;
+                    wireRight.position.x = R_offset;
+                    capRight.position.x = currentCutOffset + R_offset + 0.002;
+                    outlineRight.position.x = currentCutOffset + R_offset;
+
+                    // Update Original Plane (Fade out when separated)
+                    if (!isCompareMode) {
+                        cutPlaneMesh.position.x = currentCutOffset;
+                        cutPlaneMesh.material.opacity = (1.0 - (sepAnimValue / 1.5)) * 0.4;
+                        cutPlaneMesh.visible = (cutPlaneMesh.material.opacity > 0.01);
+                    }
+
+                    // --- Dynamic Clipping Plane World Transforms ---
+                    scene2.updateMatrixWorld();
+                    
+                    // Local plane equations based on position offsets
+                    const localPlaneL = new THREE.Plane(new THREE.Vector3(-1, 0, 0), currentCutOffset + L_offset);
+                    const localPlaneR = new THREE.Plane(new THREE.Vector3(1, 0, 0), -(currentCutOffset + R_offset));
+
+                    // Transform perfectly along with camera/scene drag rotations
+                    clipPlaneLeft.copy(localPlaneL).applyMatrix4(scene2.matrixWorld);
+                    clipPlaneRight.copy(localPlaneR).applyMatrix4(scene2.matrixWorld);
+                }
+
+                renderer2.render(scene2, camera2);
+            }
+        }
+
+        /* -------------------------------------------------------------
+           UI CONTROLS & EVENT HANDLERS
+           ------------------------------------------------------------- */
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('bg-white/80', 'text-slate-700');
+            });
+
+            document.getElementById(tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById(`${tabId}-btn`);
+            activeBtn.classList.add('active');
+            activeBtn.classList.remove('bg-white/80', 'text-slate-700');
+
+            // Resize renderers when tab is activated to ensure proper viewport fit
+            setTimeout(onWindowResize, 50);
+        }
+
+        function setTab1Mode(mode) {
+            tab1Mode = mode;
+            const spinBtn = document.getElementById('mode-spin-btn');
+            const combineBtn = document.getElementById('mode-combine-btn');
+            const spinCtrl = document.getElementById('spin-controls');
+            const combineCtrl = document.getElementById('combine-controls');
+
+            if (mode === 'spin') {
+                spinBtn.className = "py-1.5 text-xs font-bold rounded-lg bg-white text-indigo-700 shadow-sm transition";
+                combineBtn.className = "py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:text-indigo-700 transition";
+                spinCtrl.classList.remove('hidden');
+                combineCtrl.classList.add('hidden');
+                
+                spinGroup.visible = true;
+                ghostSphereMesh.visible = true;
+                sliceGroup.visible = false;
+            } else {
+                combineBtn.className = "py-1.5 text-xs font-bold rounded-lg bg-white text-indigo-700 shadow-sm transition";
+                spinBtn.className = "py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:text-indigo-700 transition";
+                combineCtrl.classList.remove('hidden');
+                spinCtrl.classList.add('hidden');
+
+                spinGroup.visible = false;
+                ghostSphereMesh.visible = false;
+                sliceGroup.visible = true;
+            }
+        }
+
+        // 移除多餘的重複函式，統一由上方的 updateSpinSpeed 控制轉速
+        
+        function updateSliceCount(val) {
+            sliceCount = parseInt(val);
+            document.getElementById('slice-count-val').innerText = `${sliceCount} 張 (${sliceCount/2} 個完整圓)`;
+            rebuildSlices(sliceCount);
+        }
+
+        function updateCutPosition(val) {
+            updateCutVisuals(parseFloat(val));
+        }
+
+        function setCutPreset(preset) {
+            const slider = document.getElementById('cut-slider');
+            if (preset === 'po') {
+                slider.value = 0;
+            } else if (preset === 'bo') {
+                slider.value = 1.3;
+            } else if (preset === 'mo') {
+                slider.value = 2.2;
+            }
+            updateCutPosition(slider.value);
+        }
+
+        function toggleSeparate() {
+            isSeparated = !isSeparated;
+            const btn = document.getElementById('btn-separate');
+            if (isSeparated) {
+                btn.innerHTML = '<i class="fa-solid fa-compress"></i> 組合球體';
+                btn.classList.remove('bg-indigo-100', 'text-indigo-700');
+                btn.classList.add('bg-rose-500', 'text-white', 'shadow-md');
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-arrows-left-right"></i> 分開觀察';
+                btn.classList.add('bg-indigo-100', 'text-indigo-700');
+                btn.classList.remove('bg-rose-500', 'text-white', 'shadow-md');
+            }
+        }
+
+        // 新增切換比較模式函式
+        function toggleCompareMode() {
+            isCompareMode = !isCompareMode;
+            const btn = document.getElementById('btn-compare');
+            const sliderContainer = document.getElementById('slider-container');
+            const presetBtns = document.getElementById('preset-buttons-group');
+            
+            if (isCompareMode) {
+                // 如果處於分離狀態，先將其復原組合
+                if (isSeparated) toggleSeparate();
+
+                btn.innerHTML = '<i class="fa-solid fa-rotate-left"></i> 返回單一切面探究模式';
+                btn.classList.remove('bg-amber-100', 'text-amber-800');
+                btn.classList.add('bg-amber-500', 'text-white');
+                
+                // 停用並半透明化原本的滑桿與切換按紐
+                if (presetBtns) presetBtns.classList.add('opacity-40', 'pointer-events-none');
+                if (sliderContainer) sliderContainer.classList.add('opacity-40', 'pointer-events-none');
+                
+                // 顯示比較群組，隱藏原本的單一動態切面
+                compareGroup.visible = true;
+                capLeft.visible = false;
+                capRight.visible = false;
+                outlineLeft.visible = false;
+                outlineRight.visible = false;
+                cutPlaneMesh.visible = false;
+                
+                // 大幅降低球體與網格的不透明度，凸顯內部三個切面圓盤
+                sphereLeft.material.opacity = 0.08; // 調降透明度讓內部更清晰
+                sphereRight.material.opacity = 0.08;
+                wireLeft.material.opacity = 0.02;
+                wireRight.material.opacity = 0.02;
+                
+                // 暫時關閉物理透光折射，避免吃掉內部透明圖層
+                sphereLeft.material.transmission = 0;
+                sphereRight.material.transmission = 0;
+
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-layer-group"></i> 同時顯示 ㄅ、ㄆ、ㄇ 切面比較';
+                btn.classList.remove('bg-amber-500', 'text-white');
+                btn.classList.add('bg-amber-100', 'text-amber-800');
+                
+                // 復原滑桿與按鈕功能
+                if (presetBtns) presetBtns.classList.remove('opacity-40', 'pointer-events-none');
+                if (sliderContainer) sliderContainer.classList.remove('opacity-40', 'pointer-events-none');
+                
+                // 隱藏比較群組，復原單一動態切面
+                compareGroup.visible = false;
+                capLeft.visible = true;
+                capRight.visible = true;
+                outlineLeft.visible = true;
+                outlineRight.visible = true;
+                cutPlaneMesh.visible = true;
+                
+                // 恢復原本球體與網格的不透明度
+                sphereLeft.material.opacity = 0.85;
+                sphereRight.material.opacity = 0.85;
+                wireLeft.material.opacity = 0.15;
+                wireRight.material.opacity = 0.15;
+                
+                // 恢復物理透光折射
+                sphereLeft.material.transmission = 0.2;
+                sphereRight.material.transmission = 0.2;
+            }
+        }
+
+        // Helper mouse drag controller for Three.js view rotation
+        function addDragControls(domElement, onDragCallback) {
+            let isDragging = false;
+            let prevMousePos = { x: 0, y: 0 };
+
+            domElement.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                prevMousePos = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mouseup', () => isDragging = false);
+
+            domElement.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const deltaX = e.clientX - prevMousePos.x;
+                const deltaY = e.clientY - prevMousePos.y;
+                onDragCallback(deltaX, deltaY);
+                prevMousePos = { x: e.clientX, y: e.clientY };
+            });
+
+            // Touch support for tablets/mobile
+            domElement.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    isDragging = true;
+                    prevMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }
+            });
+            window.addEventListener('touchend', () => isDragging = false);
+            domElement.addEventListener('touchmove', (e) => {
+                if (!isDragging || e.touches.length !== 1) return;
+                const deltaX = e.touches[0].clientX - prevMousePos.x;
+                const deltaY = e.touches[0].clientY - prevMousePos.y;
+                onDragCallback(deltaX, deltaY);
+                prevMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            });
+        }
+
+        function onWindowResize() {
+            // Resize Scene 1
+            const c1 = document.getElementById('canvas-container-1');
+            if (c1 && renderer1 && camera1) {
+                camera1.aspect = c1.clientWidth / c1.clientHeight;
+                camera1.updateProjectionMatrix();
+                renderer1.setSize(c1.clientWidth, c1.clientHeight);
+            }
+            // Resize Scene 2
+            const c2 = document.getElementById('canvas-container-2');
+            if (c2 && renderer2 && camera2) {
+                camera2.aspect = c2.clientWidth / c2.clientHeight;
+                camera2.updateProjectionMatrix();
+                renderer2.setSize(c2.clientWidth, c2.clientHeight);
+            }
+        }
+
+        /* -------------------------------------------------------------
+           QUIZ / ASSESSMENT LOGIC
+           ------------------------------------------------------------- */
+        const quizQuestions = [
+            {
+                id: 1,
+                question: "1. 將圓形紙卡黏在竹筷上並快速旋轉，因為視覺暫留的現象，看起來會像什麼立體圖形？",
+                options: ["圓柱體", "圓錐體", "球體", "正方體"],
+                answer: 2,
+                explanation: "圓形紙卡繞著中心軸快速旋轉時，因為視覺暫留，看起來會形成一顆「球體」。"
+            },
+            {
+                id: 2,
+                question: "2. 如果用許多張大小相同的半圓形卡紙互相黏貼展開（如課本活動），可以組合成什麼？",
+                options: ["紙球 (球體)", "圓柱體", "三角錐", "長方體"],
+                answer: 0,
+                explanation: "無數張相同的半圓卡紙圍繞中心軸組合黏貼，展開後會形成一顆球體（紙球）。"
+            },
+            {
+                id: 3,
+                question: "3. 拿一把刀子將球體從任意方向切開，切開的截面是什麼形狀？",
+                options: ["三角形", "正方形", "橢圓形", "圓形"],
+                answer: 3,
+                explanation: "球體的截面特性：無論從哪個角度或方向切開球體，切開的面都是「圓形」。"
+            },
+            {
+                id: 4,
+                question: "4. 當切面「通過球心」把球平分成兩半時，切開的圓形有什麼特點？",
+                options: ["切面最小", "切面最大，且圓心即為球心", "切面是正方形", "切面大小不固定"],
+                answer: 1,
+                explanation: "通過球心的切面是「最大」的切面，這個圓的圓心就是球心，圓的半徑就是球的半徑。"
+            },
+            {
+                id: 5,
+                question: "5. 把球體垂直切開，比較位置ㄅ（中等）、ㄆ（經過球心）、ㄇ（靠近邊緣）三個切面大小，從小到大排列為何？",
+                options: ["( ㄆ ) < ( ㄅ ) < ( ㄇ )", "( ㄇ ) < ( ㄅ ) < ( ㄆ )", "( ㄅ ) < ( ㄇ ) < ( ㄆ )", "三個切面一樣大"],
+                answer: 1,
+                explanation: "離球心越遠切面越小，因此距離球心最遠的 ㄇ 最小，經過球心的 ㄆ 最大，順序為 ( ㄇ ) < ( ㄅ ) < ( ㄆ )。"
+            }
+        ];
+
+        let userAnswers = {};
+
+        function initQuiz() {
+            renderQuiz();
+        }
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            if (!container) return;
+            
+            let html = '';
+            quizQuestions.forEach((q) => {
+                html += `
+                    <div class="p-4 bg-white/70 rounded-xl border border-indigo-100 shadow-sm space-y-3 transition-all" id="q-card-${q.id}">
+                        <div class="font-bold text-sm text-indigo-950 flex items-start gap-2">
+                            <span class="bg-indigo-600 text-white text-xs px-2 py-0.5 rounded-full mt-0.5 shrink-0">第 ${q.id} 題</span>
+                            <span>${q.question}</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                `;
+                
+                q.options.forEach((opt, optIndex) => {
+                    const isChecked = userAnswers[q.id] === optIndex ? 'checked' : '';
+                    html += `
+                        <label class="flex items-center space-x-2 p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-indigo-50/50 cursor-pointer transition text-xs text-slate-700">
+                            <input type="radio" name="question-${q.id}" value="${optIndex}" ${isChecked} onchange="selectAnswer(${q.id}, ${optIndex})" class="accent-indigo-600 w-4 h-4">
+                            <span>${opt}</span>
+                        </label>
+                    `;
+                });
+
+                html += `
+                        </div>
+                        <div id="feedback-${q.id}" class="hidden p-3 rounded-lg text-xs leading-relaxed mt-2"></div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function selectAnswer(qId, optIndex) {
+            userAnswers[qId] = optIndex;
+            const cardEl = document.getElementById(`q-card-${qId}`);
+            if (cardEl) {
+                cardEl.classList.remove('ring-2', 'ring-rose-400');
+            }
+        }
+
+        function submitQuiz() {
+            let score = 0;
+            let answeredCount = Object.keys(userAnswers).length;
+
+            if (answeredCount < quizQuestions.length) {
+                quizQuestions.forEach(q => {
+                    if (userAnswers[q.id] === undefined) {
+                        const cardEl = document.getElementById(`q-card-${q.id}`);
+                        if (cardEl) {
+                            cardEl.classList.add('ring-2', 'ring-rose-400');
+                        }
+                    }
+                });
+                return;
+            }
+
+            quizQuestions.forEach(q => {
+                const userAns = userAnswers[q.id];
+                const feedbackEl = document.getElementById(`feedback-${q.id}`);
+                const cardEl = document.getElementById(`q-card-${q.id}`);
+
+                if (feedbackEl && cardEl) {
+                    feedbackEl.classList.remove('hidden');
+                    if (userAns === q.answer) {
+                        score += 20;
+                        cardEl.className = "p-4 bg-emerald-50/80 rounded-xl border border-emerald-300 shadow-sm space-y-3";
+                        feedbackEl.className = "p-3 rounded-lg text-xs leading-relaxed mt-2 bg-emerald-100 text-emerald-900 border border-emerald-200 font-medium";
+                        feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> <strong>回答正確！</strong> ${q.explanation}`;
+                    } else {
+                        cardEl.className = "p-4 bg-rose-50/80 rounded-xl border border-rose-300 shadow-sm space-y-3";
+                        feedbackEl.className = "p-3 rounded-lg text-xs leading-relaxed mt-2 bg-rose-100 text-rose-900 border border-rose-200";
+                        feedbackEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600 mr-1"></i> <strong>回答錯誤。</strong> 正確答案為：<b>${q.options[q.answer]}</b>。<br>${q.explanation}`;
+                    }
+                }
+            });
+
+            document.getElementById('score-val').innerText = score;
+            const scoreBadge = document.getElementById('score-badge');
+            if (score === 100) {
+                scoreBadge.className = "px-3 py-1 bg-emerald-500 text-white font-bold text-sm rounded-full shadow-md animate-bounce";
+            } else if (score >= 60) {
+                scoreBadge.className = "px-3 py-1 bg-amber-500 text-white font-bold text-sm rounded-full shadow-md";
+            } else {
+                scoreBadge.className = "px-3 py-1 bg-rose-500 text-white font-bold text-sm rounded-full shadow-md";
+            }
+        }
+
+        function resetQuiz() {
+            userAnswers = {};
+            document.getElementById('score-val').innerText = '0';
+            const scoreBadge = document.getElementById('score-badge');
+            scoreBadge.className = "px-3 py-1 bg-indigo-100 text-indigo-800 font-bold text-sm rounded-full";
+            renderQuiz();
+        }
+    </script>
+</body>
+</html>

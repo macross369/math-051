@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3-2 三角形的內角和 - 夢幻新海誠互動探索網頁</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter & Noto Sans TC -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 30%, #e0c3fc 70%, #8ec5fc 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        .shinkai-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 30px rgba(67, 97, 238, 0.15);
+        }
+        .shinkai-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            transition: all 0.3s ease;
+        }
+        .shinkai-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+        }
+        .shinkai-tab-active {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
+        }
+        .angle-arc {
+            transition: all 0.1s ease;
+        }
+        /* CSS Clouds overlay for Shinkai atmosphere */
+        .sky-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.25;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.8) 0%, transparent 40%),
+                radial-gradient(circle at 80% 30%, rgba(255,215,230,0.6) 0%, transparent 50%);
+        }
+    </style>
+</head>
+<body class="p-3 md:p-6 text-slate-800 relative min-h-screen">
+    <div class="sky-bg"></div>
+
+    <div class="max-w-5xl mx-auto relative z-10">
+        <!-- 閒雲數學小棧 Logo 與標題區 -->
+        <div class="w-full max-w-4xl flex items-center justify-start mb-4 px-2 fade-in">
+            <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+            <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+        </div>
+
+        <!-- 網頁標題區 -->
+        <header class="shinkai-card rounded-3xl p-6 mb-6 text-center border-white/60">
+            <span class="inline-block px-4 py-1 text-xs font-semibold tracking-wider text-blue-700 bg-blue-100/80 rounded-full mb-2">國小五上數學 3-2 互動學習網頁</span>
+            <h1 class="text-2xl md:text-4xl font-extrabold text-slate-800 tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-blue-700 via-purple-600 to-pink-600">
+                三角形的內角和探究導覽
+            </h1>
+            <p class="text-slate-600 text-sm md:text-base mt-2">
+                動態動手做・觀察數值變化・解開 180° 的奧祕 ☁️✨
+            </p>
+        </header>
+
+        <!-- 頁籤導覽列 -->
+        <div class="flex flex-wrap gap-2 mb-6 justify-center">
+            <button onclick="switchTab('tab1')" id="btn-tab1" class="shinkai-tab-active px-5 py-2.5 rounded-2xl font-medium text-sm transition-all duration-300">
+                1. 撕角拼角驗證 ✂️
+            </button>
+            <button onclick="switchTab('tab2')" id="btn-tab2" class="bg-white/70 hover:bg-white text-slate-700 px-5 py-2.5 rounded-2xl font-medium text-sm transition-all duration-300">
+                2. 自由拖曳動態探索 📐
+            </button>
+            <button onclick="switchTab('tab3')" id="btn-tab3" class="bg-white/70 hover:bg-white text-slate-700 px-5 py-2.5 rounded-2xl font-medium text-sm transition-all duration-300">
+                3. 特殊三角形與邏輯 💡
+            </button>
+            <button onclick="switchTab('tab4')" id="btn-tab4" class="bg-white/70 hover:bg-white text-slate-700 px-5 py-2.5 rounded-2xl font-medium text-sm transition-all duration-300">
+                4. 自主學習評量 🎯
+            </button>
+        </div>
+
+        <!-- 頁籤 1: 撕角拼角實驗 -->
+        <section id="tab1" class="tab-content block">
+            <div class="shinkai-card rounded-3xl p-6 shadow-xl">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-2">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
+                            把三個角撕下來拼拼看！
+                        </h2>
+                        <p class="text-slate-600 text-xs md:text-sm mt-1">拖拉下方滑桿，觀察三個角如何拼湊成一個直線「平角」。</p>
+                    </div>
+                    <div class="bg-blue-50/80 px-4 py-2 rounded-xl border border-blue-200">
+                        <span class="text-xs text-blue-600 font-bold block">目前狀態</span>
+                        <span id="tear-status-text" class="text-sm font-bold text-blue-800">原三角形 △ABC</span>
+                    </div>
+                </div>
+
+                <!-- 動畫繪圖畫布 (SVG) -->
+                <div class="w-full bg-gradient-to-b from-sky-100/50 to-indigo-50/50 rounded-2xl p-4 border border-white/80 shadow-inner flex justify-center items-center overflow-hidden h-[340px] relative">
+                    <svg id="tearing-svg" viewBox="0 0 500 300" class="w-full h-full max-w-[500px]">
+                        <!-- SVG elements built dynamically via JavaScript -->
+                    </svg>
+                </div>
+
+                <!-- 控制滑桿 -->
+                <div class="mt-6 bg-white/60 p-4 rounded-2xl border border-white">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-sm font-bold text-slate-700 flex items-center gap-2">
+                            <span>撕角拼角演練進度：</span>
+                            <span id="tear-percent" class="text-blue-600 font-extrabold text-base">0%</span>
+                        </label>
+                        <button id="btn-autoplay" onclick="toggleAutoplay()" class="px-3.5 py-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow transition-all flex items-center gap-1.5 cursor-pointer">
+                            <span id="autoplay-icon">▶️</span>
+                            <span id="autoplay-btn-text">自動播放</span>
+                        </button>
+                    </div>
+                    <input type="range" id="tear-slider" min="0" max="100" value="0" class="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" oninput="manualSliderInput(this.value)">
+                    <div class="flex justify-between text-xs text-slate-500 mt-2">
+                        <span>起始：完整三角形</span>
+                        <span>撕下三個角</span>
+                        <span>終點：拼成平角 (180°)</span>
+                    </div>
+                </div>
+
+                <div id="tear-summary" class="hidden mt-4 p-4 bg-amber-50/80 border border-amber-200 rounded-2xl text-amber-900 text-sm">
+                    <strong>💡 教學小結：</strong> 把三角形的三個角撕下來拼在一起，恰好能拼成一條直線（平角）。因為平角是 <strong>180°</strong>，所以：<br>
+                    <span class="text-base font-bold text-pink-600 mt-1 block text-center">∠A + ∠B + ∠C = 180°</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 頁籤 2: 自由拖曳動態探索 -->
+        <section id="tab2" class="tab-content hidden">
+            <div class="shinkai-card rounded-3xl p-6 shadow-xl">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-2">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-purple-500 inline-block"></span>
+                            任意拖曳頂點 A、B、C
+                        </h2>
+                        <p class="text-slate-600 text-xs md:text-sm mt-1">改變三角形的形狀，觀察角度數值的即時加總。</p>
+                    </div>
+                    <!-- 預設按鈕區 -->
+                    <div class="flex flex-wrap gap-1.5">
+                        <button onclick="setTrianglePreset('acute')" class="px-3 py-1 bg-white hover:bg-blue-50 text-xs font-semibold rounded-lg border border-slate-200 text-slate-700">銳角三角形</button>
+                        <button onclick="setTrianglePreset('right')" class="px-3 py-1 bg-white hover:bg-blue-50 text-xs font-semibold rounded-lg border border-slate-200 text-slate-700">直角三角形</button>
+                        <button onclick="setTrianglePreset('obtuse')" class="px-3 py-1 bg-white hover:bg-blue-50 text-xs font-semibold rounded-lg border border-slate-200 text-slate-700">鈍角三角形</button>
+                    </div>
+                </div>
+
+                <!-- 畫布區 -->
+                <div class="w-full bg-gradient-to-b from-purple-50/40 to-blue-50/40 rounded-2xl p-2 border border-white/80 shadow-inner flex justify-center items-center relative h-[360px] touch-none">
+                    <svg id="interactive-svg" viewBox="0 0 600 340" class="w-full h-full">
+                        <!-- Canvas SVG for interactive vertices -->
+                    </svg>
+                </div>
+
+                <!-- 即時計算結果顯示面板 -->
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div class="p-3 bg-red-50/90 border border-red-200 rounded-2xl text-center">
+                        <span class="text-xs text-red-500 font-bold">頂角 ∠A</span>
+                        <div id="angle-A-val" class="text-xl font-extrabold text-red-600">60°</div>
+                    </div>
+                    <div class="p-3 bg-blue-50/90 border border-blue-200 rounded-2xl text-center">
+                        <span class="text-xs text-blue-500 font-bold">底角 ∠B</span>
+                        <div id="angle-B-val" class="text-xl font-extrabold text-blue-600">60°</div>
+                    </div>
+                    <div class="p-3 bg-emerald-50/90 border border-emerald-200 rounded-2xl text-center">
+                        <span class="text-xs text-emerald-500 font-bold">底角 ∠C</span>
+                        <div id="angle-C-val" class="text-xl font-extrabold text-emerald-600">60°</div>
+                    </div>
+                    <div class="p-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-2xl text-center shadow-lg">
+                        <span class="text-xs text-purple-100 font-bold">三個內角總和</span>
+                        <div id="angle-sum-val" class="text-xl font-extrabold text-yellow-300">180°</div>
+                    </div>
+                </div>
+
+                <!-- 算式驗證區塊 (字體加大與質感優化) -->
+                <div class="mt-4 p-5 bg-gradient-to-r from-blue-600/10 via-indigo-600/15 to-purple-600/10 border border-indigo-200/90 rounded-2xl shadow-sm text-center">
+                    <div class="text-xs md:text-sm font-bold text-indigo-900 tracking-wider mb-1 flex items-center justify-center gap-1.5">
+                        <span>📐</span> 內角和動態算式驗證
+                    </div>
+                    <div id="equation-text" class="text-xl md:text-2xl font-black text-slate-800 tracking-wide mt-1 space-y-1">
+                        <div>
+                            <span class="text-rose-600 font-extrabold">60°</span> + 
+                            <span class="text-blue-600 font-extrabold">60°</span> + 
+                            <span class="text-emerald-600 font-extrabold">60°</span> = 
+                            <span class="text-purple-700 font-black">180°</span>
+                        </div>
+                        <div>
+                            <span class="text-rose-600 font-extrabold">∠A</span> + 
+                            <span class="text-blue-600 font-extrabold">∠B</span> + 
+                            <span class="text-emerald-600 font-extrabold">∠C</span> = 
+                            <span class="text-purple-700 font-black">平角</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-600 mt-2">
+                        任意拖曳頂點改變形狀，三個內角相加始終保持等於 <span class="font-bold text-indigo-700">180° (平角)</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 頁籤 3: 特殊三角形與邏輯推理 -->
+        <section id="tab3" class="tab-content hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 正三角形與等腰三角形探究 -->
+                <div class="shinkai-card rounded-3xl p-6 shadow-xl">
+                    <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-pink-500"></span>
+                        等腰三角形角度探究器
+                    </h3>
+                    <p class="text-xs text-slate-600 mb-4">已知等腰三角形的兩底角相等，請拖動頂點角度：</p>
+                    
+                    <div class="bg-white/60 p-4 rounded-2xl border border-white mb-4">
+                        <label class="block text-xs font-bold text-slate-700 mb-2 flex justify-between">
+                            <span>頂角角度：</span>
+                            <span id="iso-vertex-angle-label" class="text-pink-600 font-bold">50°</span>
+                        </label>
+                        <input type="range" id="iso-slider" min="10" max="160" value="50" class="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-pink-500" oninput="calcIsosceles(this.value)">
+                    </div>
+
+                    <div class="p-4 bg-pink-50/80 rounded-2xl border border-pink-200">
+                        <div class="text-xs text-slate-600">計算公式：(180° - 頂角) ÷ 2</div>
+                        <div id="iso-calc-detail" class="text-sm font-bold text-slate-800 mt-1">(180° - 50°) ÷ 2 = 65°</div>
+                        <div class="mt-2 text-xs text-pink-700 font-semibold">
+                            因此，兩個底角分別為 <span id="iso-base-angle" class="text-sm font-extrabold text-pink-600">65°</span> 與 <span id="iso-base-angle2" class="text-sm font-extrabold text-pink-600">65°</span>。
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3 bg-blue-50/80 rounded-2xl border border-blue-200 text-xs text-blue-900">
+                        <strong>正三角形思考：</strong> 當頂點角為 60° 時，底角也為 60°，三個角都一樣大！180° ÷ 3 = 60°。
+                    </div>
+                </div>
+
+                <!-- 為什麼不能有兩個直角或鈍角？ -->
+                <div class="shinkai-card rounded-3xl p-6 shadow-xl">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-amber-500 flex-shrink-0"></span>
+                            想一想：一個三角形中會有2個直角或2個鈍角嗎？
+                        </h3>
+                        <button onclick="toggleLogicAnswer()" id="btn-logic-ans" class="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow transition-all">
+                            解答 💡
+                        </button>
+                    </div>
+                    
+                    <div class="bg-gradient-to-b from-amber-50/50 to-orange-50/50 p-4 rounded-2xl border border-amber-200/80 mb-4 text-center">
+                        <svg viewBox="0 0 300 130" class="w-full h-28 mx-auto">
+                            <!-- 文字向上移動，預設隱藏，點擊解答後顯示 -->
+                            <text id="parallel-msg" class="hidden" x="150" y="18" font-size="12" fill="#dc2626" font-weight="bold" text-anchor="middle">兩條線互相平行！無法相交產生第3個頂點</text>
+                            
+                            <!-- 黑線從紅線相接處 (x=90) 至藍線相接處 (x=210) -->
+                            <line x1="90" y1="110" x2="210" y2="110" stroke="#475569" stroke-width="3"/>
+                            
+                            <!-- 紅藍兩線 -->
+                            <line x1="90" y1="110" x2="90" y2="35" stroke="#ef4444" stroke-width="3"/>
+                            <line x1="210" y1="110" x2="210" y2="35" stroke="#3b82f6" stroke-width="3"/>
+                            
+                            <!-- 直角符號與角度標籤 -->
+                            <rect x="90" y="100" width="10" height="10" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+                            <rect x="200" y="100" width="10" height="10" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
+                            <text x="90" y="125" font-size="10" fill="#64748b" text-anchor="middle">90°</text>
+                            <text x="210" y="125" font-size="10" fill="#64748b" text-anchor="middle">90°</text>
+                        </svg>
+                    </div>
+
+                    <div id="logic-explanations" class="hidden space-y-2 text-xs text-slate-700">
+                        <div class="p-2.5 bg-white/80 rounded-xl border border-slate-200">
+                            <strong>🚫 不能有 2 個直角：</strong> 90° + 90° = 180°。光是兩個角就已經佔滿了 180°，不可能再有第三個角。
+                        </div>
+                        <div class="p-2.5 bg-white/80 rounded-xl border border-slate-200">
+                            <strong>🚫 不能有 2 個鈍角：</strong> 鈍角大於 90°，兩個鈍角的和會超過 180°，無法組成三角形。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 頁籤 4: 歷程隨堂測驗 -->
+        <section id="tab4" class="tab-content hidden">
+            <div class="shinkai-card rounded-3xl p-6 shadow-xl">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">自主學習評量 🎯</h2>
+                        <p class="text-xs text-slate-600 mt-1">請回答下列 5 道題目，作答完畢後點擊提交來獲得分數與解析！</p>
+                    </div>
+                    <div class="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1.5 rounded-xl">
+                        總得分：<span id="quiz-score" class="text-base text-indigo-600">0</span> / 100
+                    </div>
+                </div>
+
+                <div id="quiz-container" class="space-y-6 mb-6">
+                    <!-- Dynamic quiz questions injected here -->
+                </div>
+                
+                <div class="flex flex-wrap justify-center gap-4 mt-6 pt-6 border-t border-slate-200">
+                    <button onclick="submitQuiz()" class="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold rounded-xl shadow-md transition-all transform hover:-translate-y-0.5">
+                        ✅ 提交答案
+                    </button>
+                    <button onclick="resetQuiz()" class="px-6 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl shadow transition-all">
+                        🔄 重新測驗
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // --- 頁籤切換邏輯 ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`btn-tab1`.replace('1', i));
+                if (`tab${i}` === tabId) {
+                    btn.className = "shinkai-tab-active px-5 py-2.5 rounded-2xl font-medium text-sm transition-all duration-300";
+                } else {
+                    btn.className = "bg-white/70 hover:bg-white text-slate-700 px-5 py-2.5 rounded-2xl font-medium text-sm transition-all duration-300";
+                }
+            }
+        }
+
+        // --- 1. 撕角拼角動畫邏輯與自動播放 ---
+        let autoplayTimer = null;
+
+        function toggleAutoplay() {
+            if (autoplayTimer) {
+                stopAutoplay();
+            } else {
+                startAutoplay();
+            }
+        }
+
+        function startAutoplay() {
+            const slider = document.getElementById('tear-slider');
+            if (parseInt(slider.value) >= 100) {
+                slider.value = 0;
+            }
+            
+            document.getElementById('autoplay-icon').innerText = '⏸️';
+            document.getElementById('autoplay-btn-text').innerText = '暫停播放';
+            const btn = document.getElementById('btn-autoplay');
+            btn.classList.remove('from-blue-500', 'to-indigo-600');
+            btn.classList.add('from-amber-500', 'to-orange-600');
+
+            autoplayTimer = setInterval(() => {
+                let currentVal = parseInt(slider.value);
+                if (currentVal < 100) {
+                    currentVal += 1;
+                    slider.value = currentVal;
+                    updateTearingAnimation(currentVal);
+                } else {
+                    stopAutoplay();
+                }
+            }, 30);
+        }
+
+        function stopAutoplay() {
+            if (autoplayTimer) {
+                clearInterval(autoplayTimer);
+                autoplayTimer = null;
+            }
+            document.getElementById('autoplay-icon').innerText = '▶️';
+            document.getElementById('autoplay-btn-text').innerText = '自動播放';
+            const btn = document.getElementById('btn-autoplay');
+            btn.classList.remove('from-amber-500', 'to-orange-600');
+            btn.classList.add('from-blue-500', 'to-indigo-600');
+        }
+
+        function manualSliderInput(val) {
+            stopAutoplay();
+            updateTearingAnimation(val);
+        }
+
+        function updateTearingAnimation(val) {
+            const progress = val / 100;
+            document.getElementById('tear-percent').innerText = `${val}%`;
+            
+            const statusText = document.getElementById('tear-status-text');
+            if (val == 0) statusText.innerText = "原三角形 △ABC";
+            else if (val < 100) statusText.innerText = "進行撕角與旋轉對齊中...";
+            else statusText.innerText = "成功拼成 180° 平角！";
+
+            // 當拉到終點 (100%) 時才顯示教學小結
+            const summaryEl = document.getElementById('tear-summary');
+            if (summaryEl) {
+                if (parseInt(val) === 100) {
+                    summaryEl.classList.remove('hidden');
+                } else {
+                    summaryEl.classList.add('hidden');
+                }
+            }
+
+            const svg = document.getElementById('tearing-svg');
+            
+            // 頂點彙整目標位置 (基準線 y = 220)
+            const targetX = 250;
+            const targetY = 220;
+
+            // 各撕角的動態位置與旋轉角度插值
+            const bX = 100 + (targetX - 100) * progress;
+            const bY = 220 + (targetY - 220) * progress;
+            const bRot = -131.424 * progress;
+
+            const aX = 250 + (targetX - 250) * progress;
+            const aY = 50 + (targetY - 50) * progress;
+            const aRot = 180 * progress;
+
+            const cX = 400 + (targetX - 400) * progress;
+            const cY = 220 + (targetY - 220) * progress;
+            const cRot = 131.424 * progress;
+
+            svg.innerHTML = `
+                <!-- 背景平角參考線 (progress > 0 時漸顯) -->
+                <line x1="50" y1="${targetY}" x2="450" y2="${targetY}" stroke="#64748b" stroke-width="2" stroke-dasharray="6 4" opacity="${Math.max(0.3, progress)}"/>
+                ${progress > 0.8 ? `
+                    <!-- 180度平角弧線與標示 -->
+                    <path d="M 180 ${targetY} A 70 70 0 0 1 320 ${targetY}" fill="none" stroke="#6366f1" stroke-width="2" stroke-dasharray="4 3"/>
+                    <text x="250" y="${targetY - 80}" fill="#4f46e5" font-size="14" font-weight="bold" text-anchor="middle">平角 = 180°</text>
+                ` : ''}
+
+                <!-- 原始三角形虛線輪廓 -->
+                <polygon points="250,50 100,220 400,220" fill="rgba(241, 245, 249, 0.4)" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 5" />
+
+                <!-- 撕角 B (藍色) -->
+                <g transform="translate(${bX}, ${bY}) rotate(${bRot})">
+                    <path d="M 0 0 L 60 0 A 60 60 0 0 0 39.68 -44.97 Z" 
+                          fill="rgba(59, 130, 246, 0.75)" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round"/>
+                    <text x="32" y="-18" fill="#1e3a8a" font-weight="bold" font-size="14" text-anchor="middle" dominant-baseline="central"
+                          transform="rotate(${-bRot}, 32, -18)">B</text>
+                </g>
+
+                <!-- 撕角 A (紅色) -->
+                <g transform="translate(${aX}, ${aY}) rotate(${aRot})">
+                    <path d="M 0 0 L 39.68 44.97 A 60 60 0 0 1 -39.68 44.97 Z" 
+                          fill="rgba(244, 63, 94, 0.75)" stroke="#e11d48" stroke-width="2.5" stroke-linejoin="round"/>
+                    <text x="0" y="26" fill="#881337" font-weight="bold" font-size="14" text-anchor="middle" dominant-baseline="central"
+                          transform="rotate(${-aRot}, 0, 26)">A</text>
+                </g>
+
+                <!-- 撕角 C (綠色) -->
+                <g transform="translate(${cX}, ${cY}) rotate(${cRot})">
+                    <path d="M 0 0 L -39.68 -44.97 A 60 60 0 0 0 -60 0 Z" 
+                          fill="rgba(16, 185, 129, 0.75)" stroke="#059669" stroke-width="2.5" stroke-linejoin="round"/>
+                    <text x="-32" y="-18" fill="#064e3b" font-weight="bold" font-size="14" text-anchor="middle" dominant-baseline="central"
+                          transform="rotate(${-cRot}, -32, -18)">C</text>
+                </g>
+
+                <!-- 頂點標籤 (當 progress < 0.3 時顯示於原三角形頂點處) -->
+                ${progress < 0.3 ? `
+                    <text x="250" y="38" fill="#475569" font-size="12" font-weight="bold" text-anchor="middle" opacity="${1 - progress * 3}">頂點 A</text>
+                    <text x="82" y="235" fill="#475569" font-size="12" font-weight="bold" text-anchor="middle" opacity="${1 - progress * 3}">頂點 B</text>
+                    <text x="418" y="235" fill="#475569" font-size="12" font-weight="bold" text-anchor="middle" opacity="${1 - progress * 3}">頂點 C</text>
+                ` : ''}
+            `;
+        }
+
+        // --- 切換邏輯解答顯示 ---
+        function toggleLogicAnswer() {
+            const msg = document.getElementById('parallel-msg');
+            const exp = document.getElementById('logic-explanations');
+            const btn = document.getElementById('btn-logic-ans');
+            
+            if (msg.classList.contains('hidden')) {
+                msg.classList.remove('hidden');
+                exp.classList.remove('hidden');
+                btn.innerText = '隱藏解答 💡';
+            } else {
+                msg.classList.add('hidden');
+                exp.classList.add('hidden');
+                btn.innerText = '解答 💡';
+            }
+        }
+
+        // --- 2. 自由拖曳動態探索畫布邏輯 ---
+        let vertices = { A: { x: 300, y: 50 }, B: { x: 120, y: 270 }, C: { x: 480, y: 270 } };
+        let activeVertex = null;
+
+        function initInteractiveCanvas() {
+            const svg = document.getElementById('interactive-svg');
+            
+            const handleStart = (e) => {
+                const pt = getSVGPoint(svg, e);
+                for (let key in vertices) {
+                    const dist = Math.hypot(vertices[key].x - pt.x, vertices[key].y - pt.y);
+                    if (dist < 25) {
+                        activeVertex = key;
+                        break;
+                    }
+                }
+            };
+
+            const handleMove = (e) => {
+                if (!activeVertex) return;
+                const pt = getSVGPoint(svg, e);
+                // 邊界限制
+                vertices[activeVertex].x = Math.max(40, Math.min(560, pt.x));
+                vertices[activeVertex].y = Math.max(30, Math.min(310, pt.y));
+                renderInteractiveTriangle();
+            };
+
+            const handleEnd = () => { activeVertex = null; };
+
+            svg.addEventListener('mousedown', handleStart);
+            svg.addEventListener('mousemove', handleMove);
+            window.addEventListener('mouseup', handleEnd);
+
+            svg.addEventListener('touchstart', handleStart, { passive: true });
+            svg.addEventListener('touchmove', handleMove, { passive: true });
+            svg.addEventListener('touchend', handleEnd);
+
+            renderInteractiveTriangle();
+        }
+
+        function getSVGPoint(svg, evt) {
+            const rect = svg.getBoundingClientRect();
+            const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+            const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+            return {
+                x: (clientX - rect.left) * (600 / rect.width),
+                y: (clientY - rect.top) * (340 / rect.height)
+            };
+        }
+
+        // 算出三點的角度數值
+        function calculateAngles() {
+            const { A, B, C } = vertices;
+            const a = Math.hypot(B.x - C.x, B.y - C.y); // 長度 BC
+            const b = Math.hypot(A.x - C.x, A.y - C.y); // 長度 AC
+            const c = Math.hypot(A.x - B.x, A.y - B.y); // 長度 AB
+
+            // 餘弦定理求角度
+            let degA = Math.round(Math.acos((b*b + c*c - a*a) / (2*b*c)) * 180 / Math.PI);
+            let degB = Math.round(Math.acos((a*a + c*c - b*b) / (2*a*c)) * 180 / Math.PI);
+            let degC = 180 - degA - degB; // 保證加總精準為 180
+
+            return { degA, degB, degC };
+        }
+
+        function renderInteractiveTriangle() {
+            const svg = document.getElementById('interactive-svg');
+            const { A, B, C } = vertices;
+            const { degA, degB, degC } = calculateAngles();
+
+            // 更新 UI 面板
+            document.getElementById('angle-A-val').innerText = `${degA}°`;
+            document.getElementById('angle-B-val').innerText = `${degB}°`;
+            document.getElementById('angle-C-val').innerText = `${degC}°`;
+            document.getElementById('angle-sum-val').innerText = `${degA + degB + degC}°`;
+            
+            // 優化後的動態大字體與繽紛色彩算式（分為兩行，數值算式在前，符號關係式在後）
+            document.getElementById('equation-text').innerHTML = `
+                <div class="mb-1">
+                    <span class="text-rose-600 font-extrabold">${degA}°</span> + 
+                    <span class="text-blue-600 font-extrabold">${degB}°</span> + 
+                    <span class="text-emerald-600 font-extrabold">${degC}°</span> = 
+                    <span class="text-purple-700 font-black">${degA + degB + degC}°</span>
+                </div>
+                <div>
+                    <span class="text-rose-600 font-extrabold">∠A</span> + 
+                    <span class="text-blue-600 font-extrabold">∠B</span> + 
+                    <span class="text-emerald-600 font-extrabold">∠C</span> = 
+                    <span class="text-purple-700 font-black">平角</span>
+                </div>
+            `;
+
+            svg.innerHTML = `
+                <!-- 三角形主體 -->
+                <polygon points="${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}" 
+                         fill="rgba(147, 197, 253, 0.35)" stroke="#3b82f6" stroke-width="3" stroke-linejoin="round"/>
+                
+                <!-- 頂點 A -->
+                <circle cx="${A.x}" cy="${A.y}" r="16" fill="#f43f5e" class="cursor-pointer shadow-md"/>
+                <text x="${A.x}" y="${A.y + 5}" fill="white" font-weight="bold" font-size="12" text-anchor="middle">A</text>
+                
+                <!-- 頂點 B -->
+                <circle cx="${B.x}" cy="${B.y}" r="16" fill="#3b82f6" class="cursor-pointer shadow-md"/>
+                <text x="${B.x}" y="${B.y + 5}" fill="white" font-weight="bold" font-size="12" text-anchor="middle">B</text>
+                
+                <!-- 頂點 C -->
+                <circle cx="${C.x}" cy="${C.y}" r="16" fill="#10b981" class="cursor-pointer shadow-md"/>
+                <text x="${C.x}" y="${C.y + 5}" fill="white" font-weight="bold" font-size="12" text-anchor="middle">C</text>
+            `;
+        }
+
+        function setTrianglePreset(type) {
+            if (type === 'acute') {
+                vertices = { A: { x: 300, y: 60 }, B: { x: 140, y: 260 }, C: { x: 460, y: 260 } };
+            } else if (type === 'right') {
+                vertices = { A: { x: 160, y: 60 }, B: { x: 160, y: 260 }, C: { x: 460, y: 260 } };
+            } else if (type === 'obtuse') {
+                vertices = { A: { x: 100, y: 120 }, B: { x: 220, y: 260 }, C: { x: 500, y: 260 } };
+            }
+            renderInteractiveTriangle();
+        }
+
+        // --- 3. 等腰三角形計算與邏輯 ---
+        function calcIsosceles(val) {
+            const vertex = parseInt(val);
+            document.getElementById('iso-vertex-angle-label').innerText = `${vertex}°`;
+            const base = (180 - vertex) / 2;
+            document.getElementById('iso-calc-detail').innerText = `(180° - ${vertex}°) ÷ 2 = ${base}°`;
+            document.getElementById('iso-base-angle').innerText = `${base}°`;
+            document.getElementById('iso-base-angle2').innerText = `${base}°`;
+        }
+
+        // --- 4. 歷程性評量 (5題測驗) ---
+        const quizData = [
+            {
+                q: "1. 已知一個三角形的其中兩個角分別是 50° 與 70°，請問第三個角是多少度？",
+                options: ["50°", "60°", "70°", "80°"],
+                ans: 1,
+                exp: "解答：180° - 50° - 70° = 60°。"
+            },
+            {
+                q: "2. 一個三角形裡面，最多可以有幾個「鈍角」？",
+                options: ["0 個", "1 個", "2 個", "3 個"],
+                ans: 1,
+                exp: "解答：最多只能有 1 個！因為鈍角大於 90°，若有 2 個鈍角，相加就會超過 180°。"
+            },
+            {
+                q: "3. 「正三角形」的每一個內角都是幾度？",
+                options: ["45°", "50°", "60°", "90°"],
+                ans: 2,
+                exp: "解答：正三角形三個內角都一樣大，180° ÷ 3 = 60°。"
+            },
+            {
+                q: "4. 一個等腰三角形的「頂角」是 50°，請問它的其中一個「底角」是多少度？",
+                options: ["65°", "70°", "130°", "60°"],
+                ans: 0,
+                exp: "解答：(180° - 50°) ÷ 2 = 130° ÷ 2 = 65°。"
+            },
+            {
+                q: "5. 皮皮、丹丹、多多測量直角三角形的內角，誰的測量結果【必定是錯誤】的？",
+                options: ["皮皮：50° 與 40°", "丹丹：60° 與 20°", "多多：45° 與 45°"],
+                ans: 1,
+                exp: "解答：丹丹錯了！直角是 90°，90° + 60° + 20° = 170°，內角和不是 180°！"
+            }
+        ];
+
+        let userAnswers = Array(quizData.length).fill(null);
+        let quizSubmitted = false;
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = quizData.map((item, qIdx) => `
+                <div class="p-5 bg-white/80 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <p class="font-bold text-slate-800 text-sm md:text-base mb-3">${item.q}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                        ${item.options.map((opt, oIdx) => `
+                            <button onclick="selectOption(${qIdx}, ${oIdx})" 
+                                    id="btn-q${qIdx}-o${oIdx}" 
+                                    class="text-left px-4 py-2.5 rounded-xl border border-slate-200 text-xs md:text-sm hover:bg-blue-50 transition-all font-medium text-slate-700">
+                                (${String.fromCharCode(65 + oIdx)}) ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div id="exp-q${qIdx}" class="hidden p-3 rounded-xl text-xs md:text-sm mt-2"></div>
+                </div>
+            `).join('');
+        }
+
+        function selectOption(qIdx, oIdx) {
+            if (quizSubmitted) return;
+            
+            userAnswers[qIdx] = oIdx;
+            
+            // 重置該題所有按鈕的樣式
+            quizData[qIdx].options.forEach((_, i) => {
+                const btn = document.getElementById(`btn-q${qIdx}-o${i}`);
+                if (btn) {
+                    btn.className = "text-left px-4 py-2.5 rounded-xl border border-slate-200 text-xs md:text-sm hover:bg-blue-50 transition-all font-medium text-slate-700";
+                }
+            });
+            
+            // 標示當前選擇的按鈕
+            const selectedBtn = document.getElementById(`btn-q${qIdx}-o${oIdx}`);
+            if (selectedBtn) {
+                selectedBtn.classList.remove('border-slate-200', 'text-slate-700');
+                selectedBtn.classList.add('bg-blue-100', 'border-blue-400', 'text-blue-800', 'font-bold');
+            }
+        }
+
+        function submitQuiz() {
+            if (quizSubmitted) return;
+            quizSubmitted = true;
+            
+            let correctCount = 0;
+
+            quizData.forEach((q, qIdx) => {
+                const userAns = userAnswers[qIdx];
+                const expEl = document.getElementById(`exp-q${qIdx}`);
+                expEl.classList.remove('hidden');
+
+                // 禁用所有按鈕
+                q.options.forEach((_, i) => {
+                    document.getElementById(`btn-q${qIdx}-o${i}`).disabled = true;
+                });
+
+                if (userAns === null) {
+                    // 若未作答，僅顯示黃色警告框
+                    expEl.className = "p-3 rounded-xl text-sm mt-2 bg-amber-50 text-amber-800 border border-amber-200 font-bold";
+                    expEl.innerHTML = "未作答。";
+                } else {
+                    const isCorrect = (userAns === q.ans);
+                    
+                    // 根據作答結果更改按鈕顏色
+                    q.options.forEach((_, i) => {
+                        const btn = document.getElementById(`btn-q${qIdx}-o${i}`);
+                        if (i === q.ans) {
+                            btn.className = "text-left px-4 py-2.5 rounded-xl border-2 border-emerald-400 bg-emerald-50 text-emerald-800 font-bold text-xs md:text-sm";
+                        } else if (i === userAns && !isCorrect) {
+                            btn.className = "text-left px-4 py-2.5 rounded-xl border-2 border-rose-400 bg-rose-50 text-rose-800 text-xs md:text-sm";
+                        } else {
+                            btn.className = "text-left px-4 py-2.5 rounded-xl border border-slate-200 text-slate-400 text-xs md:text-sm opacity-50";
+                        }
+                    });
+
+                    // 顯示對應的解析
+                    if (isCorrect) {
+                        correctCount++;
+                        expEl.className = "p-3 rounded-xl text-xs md:text-sm mt-2 bg-emerald-50 text-emerald-800 border border-emerald-200";
+                        expEl.innerHTML = `<strong>✨ 答對了！</strong> ${q.exp}`;
+                    } else {
+                        expEl.className = "p-3 rounded-xl text-xs md:text-sm mt-2 bg-rose-50 text-rose-800 border border-rose-200";
+                        expEl.innerHTML = `<strong>❌ 答錯囉！</strong> ${q.exp}`;
+                    }
+                }
+            });
+
+            // 更新總得分
+            document.getElementById('quiz-score').innerText = (correctCount * 20);
+        }
+
+        function resetQuiz() {
+            userAnswers = Array(quizData.length).fill(null);
+            quizSubmitted = false;
+            document.getElementById('quiz-score').innerText = "0";
+            renderQuiz();
+        }
+
+        // 頁面初始化
+        window.onload = function() {
+            updateTearingAnimation(0);
+            initInteractiveCanvas();
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>

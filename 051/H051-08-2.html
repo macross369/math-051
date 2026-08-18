@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>8-2 三角形的面積與高 - 互動探索教室</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts Inter & Noto Sans TC -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 50%, #e0c3fc 100%);
+      min-height: 100vh;
+      color: #2d3748;
+      user-select: none;
+    }
+
+    /* 新海誠風格背景動畫 */
+    .shinkai-bg {
+      background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.8) 0%, transparent 40%),
+                  radial-gradient(circle at 80% 80%, rgba(255, 223, 186, 0.5) 0%, transparent 50%),
+                  linear-gradient(180deg, #628af3 0%, #9cb3f9 45%, #e8c6ec 80%, #ffd3b6 100%);
+    }
+
+    /* 玻璃擬態卡片 */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 10px 30px rgba(67, 86, 122, 0.15);
+    }
+
+    /* 標準直式分數放大樣式 */
+    .v-fraction-lg {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      vertical-align: middle;
+      line-height: 1;
+      margin: 0 0.4rem;
+      font-weight: 800;
+    }
+    .v-fraction-lg .num {
+      border-bottom: 2.5px solid currentColor;
+      padding: 0 6px 3px 6px;
+      font-size: 1em;
+    }
+    .v-fraction-lg .den {
+      padding: 3px 6px 0 6px;
+      font-size: 1em;
+    }
+
+    /* 一般直式分數 */
+    .v-fraction {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      vertical-align: middle;
+      line-height: 1;
+      margin: 0 0.2rem;
+      font-weight: 700;
+    }
+    .v-fraction .num {
+      border-bottom: 1.5px solid currentColor;
+      padding: 0 3px 2px 3px;
+      font-size: 0.9em;
+    }
+    .v-fraction .den {
+      padding: 2px 3px 0 3px;
+      font-size: 0.9em;
+    }
+
+    /* 頁籤激活樣式 */
+    .tab-active {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35);
+    }
+
+    /* 自訂滑桿外觀 */
+    input[type=range] {
+      accent-color: #3b82f6;
+    }
+
+    /* 可拖曳點閃爍效果 */
+    .drag-point {
+      cursor: grab;
+      transition: r 0.2s ease, fill 0.2s ease;
+    }
+    .drag-point:active {
+      cursor: grabbing;
+      r: 12;
+    }
+  </style>
+</head>
+<body class="shinkai-bg p-3 md:p-6 min-h-screen flex flex-col justify-between">
+
+  <header class="max-w-6xl mx-auto w-full mb-6">
+    <!-- 閒雲數學小棧 Logo 與標題 -->
+    <div class="w-full max-w-4xl flex items-center justify-start mb-4 px-2 fade-in">
+      <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+      <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+    </div>
+
+    <div class="glass-card rounded-2xl p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden">
+      <!-- 背景光華效果 -->
+      <div class="absolute -right-10 -top-10 w-32 h-32 bg-yellow-200/40 rounded-full blur-2xl pointer-events-none"></div>
+      
+      <div class="flex items-center gap-3 z-10">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-400 flex items-center justify-center text-white text-2xl shadow-md">
+          <i class="fa-solid fa-shapes"></i>
+        </div>
+        <div>
+          <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700">國小五上數學 8-2 互動學習網頁</span>
+          <h1 class="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-wide">三角形的面積與高</h1>
+        </div>
+      </div>
+
+      <div class="text-sm font-medium text-slate-600 bg-white/60 px-4 py-2 rounded-xl border border-white/80 z-10">
+        <i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-1"></i>
+        透過動態操作，觀察底、高與面積的奇妙變化！
+      </div>
+    </div>
+
+    <!-- 頁籤導覽 -->
+    <nav class="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
+      <button onclick="switchTab('tab1')" id="btn-tab1" class="tab-btn tab-active px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 cursor-pointer">
+        <i class="fa-solid fa-puzzle-piece"></i> 1. 全等拼圖與面積
+      </button>
+      <button onclick="switchTab('tab2')" id="btn-tab2" class="tab-btn bg-white/70 hover:bg-white text-slate-700 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 cursor-pointer">
+        <i class="fa-solid fa-calculator"></i> 2. 面積公式動態實驗
+      </button>
+      <button onclick="switchTab('tab3')" id="btn-tab3" class="tab-btn bg-white/70 hover:bg-white text-slate-700 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 cursor-pointer">
+        <i class="fa-solid fa-ruler-combined"></i> 3. 探索三角形的高
+      </button>
+      <button onclick="switchTab('tab4')" id="btn-tab4" class="tab-btn bg-white/70 hover:bg-white text-slate-700 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 cursor-pointer">
+        <i class="fa-solid fa-pen-to-square"></i> 4. 隨堂測驗
+      </button>
+    </nav>
+  </header>
+
+  <!-- 主內容區域 -->
+  <main class="max-w-6xl mx-auto w-full flex-grow">
+
+    <!-- TAB 1: 全等三角形拼成平行四邊形 -->
+    <section id="tab1" class="tab-content block">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- 左側控制與觀念卡片 -->
+        <div class="lg:col-span-4 glass-card rounded-2xl p-6 flex flex-col justify-between space-y-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-800 mb-3 flex items-center gap-2">
+              <i class="fa-solid fa-clone text-indigo-500"></i>
+              全等三角形拼圖體驗
+            </h2>
+            <p class="text-slate-600 text-sm mb-4 leading-relaxed">
+              請選擇不同的三角形類型，並拉動下方的拼合進度條，觀察兩個全等三角形「甲」與「乙」如何翻轉組合成平行四邊形！
+            </p>
+
+            <!-- 教學發現卡片 -->
+            <div id="tab1-discovery" class="bg-amber-50/90 rounded-xl p-4 border border-amber-200 text-amber-900 transition-all duration-300">
+              <div class="font-bold flex items-center gap-2 mb-2 text-amber-800">
+                <i class="fa-solid fa-lightbulb text-amber-500"></i>
+                核心教學重點觀念：
+              </div>
+              <ul class="text-sm space-y-2 pl-1">
+                <li class="flex items-start gap-1.5">
+                  <i class="fa-solid fa-check text-emerald-500 mt-1"></i>
+                  <span>兩個<b>全等三角形</b>必能拼成一個<b>平行四邊形</b>。</span>
+                </li>
+                <li class="flex items-center gap-1">
+                  <i class="fa-solid fa-check text-emerald-500"></i>
+                  <span>三角形面積 ＝ 平行四邊形面積的
+                    <span class="v-fraction text-indigo-700">
+                      <span class="num">1</span>
+                      <span class="den">2</span>
+                    </span>
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="pt-2 space-y-3">
+            <!-- 顯示補全平行四邊形開關 -->
+            <div class="flex items-center justify-between p-3.5 bg-indigo-50/80 rounded-xl border border-indigo-100">
+              <span class="font-bold text-indigo-900 text-sm flex items-center gap-2">
+                <i class="fa-solid fa-vector-square text-indigo-500"></i> 顯示補全的平行四邊形
+              </span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="toggle-para-tab1" onchange="drawTab1()" class="sr-only peer">
+                <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+              </label>
+            </div>
+
+            <button onclick="animateMerge()" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold py-3 px-5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
+              <i class="fa-solid fa-play"></i> 自動播放拼合過程
+            </button>
+          </div>
+        </div>
+
+        <!-- 右側視覺繪圖區 -->
+        <div class="lg:col-span-8 glass-card rounded-2xl p-5 flex flex-col justify-between min-h-[420px] relative">
+          
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-200/80 pb-3">
+            <div class="flex items-center gap-2 text-indigo-900 font-extrabold text-base md:text-lg">
+              <i class="fa-regular fa-eye text-blue-500"></i> 動態拼圖展示區
+            </div>
+            
+            <div class="flex flex-wrap gap-1.5">
+              <button onclick="setTab1Shape('acute')" id="t1-btn-acute" class="t1-type-btn bg-blue-100 text-blue-700 font-bold px-3.5 py-1.5 rounded-lg text-xs hover:bg-blue-200 transition-all cursor-pointer">
+                銳角三角形
+              </button>
+              <button onclick="setTab1Shape('right')" id="t1-btn-right" class="t1-type-btn bg-emerald-100 text-emerald-700 font-bold px-3.5 py-1.5 rounded-lg text-xs hover:bg-emerald-200 transition-all cursor-pointer">
+                直角三角形
+              </button>
+              <button onclick="setTab1Shape('obtuse')" id="t1-btn-obtuse" class="t1-type-btn bg-amber-100 text-amber-700 font-bold px-3.5 py-1.5 rounded-lg text-xs hover:bg-amber-200 transition-all cursor-pointer">
+                鈍角三角形
+              </button>
+            </div>
+          </div>
+
+          <!-- SVG 畫布 -->
+          <div class="w-full flex justify-center items-center py-2 flex-grow">
+            <svg id="svg-tab1" viewBox="0 0 520 280" class="w-full h-auto max-h-[300px] drop-shadow-sm">
+              <!-- JS 動態繪製區 -->
+            </svg>
+          </div>
+
+          <!-- 底部控制欄 -->
+          <div class="bg-blue-50/70 border border-blue-100 rounded-2xl p-4 space-y-2">
+            <div class="flex justify-between items-center text-xs md:text-sm font-bold text-slate-700">
+              <span class="flex items-center gap-1 text-slate-800">
+                <i class="fa-solid fa-arrows-left-right text-blue-600"></i> 兩個獨立三角形
+              </span>
+              <span class="text-blue-600 font-black text-sm md:text-base">
+                旋轉與拼合進度: <span id="merge-percent">0%</span>
+              </span>
+              <span class="flex items-center gap-1 text-slate-800">
+                拼成平行四邊形 <i class="fa-solid fa-vector-square text-blue-600"></i>
+              </span>
+            </div>
+            <input type="range" id="merge-slider" min="0" max="100" value="0" class="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 2: 面積公式動態實驗 -->
+    <section id="tab2" class="tab-content hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- 左側控制項 -->
+        <div class="lg:col-span-5 glass-card rounded-2xl p-6 space-y-5">
+          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-indigo-500"></i>
+            調整底與高，觀察面積變化
+          </h2>
+
+          <!-- 底邊長度滑桿 -->
+          <div class="bg-white/70 p-4 rounded-xl border border-indigo-50 shadow-sm">
+            <div class="flex justify-between items-center mb-1">
+              <label for="base-slider" class="font-bold text-slate-700 flex items-center gap-2">
+                <span class="w-3.5 h-3.5 rounded-full bg-emerald-500"></span>
+                底邊長度 (底):
+              </label>
+              <span class="text-xl font-black text-emerald-600"><span id="base-val">6</span> cm</span>
+            </div>
+            <input type="range" id="base-slider" min="2" max="10" value="6" step="1" class="w-full h-2.5 bg-emerald-100 rounded-lg cursor-pointer">
+          </div>
+
+          <!-- 高度滑桿 -->
+          <div class="bg-white/70 p-4 rounded-xl border border-indigo-50 shadow-sm">
+            <div class="flex justify-between items-center mb-1">
+              <label for="height-slider" class="font-bold text-slate-700 flex items-center gap-2">
+                <span class="w-3.5 h-3.5 rounded-full bg-rose-500"></span>
+                三角形的高 (高):
+              </label>
+              <span class="text-xl font-black text-rose-600"><span id="height-val">4</span> cm</span>
+            </div>
+            <input type="range" id="height-slider" min="2" max="8" value="4" step="1" class="w-full h-2.5 bg-rose-100 rounded-lg cursor-pointer">
+          </div>
+
+          <!-- 補全平行四邊形開關 -->
+          <div class="flex items-center justify-between p-3.5 bg-indigo-50/80 rounded-xl border border-indigo-100">
+            <span class="font-bold text-indigo-900 text-sm flex items-center gap-2">
+              <i class="fa-solid fa-vector-square text-indigo-500"></i> 顯示補全的平行四邊形
+            </span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="toggle-para" class="sr-only peer" checked>
+              <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+            </label>
+          </div>
+
+          <!-- 計算算式區 -->
+          <div class="bg-slate-900 text-white rounded-2xl p-5 shadow-xl space-y-4 border border-slate-700">
+            <div class="text-xs text-indigo-300 font-semibold tracking-wider uppercase border-b border-slate-700 pb-2 flex justify-between items-center">
+              <span><i class="fa-solid fa-calculator mr-1"></i> 面積公式連動計算</span>
+              <span class="text-amber-400 font-bold">1格 = 1 cm</span>
+            </div>
+
+            <div class="space-y-3">
+              <div class="flex justify-between items-center text-slate-300 text-base">
+                <span>平行四邊形面積：</span>
+                <span class="font-bold text-yellow-300 text-lg">
+                  底 × 高 ＝ <span id="para-calc-str">6 × 4</span> ＝ <span id="para-area-val">24</span> cm²
+                </span>
+              </div>
+
+              <!-- 放大字型與對齊算式 -->
+              <div class="bg-indigo-950/80 border border-indigo-800 p-4 rounded-xl shadow-inner flex justify-center">
+                <div class="grid grid-cols-[auto_auto_auto] items-center gap-x-2 text-white font-extrabold text-xl md:text-2xl leading-relaxed">
+                  <div class="text-right text-lg md:text-xl">即三角形面積</div>
+                  <div class="text-center text-amber-300 font-bold text-xl md:text-2xl">=</div>
+                  <div class="flex items-center">
+                    <div class="v-fraction-lg text-amber-300 mx-1 text-xl md:text-2xl">
+                      <span class="num text-xl md:text-2xl">底 × 高</span>
+                      <span class="den text-xl md:text-2xl">2</span>
+                    </div>
+                  </div>
+                  <div></div>
+                  <div class="text-center text-amber-300 text-xl md:text-2xl font-black">=</div>
+                  <div class="text-left text-amber-300 text-xl md:text-2xl font-black"><span id="frac-calc-val">12</span> cm²</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右側動態網格圖形 -->
+        <div class="lg:col-span-7 glass-card rounded-2xl p-6 flex flex-col items-center justify-center min-h-[380px] relative">
+          <div class="absolute top-4 left-4 bg-white/90 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 border border-slate-200 shadow-sm">
+            <i class="fa-solid fa-border-all mr-1 text-indigo-500"></i> 方格紙視覺觀察區
+          </div>
+          <svg id="svg-tab2" viewBox="0 0 500 320" class="w-full h-auto max-h-[350px] drop-shadow-md">
+            <!-- JS 動態畫格 -->
+          </svg>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 3: 探索三角形的高 -->
+    <section id="tab3" class="tab-content hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- 左側控制面板 -->
+        <div class="lg:col-span-5 glass-card rounded-2xl p-6 space-y-5">
+          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-ruler-vertical text-indigo-500"></i>
+            探索不同三角形的高
+          </h2>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            您可以直接用滑鼠或手指<b>拖曳畫布上的頂點 C</b>，或是點擊按鈕快速切換，觀察高的位置如何隨角度變化！
+          </p>
+
+          <!-- 預設切換按鈕 -->
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="setTab3Preset('acute')" id="btn-acute" class="tri-type-btn bg-indigo-600 text-white font-bold py-2.5 px-3 rounded-xl text-xs sm:text-sm shadow-sm transition-all cursor-pointer">
+              銳角三角形
+            </button>
+            <button onclick="setTab3Preset('right')" id="btn-right" class="tri-type-btn bg-white/80 hover:bg-white text-slate-700 font-bold py-2.5 px-3 rounded-xl text-xs sm:text-sm shadow-sm transition-all cursor-pointer">
+              直角三角形
+            </button>
+            <button onclick="setTab3Preset('obtuse')" id="btn-obtuse" class="tri-type-btn bg-white/80 hover:bg-white text-slate-700 font-bold py-2.5 px-3 rounded-xl text-xs sm:text-sm shadow-sm transition-all cursor-pointer">
+              鈍角三角形
+            </button>
+          </div>
+
+          <!-- 輔助開關 -->
+          <div class="space-y-2">
+            <label class="flex items-center gap-3 p-3 bg-white/80 rounded-xl cursor-pointer border border-slate-200 shadow-sm">
+              <input type="checkbox" id="show-ruler" onchange="drawTab3()" class="w-4 h-4 text-indigo-600 rounded cursor-pointer">
+              <span class="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                <i class="fa-solid fa-ruler text-amber-500"></i> 放置直角三角板輔助畫高
+              </span>
+            </label>
+          </div>
+
+          <!-- 動態教學解說卡片 -->
+          <div id="tab3-info" class="bg-indigo-50/90 rounded-xl p-4 border border-indigo-100 text-slate-800 text-sm leading-relaxed">
+            <!-- JS 動態更新 -->
+          </div>
+        </div>
+
+        <!-- 右側畫布 -->
+        <div class="lg:col-span-7 glass-card rounded-2xl p-5 flex flex-col justify-between min-h-[380px] relative">
+          
+          <div class="flex justify-between items-center border-b border-slate-200/80 pb-2.5">
+            <div class="text-pink-600 font-extrabold text-sm md:text-base flex items-center gap-1">
+              <i class="fa-solid fa-hand-pointer animate-bounce"></i> 拖曳頂點 C 觀察「高」的變化
+            </div>
+            <div class="bg-pink-100 text-pink-700 px-3 py-1 rounded-full text-xs font-bold shadow-sm" id="tab3-type-tag">
+              當前類型：銳角三角形
+            </div>
+          </div>
+
+          <!-- SVG 畫布區域 -->
+          <div class="w-full flex-grow flex justify-center items-center py-2">
+            <svg id="svg-tab3" viewBox="0 0 500 300" class="w-full h-auto max-h-[320px] drop-shadow-md touch-none">
+              <!-- JS 動態繪製 -->
+            </svg>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 4: 隨堂測驗 -->
+    <section id="tab4" class="tab-content hidden">
+      <div class="max-w-4xl mx-auto glass-card rounded-2xl p-6 md:p-8">
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-200 pb-4 mb-6 gap-4">
+          <div>
+            <h2 class="text-2xl font-black text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-square-check text-indigo-600"></i>
+              隨堂測驗
+            </h2>
+            <p class="text-slate-500 text-sm">回答下列 5 道題目，檢測你對三角形面積與高的理解程度！</p>
+          </div>
+          <!-- 分數統計標籤 (滿分100) -->
+          <div class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl shadow-md flex items-center gap-3">
+            <i class="fa-solid fa-trophy text-yellow-300 text-xl"></i>
+            <div>
+              <div class="text-xs text-indigo-100">目前得分</div>
+              <div class="text-xl font-extrabold" id="quiz-score">0 / 100 分</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 測驗題目容器 -->
+        <div id="quiz-container" class="space-y-6">
+          <!-- JS 動態渲染 5 道測驗題 -->
+        </div>
+
+        <!-- 底部功能按鈕：提交答案與重新測驗 -->
+        <div class="mt-8 pt-4 border-t border-slate-200/80 flex flex-wrap gap-4 justify-center">
+          <button onclick="submitQuiz()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2 text-base cursor-pointer">
+            <i class="fa-solid fa-paper-plane"></i> 提交答案
+          </button>
+          <button onclick="resetQuiz()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3.5 px-6 rounded-xl shadow transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2 text-base cursor-pointer">
+            <i class="fa-solid fa-rotate-right"></i> 重新測驗
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 浮動訊息通知 Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-slate-900/90 text-white px-5 py-3 rounded-2xl shadow-2xl transition-all duration-300 opacity-0 transform translate-y-10 pointer-events-none flex items-center gap-3 z-50">
+    <i id="toast-icon" class="fa-solid fa-circle-info text-amber-400 text-lg"></i>
+    <span id="toast-msg" class="text-sm font-bold">提示訊息</span>
+  </div>
+
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('tab-active');
+        btn.classList.add('bg-white/70', 'text-slate-700');
+      });
+
+      document.getElementById(tabId).classList.remove('hidden');
+      const activeBtn = document.getElementById('btn-' + tabId);
+      activeBtn.classList.add('tab-active');
+      activeBtn.classList.remove('bg-white/70', 'text-slate-700');
+
+      if (tabId === 'tab1') drawTab1();
+      if (tabId === 'tab2') drawTab2();
+      if (tabId === 'tab3') drawTab3();
+    }
+
+    function showToast(message, iconClass = "fa-circle-info text-amber-400") {
+      const toast = document.getElementById('toast');
+      const msgEl = document.getElementById('toast-msg');
+      const iconEl = document.getElementById('toast-icon');
+
+      msgEl.innerText = message;
+      iconEl.className = "fa-solid " + iconClass;
+
+      toast.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 3000);
+    }
+
+    let tab1Shape = 'acute';
+    const mergeSlider = document.getElementById('merge-slider');
+    mergeSlider.addEventListener('input', drawTab1);
+
+    function setTab1Shape(shape) {
+      tab1Shape = shape;
+      document.querySelectorAll('.t1-type-btn').forEach(btn => {
+        btn.classList.remove('ring-2', 'ring-offset-1', 'ring-blue-500');
+      });
+      document.getElementById('t1-btn-' + shape).classList.add('ring-2', 'ring-offset-1', 'ring-blue-500');
+      drawTab1();
+    }
+
+    let animationTimer = null;
+    function animateMerge() {
+      if (animationTimer) clearInterval(animationTimer);
+      mergeSlider.value = 0;
+      drawTab1();
+      animationTimer = setInterval(() => {
+        let val = parseInt(mergeSlider.value) + 2;
+        if (val > 100) {
+          val = 100;
+          clearInterval(animationTimer);
+          showToast("拼合完成！兩個全等三角形組成了平行四邊形。", "fa-circle-check text-emerald-400");
+        }
+        mergeSlider.value = val;
+        drawTab1();
+      }, 25);
+    }
+
+    function drawTab1() {
+      const percent = parseInt(mergeSlider.value);
+      document.getElementById('merge-percent').innerText = percent + "%";
+      const svg = document.getElementById('svg-tab1');
+      svg.innerHTML = '';
+      drawGrid(svg, 520, 280);
+
+      const showParaTab1 = document.getElementById('toggle-para-tab1')?.checked;
+
+      // 精確定義三角形 甲 的頂點座標 (A:左下, B:右下, C:頂點)
+      let A, B, C;
+      if (tab1Shape === 'acute') {
+        A = { x: 100, y: 190 }; B = { x: 220, y: 190 }; C = { x: 160, y: 90 };
+      } else if (tab1Shape === 'right') {
+        A = { x: 100, y: 190 }; B = { x: 220, y: 190 }; C = { x: 100, y: 90 };
+      } else if (tab1Shape === 'obtuse') {
+        A = { x: 140, y: 190 }; B = { x: 260, y: 190 }; C = { x: 80, y: 90 };
+      }
+
+      // 1. 僅在開啟時繪製目標平行四邊形外框線
+      const D = { x: B.x + C.x - A.x, y: B.y + C.y - A.y };
+      if (showParaTab1) {
+        const paraOutline = createSVGElement('polygon', {
+          points: `${A.x},${A.y} ${B.x},${B.y} ${D.x},${D.y} ${C.x},${C.y}`,
+          fill: 'none',
+          stroke: '#f59e0b',
+          'stroke-width': '3',
+          'stroke-dasharray': '6,4'
+        });
+        svg.appendChild(paraOutline);
+      }
+
+      // 2. 繪製三角形 甲 (固定在左側)
+      const poly甲 = createSVGElement('polygon', {
+        points: `${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}`,
+        fill: 'rgba(59, 130, 246, 0.4)',
+        stroke: '#2563eb',
+        'stroke-width': '2.5'
+      });
+      svg.appendChild(poly甲);
+
+      const text甲 = createSVGElement('text', {
+        x: (A.x + B.x + C.x) / 3 - 8,
+        y: (A.y + B.y + C.y) / 3 + 6,
+        fill: '#1e40af',
+        'font-weight': 'bold',
+        'font-size': '20'
+      });
+      text甲.textContent = "甲";
+      svg.appendChild(text甲);
+
+      // 3. 計算三角形 乙 的動態平移與 180 度旋轉
+      const G_甲 = { x: (A.x + B.x + C.x) / 3, y: (A.y + B.y + C.y) / 3 };
+      const G_target = { x: (D.x + C.x + B.x) / 3, y: (D.y + C.y + B.y) / 3 };
+      
+      const dx = 160;
+      const G_init = { x: G_甲.x + dx, y: G_甲.y };
+
+      const t = percent / 100;
+      const angleRad = t * Math.PI;
+
+      const G_cur = {
+        x: (1 - t) * G_init.x + t * G_target.x,
+        y: (1 - t) * G_init.y + t * G_target.y
+      };
+
+      const vA = { x: A.x - G_甲.x, y: A.y - G_甲.y };
+      const vB = { x: B.x - G_甲.x, y: B.y - G_甲.y };
+      const vC = { x: C.x - G_甲.x, y: C.y - G_甲.y };
+
+      const rotateVec = (v, rad) => ({
+        x: v.x * Math.cos(rad) - v.y * Math.sin(rad),
+        y: v.x * Math.sin(rad) + v.y * Math.cos(rad)
+      });
+
+      const rA = rotateVec(vA, angleRad);
+      const rB = rotateVec(vB, angleRad);
+      const rC = rotateVec(vC, angleRad);
+
+      const curA = { x: G_cur.x + rA.x, y: G_cur.y + rA.y };
+      const curB = { x: G_cur.x + rB.x, y: G_cur.y + rB.y };
+      const curC = { x: G_cur.x + rC.x, y: G_cur.y + rC.y };
+
+      const poly乙 = createSVGElement('polygon', {
+        points: `${curA.x},${curA.y} ${curB.x},${curB.y} ${curC.x},${curC.y}`,
+        fill: 'rgba(16, 185, 129, 0.4)',
+        stroke: '#059669',
+        'stroke-width': '2.5'
+      });
+      svg.appendChild(poly乙);
+
+      const text乙 = createSVGElement('text', {
+        x: G_cur.x - 8,
+        y: G_cur.y + 6,
+        fill: '#065f46',
+        'font-weight': 'bold',
+        'font-size': '20'
+      });
+      text乙.textContent = "乙";
+      svg.appendChild(text乙);
+    }
+
+    const baseSlider = document.getElementById('base-slider');
+    const heightSlider = document.getElementById('height-slider');
+    const togglePara = document.getElementById('toggle-para');
+
+    baseSlider.addEventListener('input', drawTab2);
+    heightSlider.addEventListener('input', drawTab2);
+    togglePara.addEventListener('change', drawTab2);
+
+    function drawTab2() {
+      const b = parseInt(baseSlider.value);
+      const h = parseInt(heightSlider.value);
+      const showPara = togglePara.checked;
+
+      document.getElementById('base-val').innerText = b;
+      document.getElementById('height-val').innerText = h;
+
+      const paraArea = b * h;
+      const triArea = paraArea / 2;
+
+      document.getElementById('para-calc-str').innerText = `${b} × ${h}`;
+      document.getElementById('para-area-val').innerText = paraArea;
+      document.getElementById('frac-calc-val').innerText = triArea;
+
+      const svg = document.getElementById('svg-tab2');
+      svg.innerHTML = '';
+      drawGrid(svg, 500, 320);
+
+      const unit = 30;
+      const startX = 120;
+      const startY = 250;
+
+      const A = { x: startX, y: startY };
+      const B = { x: startX + b * unit, y: startY };
+      const C = { x: startX + 2 * unit, y: startY - h * unit };
+      const D = { x: C.x + b * unit, y: C.y };
+
+      if (showPara) {
+        const para = createSVGElement('polygon', {
+          points: `${A.x},${A.y} ${B.x},${B.y} ${D.x},${D.y} ${C.x},${C.y}`,
+          fill: 'rgba(236, 72, 153, 0.12)',
+          stroke: '#ec4899',
+          'stroke-width': '2',
+          'stroke-dasharray': '5,5'
+        });
+        svg.appendChild(para);
+      }
+
+      const tri = createSVGElement('polygon', {
+        points: `${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}`,
+        fill: 'rgba(99, 102, 241, 0.35)',
+        stroke: '#4338ca',
+        'stroke-width': '3'
+      });
+      svg.appendChild(tri);
+
+      // 底邊
+      const baseLine = createSVGElement('line', {
+        x1: A.x, y1: A.y + 10,
+        x2: B.x, y2: B.y + 10,
+        stroke: '#10b981',
+        'stroke-width': '3.5'
+      });
+      svg.appendChild(baseLine);
+
+      const baseText = createSVGElement('text', {
+        x: (A.x + B.x) / 2 - 30, y: A.y + 28,
+        fill: '#047857',
+        'font-weight': 'bold',
+        'font-size': '14'
+      });
+      baseText.textContent = `底 = ${b} cm`;
+      svg.appendChild(baseText);
+
+      // 高度虛線
+      const heightLine = createSVGElement('line', {
+        x1: C.x, y1: C.y,
+        x2: C.x, y2: A.y,
+        stroke: '#ef4444',
+        'stroke-width': '2.5',
+        'stroke-dasharray': '4,4'
+      });
+      svg.appendChild(heightLine);
+
+      // 直角符號
+      const rightAngle = createSVGElement('path', {
+        d: `M ${C.x} ${A.y - 10} L ${C.x + 10} ${A.y - 10} L ${C.x + 10} ${A.y}`,
+        fill: 'none',
+        stroke: '#ef4444',
+        'stroke-width': '1.5'
+      });
+      svg.appendChild(rightAngle);
+
+      const heightText = createSVGElement('text', {
+        x: C.x + 8, y: (C.y + A.y) / 2,
+        fill: '#b91c1c',
+        'font-weight': 'bold',
+        'font-size': '14'
+      });
+      heightText.textContent = `高 = ${h} cm`;
+      svg.appendChild(heightText);
+    }
+
+    let pointA = { x: 120, y: 220 };
+    let pointB = { x: 360, y: 220 };
+    let pointC = { x: 240, y: 80 };
+
+    let isDraggingC = false;
+
+    function setTab3Preset(type) {
+      if (type === 'acute') {
+        pointC = { x: 240, y: 80 };
+      } else if (type === 'right') {
+        pointC = { x: 120, y: 80 };
+      } else if (type === 'obtuse') {
+        pointC = { x: 60, y: 80 };
+      }
+      
+      document.querySelectorAll('.tri-type-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white');
+        btn.classList.add('bg-white/80', 'text-slate-700');
+      });
+      document.getElementById('btn-' + type).classList.add('bg-indigo-600', 'text-white');
+      document.getElementById('btn-' + type).classList.remove('bg-white/80', 'text-slate-700');
+
+      drawTab3();
+    }
+
+    function setupDragTab3() {
+      const svg = document.getElementById('svg-tab3');
+
+      function getMousePos(evt) {
+        const CTM = svg.getScreenCTM();
+        let e = evt;
+        if (evt.touches) e = evt.touches[0];
+        return {
+          x: (e.clientX - CTM.e) / CTM.a,
+          y: (e.clientY - CTM.f) / CTM.d
+        };
+      }
+
+      svg.addEventListener('mousedown', (e) => {
+        const p = getMousePos(e);
+        const dist = Math.hypot(p.x - pointC.x, p.y - pointC.y);
+        if (dist < 25) isDraggingC = true;
+      });
+
+      svg.addEventListener('touchstart', (e) => {
+        const p = getMousePos(e);
+        const dist = Math.hypot(p.x - pointC.x, p.y - pointC.y);
+        if (dist < 30) isDraggingC = true;
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDraggingC) return;
+        const p = getMousePos(e);
+        pointC.x = Math.max(20, Math.min(480, p.x));
+        pointC.y = Math.max(30, Math.min(210, p.y));
+        drawTab3();
+      });
+
+      window.addEventListener('touchmove', (e) => {
+        if (!isDraggingC) return;
+        const p = getMousePos(e);
+        pointC.x = Math.max(20, Math.min(480, p.x));
+        pointC.y = Math.max(30, Math.min(210, p.y));
+        drawTab3();
+      });
+
+      window.addEventListener('mouseup', () => isDraggingC = false);
+      window.addEventListener('touchend', () => isDraggingC = false);
+    }
+
+    function drawTab3() {
+      const svg = document.getElementById('svg-tab3');
+      svg.innerHTML = '';
+      drawGrid(svg, 500, 300);
+
+      const showRuler = document.getElementById('show-ruler').checked;
+      const typeTag = document.getElementById('tab3-type-tag');
+      const infoBox = document.getElementById('tab3-info');
+
+      let currentType = '';
+      if (Math.abs(pointC.x - pointA.x) < 5 || Math.abs(pointC.x - pointB.x) < 5) {
+        currentType = '直角三角形';
+      } else if (pointC.x > pointA.x && pointC.x < pointB.x) {
+        currentType = '銳角三角形';
+      } else {
+        currentType = '鈍角三角形';
+      }
+
+      typeTag.innerText = `當前類型：${currentType}`;
+
+      if (currentType === '銳角三角形') {
+        infoBox.innerHTML = `
+          <div class="font-bold text-indigo-900 mb-1"><i class="fa-solid fa-circle-info text-indigo-500"></i> 銳角三角形的高：</div>
+          <p class="text-slate-700">頂點 C 介於底邊兩端點之間，高的垂直線段落於<b>三角形內部</b>。</p>
+        `;
+      } else if (currentType === '直角三角形') {
+        infoBox.innerHTML = `
+          <div class="font-bold text-indigo-900 mb-1"><i class="fa-solid fa-circle-info text-indigo-500"></i> 直角三角形的高：</div>
+          <p class="text-slate-700">當角 A 或角 B 為直角時，<b>高剛好就是三角形的直角邊長</b>！</p>
+        `;
+      } else {
+        infoBox.innerHTML = `
+          <div class="font-bold text-indigo-900 mb-1"><i class="fa-solid fa-circle-info text-indigo-500"></i> 鈍角三角形的高（外部高）：</div>
+          <p class="text-slate-700">頂點 C 超出底邊範圍，高落在<b>三角形外部</b>！此時必須畫出<b>底邊延長虛線</b>才能對齊垂線。</p>
+        `;
+      }
+
+      if (pointC.x < pointA.x) {
+        const ext = createSVGElement('line', {
+          x1: pointC.x - 15, y1: pointA.y,
+          x2: pointA.x, y2: pointA.y,
+          stroke: '#94a3b8',
+          'stroke-width': '2',
+          'stroke-dasharray': '4,4'
+        });
+        svg.appendChild(ext);
+      } else if (pointC.x > pointB.x) {
+        const ext = createSVGElement('line', {
+          x1: pointB.x, y1: pointB.y,
+          x2: pointC.x + 15, y2: pointB.y,
+          stroke: '#94a3b8',
+          'stroke-width': '2',
+          'stroke-dasharray': '4,4'
+        });
+        svg.appendChild(ext);
+      }
+
+      const baseHighlight = createSVGElement('line', {
+        x1: pointA.x, y1: pointA.y,
+        x2: pointB.x, y2: pointB.y,
+        stroke: '#2563eb',
+        'stroke-width': '5'
+      });
+      svg.appendChild(baseHighlight);
+
+      const baseLabel = createSVGElement('text', {
+        x: (pointA.x + pointB.x) / 2 - 20,
+        y: pointA.y + 25,
+        fill: '#1d4ed8',
+        'font-weight': 'bold',
+        'font-size': '16'
+      });
+      baseLabel.textContent = "底邊";
+      svg.appendChild(baseLabel);
+
+      const tri = createSVGElement('polygon', {
+        points: `${pointA.x},${pointA.y} ${pointB.x},${pointB.y} ${pointC.x},${pointC.y}`,
+        fill: 'rgba(244, 114, 182, 0.25)',
+        stroke: '#ec4899',
+        'stroke-width': '3'
+      });
+      svg.appendChild(tri);
+
+      const heightLine = createSVGElement('line', {
+        x1: pointC.x, y1: pointC.y,
+        x2: pointC.x, y2: pointA.y,
+        stroke: '#dc2626',
+        'stroke-width': '3',
+        'stroke-dasharray': '5,4'
+      });
+      svg.appendChild(heightLine);
+
+      const isCLeft = pointC.x < pointA.x;
+      const angleDir = isCLeft ? -12 : 12;
+      const rightAngle = createSVGElement('path', {
+        d: `M ${pointC.x} ${pointA.y - 12} L ${pointC.x + angleDir} ${pointA.y - 12} L ${pointC.x + angleDir} ${pointA.y}`,
+        fill: 'none',
+        stroke: '#dc2626',
+        'stroke-width': '2'
+      });
+      svg.appendChild(rightAngle);
+
+      const hLabel = createSVGElement('text', {
+        x: pointC.x + (isCLeft ? -25 : 10),
+        y: (pointC.y + pointA.y) / 2 + 5,
+        fill: '#dc2626',
+        'font-weight': 'bold',
+        'font-size': '16'
+      });
+      hLabel.textContent = "高";
+      svg.appendChild(hLabel);
+
+      if (showRuler) {
+        const rulerDir = isCLeft ? -1 : 1;
+        const ruler = createSVGElement('polygon', {
+          points: `${pointC.x},${pointC.y} ${pointC.x},${pointA.y} ${pointC.x + 90 * rulerDir},${pointA.y}`,
+          fill: 'rgba(251, 191, 36, 0.45)',
+          stroke: '#d97706',
+          'stroke-width': '2'
+        });
+        svg.appendChild(ruler);
+      }
+
+      const groupC = createSVGElement('g', { class: 'cursor-pointer' });
+      
+      const cCircle = createSVGElement('circle', {
+        cx: pointC.x, cy: pointC.y, r: 9,
+        fill: '#ef4444', stroke: '#ffffff', 'stroke-width': '2.5',
+        class: 'drag-point'
+      });
+      groupC.appendChild(cCircle);
+
+      const cText = createSVGElement('text', {
+        x: pointC.x - 45, y: pointC.y - 15,
+        fill: '#b91c1c', 'font-weight': 'bold', 'font-size': '14'
+      });
+      cText.textContent = "頂點 C (可拖曳)";
+      groupC.appendChild(cText);
+
+      svg.appendChild(groupC);
+    }
+
+    const quizData = [
+      {
+        id: 1,
+        question: "1. 兩個完全相同的「全等三角形」，一定可以拼成下列哪一種圖形？",
+        options: ["平行四邊形", "梯形", "五邊形", "圓形"],
+        answer: 0,
+        explanation: "兩個全等三角形對應邊拼合後，對邊會互相平行且相等，因此必定能拼成平行四邊形。"
+      },
+      {
+        id: 2,
+        question: "2. 一個三角形的底邊長 8 公分，高是 5 公分，請問它的面積是多少平方公分？",
+        options: ["40 平方公分", "20 平方公分", "13 平方公分", "80 平方公分"],
+        answer: 1,
+        explanation: "三角形面積 ＝ 底 × 高 ÷ 2 ＝ 8 × 5 ÷ 2 ＝ 20 平方公分。"
+      },
+      {
+        id: 3,
+        question: "3. 三角形的面積是 24 平方公分，已知底邊長 6 公分，請問這條底邊上的高是多少公分？",
+        options: ["4 公分", "8 公分", "12 公分", "144 公分"],
+        answer: 1,
+        explanation: "平行四邊形面積 ＝ 24 × 2 ＝ 48；高 ＝ 平行四邊形面積 ÷ 底 ＝ 48 ÷ 6 ＝ 8 公分。"
+      },
+      {
+        id: 4,
+        question: "4. 關於「鈍角三角形的高」，下列哪一個敘述是正確的？",
+        options: [
+          "高一定在三角形內部",
+          "高可能落在三角形外部，需要畫出底邊延長線",
+          "鈍角三角形沒有高",
+          "高永遠等於其中一條邊長"
+        ],
+        answer: 1,
+        explanation: "鈍角三角形的頂點超出底邊範圍時，從頂點畫出的垂直高線會落在三角形外部，必須延伸底邊才能畫出。"
+      },
+      {
+        id: 5,
+        question: "5. 直角三角形的兩條直角邊分別為 6 cm 與 8 cm，請問其面積佔平行四邊形面積的比例與最終面積為何？",
+        options: [
+          "佔 <span class='v-fraction text-indigo-700'><span class='num'>1</span><span class='den'>2</span></span>，面積為 24 cm²",
+          "佔 <span class='v-fraction text-indigo-700'><span class='num'>1</span><span class='den'>3</span></span>，面積為 48 cm²",
+          "佔 <span class='v-fraction text-indigo-700'><span class='num'>1</span><span class='den'>2</span></span>，面積為 48 cm²",
+          "佔 <span class='v-fraction text-indigo-700'><span class='num'>1</span><span class='den'>4</span></span>，面積為 14 cm²"
+        ],
+        answer: 0,
+        explanation: "直角三角形面積為平行四邊形的 <span class='v-fraction text-indigo-700'><span class='num'>1</span><span class='den'>2</span></span>。面積 ＝ 6 × 8 ÷ 2 ＝ 24 平方公分。"
+      }
+    ];
+
+    let userAnswers = {};
+    let quizSubmitted = false;
+
+    function renderQuiz() {
+      const container = document.getElementById('quiz-container');
+      container.innerHTML = '';
+
+      quizData.forEach((q) => {
+        const card = document.createElement('div');
+        card.className = "bg-white/80 rounded-xl p-5 border border-slate-200 shadow-sm space-y-3";
+
+        let optionsHTML = '';
+        q.options.forEach((opt, optIdx) => {
+          optionsHTML += `
+            <button onclick="selectOption(${q.id}, ${optIdx})" id="q${q.id}-opt${optIdx}" class="quiz-opt-btn text-left w-full p-3 rounded-lg border border-slate-200 bg-slate-50/60 hover:bg-indigo-50 hover:border-indigo-300 font-medium text-slate-700 transition-all flex items-center justify-between cursor-pointer">
+              <span>${String.fromCharCode(65 + optIdx)}. ${opt}</span>
+              <i class="fa-regular fa-circle text-slate-300 opt-icon"></i>
+            </button>
+          `;
+        });
+
+        card.innerHTML = `
+          <div class="font-bold text-slate-800 text-base md:text-lg flex items-start gap-2">
+            <span>${q.question}</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 pt-1">
+            ${optionsHTML}
+          </div>
+          <div id="q${q.id}-feedback" class="hidden p-3.5 rounded-lg text-sm font-semibold mt-2"></div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // 選項點擊事件 (選取高亮，點擊「提交答案」後才進行對錯批改)
+    function selectOption(qId, optIdx) {
+      if (quizSubmitted) return;
+
+      userAnswers[qId] = optIdx;
+
+      const q = quizData.find(item => item.id === qId);
+      q.options.forEach((_, idx) => {
+        const btn = document.getElementById(`q${qId}-opt${idx}`);
+        const icon = btn.querySelector('.opt-icon');
+        if (idx === optIdx) {
+          btn.className = "quiz-opt-btn text-left w-full p-3 rounded-lg border-2 border-indigo-500 bg-indigo-50 font-semibold text-indigo-900 transition-all flex items-center justify-between shadow-sm cursor-pointer";
+          icon.className = "fa-solid fa-circle-dot text-indigo-600 opt-icon";
+        } else {
+          btn.className = "quiz-opt-btn text-left w-full p-3 rounded-lg border border-slate-200 bg-slate-50/60 hover:bg-indigo-50 hover:border-indigo-300 font-medium text-slate-700 transition-all flex items-center justify-between cursor-pointer";
+          icon.className = "fa-regular fa-circle text-slate-300 opt-icon";
+        }
+      });
+    }
+
+    // 提交答案按鈕處理函數
+    function submitQuiz() {
+      if (quizSubmitted) {
+        showToast("答案已提交！若要重新作答請點擊「重新測驗」。", "fa-circle-info text-amber-400");
+        return;
+      }
+
+      quizSubmitted = true;
+      let totalScore = 0;
+
+      quizData.forEach((q) => {
+        const feedbackEl = document.getElementById(`q${q.id}-feedback`);
+        const selectedIdx = userAnswers[q.id];
+
+        // 鎖定按鈕
+        q.options.forEach((_, idx) => {
+          const btn = document.getElementById(`q${q.id}-opt${idx}`);
+          btn.disabled = true;
+          btn.classList.remove('cursor-pointer');
+          btn.classList.add('cursor-not-allowed');
+        });
+
+        if (selectedIdx === undefined) {
+          // 當答案是空白時：僅顯示「未作答。」(黃色系)，不顯示其他說明且不顯示正確答案
+          feedbackEl.className = "p-3.5 rounded-lg text-sm font-semibold mt-2 bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-2 block";
+          feedbackEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-500"></i> <span>未作答。</span>`;
+        } else if (selectedIdx === q.answer) {
+          totalScore += 20;
+          const selectedBtn = document.getElementById(`q${q.id}-opt${selectedIdx}`);
+          selectedBtn.className = "quiz-opt-btn text-left w-full p-3 rounded-lg border-2 border-emerald-500 bg-emerald-100 font-bold text-emerald-900 transition-all flex items-center justify-between cursor-not-allowed";
+          selectedBtn.querySelector('.opt-icon').className = "fa-solid fa-circle-check text-emerald-600 opt-icon";
+
+          feedbackEl.className = "p-3.5 rounded-lg text-sm font-semibold mt-2 bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-start gap-2 block";
+          feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 mt-0.5"></i> <div><b>回答正確！</b> ${q.explanation}</div>`;
+        } else {
+          const selectedBtn = document.getElementById(`q${q.id}-opt${selectedIdx}`);
+          selectedBtn.className = "quiz-opt-btn text-left w-full p-3 rounded-lg border-2 border-rose-400 bg-rose-100 font-bold text-rose-900 transition-all flex items-center justify-between cursor-not-allowed";
+          selectedBtn.querySelector('.opt-icon').className = "fa-solid fa-circle-xmark text-rose-600 opt-icon";
+
+          const correctBtn = document.getElementById(`q${q.id}-opt${q.answer}`);
+          correctBtn.classList.add('bg-emerald-50', 'border-emerald-300');
+
+          feedbackEl.className = "p-3.5 rounded-lg text-sm font-semibold mt-2 bg-rose-50 text-rose-800 border border-rose-200 flex items-start gap-2 block";
+          feedbackEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-500 mt-0.5"></i> <div><b>回答錯誤！</b> ${q.explanation}</div>`;
+        }
+      });
+
+      document.getElementById('quiz-score').innerText = `${totalScore} / 100 分`;
+      showToast(`評量完成！獲得 ${totalScore} 分！`, totalScore >= 60 ? "fa-circle-check text-emerald-400" : "fa-triangle-exclamation text-amber-400");
+    }
+
+    // 重新測驗按鈕處理函數
+    function resetQuiz() {
+      userAnswers = {};
+      quizSubmitted = false;
+      document.getElementById('quiz-score').innerText = "0 / 100 分";
+      renderQuiz();
+      showToast("測驗已重新重置，請重新選取答案後提交！", "fa-rotate-right text-indigo-400");
+    }
+
+    function createSVGElement(tag, attrs) {
+      const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+      for (let key in attrs) {
+        el.setAttribute(key, attrs[key]);
+      }
+      return el;
+    }
+
+    function drawGrid(svg, width, height) {
+      const gridSize = 20;
+      for (let x = 0; x <= width; x += gridSize) {
+        const line = createSVGElement('line', {
+          x1: x, y1: 0,
+          x2: x, y2: height,
+          stroke: 'rgba(148, 163, 184, 0.15)',
+          'stroke-width': '1'
+        });
+        svg.appendChild(line);
+      }
+      for (let y = 0; y <= height; y += gridSize) {
+        const line = createSVGElement('line', {
+          x1: 0, y1: y,
+          x2: width, y2: y,
+          stroke: 'rgba(148, 163, 184, 0.15)',
+          'stroke-width': '1'
+        });
+        svg.appendChild(line);
+      }
+    }
+
+    // 初始化頁面與事件綁定
+    window.onload = function() {
+      drawTab1();
+      drawTab2();
+      setupDragTab3();
+      drawTab3();
+      renderQuiz();
+    };
+  </script>
+</body>
+</html>

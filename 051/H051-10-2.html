@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10-2 認識與計算圓心角 - 互動探究學習網</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 35%, #fbc2eb 70%, #e6c1f5 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        /* 標準直式分數樣式 */
+        .v-fraction {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            margin: 0 4px;
+            font-weight: 700;
+        }
+        .v-fraction .whole-part {
+            margin-right: 4px;
+            font-size: 1.1em;
+        }
+        .v-fraction .fraction-part {
+            display: inline-flex;
+            flex-direction: column;
+            text-align: center;
+            line-height: 1.1;
+            font-size: 0.9em;
+        }
+        .v-fraction .numerator {
+            border-bottom: 2px solid currentColor;
+            padding: 0 3px 2px 3px;
+        }
+        .v-fraction .denominator {
+            padding: 2px 3px 0 3px;
+        }
+
+        /* 新海誠風光影特效卡片 */
+        .shinkai-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .shinkai-title-glow {
+            text-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+        }
+
+        /* 雲朵動畫 */
+        @keyframes cloudFloat {
+            0% { transform: translateX(0px); }
+            50% { transform: translateX(15px); }
+            100% { transform: translateX(0px); }
+        }
+        .animate-cloud {
+            animation: cloudFloat 6s ease-in-out infinite;
+        }
+
+        /* 自訂滑桿造型 */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: #cbd5e1;
+            border-radius: 8px;
+            height: 8px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 22px;
+            width: 22px;
+            border-radius: 50%;
+            background: #4f46e5;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(79, 70, 229, 0.4);
+            border: 2px solid #ffffff;
+            transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        /* SVG 拖拽點點 */
+        .angle-handle {
+            cursor: grab;
+            transition: r 0.2s, fill 0.2s;
+        }
+        .angle-handle:active {
+            cursor: grabbing;
+            r: 12;
+            fill: #ef4444;
+        }
+    </style>
+</head>
+<body class="p-3 md:p-6 text-slate-800">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- 頂部 Logo 區塊：閒雲數學小棧 -->
+        <div class="w-full max-w-4xl flex items-center justify-start mb-4 px-2 fade-in">
+            <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+            <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+        </div>
+
+        <!-- 頁頭標題欄 -->
+        <header class="shinkai-card rounded-3xl p-6 mb-6 text-center relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-32 h-32 bg-yellow-200/40 rounded-full blur-2xl animate-cloud"></div>
+            <div class="absolute -left-10 -bottom-10 w-32 h-32 bg-pink-300/40 rounded-full blur-2xl animate-cloud" style="animation-delay: -3s;"></div>
+            
+            <span class="inline-block px-4 py-1 bg-indigo-100 text-indigo-700 font-bold rounded-full text-sm mb-2 shadow-sm">
+                <i class="fa-solid fa-graduation-cap mr-1"></i> 國小五上數學 10-2 互動學習網頁
+            </span>
+            <h1 class="text-3xl md:text-4xl font-black text-indigo-950 tracking-wide shinkai-title-glow flex items-center justify-center gap-2">
+                <i class="fa-solid fa-chart-pie text-pink-500"></i> 認識與計算圓心角
+            </h1>
+            <p class="text-slate-600 mt-2 text-sm md:text-base">
+                用手拉拉看、量量看！觀察圓心角角度與扇形的關係，輕鬆搞懂優角與劣角。
+            </p>
+        </header>
+
+        <!-- 頁籤導覽列 -->
+        <nav class="flex flex-wrap justify-center gap-2 md:gap-4 mb-6" id="tabNav">
+            <button onclick="switchTab('tab1')" id="btn-tab1" class="tab-btn active px-5 py-3 rounded-2xl font-bold transition-all shadow-md flex items-center gap-2 bg-indigo-600 text-white">
+                <i class="fa-solid fa-circle-notch"></i> 認識圓心角與扇形
+            </button>
+            <button onclick="switchTab('tab2')" id="btn-tab2" class="tab-btn px-5 py-3 rounded-2xl font-bold transition-all shadow-sm flex items-center gap-2 bg-white/70 text-slate-700 hover:bg-white">
+                <i class="fa-solid fa-compass-drafting"></i> 圓心角量測與計算
+            </button>
+            <button onclick="switchTab('tab3')" id="btn-tab3" class="tab-btn px-5 py-3 rounded-2xl font-bold transition-all shadow-sm flex items-center gap-2 bg-white/70 text-slate-700 hover:bg-white">
+                <i class="fa-solid fa-pen-to-square"></i> 自我檢測
+            </button>
+        </nav>
+
+        <!-- ==================== 主題一：認識圓心角與扇形 ==================== -->
+        <section id="tab1" class="tab-content block">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- 左側：SVG 互動繪圖畫布 -->
+                <div class="lg:col-span-7 shinkai-card rounded-3xl p-6 flex flex-col items-center justify-between relative">
+                    <!-- 頂部資訊與重設按鈕 -->
+                    <div class="w-full flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full flex items-center gap-1">
+                            <i class="fa-solid fa-hand-pointer"></i> 可用滑桿或直接拖曳圓周紅點
+                        </span>
+                        <button onclick="resetAngleTab1()" class="text-xs text-indigo-600 hover:text-indigo-800 font-bold transition flex items-center gap-1">
+                            <i class="fa-solid fa-rotate-left"></i> 重設
+                        </button>
+                    </div>
+
+                    <!-- 調整圓心角角度控制項 (已移至畫布上方) -->
+                    <div class="w-full bg-indigo-50/70 p-4 rounded-2xl mb-3 border border-indigo-100">
+                        <div class="flex items-center justify-between text-sm font-bold text-slate-700 mb-1">
+                            <span>調整圓心角角度：</span>
+                            <span id="degreeText1" class="text-2xl font-black text-indigo-600">120°</span>
+                        </div>
+                        <!-- 步數改為 5 度 -->
+                        <input type="range" id="angleSlider1" min="5" max="360" step="5" value="120" class="w-full">
+                    </div>
+
+                    <!-- SVG 圓心角畫布 -->
+                    <div class="relative w-full max-w-[360px] aspect-square my-2">
+                        <svg id="svgCircle1" viewBox="0 0 400 400" class="w-full h-full drop-shadow-md select-none">
+                            <!-- 外框圓虛線 -->
+                            <circle cx="200" cy="200" r="150" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6,6" />
+                            
+                            <!-- 扇形區域 (黃色) -->
+                            <path id="sectorPath1" fill="rgba(251, 191, 36, 0.45)" stroke="#f59e0b" stroke-width="3" d="" />
+                            
+                            <!-- 弧線指示 (橘色外弧邊線) -->
+                            <path id="outerArcPath1" fill="none" stroke="#f59e0b" stroke-width="4" d="" />
+
+                            <!-- 角度弧線指示 (紅色內弧線) -->
+                            <path id="angleArc1" fill="none" stroke="#e11d48" stroke-width="2.5" stroke-dasharray="3,3" d="" />
+                            
+                            <!-- 兩半徑線段 -->
+                            <line id="radius1" x1="200" y1="200" x2="350" y2="200" stroke="#0284c7" stroke-width="4" stroke-linecap="round" />
+                            <line id="radius2" x1="200" y1="200" x2="200" y2="50" stroke="#0284c7" stroke-width="4" stroke-linecap="round" />
+
+                            <!-- 圓心標示點 -->
+                            <circle cx="200" cy="200" r="7" fill="#1e293b" />
+                            <text x="200" y="225" text-anchor="middle" font-weight="bold" fill="#0f172a" font-size="16">圓心</text>
+
+                            <!-- 半徑文字標籤 -->
+                            <text id="labelRadius1" x="275" y="190" text-anchor="middle" font-weight="bold" fill="#0284c7" font-size="14">半徑</text>
+                            <text id="labelRadius2" x="200" y="120" text-anchor="middle" font-weight="bold" fill="#0284c7" font-size="14">半徑</text>
+
+                            <!-- 弧文字標籤 (改為橙色) -->
+                            <text id="labelArc" x="320" y="100" text-anchor="middle" font-weight="bold" fill="#f59e0b" font-size="16">弧</text>
+
+                            <!-- 可拖曳角度控制控制點 -->
+                            <circle id="dragHandle1" class="angle-handle" cx="350" cy="200" r="10" fill="#ef4444" stroke="#ffffff" stroke-width="3" />
+                        </svg>
+                    </div>
+
+                    <!-- 快速預設按鈕 -->
+                    <div class="flex flex-wrap gap-2 justify-center pt-2 w-full">
+                        <button onclick="setAngleTab1(60)" class="px-3 py-1 bg-white hover:bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-xl text-xs font-bold transition">60° (劣角)</button>
+                        <button onclick="setAngleTab1(90)" class="px-3 py-1 bg-white hover:bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-xl text-xs font-bold transition">90° (直角)</button>
+                        <button onclick="setAngleTab1(180)" class="px-3 py-1 bg-white hover:bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-xl text-xs font-bold transition">180° (半圓/平角)</button>
+                        <button onclick="setAngleTab1(240)" class="px-3 py-1 bg-white hover:bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-xl text-xs font-bold transition">240° (優角)</button>
+                        <button onclick="setAngleTab1(360)" class="px-3 py-1 bg-white hover:bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-xl text-xs font-bold transition">360° (整圓/周角)</button>
+                    </div>
+                </div>
+
+                <!-- 右側：教學說明與實時數據庫 -->
+                <div class="lg:col-span-5 space-y-4">
+                    <!-- 觀念重點卡 -->
+                    <div class="shinkai-card rounded-3xl p-5 border-l-8 border-indigo-500">
+                        <h3 class="font-bold text-lg text-indigo-900 mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-lightbulb text-amber-500"></i> 什麼是圓心角？
+                        </h3>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            以<span class="font-bold text-slate-900 underline decoration-indigo-400">圓心為頂點</span>，兩條<span class="font-bold text-sky-600 underline decoration-sky-400">半徑為邊</span>所圍成的角，就叫做<span class="font-bold text-amber-600 bg-amber-50 px-1 rounded">圓心角</span>。
+                        </p>
+                    </div>
+
+                    <!-- 即時數據解讀 -->
+                    <div class="shinkai-card rounded-3xl p-5 space-y-3">
+                        <h4 class="text-xs font-bold text-slate-400 tracking-wider uppercase">即時圖形分析</h4>
+                        
+                        <!-- 角屬性標籤 -->
+                        <div class="flex items-center justify-between p-3 bg-white/60 rounded-2xl">
+                            <span class="text-sm font-bold text-slate-600">角的類型：</span>
+                            <span id="angleTypeBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
+                                劣角
+                            </span>
+                        </div>
+
+                        <!-- 相當於幾分之幾圓 (標準直式分數) -->
+                        <div class="flex items-center justify-between p-3 bg-white/60 rounded-2xl">
+                            <span class="text-sm font-bold text-slate-600">佔整圓的比率：</span>
+                            <div class="flex items-center font-bold text-indigo-700 text-lg">
+                                相當於 
+                                <span id="circleFractionDisplay" class="mx-2">
+                                    <!-- 動態生成直式分數 -->
+                                </span>
+                                圓
+                            </div>
+                        </div>
+
+                        <!-- 觀念小提示動態顯示 -->
+                        <div id="conceptTip" class="p-3 bg-sky-50 text-sky-800 rounded-2xl text-xs font-medium leading-relaxed border border-sky-100">
+                            提示：當圓心角小於 180° 時稱為劣角；等於 90° 時特別稱為直角。
+                        </div>
+                    </div>
+
+                    <!-- 圖形特徵比對輔助卡 -->
+                    <div class="shinkai-card rounded-3xl p-5">
+                        <h4 class="font-bold text-sm text-slate-800 mb-2">💡 觀察要點：</h4>
+                        <ul class="text-xs text-slate-600 space-y-2 list-disc list-inside">
+                            <li><strong class="text-indigo-600">90°</strong> 為直角，剛好是 <span class="v-fraction"><span class="fraction-part"><span class="numerator">1</span><span class="denominator">4</span></span></span> 圓。</li>
+                            <li>半圓也是扇形，它的圓心角正好是 <strong class="text-indigo-600">180°</strong> (平角)。</li>
+                            <li>一整圓的圓心角是 <strong class="text-indigo-600">360°</strong> (周角)。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 主題二：圓心角量測與計算 (全新依圖2重構) ==================== -->
+        <section id="tab2" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- 左側：量角器互動繪圖區 -->
+                <div class="lg:col-span-7 shinkai-card rounded-3xl p-6 flex flex-col justify-between items-center relative">
+                    <!-- 頂部工具列 -->
+                    <div class="w-full flex items-center justify-between mb-2">
+                        <span class="px-3 py-1.5 bg-emerald-100 text-emerald-800 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm border border-emerald-200">
+                            <i class="fa-solid fa-ruler-combined"></i> 虛擬量角器實作繪圖
+                        </span>
+                        <button onclick="randomAngleTab2()" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-shuffle"></i> 隨機出題測量
+                        </button>
+                    </div>
+
+                    <!-- 中央 SVG 繪圖區 (橘色扇形 + 黃色優角 + 半透明綠色半圓量角器) -->
+                    <div class="relative w-full max-w-[370px] aspect-square my-2 flex items-center justify-center">
+                        <svg id="svgCircle2" viewBox="0 0 400 400" class="w-full h-full drop-shadow-md select-none">
+                            <!-- 黃色優角扇形 (背景) -->
+                            <path id="sectorYellow2" fill="#fef08a" stroke="#eab308" stroke-width="2" d="" />
+
+                            <!-- 橘色扇形 (前景) -->
+                            <path id="sectorOrange2" fill="#fdba74" stroke="#ea580c" stroke-width="2" d="" />
+
+                            <!-- 解法二專用：180°-橘色角 之粉紅高亮拆解區域 (實線邊框) -->
+                            <path id="sectorSubDifference2" fill="rgba(225, 29, 72, 0.6)" stroke="#e11d48" stroke-width="3" class="hidden" d="" />
+
+                            <!-- 優角圓心角靛藍色虛線弧線 (與解1算式結果數值顏色一致) -->
+                            <path id="angleArcReflex2" fill="none" stroke="#4338ca" stroke-width="3" stroke-dasharray="4,4" d="" />
+
+                            <!-- 圓心 -->
+                            <circle cx="200" cy="200" r="5" fill="#1e293b" />
+
+                            <!-- 可旋轉的綠色半透明量角器 Group -->
+                            <g id="protractorGroup2" transform="rotate(0, 200, 200)">
+                                <!-- 半圓體 (綠色) -->
+                                <path d="M 60 200 A 140 140 0 0 1 340 200 Z" fill="rgba(167, 243, 208, 0.65)" stroke="#059669" stroke-width="2.5" />
+                                <!-- 刻度線線段與數字 -->
+                                <line x1="60" y1="200" x2="340" y2="200" stroke="#047857" stroke-width="2" />
+                                <line x1="200" y1="200" x2="200" y2="60" stroke="#047857" stroke-width="1.5" stroke-dasharray="3,3" />
+                                <circle cx="200" cy="200" r="135" fill="none" stroke="#059669" stroke-width="1" stroke-dasharray="2,4" />
+                                
+                                <text x="320" y="190" font-size="11" font-weight="bold" fill="#065f46" text-anchor="middle">0°</text>
+                                <text x="200" y="78" font-size="11" font-weight="bold" fill="#065f46" text-anchor="middle">90°</text>
+                                <text x="80" y="190" font-size="11" font-weight="bold" fill="#065f46" text-anchor="middle">180°</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- 底部：旋轉量角器控制項 -->
+                    <div class="w-full bg-slate-100/80 p-3.5 rounded-2xl border border-slate-200 space-y-1">
+                        <div class="flex justify-between items-center text-xs font-bold text-slate-700">
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-arrows-spin text-teal-600"></i> 旋轉量角器對齊角度邊：</span>
+                            <span id="protractorAngleText" class="text-sm font-black text-teal-700">0°</span>
+                        </div>
+                        <input type="range" id="sliderRotateProtractor" min="0" max="360" value="0" class="w-full">
+                    </div>
+                </div>
+
+                <!-- 右側：設定與解法計算卡片 (依圖2樣式與字體配色) -->
+                <div class="lg:col-span-5 space-y-4">
+                    <!-- 卡片 1: 設定橘色扇形角度 -->
+                    <div class="shinkai-card rounded-3xl p-5 border-l-8 border-orange-500">
+                        <div class="flex items-center gap-2 font-bold text-slate-800 text-base mb-2">
+                            <i class="fa-solid fa-calculator text-orange-500"></i> 設定橘色扇形角度
+                        </div>
+                        <div class="flex justify-between items-center text-sm font-bold text-slate-700 mb-2">
+                            <span>橘色扇形圓心角：</span>
+                            <span id="orangeValText2" class="text-2xl font-black text-orange-600">152°</span>
+                        </div>
+                        <input type="range" id="sliderOrange2" min="10" max="170" value="152" class="w-full">
+                    </div>
+
+                    <!-- 卡片 2: 利用「周角 (360°)」計算黃色優角 -->
+                    <div class="shinkai-card rounded-3xl p-5 border-l-8 border-amber-500 space-y-2">
+                        <div class="flex items-center justify-between font-bold text-indigo-950 text-base">
+                            <div class="flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-black">解1</span>
+                                利用「周角 (360°)」計算黃色優角
+                            </div>
+                            <button id="btnSol1Show" onclick="toggleSol2Mode(false)" disabled class="text-xs px-2.5 py-1 bg-slate-200 text-slate-400 font-bold rounded-xl flex items-center gap-1 cursor-not-allowed opacity-70 grayscale">
+                                <i class="fa-solid fa-eye"></i> 顯示圖示
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            一個完整的圓，其圓心角為 <strong class="text-amber-600">360°</strong>。用周角減去橘色扇形角度，即可得到黃色扇形角度：
+                        </p>
+                        <div class="p-3.5 bg-amber-50/80 border border-amber-200/80 rounded-2xl text-center text-lg font-black text-slate-800 shadow-sm tracking-wide">
+                            360° &minus; <span id="m1OrangeVal" class="text-orange-600">152°</span> = <span id="m1AnsVal" class="text-indigo-700">208°</span>
+                        </div>
+                    </div>
+
+                    <!-- 卡片 3: 利用「平角 (180°)」拆解計算 -->
+                    <div class="shinkai-card rounded-3xl p-5 border-l-8 border-indigo-600 space-y-2">
+                        <div class="flex items-center justify-between font-bold text-indigo-950 text-base">
+                            <div class="flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-black">解2</span>
+                                利用「平角 (180°)」拆解計算
+                            </div>
+                            <button id="btnSol2Show" onclick="toggleSol2Mode(true)" class="text-xs px-2.5 py-1 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl transition shadow-md flex items-center gap-1 cursor-pointer">
+                                <i class="fa-solid fa-eye"></i> 顯示圖示
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            半圓的圓心角是 <strong class="text-indigo-600">180°</strong>。先求與橘色相補的半圓角度，再加上另一個平角：
+                        </p>
+                        <div class="p-3.5 bg-indigo-50/80 border border-indigo-200/80 rounded-2xl text-center text-base font-black text-slate-800 shadow-sm space-y-1">
+                            <div>180° &minus; <span id="m2OrangeVal" class="text-orange-600">152°</span> = <span id="m2SubVal" class="text-pink-600">28°</span></div>
+                            <div class="border-t border-indigo-200/60 pt-1">180° + <span id="m2SubVal2" class="text-pink-600">28°</span> = <span id="m2AnsVal" class="text-indigo-700">208°</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 主題三：隨堂小試身手 (5題) ==================== -->
+        <section id="tab3" class="tab-content hidden">
+            <div class="shinkai-card rounded-3xl p-6 mb-6">
+                <div class="flex flex-col md:flex-row justify-between items-center pb-4 border-b border-slate-200/60 mb-6 gap-2">
+                    <div>
+                        <h2 class="text-2xl font-black text-indigo-950 flex items-center gap-2">
+                            <i class="fa-solid fa-clipboard-question text-indigo-600"></i> 圓心角概念自我檢測
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">請完成以下 5 道題目，點擊提交即可獲得即時解析與成績！</p>
+                    </div>
+                    <div id="scoreBadge" class="hidden px-4 py-2 rounded-2xl bg-indigo-600 text-white font-black text-lg shadow-md">
+                        得分：<span id="scoreText">0</span> / 100
+                    </div>
+                </div>
+
+                <form id="quizForm" class="space-y-8" onsubmit="event.preventDefault(); checkQuiz();">
+                    
+                    <!-- 第 1 題 -->
+                    <div class="p-5 rounded-2xl bg-white/60 border border-slate-200/80 space-y-3">
+                        <div class="font-bold text-slate-800 flex items-start gap-2">
+                            <span class="px-2.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-lg text-sm">Q1</span>
+                            <span>關於「圓心角」的定義，下列哪一個敘述是完全正確的？</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm pl-7">
+                            <label class="p-3 rounded-xl border border-slate-200 bg-white hover:bg-indigo-50/50 cursor-pointer flex items-center gap-2">
+                                <input type="radio" name="q1" value="A" class="text-indigo-600"> A. 頂點在圓上任意位置的角
+                            </label>
+                            <label class="p-3 rounded-xl border border-slate-200 bg-white hover:bg-indigo-50/50 cursor-pointer flex items-center gap-2">
+                                <input type="radio" name="q1" value="B" class="text-indigo-600"> B. 以圓心為頂點，兩條半徑為邊所圍成的角
+                            </label>
+                            <label class="p-3 rounded-xl border border-slate-200 bg-white hover:bg-indigo-50/50 cursor-pointer flex items-center gap-2">
+                                <input type="radio" name="q1" value="C" class="text-indigo-600"> C. 只要由兩條直線組成的角就是圓心角
+                            </label>
+                            <label class="p-3 rounded-xl border border-slate-200 bg-white hover:bg-indigo-50/50 cursor-pointer flex items-center gap-2">
+                                <input type="radio" name="q1" value="D" class="text-indigo-600"> D. 圓心角的角度不可能大於 180 度
+                            </label>
+                        </div>
+                        <div id="feedback-q1" class="hidden text-xs p-3 rounded-xl mt-2 font-medium"></div>
+                    </div>
+
+                    <!-- 第 2 題 -->
+                    <div class="p-5 rounded-2xl bg-white/60 border border-slate-200/80 space-y-3">
+                        <div class="font-bold text-slate-800 flex items-start gap-2">
+                            <span class="px-2.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-lg text-sm">Q2</span>
+                            <span>已知一個半圓也是扇形，請問半圓的圓心角是多少度？</span>
+                        </div>
+                        <div class="pl-7 flex items-center gap-3">
+                            <input type="number" id="q2_input" min="0" oninput="if(this.value < 0) this.value = '';" placeholder="請輸入角度" class="w-36 p-2.5 border border-slate-300 rounded-xl font-bold text-center focus:ring-2 focus:ring-indigo-400 outline-none">
+                            <span class="font-bold text-slate-700">度 (°)</span>
+                        </div>
+                        <div id="feedback-q2" class="hidden text-xs p-3 rounded-xl mt-2 font-medium"></div>
+                    </div>
+
+                    <!-- 第 3 題 -->
+                    <div class="p-5 rounded-2xl bg-white/60 border border-slate-200/80 space-y-3">
+                        <div class="font-bold text-slate-800 flex items-start gap-2">
+                            <span class="px-2.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-lg text-sm">Q3</span>
+                            <span>一個圓被切成兩個扇形，已知較小的橘色扇形圓心角是 115°，請問另一個較大的黃色扇形（優角）圓心角是幾度？</span>
+                        </div>
+                        <div class="pl-7 flex items-center gap-3">
+                            <input type="number" id="q3_input" min="0" oninput="if(this.value < 0) this.value = '';" placeholder="請輸入角度" class="w-36 p-2.5 border border-slate-300 rounded-xl font-bold text-center focus:ring-2 focus:ring-indigo-400 outline-none">
+                            <span class="font-bold text-slate-700">度 (°)</span>
+                        </div>
+                        <div id="feedback-q3" class="hidden text-xs p-3 rounded-xl mt-2 font-medium"></div>
+                    </div>
+
+                    <!-- 第 4 題 -->
+                    <div class="p-5 rounded-2xl bg-white/60 border border-slate-200/80 space-y-3">
+                        <div class="font-bold text-slate-800 flex items-start gap-2">
+                            <span class="px-2.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-lg text-sm">Q4</span>
+                            <span>同一個圓內有三個扇形，其中兩個扇形的圓心角分別為 90° 與 45°，請問第三個扇形的圓心角是多少度？</span>
+                        </div>
+                        <div class="pl-7 flex items-center gap-3">
+                            <input type="number" id="q4_input" min="0" oninput="if(this.value < 0) this.value = '';" placeholder="請輸入角度" class="w-36 p-2.5 border border-slate-300 rounded-xl font-bold text-center focus:ring-2 focus:ring-indigo-400 outline-none">
+                            <span class="font-bold text-slate-700">度 (°)</span>
+                        </div>
+                        <div id="feedback-q4" class="hidden text-xs p-3 rounded-xl mt-2 font-medium"></div>
+                    </div>
+
+                    <!-- 第 5 題 -->
+                    <div class="p-5 rounded-2xl bg-white/60 border border-slate-200/80 space-y-3">
+                        <div class="font-bold text-slate-800 flex items-start gap-2">
+                            <span class="px-2.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-lg text-sm">Q5</span>
+                            <div class="inline-flex items-center flex-wrap gap-1">
+                                請問圓心角為 120° 的扇形，相當於幾分之幾圓？（請填寫最簡分數）
+                            </div>
+                        </div>
+                        <div class="pl-7 flex items-center gap-2">
+                            <span class="font-bold text-slate-700">相當於</span>
+                            <!-- 直式分數輸入框UI -->
+                            <div class="inline-flex flex-col items-center justify-center p-1 bg-white rounded-xl border border-slate-300">
+                                <input type="number" id="q5_num" min="0" oninput="if(this.value < 0) this.value = '';" placeholder="分子" class="w-16 p-1 border-b border-slate-400 text-center font-bold text-sm outline-none">
+                                <input type="number" id="q5_den" min="1" oninput="if(this.value < 0) this.value = '';" placeholder="分母" class="w-16 p-1 text-center font-bold text-sm outline-none">
+                            </div>
+                            <span class="font-bold text-slate-700">圓</span>
+                        </div>
+                        <div id="feedback-q5" class="hidden text-xs p-3 rounded-xl mt-2 font-medium"></div>
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-4 pt-4">
+                        <button type="submit" class="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg transition hover:scale-105 active:scale-95 text-base">
+                            <i class="fa-solid fa-paper-plane mr-1"></i> 提交答案
+                        </button>
+                        <button type="button" onclick="resetQuiz()" class="px-8 py-3.5 bg-slate-500 hover:bg-slate-600 text-white font-bold rounded-2xl shadow-lg transition hover:scale-105 active:scale-95 text-base">
+                            <i class="fa-solid fa-rotate-left mr-1"></i> 重新測驗
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- 自訂 Alert / Modal (無原生 alert) -->
+    <div id="customModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl space-y-4 border border-white">
+            <div id="modalIcon" class="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto text-2xl">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3 id="modalTitle" class="text-xl font-bold text-slate-800">提示標題</h3>
+            <p id="modalMsg" class="text-sm text-slate-600">這是提示內容...</p>
+            <button onclick="closeModal()" class="w-full py-2.5 bg-indigo-600 text-white font-bold rounded-xl shadow hover:bg-indigo-700 transition">
+                確定
+            </button>
+        </div>
+    </div>
+
+    <script>
+        /* ==================== 通用輔助函式：標準直式分數渲染 ==================== */
+        function getVerticalFractionHTML(numerator, denominator, whole = 0) {
+            let wholeHTML = whole > 0 ? `<span class="whole-part">${whole}</span>` : '';
+            return `<span class="v-fraction">
+                        ${wholeHTML}
+                        <span class="fraction-part">
+                            <span class="numerator">${numerator}</span>
+                            <span class="denominator">${denominator}</span>
+                        </span>
+                    </span>`;
+        }
+
+        /* 最大公因數 (約分用) */
+        function gcd(a, b) {
+            return b === 0 ? a : gcd(b, a % b);
+        }
+
+        /* ==================== 頁籤切換邏輯 ==================== */
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-md');
+                btn.classList.add('bg-white/70', 'text-slate-700', 'hover:bg-white', 'shadow-sm');
+            });
+
+            document.getElementById(tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.remove('bg-white/70', 'text-slate-700', 'hover:bg-white', 'shadow-sm');
+            activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-md');
+        }
+
+        /* ==================== 主題一：SVG畫布與互動 logic ==================== */
+        const slider1 = document.getElementById('angleSlider1');
+        const degreeText1 = document.getElementById('degreeText1');
+        const sectorPath1 = document.getElementById('sectorPath1');
+        const outerArcPath1 = document.getElementById('outerArcPath1');
+        const angleArc1 = document.getElementById('angleArc1');
+        const radius1 = document.getElementById('radius1');
+        const radius2 = document.getElementById('radius2');
+        const dragHandle1 = document.getElementById('dragHandle1');
+        const angleTypeBadge = document.getElementById('angleTypeBadge');
+        const circleFractionDisplay = document.getElementById('circleFractionDisplay');
+        const conceptTip = document.getElementById('conceptTip');
+        const labelArc = document.getElementById('labelArc');
+        const labelRadius2 = document.getElementById('labelRadius2');
+
+        const cx = 200, cy = 200, r = 150;
+
+        function updateTab1Visual(angle) {
+            slider1.value = angle;
+            degreeText1.innerText = angle + '°';
+
+            const rad = (angle * Math.PI) / 180;
+            const x2 = cx + r * Math.cos(-rad);
+            const y2 = cy + r * Math.sin(-rad);
+
+            // 更新拖拽點與半徑2
+            dragHandle1.setAttribute('cx', x2);
+            dragHandle1.setAttribute('cy', y2);
+            radius2.setAttribute('x2', x2);
+            radius2.setAttribute('y2', y2);
+
+            // 當 360 度時特殊處理，確保畫布能完整呈現整圓、橘弧與紅線
+            if (angle === 360) {
+                // 完整扇形區域 (黃色圓)
+                sectorPath1.setAttribute('d', `M ${cx} ${cy} m -${r}, 0 a ${r},${r} 0 1,0 ${r*2},0 a ${r},${r} 0 1,0 -${r*2},0 Z`);
+                // 完整外層橘色弧線
+                outerArcPath1.setAttribute('d', `M ${cx+r} ${cy} A ${r} ${r} 0 1 0 ${cx-r} ${cy} A ${r} ${r} 0 1 0 ${cx+r} ${cy}`);
+                // 完整內部紅色角度線
+                const arcR = 45;
+                angleArc1.setAttribute('d', `M ${cx+arcR} ${cy} A ${arcR} ${arcR} 0 1 0 ${cx-arcR} ${cy} A ${arcR} ${arcR} 0 1 0 ${cx+arcR} ${cy}`);
+            } else {
+                // 一般 1~359 度扇形路徑
+                const largeArc = angle > 180 ? 1 : 0;
+                const dPath = `M ${cx} ${cy} L ${cx + r} ${cy} A ${r} ${r} 0 ${largeArc} 0 ${x2} ${y2} Z`;
+                sectorPath1.setAttribute('d', dPath);
+
+                // 外層橘色弧線
+                const arcDOuter = `M ${cx + r} ${cy} A ${r} ${r} 0 ${largeArc} 0 ${x2} ${y2}`;
+                outerArcPath1.setAttribute('d', arcDOuter);
+
+                // 內角度弧線指示
+                const arcR = 45;
+                const ax2 = cx + arcR * Math.cos(-rad);
+                const ay2 = cy + arcR * Math.sin(-rad);
+                const arcD = `M ${cx + arcR} ${cy} A ${arcR} ${arcR} 0 ${largeArc} 0 ${ax2} ${ay2}`;
+                angleArc1.setAttribute('d', arcD);
+            }
+
+            // 更新弧標籤位置
+            const midRad = (-rad) / 2;
+            const labelR = r + 22;
+            if (angle === 360) {
+                labelArc.setAttribute('x', cx - labelR);
+                labelArc.setAttribute('y', cy);
+            } else {
+                labelArc.setAttribute('x', cx + labelR * Math.cos(midRad));
+                labelArc.setAttribute('y', cy + labelR * Math.sin(midRad));
+            }
+
+            // 更新半徑2標籤位置
+            labelRadius2.setAttribute('x', cx + (r/2) * Math.cos(-rad) - 15 * Math.sin(-rad));
+            labelRadius2.setAttribute('y', cy + (r/2) * Math.sin(-rad) + 15 * Math.cos(-rad));
+
+            // 更新數據卡與直式分數
+            const g = gcd(angle, 360);
+            const num = angle / g;
+            const den = 360 / g;
+            circleFractionDisplay.innerHTML = getVerticalFractionHTML(num, den);
+
+            // 更新角屬性 (包含 90° 直角標示)
+            if (angle < 90) {
+                angleTypeBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800";
+                angleTypeBadge.innerText = "劣角 (銳角)";
+                conceptTip.innerText = "提示：圓心角小於 90° 為銳角，小於 180° 統稱為劣角。";
+            } else if (angle === 90) {
+                angleTypeBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800";
+                angleTypeBadge.innerText = "直角 (剛好90度)";
+                conceptTip.innerText = "提示：當圓心角剛好為 90° 時稱為「直角」，相當於 1/4 個圓。";
+            } else if (angle < 180) {
+                angleTypeBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800";
+                angleTypeBadge.innerText = "劣角 (鈍角)";
+                conceptTip.innerText = "提示：圓心角大於 90° 且小於 180° 稱為劣角。";
+            } else if (angle === 180) {
+                angleTypeBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800";
+                angleTypeBadge.innerText = "平角 / 半圓 (剛好180度)";
+                conceptTip.innerText = "提示：當圓心角剛好是 180° 時，這個扇形就是一個「半圓」，其角稱為平角。";
+            } else if (angle < 360) {
+                angleTypeBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800";
+                angleTypeBadge.innerText = "優角 (大於180度)";
+                conceptTip.innerText = "提示：圓心角大於 180° 但小於 360° 時稱為優角。此時扇形面積大於半圓。";
+            } else {
+                angleTypeBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-pink-100 text-pink-800";
+                angleTypeBadge.innerText = "周角 / 整圓 (剛好360度)";
+                conceptTip.innerText = "提示：繞圓心一整圈剛好是 360°，稱為周角，這時整個圓就是一個最大的扇形！";
+            }
+        }
+
+        function setAngleTab1(val) {
+            updateTab1Visual(val);
+        }
+
+        function resetAngleTab1() {
+            setAngleTab1(120);
+        }
+
+        slider1.addEventListener('input', (e) => {
+            updateTab1Visual(parseInt(e.target.value));
+        });
+
+        // 拖拽控制點邏輯 (SVG Drag handle)
+        let isDragging = false;
+        const svg1 = document.getElementById('svgCircle1');
+
+        function handleDrag(e) {
+            if (!isDragging) return;
+            const rect = svg1.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            const mouseX = (clientX - rect.left) * (400 / rect.width) - cx;
+            const mouseY = (clientY - rect.top) * (400 / rect.height) - cy;
+
+            let angleRad = Math.atan2(-mouseY, mouseX);
+            if (angleRad < 0) angleRad += 2 * Math.PI;
+
+            let deg = Math.round((angleRad * 180) / Math.PI);
+            // 轉為 5 的倍數
+            deg = Math.round(deg / 5) * 5;
+            if (deg === 0) deg = 360;
+            updateTab1Visual(deg);
+        }
+
+        dragHandle1.addEventListener('mousedown', () => isDragging = true);
+        dragHandle1.addEventListener('touchstart', () => isDragging = true);
+        window.addEventListener('mousemove', handleDrag);
+        window.addEventListener('touchmove', handleDrag);
+        window.addEventListener('mouseup', () => isDragging = false);
+        window.addEventListener('touchend', () => isDragging = false);
+
+
+        /* ==================== 主題二：全新量測與優角計算 (依圖2) logic ==================== */
+        const sliderOrange2 = document.getElementById('sliderOrange2');
+        const orangeValText2 = document.getElementById('orangeValText2');
+        const sectorOrange2 = document.getElementById('sectorOrange2');
+        const sectorYellow2 = document.getElementById('sectorYellow2');
+        const angleArcReflex2 = document.getElementById('angleArcReflex2');
+        const sectorSubDifference2 = document.getElementById('sectorSubDifference2');
+        const sliderRotateProtractor = document.getElementById('sliderRotateProtractor');
+        const protractorGroup2 = document.getElementById('protractorGroup2');
+        const protractorAngleText = document.getElementById('protractorAngleText');
+
+        const m1OrangeVal = document.getElementById('m1OrangeVal');
+        const m1AnsVal = document.getElementById('m1AnsVal');
+        const m2OrangeVal = document.getElementById('m2OrangeVal');
+        const m2SubVal = document.getElementById('m2SubVal');
+        const m2SubVal2 = document.getElementById('m2SubVal2');
+        const m2AnsVal = document.getElementById('m2AnsVal');
+
+        const r2 = 140;
+        let showSol2Illustration = false; // 是否顯示解法二（平角拆解）圖像
+
+        function toggleSol2Mode(show) {
+            showSol2Illustration = show;
+            const btn1 = document.getElementById('btnSol1Show');
+            const btn2 = document.getElementById('btnSol2Show');
+
+            if (show) {
+                // 點選解2：解2按鈕變灰階停用，解1按鈕變彩色可用
+                if (btn2) {
+                    btn2.className = "text-xs px-2.5 py-1 bg-slate-200 text-slate-400 font-bold rounded-xl flex items-center gap-1 cursor-not-allowed opacity-70 grayscale";
+                    btn2.disabled = true;
+                }
+                if (btn1) {
+                    btn1.className = "text-xs px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition shadow-md flex items-center gap-1 cursor-pointer";
+                    btn1.disabled = false;
+                }
+            } else {
+                // 點選解1：解1按鈕變灰階停用，解2按鈕變彩色可用
+                if (btn1) {
+                    btn1.className = "text-xs px-2.5 py-1 bg-slate-200 text-slate-400 font-bold rounded-xl flex items-center gap-1 cursor-not-allowed opacity-70 grayscale";
+                    btn1.disabled = true;
+                }
+                if (btn2) {
+                    btn2.className = "text-xs px-2.5 py-1 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl transition shadow-md flex items-center gap-1 cursor-pointer";
+                    btn2.disabled = false;
+                }
+            }
+
+            updateTab2Visual(parseInt(sliderOrange2.value));
+        }
+
+        function updateTab2Visual(orangeAngle) {
+            orangeValText2.innerText = orangeAngle + '°';
+            const yellowAngle = 360 - orangeAngle;
+
+            // 計算橘色扇形 (0° 到 orangeAngle) - 畫布角度 (逆時針)
+            const radO = (orangeAngle * Math.PI) / 180;
+            const xO = cx + r2 * Math.cos(-radO);
+            const yO = cy + r2 * Math.sin(-radO);
+
+            // 橘色扇形
+            const dOrange = `M ${cx} ${cy} L ${cx + r2} ${cy} A ${r2} ${r2} 0 0 0 ${xO} ${yO} Z`;
+            sectorOrange2.setAttribute('d', dOrange);
+
+            // 黃色優角扇形
+            const dYellow = `M ${cx} ${cy} L ${xO} ${yO} A ${r2} ${r2} 0 1 0 ${cx + r2} ${cy} Z`;
+            sectorYellow2.setAttribute('d', dYellow);
+
+            // 繪製優角圓心角虛線 (靛藍色，代表解法一算出的黃色優角)
+            const arcRReflex = 50;
+            const axO = cx + arcRReflex * Math.cos(-radO);
+            const ayO = cy + arcRReflex * Math.sin(-radO);
+            const dReflexArc = `M ${axO} ${ayO} A ${arcRReflex} ${arcRReflex} 0 1 0 ${cx + arcRReflex} ${cy}`;
+            angleArcReflex2.setAttribute('d', dReflexArc);
+
+            // 解法 2 圖像切換：顯示 180° - 橘色角 之粉紅重疊區域 (從 orangeAngle 到 180°)
+            if (showSol2Illustration && orangeAngle < 180) {
+                const dSubDiff = `M ${cx} ${cy} L ${xO} ${yO} A ${r2} ${r2} 0 0 0 ${cx - r2} ${cy} Z`;
+                sectorSubDifference2.setAttribute('d', dSubDiff);
+                sectorSubDifference2.classList.remove('hidden');
+            } else {
+                sectorSubDifference2.classList.add('hidden');
+            }
+
+            // 解法 1 計算更新
+            m1OrangeVal.innerText = orangeAngle + '°';
+            m1AnsVal.innerText = yellowAngle + '°';
+
+            // 解法 2 計算更新
+            const sub = 180 - orangeAngle;
+            m2OrangeVal.innerText = orangeAngle + '°';
+            m2SubVal.innerText = sub + '°';
+            m2SubVal2.innerText = sub + '°';
+            m2AnsVal.innerText = yellowAngle + '°';
+        }
+
+        sliderOrange2.addEventListener('input', (e) => {
+            updateTab2Visual(parseInt(e.target.value));
+        });
+
+        sliderRotateProtractor.addEventListener('input', (e) => {
+            const rot = parseInt(e.target.value);
+            protractorAngleText.innerText = rot + '°';
+            protractorGroup2.setAttribute('transform', `rotate(${-rot}, 200, 200)`);
+        });
+
+        function randomAngleTab2() {
+            // 隨機產生 20 到 160 之間的角度
+            const rand = Math.floor(Math.random() * 29 + 4) * 5; // 20~160的5的倍數
+            sliderOrange2.value = rand;
+            updateTab2Visual(rand);
+        }
+
+        /* ==================== 主題三：測驗評量 logic ==================== */
+        function checkQuiz() {
+            let score = 0;
+
+            // Q1
+            const q1Val = document.querySelector('input[name="q1"]:checked')?.value;
+            const fb1 = document.getElementById('feedback-q1');
+            fb1.classList.remove('hidden');
+            if (!q1Val) {
+                fb1.className = "text-xs p-3 rounded-xl mt-2 font-medium bg-amber-100 text-amber-800 border border-amber-200";
+                fb1.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1"></i>未作答。';
+            } else if (q1Val === 'B') {
+                score += 20;
+                fb1.className = "text-xs p-3 rounded-xl mt-2 font-medium bg-emerald-100 text-emerald-800";
+                fb1.innerHTML = '<i class="fa-solid fa-circle-check"></i> 答對了！圓心角的頂點必須在圓心，兩邊必須是圓的半徑。';
+            } else {
+                fb1.className = "text-xs p-3 rounded-xl mt-2 font-medium bg-rose-100 text-rose-800";
+                fb1.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> 答錯囉！圓心角定義為「以圓心為頂點，兩條半徑為邊所圍成的角」。';
+            }
+
+            // Q2
+            const q2Input = document.getElementById('q2_input').value.trim();
+            const fb2 = document.getElementById('feedback-q2');
+            fb2.classList.remove('hidden');
+            if (q2Input === '') {
+                fb2.className = "text-xs p-3 rounded-xl mt-2 font-medium bg-amber-100 text-amber-800 border border-amber-200";
+                fb2.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1"></i>未作答。';
+            } else if (parseInt(q2Input) === 180) {
+                score += 20;
+                fb2.className = "text-xs p-3 rounded-xl mt-2 font-medium bg-emerald-100 text-emerald-800";
+                fb2.innerHTML = '<i class="fa-solid fa-circle-check"></i> 答對了！半圓的圓心角正好是 180 度 (平角)。';
+            } else {
+                fb2.className = "text-xs p-3 rounded-xl mt-2 font-medium bg-rose-100 text-rose-800";
+                fb2.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> 答錯囉！整圓是 360°，半圓是整圓的一半，所以是 360° ÷ 2 = 180°。';
+            }
+
+            // Q3
+            const q3Input = document.getElementById('q3_input').value.trim();
+            const fb3 = document.getElementById('feedback-q3');
+            fb3.classList.remove('hidden');
+            if (q3Input === '') {
+                fb3.className = "text-xs p-3 rounded-xl mt-2 font-medium bg-amber-100 text-amber-800 border border-amber-200";
+                fb3.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1"></i>未作答。';
+            } else if (parseInt(q3Input) === 245) {
+                score += 20;
+                fb3.className = "text-xs p-3 rounded-xl mt-2 font-medium bg-emerald-100 text-emerald-800";
+                fb3.innerHTML = '<i class="fa-solid fa-circle-check"></i> 答對了！計算式：360° − 115° = 245°。';
+            } else {
+                fb3.className = "text-xs p-3 rounded-xl mt-2 font-medium bg-rose-100 text-rose-800";
+                fb3.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> 答錯囉！周角為 360°，用 360° 減去已知橘色角的 115°，答案為 245°。';
+            }
+
+            // Q4
+            const q4Input = document.getElementById('q4_input').value.trim();
+            const fb4 = document.getElementById('feedback-q4');
+            fb4.classList.remove('hidden');
+            if (q4Input === '') {
+                fb4.className = "text-xs p-3 rounded-xl mt-2 font-medium bg-amber-100 text-amber-800 border border-amber-200";
+                fb4.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1"></i>未作答。';
+            } else if (parseInt(q4Input) === 225) {
+                score += 20;
+                fb4.className = "text-xs p-3 rounded-xl mt-2 font-medium bg-emerald-100 text-emerald-800";
+                fb4.innerHTML = '<i class="fa-solid fa-circle-check"></i> 答對了！計算式：360° − 90° − 45° = 225°。';
+            } else {
+                fb4.className = "text-xs p-3 rounded-xl mt-2 font-medium bg-rose-100 text-rose-800";
+                fb4.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> 答錯囉！一整圓為 360°，扣掉第一個角 90° 與第二個角 45°，360 − 90 − 45 = 225°。';
+            }
+
+            // Q5
+            const q5NumRaw = document.getElementById('q5_num').value.trim();
+            const q5DenRaw = document.getElementById('q5_den').value.trim();
+            const fb5 = document.getElementById('feedback-q5');
+            if (fb5) {
+                fb5.classList.remove('hidden');
+                if (q5NumRaw === '' || q5DenRaw === '') {
+                    fb5.className = "text-xs p-3 rounded-xl mt-2 font-medium bg-amber-100 text-amber-800 border border-amber-200";
+                    fb5.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1"></i>未作答。';
+                } else if (parseInt(q5NumRaw) === 1 && parseInt(q5DenRaw) === 3) {
+                    score += 20;
+                    fb5.className = "text-xs p-3 rounded-xl mt-2 font-medium bg-emerald-100 text-emerald-800";
+                    fb5.innerHTML = `<i class="fa-solid fa-circle-check"></i> 答對了！120/360 約分後分子為 1、分母為 3，相當於 ${getVerticalFractionHTML(1, 3)} 圓。`;
+                } else {
+                    fb5.className = "text-xs p-3 rounded-xl mt-2 font-medium bg-rose-100 text-rose-800";
+                    fb5.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> 答錯囉！120° 佔全圓 360° 的 ${getVerticalFractionHTML(120, 360)}，同除以 120 約分後最簡分數為 ${getVerticalFractionHTML(1, 3)}。`;
+                }
+            }
+
+            // 顯示總分標籤與 Modal
+            document.getElementById('scoreBadge').classList.remove('hidden');
+            document.getElementById('scoreText').innerText = score;
+
+            showModal("評量完成！", `您的得分為：${score} 分！\n請參閱各題下方的解析進行檢討。`, score >= 80 ? 'pass' : 'retry');
+        }
+
+        /* 重新測驗清空邏輯 */
+        function resetQuiz() {
+            document.getElementById('quizForm').reset();
+            for (let i = 1; i <= 5; i++) {
+                const fb = document.getElementById(`feedback-q${i}`);
+                if (fb) {
+                    fb.classList.add('hidden');
+                    fb.innerHTML = '';
+                }
+            }
+            const scoreBadge = document.getElementById('scoreBadge');
+            if (scoreBadge) scoreBadge.classList.add('hidden');
+            document.getElementById('scoreText').innerText = '0';
+        }
+
+        /* Modal 控制 */
+        function showModal(title, msg, type) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMsg').innerText = msg;
+            const iconEl = document.getElementById('modalIcon');
+            
+            if (type === 'pass') {
+                iconEl.className = "w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl";
+                iconEl.innerHTML = '<i class="fa-solid fa-trophy"></i>';
+            } else {
+                iconEl.className = "w-14 h-14 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto text-2xl";
+                iconEl.innerHTML = '<i class="fa-solid fa-rotate"></i>';
+            }
+            
+            document.getElementById('customModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        // 初始化第一次渲染
+        window.onload = function() {
+            updateTab1Visual(120);
+            updateTab2Visual(152);
+        };
+    </script>
+</body>
+</html>

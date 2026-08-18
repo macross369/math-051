@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小學數學：認識因數與整除探索網頁</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Noto Sans TC -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans TC', 'Inter', sans-serif;
+            background: linear-[#87CEEB];
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 35%, #e0c3fc 70%, #8ec5fc 100%);
+            min-height: 100vh;
+            color: #2d3748;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 新海誠風格漂浮雲朵背景 */
+        .shinkai-cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.45);
+            border-radius: 100px;
+            filter: blur(10px);
+            animation: floatCloud 25s infinite linear;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes floatCloud {
+            0% { transform: translateX(-150px) translateY(0); opacity: 0.3; }
+            50% { transform: translateX(50vw) translateY(-20px); opacity: 0.7; }
+            100% { transform: translateX(105vw) translateY(0); opacity: 0.3; }
+        }
+
+        /* 磨砂玻璃卡片 */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.12);
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        /* 互動積木樣式 */
+        .grid-cube {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .grid-cube:hover {
+            transform: scale(1.08);
+        }
+
+        /* 彩虹卡片霓虹光影 */
+        .shinkai-btn {
+            background: linear-gradient(135deg, #6ea8fe 0%, #8e9eab 100%);
+            transition: all 0.3s ease;
+        }
+        .shinkai-btn:hover {
+            box-shadow: 0 6px 20px rgba(110, 168, 254, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* 拖放區域動態反饋 */
+        .drop-zone {
+            transition: all 0.25s ease;
+        }
+        .drop-zone.drag-over {
+            border-color: #3b82f6;
+            background-color: rgba(219, 234, 254, 0.6);
+            transform: scale(1.02);
+        }
+
+        /* 隱藏滾動條但保持功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="p-2 sm:p-4 md:p-6 relative">
+    <!-- 動態新海誠雲朵背景 -->
+    <div class="shinkai-cloud w-64 h-24 top-10 -left-20" style="animation-delay: 0s;"></div>
+    <div class="shinkai-cloud w-96 h-32 top-1/3 -left-32" style="animation-delay: -8s;"></div>
+    <div class="shinkai-cloud w-80 h-28 top-2/3 -left-20" style="animation-delay: -16s;"></div>
+
+    <div class="max-w-5xl mx-auto relative z-10">
+        
+        <!-- 頂部 Logo 與標題區域 -->
+        <div class="w-full max-w-4xl flex items-center justify-start mb-4 px-2 fade-in">
+            <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+            <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+        </div>
+
+        <!-- 頂部標題區 -->
+        <header class="glass-card rounded-3xl p-6 mb-6 text-center relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-40 h-40 bg-pink-200/50 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-blue-200/50 rounded-full blur-2xl pointer-events-none"></div>
+            
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100/80 text-blue-700 text-sm font-semibold mb-3 border border-blue-200">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> 國小五上數學 2-2 互動學習網頁
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-600 to-pink-500 tracking-tight">
+                認識因數與整除的世界
+            </h1>
+            <p class="text-gray-600 mt-2 text-sm sm:text-base max-w-2xl mx-auto font-medium">
+                拖拉滑桿、排列積木，觀察當「餘數為 0」時所發生的神奇魔法！
+            </p>
+
+            <!-- 頁籤導覽列 -->
+            <nav class="flex flex-wrap justify-center gap-2 mt-6">
+                <button onclick="switchTab('tab1')" id="nav-tab1" class="tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm sm:text-base transition-all bg-blue-600 text-white shadow-md">
+                    <i class="fa-solid fa-cubes mr-1.5"></i> 1. 積木排盤與整除
+                </button>
+                <button onclick="switchTab('tab2')" id="nav-tab2" class="tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm sm:text-base transition-all bg-white/70 text-gray-700 hover:bg-white">
+                    <i class="fa-solid fa-rainbow mr-1.5"></i> 2. 因數對彩虹搜尋器
+                </button>
+                <button onclick="switchTab('tab3')" id="nav-tab3" class="tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm sm:text-base transition-all bg-white/70 text-gray-700 hover:bg-white">
+                    <i class="fa-solid fa-boxes-packing mr-1.5"></i> 3. 整除分類對對碰
+                </button>
+                <button onclick="switchTab('tab4')" id="nav-tab4" class="tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm sm:text-base transition-all bg-white/70 text-gray-700 hover:bg-white">
+                    <i class="fa-solid fa-pen-to-square mr-1.5"></i> 4. 隨堂挑戰賽
+                </button>
+            </nav>
+        </header>
+
+        <!-- TAB 1: 積木排盤與整除觀察箱 -->
+        <main id="tab1" class="tab-content block">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- 控制面板 -->
+                <div class="lg:col-span-5 glass-card rounded-3xl p-6 flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2 mb-4">
+                            <span class="w-8 h-8 rounded-xl bg-blue-500 text-white flex items-center justify-center text-sm"><i class="fa-solid fa-sliders"></i></span>
+                            排盤設定與參數
+                        </h2>
+
+                        <!-- 總數量 slider -->
+                        <div class="mb-6 bg-white/60 p-4 rounded-2xl border border-white">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="font-bold text-gray-700 text-sm">總正方形數量 (被除數 N):</label>
+                                <span id="val-total" class="text-2xl font-black text-blue-600">12</span>
+                            </div>
+                            <input type="range" id="slider-total" min="4" max="36" value="12" step="1" 
+                                   class="w-full h-2.5 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                   oninput="updateGrid()">
+                            <div class="flex justify-between text-xs text-gray-400 mt-1">
+                                <span>4</span>
+                                <span>12</span>
+                                <span>24</span>
+                                <span>36</span>
+                            </div>
+                        </div>
+
+                        <!-- 每排數量 slider -->
+                        <div class="mb-6 bg-white/60 p-4 rounded-2xl border border-white">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="font-bold text-gray-700 text-sm">每排裝幾個 (除數 D):</label>
+                                <span id="val-row" class="text-2xl font-black text-indigo-600">3</span>
+                            </div>
+                            <input type="range" id="slider-row" min="1" max="12" value="3" step="1" 
+                                   class="w-full h-2.5 bg-indigo-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                                   oninput="updateGrid()">
+                        </div>
+
+                        <!-- 計算式卡片 -->
+                        <div class="p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 text-center">
+                            <div class="text-xs text-gray-500 font-semibold mb-1">對應除法算式</div>
+                            <div id="math-formula" class="text-2xl sm:text-3xl font-black text-gray-800 tracking-wider">
+                                12 ÷ 3 = 4 ... 0
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 整除狀態結論 -->
+                    <div id="divisibility-status" class="mt-6 p-4 rounded-2xl text-center transition-all">
+                        <!-- JS 動態寫入 -->
+                    </div>
+                </div>
+
+                <!-- 畫布與視覺化呈現 -->
+                <div class="lg:col-span-7 glass-card rounded-3xl p-6 flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fa-solid fa-shapes text-indigo-500"></i> 排列圖形矩形觀察區
+                        </h3>
+                        <span class="text-xs text-gray-500"><i class="fa-regular fa-lightbulb text-amber-500"></i> 能整除時，會剛好排成完美長方形！</span>
+                    </div>
+
+                    <!-- 積木放置區 -->
+                    <div id="grid-container" class="flex-1 min-h-[280px] bg-white/40 rounded-2xl p-6 border border-white/60 flex flex-col gap-3 justify-center items-center overflow-auto no-scrollbar">
+                        <!-- JS 動態生成積木排列 -->
+                    </div>
+
+                    <!-- 快速預設按鈕 -->
+                    <div class="mt-4 flex flex-wrap gap-2 justify-center">
+                        <span class="text-xs font-bold text-gray-500 self-center">快速試試：</span>
+                        <button onclick="setPreset(10, 2)" class="px-3 py-1 bg-white/80 hover:bg-white text-gray-700 text-xs font-semibold rounded-xl border shadow-sm">10顆包成2顆 (10÷2)</button>
+                        <button onclick="setPreset(12, 5)" class="px-3 py-1 bg-white/80 hover:bg-white text-gray-700 text-xs font-semibold rounded-xl border shadow-sm">12張裝5張 (12÷5)</button>
+                        <button onclick="setPreset(24, 6)" class="px-3 py-1 bg-white/80 hover:bg-white text-gray-700 text-xs font-semibold rounded-xl border shadow-sm">24包成6包 (24÷6)</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- TAB 2: 因數對彩虹搜尋器 -->
+        <main id="tab2" class="tab-content hidden">
+            <div class="glass-card rounded-3xl p-6">
+                <div class="max-w-2xl mx-auto text-center mb-8">
+                    <h2 class="text-2xl font-black text-gray-800 mb-2">一鍵搜尋所有因數與乘法對</h2>
+                    <p class="text-sm text-gray-600">輸入任意一個數，系統將依照乘法與除法配對，自動幫你找齊所有因數！</p>
+                    
+                    <div class="flex justify-center items-center gap-3 mt-5">
+                        <span class="font-bold text-gray-700">選擇被除數：</span>
+                        <input type="number" id="target-number" min="1" max="100" value="24" 
+                               class="w-24 px-4 py-2 rounded-2xl border-2 border-indigo-300 text-center font-black text-xl text-indigo-600 focus:outline-none focus:border-indigo-500 shadow-inner">
+                        <button onclick="calculateFactors()" class="shinkai-btn text-white px-6 py-2.5 rounded-2xl font-bold shadow-md">
+                            <i class="fa-solid fa-magnifying-glass mr-1"></i> 開始搜尋
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 搜尋結果展示區 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 左側：算式配對清單 -->
+                    <div class="bg-white/60 rounded-2xl p-5 border border-white">
+                        <h3 class="font-bold text-gray-800 mb-3 flex items-center justify-between">
+                            <span><i class="fa-solid fa-list-check text-blue-500 mr-2"></i>除數與商的因數配對</span>
+                            <span id="pair-count-badge" class="text-xs bg-blue-100 text-blue-700 font-bold px-2.5 py-1 rounded-full">共 0 組</span>
+                        </h3>
+                        <div id="factor-pairs-list" class="space-y-2 max-h-80 overflow-y-auto pr-1">
+                            <!-- JS 動態寫入 -->
+                        </div>
+                    </div>
+
+                    <!-- 右側：因數彩虹拱門視覺化 -->
+                    <div class="bg-white/60 rounded-2xl p-5 border border-white flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-3"><i class="fa-solid fa-chart-pie text-pink-500 mr-2"></i>因數從小到大排列<span id="factor-count-span" class="text-sm font-bold text-indigo-600 ml-1.5">（共 0 個因數）</span></h3>
+                            <div id="factor-chips-container" class="flex flex-wrap gap-2 my-4 min-h-[60px] items-center">
+                                <!-- JS 動態寫入Chips -->
+                            </div>
+                        </div>
+
+                        <div id="repetition-tip" class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs leading-relaxed">
+                            <i class="fa-solid fa-circle-info text-amber-500 mr-1 font-bold"></i> 
+                            <strong>學習重點：</strong> 當除數與商重複出現時（例如：4×6 與 6×4），就代表所有的因數都已經被找齊囉，不需要再繼續往下除！
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 新增：因數彩虹圖視覺化區塊 -->
+                <div class="mt-8 bg-white/75 backdrop-blur-md rounded-3xl p-6 border border-white shadow-sm">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-200/60 pb-4 mb-6 gap-2">
+                        <h3 class="text-xl font-black text-gray-800 flex items-center gap-2">
+                            <i class="fa-solid fa-rainbow text-indigo-500"></i> 因數彩虹圖：成雙成對找因數
+                        </h3>
+                        <p class="text-xs sm:text-sm text-gray-500 font-medium">
+                            利用「除法/乘法配對」，從最小到最大對齊，一對一配成彩虹拱門！
+                        </p>
+                    </div>
+
+                    <div class="text-center mb-2">
+                        <h4 class="text-lg font-bold text-gray-800">
+                            數字 <span id="rainbow-target-num" class="text-indigo-600 font-black text-2xl">24</span> 的所有因數彩虹弧線
+                        </h4>
+                    </div>
+
+                    <!-- 彩虹拱門 SVG 畫布區 -->
+                    <div class="w-full overflow-x-auto no-scrollbar py-2">
+                        <div class="min-w-[650px] flex justify-center">
+                            <svg id="rainbow-svg" width="750" height="280" viewBox="0 0 750 280" class="w-full h-auto max-w-[750px]"></svg>
+                        </div>
+                    </div>
+
+                    <!-- 結論摘要卡片 -->
+                    <div class="mt-4 p-4 rounded-2xl bg-indigo-50/80 border border-indigo-100 text-center">
+                        <div id="rainbow-formula-summary" class="text-sm sm:text-base font-bold text-indigo-900 mb-1">
+                            💡 探究結論： 1×24=24、2×12=24、3×8=24、4×6=24
+                        </div>
+                        <div class="text-xs text-indigo-600 font-medium">
+                            只要由小到大有序列出，就能「一對一」找到所有因數，不會遺漏！
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- TAB 3: 整除分類對對碰 (Drag & Drop) -->
+        <main id="tab3" class="tab-content hidden">
+            <div class="glass-card rounded-3xl p-6">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+                    <div>
+                        <h2 class="text-2xl font-black text-gray-800">整除判斷分類遊戲</h2>
+                        <p class="text-sm text-gray-600">請將算式拖曳（或點擊配對）至正確的盒子中！</p>
+                    </div>
+                    <button onclick="resetDragGame()" class="px-4 py-2 bg-white/80 hover:bg-white text-gray-700 font-bold text-sm rounded-xl border shadow-sm">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> 重新一局
+                    </button>
+                </div>
+
+                <!-- 待分類卡片區 -->
+                <div class="mb-6 bg-white/40 p-4 rounded-2xl border border-white/60">
+                    <div class="text-xs font-bold text-gray-500 mb-3"><i class="fa-solid fa-hand text-indigo-500"></i> 拖動下列算式卡片：</div>
+                    <div id="card-source" class="flex flex-wrap gap-3 min-h-[60px]">
+                        <!-- JS 動態生成待分類算式 -->
+                    </div>
+                </div>
+
+                <!-- 兩個放置區 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 餘數為0 (能整除) -->
+                    <div id="zone-zero" class="drop-zone glass-card rounded-2xl p-5 border-2 border-dashed border-emerald-300 min-h-[220px]"
+                         ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'zero')">
+                        <div class="flex items-center gap-2 mb-3 text-emerald-700 font-black text-lg">
+                            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center"><i class="fa-solid fa-check"></i></div>
+                            餘數是 0 的算式（能整除）
+                        </div>
+                        <div id="container-zero" class="flex flex-wrap gap-2">
+                            <!-- 放入的卡片 -->
+                        </div>
+                    </div>
+
+                    <!-- 餘數不為0 (不能整除) -->
+                    <div id="zone-nonzero" class="drop-zone glass-card rounded-2xl p-5 border-2 border-dashed border-rose-300 min-h-[220px]"
+                         ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'nonzero')">
+                        <div class="flex items-center gap-2 mb-3 text-rose-700 font-black text-lg">
+                            <div class="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></div>
+                            餘數不為 0 的算式（不能整除）
+                        </div>
+                        <div id="container-nonzero" class="flex flex-wrap gap-2">
+                            <!-- 放入的卡片 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- TAB 4: 隨堂測驗評量 -->
+        <main id="tab4" class="tab-content hidden">
+            <div class="glass-card rounded-3xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-2xl font-black text-gray-800">隨堂觀念大考驗 (5題)</h2>
+                        <p class="text-sm text-gray-600">完成測驗檢視你的學習成果！</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-gray-500 font-bold block">目前得分</span>
+                        <span id="quiz-score" class="text-3xl font-black text-indigo-600">0 / 100</span>
+                    </div>
+                </div>
+
+                <!-- 題目容器 -->
+                <div id="quiz-container" class="space-y-6">
+                    <!-- JS 動態寫入測驗題目 -->
+                </div>
+
+                <div class="mt-8 flex flex-wrap justify-center gap-4">
+                    <button onclick="submitQuiz()" class="shinkai-btn text-white px-8 py-3 rounded-2xl text-lg font-black shadow-lg">
+                        <i class="fa-solid fa-paper-plane mr-2"></i> 提交答案
+                    </button>
+                    <button onclick="resetQuiz()" class="bg-white/80 hover:bg-white text-gray-700 px-6 py-3 rounded-2xl text-lg font-bold border border-gray-200 shadow-md transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right text-gray-500"></i> 重新測驗
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JS 邏輯腳本 -->
+    <script>
+        // 全局狀態
+        let currentTab = 'tab1';
+
+        // 頁籤切換邏輯
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
+                btn.classList.add('bg-white/70', 'text-gray-700');
+            });
+
+            document.getElementById(tabId).classList.remove('hidden');
+            const activeNav = document.getElementById('nav-' + tabId);
+            activeNav.classList.remove('bg-white/70', 'text-gray-700');
+            activeNav.classList.add('bg-blue-600', 'text-white', 'shadow-md');
+
+            currentTab = tabId;
+        }
+
+        // TAB 1: 排盤與整除視覺化
+        function updateGrid() {
+            const total = parseInt(document.getElementById('slider-total').value);
+            const rowSize = parseInt(document.getElementById('slider-row').value);
+
+            // 更新文字
+            document.getElementById('val-total').innerText = total;
+            document.getElementById('val-row').innerText = rowSize;
+
+            const quotient = Math.floor(total / rowSize);
+            const remainder = total % rowSize;
+
+            // 更新算式
+            document.getElementById('math-formula').innerHTML = 
+                `${total} ÷ <span class="text-indigo-600">${rowSize}</span> = ${quotient} ... <span class="${remainder === 0 ? 'text-emerald-600' : 'text-rose-500'}">${remainder}</span>`;
+
+            // 更新狀態提示
+            const statusEl = document.getElementById('divisibility-status');
+            if (remainder === 0) {
+                statusEl.className = "mt-6 p-4 rounded-2xl bg-emerald-100/90 border border-emerald-300 text-emerald-800 text-center";
+                statusEl.innerHTML = `
+                    <div class="font-black text-lg mb-1"><i class="fa-solid fa-circle-check text-emerald-600"></i> 能整除！0 餘數</div>
+                    <div class="text-xs sm:text-sm">
+                        因為餘數是 0，所以 <strong>${rowSize}</strong> 可以整除 <strong>${total}</strong>。<br>
+                        也就是說：<span class="underline font-bold">${rowSize}</span> 和 <span class="underline font-bold">${quotient}</span> 都是 <span class="font-bold">${total}</span> 的<strong>因數</strong>！
+                    </div>
+                `;
+            } else {
+                statusEl.className = "mt-6 p-4 rounded-2xl bg-rose-100/90 border border-rose-300 text-rose-800 text-center";
+                statusEl.innerHTML = `
+                    <div class="font-black text-lg mb-1"><i class="fa-solid fa-circle-xmark text-rose-600"></i> 不能整除（餘數為 ${remainder}）</div>
+                    <div class="text-xs sm:text-sm">
+                        因為有剩餘 ${remainder} 個無法湊成完整的一排，所以 <strong>${rowSize}</strong> <span class="font-bold underline">不是</span> <strong>${total}</strong> 的因數。
+                    </div>
+                `;
+            }
+
+            // 繪製積木網格
+            const container = document.getElementById('grid-container');
+            container.innerHTML = '';
+
+            // 繪製完整的排
+            for (let r = 0; r < quotient; r++) {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'flex gap-2 p-2 bg-indigo-50/70 rounded-xl border border-indigo-200/60 shadow-sm items-center';
+                
+                const label = document.createElement('span');
+                label.className = 'text-xs font-bold text-indigo-400 mr-1 w-12 text-right';
+                label.innerText = `第 ${r+1} 排:`;
+                rowDiv.appendChild(label);
+
+                for (let c = 0; c < rowSize; c++) {
+                    const cube = document.createElement('div');
+                    cube.className = 'grid-cube w-7 h-7 sm:w-9 sm:h-9 bg-gradient-to-tr from-blue-500 to-cyan-400 rounded-lg shadow-md flex items-center justify-center text-white font-bold text-xs';
+                    cube.innerHTML = '<i class="fa-solid fa-star text-[10px]"></i>';
+                    rowDiv.appendChild(cube);
+                }
+                container.appendChild(rowDiv);
+            }
+
+            // 繪製剩餘不完整的排
+            if (remainder > 0) {
+                const remDiv = document.createElement('div');
+                remDiv.className = 'flex gap-2 p-2 bg-rose-50/80 rounded-xl border border-rose-300 shadow-sm items-center';
+                
+                const label = document.createElement('span');
+                label.className = 'text-xs font-bold text-rose-500 mr-1 w-12 text-right';
+                label.innerText = `剩餘:`;
+                remDiv.appendChild(label);
+
+                for (let c = 0; c < remainder; c++) {
+                    const cube = document.createElement('div');
+                    cube.className = 'grid-cube w-7 h-7 sm:w-9 sm:h-9 bg-gradient-to-tr from-rose-400 to-pink-400 rounded-lg shadow-md flex items-center justify-center text-white font-bold text-xs opacity-90';
+                    cube.innerHTML = '<i class="fa-solid fa-exclamation text-[10px]"></i>';
+                    remDiv.appendChild(cube);
+                }
+                container.appendChild(remDiv);
+            }
+        }
+
+        function setPreset(total, row) {
+            document.getElementById('slider-total').value = total;
+            document.getElementById('slider-row').value = row;
+            updateGrid();
+        }
+
+        // TAB 2: 因數彩虹搜尋
+        function calculateFactors() {
+            const targetInput = document.getElementById('target-number');
+            let n = parseInt(targetInput.value);
+
+            if (isNaN(n) || n < 1) {
+                n = 24;
+                targetInput.value = 24;
+            }
+
+            const pairsList = document.getElementById('factor-pairs-list');
+            const chipsContainer = document.getElementById('factor-chips-container');
+            pairsList.innerHTML = '';
+            chipsContainer.innerHTML = '';
+
+            const factors = [];
+            const pairs = [];
+
+            for (let d = 1; d <= n; d++) {
+                if (n % d === 0) {
+                    factors.push(d);
+                    const q = n / d;
+                    if (d <= q) {
+                        pairs.push({ d, q });
+                    }
+                }
+            }
+
+            // 渲染算式配對
+            document.getElementById('pair-count-badge').innerText = `共 ${pairs.length} 組因數對`;
+            document.getElementById('factor-count-span').innerText = `（共 ${factors.length} 個因數）`;
+            pairs.forEach(pair => {
+                const item = document.createElement('div');
+                item.className = 'p-3 rounded-xl bg-white/80 border border-blue-100 flex justify-between items-center shadow-sm text-sm font-semibold';
+                item.innerHTML = `
+                    <span class="text-gray-700">${n} ÷ <strong class="text-blue-600">${pair.d}</strong> = <strong class="text-indigo-600">${pair.q}</strong></span>
+                    <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-md font-bold">乘法紀錄: ${pair.d} × ${pair.q} = ${n}</span>
+                `;
+                pairsList.appendChild(item);
+            });
+
+            // 渲染因數按鈕與彩虹效果
+            factors.forEach(f => {
+                const chip = document.createElement('div');
+                chip.className = 'px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-black text-sm shadow-md flex items-center gap-1 animate-pulse';
+                chip.style.animationDuration = '2s';
+                chip.innerHTML = `${f}`;
+                chipsContainer.appendChild(chip);
+            });
+
+            // 渲染動態彩虹拱門圖表
+            drawRainbowArcs(n, factors, pairs);
+        }
+
+        // 繪製因數彩虹弧線 SVG
+        function drawRainbowArcs(n, factors, pairs) {
+            document.getElementById('rainbow-target-num').innerText = n;
+            
+            // 更新探究結論算式 (使用中文頓號分隔)
+            const formulaStr = pairs.map(p => `${p.d}×${p.q}=${n}`).join('、');
+            document.getElementById('rainbow-formula-summary').innerHTML = `💡 探究結論： ${formulaStr}`;
+
+            const svg = document.getElementById('rainbow-svg');
+            svg.innerHTML = '';
+
+            const width = 750;
+            const yBase = 220; // 因數數字節點的高度線
+            const count = factors.length;
+
+            if (count === 0) return;
+
+            // 計算兩端邊距與節點間距
+            const margin = 60;
+            const availableW = width - margin * 2;
+            const gap = count > 1 ? availableW / (count - 1) : 0;
+            const nodeXs = factors.map((_, i) => count === 1 ? width / 2 : margin + i * gap);
+
+            // 鮮豔彩虹拱門顏色庫
+            const colors = [
+                '#ef4444', '#f97316', '#f59e0b', '#10b981', 
+                '#06b6d4', '#3b82f6', '#6366f1', '#8b5cf6'
+            ];
+
+            // 繪製成對的弧線
+            const halfCount = Math.ceil(count / 2);
+            for (let i = 0; i < halfCount; i++) {
+                const j = count - 1 - i;
+                const x1 = nodeXs[i];
+                const x2 = nodeXs[j];
+                const color = colors[i % colors.length];
+
+                if (i === j) {
+                    // 如果是完全平方數（例 6x6=36），畫一個中心小圓拱
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    const r = 24;
+                    path.setAttribute('d', `M ${x1 - r} ${yBase} A ${r} ${r * 1.3} 0 1 1 ${x1 + r} ${yBase}`);
+                    path.setAttribute('fill', 'none');
+                    path.setAttribute('stroke', color);
+                    path.setAttribute('stroke-width', '4');
+                    path.setAttribute('stroke-linecap', 'round');
+                    svg.appendChild(path);
+                } else {
+                    const rx = (x2 - x1) / 2;
+                    // 動態高度限制
+                    const ry = Math.min(170, Math.max(35, rx * 0.62));
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('d', `M ${x1} ${yBase} A ${rx} ${ry} 0 0 1 ${x2} ${yBase}`);
+                    path.setAttribute('fill', 'none');
+                    path.setAttribute('stroke', color);
+                    path.setAttribute('stroke-width', '4');
+                    path.setAttribute('stroke-linecap', 'round');
+                    svg.appendChild(path);
+                }
+            }
+
+            // 繪製因數數字圓圈節點
+            factors.forEach((f, idx) => {
+                const x = nodeXs[idx];
+
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                
+                // 外圈圓形
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', x);
+                circle.setAttribute('cy', yBase);
+                circle.setAttribute('r', '18');
+                circle.setAttribute('fill', '#e0e7ff');
+                circle.setAttribute('stroke', '#6366f1');
+                circle.setAttribute('stroke-width', '2.5');
+
+                // 數字文字
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', x);
+                text.setAttribute('y', yBase + 5);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('font-weight', 'bold');
+                text.setAttribute('font-size', '13');
+                text.setAttribute('fill', '#3730a3');
+                text.textContent = f;
+
+                g.appendChild(circle);
+                g.appendChild(text);
+                svg.appendChild(g);
+            });
+        }
+
+        // TAB 3: 拖放遊戲資料與邏輯
+        const gameItems = [
+            { id: 1, expr: '20 ÷ 5', isZero: true, text: '20÷5 = 4 ... 0' },
+            { id: 2, expr: '14 ÷ 4', isZero: false, text: '14÷4 = 3 ... 2' },
+            { id: 3, expr: '36 ÷ 4', isZero: true, text: '36÷4 = 9 ... 0' },
+            { id: 4, expr: '8 ÷ 5', isZero: false, text: '8÷5 = 1 ... 3' },
+            { id: 5, expr: '54 ÷ 6', isZero: true, text: '54÷6 = 9 ... 0' },
+            { id: 6, expr: '62 ÷ 6', isZero: false, text: '62÷6 = 10 ... 2' }
+        ];
+
+        function resetDragGame() {
+            const source = document.getElementById('card-source');
+            document.getElementById('container-zero').innerHTML = '';
+            document.getElementById('container-nonzero').innerHTML = '';
+            source.innerHTML = '';
+
+            gameItems.forEach(item => {
+                const card = document.createElement('div');
+                card.id = 'game-card-' + item.id;
+                card.draggable = true;
+                card.ondragstart = (e) => handleDragStart(e, item.id);
+                card.className = 'px-4 py-2.5 rounded-xl bg-white shadow-md border-2 border-indigo-200 cursor-grab active:cursor-grabbing font-bold text-gray-800 text-sm hover:border-indigo-400 transition-all flex items-center gap-2';
+                card.innerHTML = `<i class="fa-solid fa-calculator text-indigo-400"></i> ${item.expr}`;
+                
+                // 支援點擊快速分類（適合觸控）
+                card.onclick = () => autoAssign(item);
+
+                source.appendChild(card);
+            });
+        }
+
+        function autoAssign(item) {
+            const card = document.getElementById('game-card-' + item.id);
+            if (!card) return;
+
+            const targetContainer = item.isZero ? document.getElementById('container-zero') : document.getElementById('container-nonzero');
+            
+            card.className = item.isZero 
+                ? 'px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-xs border border-emerald-300'
+                : 'px-3 py-1.5 rounded-lg bg-rose-100 text-rose-800 font-bold text-xs border border-rose-300';
+            card.innerHTML = `${item.text} <i class="fa-solid fa-circle-check text-xs"></i>`;
+            card.onclick = null;
+            card.draggable = false;
+            targetContainer.appendChild(card);
+        }
+
+        function handleDragStart(e, id) {
+            e.dataTransfer.setData('text/plain', id);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e, zoneType) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            const id = e.dataTransfer.getData('text/plain');
+            const item = gameItems.find(i => i.id == id);
+            
+            if (!item) return;
+
+            const isCorrectZone = (zoneType === 'zero' && item.isZero) || (zoneType === 'nonzero' && !item.isZero);
+            
+            if (isCorrectZone) {
+                autoAssign(item);
+            } else {
+                // 搖晃提示錯誤
+                const card = document.getElementById('game-card-' + id);
+                if (card) {
+                    card.classList.add('bg-rose-100', 'border-rose-400');
+                    setTimeout(() => card.classList.remove('bg-rose-100', 'border-rose-400'), 800);
+                }
+            }
+        }
+
+        // TAB 4: 測驗資料與邏輯
+        const quizQuestions = [
+            {
+                id: 1,
+                question: "1. 關於「20 ÷ 5 = 4 ... 0」，下列敘述何者正確？",
+                options: [
+                    "餘數是 0，表示 5 可以整除 20",
+                    "餘數是 0，表示 20 不能整除 5",
+                    "餘數不是 0，所以不能整除",
+                    "5 不是 20 的因數"
+                ],
+                answer: 0,
+                explain: "因為餘數為 0，所以 5 可以整除 20，5 和 4 都是 20 的因數。"
+            },
+            {
+                id: 2,
+                question: "2. 算式「8 ÷ 4 = 2 ... 0」，我們說 4 是 8 的什麼數？",
+                options: ["倍數", "因數", "餘數", "和"],
+                answer: 1,
+                explain: "餘數為 0 時，除數與商都是被除數的「因數」。"
+            },
+            {
+                id: 3,
+                question: "3. 下列哪一個數「不是」12 的因數？",
+                options: ["1", "3", "5", "12"],
+                answer: 2,
+                explain: "12 ÷ 5 = 2 ... 2，餘數不是 0，所以 5 不是 12 的因數。"
+            },
+            {
+                id: 4,
+                question: "4. 關於數字「1」與因數的特性，何者正確？",
+                options: [
+                    "1 不能整除任何數",
+                    "1 可以整除任何整數，1 是所有整數的因數",
+                    "只有奇數才有 1 這個因數",
+                    "1 沒有任何因數"
+                ],
+                answer: 1,
+                explain: "因為任何整數除以 1 餘數都是 0，所以 1 是任何整數的因數。"
+            },
+            {
+                id: 5,
+                question: "5. 用乘法找出 24 的所有因數時，列到「24 = 4 × 6」後，下一組「24 = 6 × 4」重複了，這代表什麼？",
+                options: [
+                    "代表算式列錯了",
+                    "代表所有的因數已經找齊了，可以停止搜尋",
+                    "代表 24 沒有其他的因數",
+                    "代表需要重新計算"
+                ],
+                answer: 1,
+                explain: "當除數與商重複出現時，表示已經找到臨界點，所有因數都已找齊。"
+            }
+        ];
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+
+            quizQuestions.forEach((q, idx) => {
+                const card = document.createElement('div');
+                card.className = 'bg-white/70 p-5 rounded-2xl border border-white shadow-sm';
+                
+                let optionsHTML = '';
+                q.options.forEach((opt, optIdx) => {
+                    optionsHTML += `
+                        <label class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/80 cursor-pointer transition-all border border-transparent hover:border-indigo-100">
+                            <input type="radio" name="q_${q.id}" value="${optIdx}" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
+                            <span class="text-sm font-medium text-gray-700">${opt}</span>
+                        </label>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <h3 class="font-bold text-gray-800 text-base mb-3">${q.question}</h3>
+                    <div class="space-y-1 mb-3">${optionsHTML}</div>
+                    <div id="explain_${q.id}" class="hidden p-3 rounded-xl text-xs font-semibold leading-relaxed"></div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function submitQuiz() {
+            let score = 0;
+            quizQuestions.forEach(q => {
+                const selected = document.querySelector(`input[name="q_${q.id}"]:checked`);
+                const explainEl = document.getElementById(`explain_${q.id}`);
+                explainEl.classList.remove('hidden');
+
+                if (!selected) {
+                    explainEl.className = 'p-3 rounded-xl text-xs font-semibold leading-relaxed bg-amber-100 text-amber-800 border border-amber-200 mt-2';
+                    explainEl.innerHTML = `<i class="fa-solid fa-circle-exclamation text-amber-600 mr-1"></i> 未作答。`;
+                } else if (parseInt(selected.value) === q.answer) {
+                    score += 20;
+                    explainEl.className = 'p-3 rounded-xl text-xs font-semibold leading-relaxed bg-emerald-100 text-emerald-800 border border-emerald-200 mt-2';
+                    explainEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> 答對了！${q.explain}`;
+                } else {
+                    explainEl.className = 'p-3 rounded-xl text-xs font-semibold leading-relaxed bg-rose-100 text-rose-800 border border-rose-200 mt-2';
+                    explainEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600 mr-1"></i> 答錯囉！${q.explain}`;
+                }
+            });
+
+            document.getElementById('quiz-score').innerText = `${score} / 100`;
+        }
+
+        function resetQuiz() {
+            renderQuiz();
+            document.getElementById('quiz-score').innerText = "0 / 100";
+        }
+
+        // 頁面載入初始化
+        window.onload = function() {
+            updateGrid();
+            calculateFactors();
+            resetDragGame();
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>

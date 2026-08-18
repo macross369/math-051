@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>因數與倍數 魔法探究工坊</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #311b92 25%, #4a148c 50%, #880e4f 75%, #dd2c00 100%);
+            background-size: 400% 400%;
+            animation: shinkaiSky 25s ease infinite;
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        @keyframes shinkaiSky {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Glassmorphism Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 12px 32px 0 rgba(31, 38, 135, 0.25);
+        }
+
+        .glow-title {
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 0 25px rgba(255, 182, 193, 0.6);
+        }
+
+        /* Custom Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]:focus {
+            outline: none;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 10px;
+            cursor: pointer;
+            background: linear-gradient(90deg, #a1c4fd 0%, #c2e9fb 100%);
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -7px;
+            box-shadow: 0 0 10px rgba(255, 117, 140, 0.8);
+            transition: transform 0.1s ease;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .grid-item {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .grid-item:hover {
+            transform: translateY(-4px) scale(1.05);
+        }
+
+        #skyCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="relative pb-16 px-3 sm:px-6">
+
+    <canvas id="skyCanvas"></canvas>
+
+    <div class="relative z-10 max-w-5xl mx-auto pt-8">
+
+        <!-- 閒雲數學小棧 Logo Header -->
+        <div class="w-full max-w-4xl flex items-center justify-start mb-4 px-2 fade-in">
+            <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+            <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+        </div>
+
+        <header class="text-center mb-8">
+            <div class="inline-block bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/40 text-white text-sm font-medium mb-3 shadow-sm">
+                ✨ 國小五上數學 2-3 互動學習網頁
+            </div>
+            <h1 class="text-3xl sm:text-5xl font-black text-white glow-title tracking-wide mb-2">
+                因數與倍數的魔法工坊
+            </h1>
+            <p class="text-pink-100 text-sm sm:text-base font-light">
+                滑動參數、觀察圖解，發現乘除互逆與生活中的數學秘密！
+            </p>
+        </header>
+
+        <nav class="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8">
+            <button onclick="switchTab('tab1')" id="btn-tab1" class="tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm sm:text-base transition-all duration-300 shadow-md bg-white text-indigo-900 border-2 border-indigo-200">
+                <i class="fa-solid fa-arrows-rotate mr-1.5 text-indigo-500"></i> 1. 乘除互逆轉換器
+            </button>
+            <button onclick="switchTab('tab2')" id="btn-tab2" class="tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm sm:text-base transition-all duration-300 shadow-md bg-white/40 text-white hover:bg-white/60">
+                <i class="fa-solid fa-boxes-packing mr-1.5 text-amber-300"></i> 2. 實物分裝模擬器
+            </button>
+            <button onclick="switchTab('tab3')" id="btn-tab3" class="tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm sm:text-base transition-all duration-300 shadow-md bg-white/40 text-white hover:bg-white/60">
+                <i class="fa-solid fa-flask mr-1.5 text-teal-300"></i> 3. 生活應用與包含問題
+            </button>
+            <button onclick="switchTab('tab4')" id="btn-tab4" class="tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm sm:text-base transition-all duration-300 shadow-md bg-white/40 text-white hover:bg-white/60">
+                <i class="fa-solid fa-magnifying-glass-plus mr-1.5 text-cyan-300"></i> 4. 因數查找
+            </button>
+            <button onclick="switchTab('tab5')" id="btn-tab5" class="tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm sm:text-base transition-all duration-300 shadow-md bg-white/40 text-white hover:bg-white/60">
+                <i class="fa-solid fa-star mr-1.5 text-yellow-300"></i> 5. 隨堂測驗
+            </button>
+        </nav>
+
+        <section id="tab1" class="tab-content block">
+            <div class="glass-card rounded-3xl p-6 sm:p-8 mb-6">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="w-10 h-10 rounded-2xl bg-indigo-500 text-white flex items-center justify-center text-xl shadow-lg">
+                        <i class="fa-solid fa-calculator"></i>
+                    </span>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-slate-800">乘除互逆視覺化觀察</h2>
+                        <p class="text-xs sm:text-sm text-slate-600">調整被乘數與乘數，觀察點陣圖形與乘法、除法算式的變化。</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="space-y-6 bg-indigo-50/60 p-5 rounded-2xl border border-indigo-100">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="font-bold text-slate-700">數字 A (每排數量)：<span id="valA" class="text-indigo-600 text-xl font-extrabold">7</span></label>
+                            </div>
+                            <input type="range" id="sliderA" min="1" max="12" value="7" oninput="updateSection1()">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="font-bold text-slate-700">數字 B (排數/組數)：<span id="valB" class="text-pink-600 text-xl font-extrabold">9</span></label>
+                            </div>
+                            <input type="range" id="sliderB" min="1" max="12" value="9" oninput="updateSection1()">
+                        </div>
+
+                        <div class="bg-white p-4 rounded-xl shadow-inner border border-slate-200 space-y-3">
+                            <div class="text-center font-black text-lg text-slate-800">
+                                乘法：<span class="text-indigo-600" id="exprMult">7 × 9 = 63</span>
+                            </div>
+                            <hr class="border-slate-200">
+                            <div class="grid grid-cols-2 gap-2 text-center font-bold text-sm text-slate-700">
+                                <div class="bg-indigo-50 p-2 rounded-lg border border-indigo-100" id="exprDiv1">63 ÷ 7 = 9</div>
+                                <div class="bg-pink-50 p-2 rounded-lg border border-pink-100" id="exprDiv2">63 ÷ 9 = 7</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center justify-center">
+                        <div class="text-xs font-semibold text-slate-500 mb-2">視覺陣列圖 (每列 <span id="matrixA">7</span> 個，共 <span id="matrixB">9</span> 列)</div>
+                        <div id="dotMatrix" class="bg-white/80 p-4 rounded-2xl border border-indigo-100 shadow-inner max-h-[280px] overflow-auto flex flex-col gap-1.5 items-center justify-center min-h-[220px] w-full">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="summaryCard1" class="mt-6 p-4 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg flex items-center justify-between flex-wrap gap-3">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-lightbulb text-yellow-300 text-2xl animate-pulse"></i>
+                        <span class="font-bold text-sm sm:text-base" id="summaryText1">
+                            因為 7 × 9 = 63，所以 63 是 7 和 9 的<b>倍數</b>，7 和 9 是 63 的<b>因數</b>！
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab2" class="tab-content hidden">
+            <div class="glass-card rounded-3xl p-6 sm:p-8 mb-6">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-xl shadow-lg">
+                        <i class="fa-solid fa-boxes-packing"></i>
+                    </span>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-slate-800">實物分裝與整除模擬</h2>
+                        <p class="text-xs sm:text-sm text-slate-600">挑選情境與每盒數量，即時觀察是否整除（餘數為0）。</p>
+                    </div>
+                </div>
+
+                <!-- Scenario Selection -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <button onclick="setScenario(24, '柚子', '🍊')" class="scen-btn active-scen px-4 py-2 rounded-xl text-sm font-bold bg-amber-500 text-white shadow">🍊 柚子 (24個)</button>
+                    <button onclick="setScenario(36, '餅乾', '🍪')" class="scen-btn px-4 py-2 rounded-xl text-sm font-bold bg-white text-slate-700 hover:bg-slate-100">🍪 餅乾 (36片)</button>
+                    <button onclick="setScenario(48, '月餅', '🥮')" class="scen-btn px-4 py-2 rounded-xl text-sm font-bold bg-white text-slate-700 hover:bg-slate-100">🥮 月餅 (48個)</button>
+                    <button onclick="setScenario(72, '巧克力', '🍫')" class="scen-btn px-4 py-2 rounded-xl text-sm font-bold bg-white text-slate-700 hover:bg-slate-100">🍫 巧克力 (72顆)</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Controls -->
+                    <div class="bg-amber-50/60 p-5 rounded-2xl border border-amber-100 space-y-5">
+                        <div>
+                            <div class="text-sm font-bold text-slate-700 mb-1">物品總數：<span id="totalItemsText" class="text-amber-600 text-lg font-black">24 柚子</span></div>
+                            <div class="text-xs text-slate-500">嘗試調整每盒分裝數量：</div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="font-bold text-slate-700">每盒裝：<span id="packSizeVal" class="text-amber-600 text-2xl font-extrabold">4</span> 個</label>
+                            </div>
+                            <input type="range" id="packSlider" min="1" max="24" value="4" oninput="updateSection2()">
+                        </div>
+
+                        <div class="bg-white p-4 rounded-xl shadow-inner border border-slate-200 text-center space-y-2">
+                            <div class="text-xs font-bold text-slate-500">對應除法算式：</div>
+                            <div id="mathDivExpr" class="text-xl font-black text-amber-600">24 ÷ 4 = 6 ... 0</div>
+                        </div>
+
+                        <div id="statusTag" class="p-3 rounded-xl text-center font-bold text-sm bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            🎉 剛好分完（餘數為0）！4 是 24 的因數！
+                        </div>
+                    </div>
+
+                    <!-- Visual Boxes Display -->
+                    <div class="md:col-span-2 bg-white/80 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="font-bold text-slate-700 text-sm">裝盒結果與剩餘物品</h3>
+                                <div class="text-xs font-bold text-slate-500">共分成 <span id="boxCountText" class="text-indigo-600 font-extrabold">6</span> 盒，剩餘 <span id="remainderText" class="text-rose-600 font-extrabold">0</span> 個</div>
+                            </div>
+                            <div id="boxesContainer" class="flex flex-wrap gap-3 max-h-[220px] overflow-y-auto p-2 border border-dashed border-slate-300 rounded-xl bg-slate-50/50 min-h-[120px]">
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-slate-200">
+                            <div class="text-xs font-bold text-slate-600 mb-2">未裝滿的剩餘物品 (餘數)：</div>
+                            <div id="remainderContainer" class="flex flex-wrap gap-1.5 p-2 bg-rose-50/60 rounded-xl border border-rose-200 min-h-[45px] items-center">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab3" class="tab-content hidden">
+            <div class="glass-card rounded-3xl p-6 sm:p-8 mb-6">
+                <!-- Header Badge & Title -->
+                <div class="mb-6 border-b border-indigo-100/60 pb-4">
+                    <div class="inline-block bg-purple-100 text-purple-800 text-xs font-bold px-3 py-1 rounded-full mb-2">
+                        生活應用與包含問題
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-black text-slate-800 tracking-wide">
+                        情境分裝與條件搜尋實驗室
+                    </h2>
+                </div>
+
+                <!-- Sub-Navigation Tabs -->
+                <div class="flex flex-wrap border-b border-indigo-100/80 mb-6 gap-2">
+                    <button id="subtab-btn-1" onclick="switchSubTab(1)" class="subtab-btn px-4 py-2.5 rounded-t-xl font-bold text-sm transition-all border-b-2 border-purple-600 text-purple-700 bg-white/80">
+                        1. 尋找限定範圍的倍數（卡片與積木）
+                    </button>
+                    <button id="subtab-btn-2" onclick="switchSubTab(2)" class="subtab-btn px-4 py-2.5 rounded-t-xl font-bold text-sm transition-all border-b-2 border-transparent text-slate-500 hover:text-slate-800">
+                        2. 區間條件因數包裝（月餅與餅乾）
+                    </button>
+                </div>
+
+                <!-- SUBMODE 1: 尋找限定範圍的倍數 -->
+                <div id="submode-1" class="submode-content block">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Left Control Panel -->
+                        <div class="lg:col-span-1 bg-purple-50/60 p-5 rounded-2xl border border-purple-100/80 space-y-4">
+                            <h3 class="font-bold text-slate-700 text-base flex items-center gap-2">
+                                <i class="fa-solid fa-sliders text-purple-600"></i> 設定探索條件
+                            </h3>
+                            <hr class="border-purple-200/60">
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">每份數量（例如每7張一疊）：</label>
+                                <input type="number" id="m1_perGroup" value="7" min="1" max="100" class="w-full p-2.5 bg-white border border-slate-200 rounded-xl font-extrabold text-indigo-700 text-lg focus:outline-none focus:ring-2 focus:ring-purple-400">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">上限數量（例如不到38張）：</label>
+                                <input type="number" id="m1_upperLimit" value="38" min="1" max="1000" class="w-full p-2.5 bg-white border border-slate-200 rounded-xl font-extrabold text-indigo-700 text-lg focus:outline-none focus:ring-2 focus:ring-purple-400">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">剩餘/附加顆數（例如多1片）：</label>
+                                <input type="number" id="m1_extra" value="0" min="0" max="100" class="w-full p-2.5 bg-white border border-slate-200 rounded-xl font-extrabold text-rose-600 text-lg focus:outline-none focus:ring-2 focus:ring-purple-400">
+                            </div>
+
+                            <button onclick="runMultipleSearch()" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold rounded-xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2">
+                                執行倍數搜尋 <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </div>
+
+                        <!-- Right Output Panel -->
+                        <div class="lg:col-span-2 bg-white/80 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-slate-700 text-base mb-3 flex items-center gap-2">
+                                    <i class="fa-solid fa-chart-line text-purple-600"></i> 搜尋結果與探索發現
+                                </h3>
+
+                                <div id="m1_condTag" class="bg-purple-50 p-3 rounded-xl border border-purple-100 text-xs sm:text-sm font-bold text-purple-900 mb-4 flex items-center gap-2">
+                                    <i class="fa-solid fa-magnifying-glass text-purple-600"></i> 條件：每 7 一份，小於 38
+                                </div>
+
+                                <div id="m1_resultsList" class="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                                    <!-- Dynamic List Items -->
+                                </div>
+                            </div>
+
+                            <div id="m1_finalAnswerBox" class="mt-4 p-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl shadow-lg">
+                                <div class="text-xs font-bold text-purple-200 mb-1 flex items-center gap-1">
+                                    💡 最終解答：
+                                </div>
+                                <div id="m1_answerText" class="text-xl sm:text-2xl font-black tracking-wider">
+                                    7、14、21、28、35
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUBMODE 2: 區間條件因數包裝 -->
+        <div id="submode-2" class="submode-content hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Left Control Panel -->
+                        <div class="lg:col-span-1 bg-purple-50/60 p-5 rounded-2xl border border-purple-100/80 space-y-4">
+                            <h3 class="font-bold text-slate-700 text-base flex items-center gap-2">
+                                <i class="fa-solid fa-box-archive text-fuchsia-600"></i> 分裝條件
+                            </h3>
+                            <hr class="border-purple-200/60">
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">物品總數（例如月餅 160 個）：</label>
+                                <input type="number" id="m2_total" value="160" min="1" max="10000" class="w-full p-2.5 bg-white border border-slate-200 rounded-xl font-extrabold text-indigo-700 text-lg focus:outline-none focus:ring-2 focus:ring-fuchsia-400">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 mb-1">每盒下限：</label>
+                                    <input type="number" id="m2_min" value="4" min="1" max="1000" class="w-full p-2.5 bg-white border border-slate-200 rounded-xl font-extrabold text-slate-700 text-lg focus:outline-none focus:ring-2 focus:ring-fuchsia-400">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 mb-1">每盒上限：</label>
+                                    <input type="number" id="m2_max" value="18" min="1" max="1000" class="w-full p-2.5 bg-white border border-slate-200 rounded-xl font-extrabold text-slate-700 text-lg focus:outline-none focus:ring-2 focus:ring-fuchsia-400">
+                                </div>
+                            </div>
+
+                            <button onclick="runFactorSearch()" class="w-full py-3 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-700 hover:to-purple-700 text-white font-bold rounded-xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2">
+                                尋找可能分裝法 <i class="fa-solid fa-gift"></i>
+                            </button>
+                        </div>
+
+                        <!-- Right Output Panel -->
+                        <div class="lg:col-span-2 bg-white/80 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-slate-700 text-base mb-3 flex items-center gap-2">
+                                    <i class="fa-solid fa-list-check text-fuchsia-600"></i> 因數分解與符合區間的解答
+                                </h3>
+
+                                <div id="m2_condTag" class="bg-fuchsia-50 p-3 rounded-xl border border-fuchsia-100 text-xs sm:text-sm font-bold text-fuchsia-900 mb-4 flex items-center gap-2">
+                                    📦 物品總數：160，尋找介於 4 ~ 18 之間的因數（剛好分完）
+                                </div>
+
+                                <div class="text-xs font-bold text-slate-500 mb-2">所有因數組合：</div>
+                                <div id="m2_factorPairsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[220px] overflow-y-auto pr-1">
+                                    <!-- Dynamic Factor Pairs -->
+                                </div>
+                            </div>
+
+                            <div id="m2_finalAnswerBox" class="mt-4 p-4 bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white rounded-2xl shadow-lg">
+                                <div id="m2_answerHeader" class="text-xs font-bold text-fuchsia-200 mb-1 flex items-center gap-1">
+                                    💡 介於 4 到 18 之間的解答：
+                                </div>
+                                <div id="m2_answerText" class="text-xl sm:text-2xl font-black tracking-wider">
+                                    4 、 5 、 8 、 10 、 16 ，共5個
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: 因數查找 -->
+        <section id="tab4" class="tab-content hidden">
+            <div class="glass-card rounded-3xl p-6 sm:p-8 mb-6">
+                <!-- Header -->
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="w-10 h-10 rounded-2xl bg-cyan-500 text-white flex items-center justify-center text-xl shadow-lg">
+                        <i class="fa-solid fa-magnifying-glass-plus"></i>
+                    </span>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-slate-800">乘除法找因數對照體驗</h2>
+                        <p class="text-xs sm:text-sm text-slate-600">輸入任意數字，同時對照「除法」與「乘法」尋找因數的完整過程！</p>
+                    </div>
+                </div>
+
+                <!-- Input & Preset Buttons -->
+                <div class="bg-cyan-50/60 p-5 rounded-2xl border border-cyan-100 mb-6 flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <label class="font-bold text-slate-700 text-sm sm:text-base">要尋找因數的數字：</label>
+                        <input type="number" id="factorNumInput" value="24" min="1" max="1000" oninput="updateSection4()" class="w-28 p-2 bg-white border border-slate-300 rounded-xl font-black text-cyan-700 text-xl text-center focus:outline-none focus:ring-2 focus:ring-cyan-400">
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-bold text-slate-500">課本範例快速鍵：</span>
+                        <button onclick="setFactorNum(24)" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-cyan-100 transition">24</button>
+                        <button onclick="setFactorNum(28)" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-cyan-100 transition">28</button>
+                        <button onclick="setFactorNum(45)" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-cyan-100 transition">45</button>
+                        <button onclick="setFactorNum(48)" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-cyan-100 transition">48</button>
+                    </div>
+                </div>
+
+                <!-- Two Column Process Display -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Left: Division Method -->
+                    <div class="bg-amber-50/80 p-6 rounded-2xl border border-amber-200/80 shadow-sm relative flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4 pb-2 border-b border-amber-200">
+                                <h3 class="font-bold text-slate-800 text-base sm:text-lg flex items-center gap-2">
+                                    <i class="fa-solid fa-divide text-amber-600"></i> 我用除法找 <span id="divNumText" class="text-pink-600 font-black">24</span> 的因數。
+                                </h3>
+                                <span class="text-2xl">🦜</span>
+                            </div>
+                            <div id="divProcessList" class="space-y-2 font-mono text-lg sm:text-xl min-h-[160px] pl-2">
+                                <!-- Division steps -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Multiplication Method -->
+                    <div class="bg-amber-50/80 p-6 rounded-2xl border border-amber-200/80 shadow-sm relative flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4 pb-2 border-b border-amber-200">
+                                <h3 class="font-bold text-slate-800 text-base sm:text-lg flex items-center gap-2">
+                                    <i class="fa-solid fa-xmark text-amber-600"></i> 我用乘法找 <span id="multNumText" class="text-pink-600 font-black">24</span> 的因數。
+                                </h3>
+                                <span class="text-2xl">🐿️</span>
+                            </div>
+                            <div id="multProcessList" class="space-y-2 font-mono text-lg sm:text-xl min-h-[160px] pl-2">
+                                <!-- Multiplication steps -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mascot Tip & Final Answer Box -->
+                <div class="bg-gradient-to-r from-cyan-600 to-indigo-600 text-white rounded-2xl p-6 shadow-lg mb-6 flex flex-col items-center justify-center text-center gap-4">
+                    <!-- Mascot Tip (Moved Above Answer) -->
+                    <div class="inline-flex items-center gap-3 bg-white/20 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/30 text-xs sm:text-sm font-bold">
+                        <span class="text-2xl">🐴</span>
+                        <span>找到的因數，有重複時就不用再找了。</span>
+                    </div>
+
+                    <!-- Centered Answer Section -->
+                    <div class="w-full text-center">
+                        <div class="text-xs text-cyan-200 font-bold mb-1">所有因數整理：</div>
+                        <div id="factorFinalAnswer" class="text-xl sm:text-2xl font-black tracking-wider text-pink-300">
+                            答：1、2、3、4、6、8、12、24 ，共8個
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison Table Card: 兩者算法適用時機 -->
+                <div class="bg-white/90 rounded-2xl p-5 border border-cyan-100 shadow-sm">
+                    <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-scale-balanced text-indigo-600"></i> 算法適用時機對照表
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm border-collapse rounded-xl overflow-hidden">
+                            <thead>
+                                <tr class="bg-indigo-600 text-white font-bold">
+                                    <th class="p-3 text-center border-r border-indigo-500 w-1/4">比較項目</th>
+                                    <th class="p-3 text-center border-r border-indigo-500 w-3/8">除法找法（整除檢驗）</th>
+                                    <th class="p-3 text-center w-3/8">乘法找法（因數分解）</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 text-slate-700 bg-slate-50/50">
+                                <tr>
+                                    <td class="p-4 font-bold text-center bg-indigo-50/80 text-indigo-900 border-r border-slate-200">
+                                        適用時機
+                                    </td>
+                                    <td class="p-4 border-r border-slate-200 bg-amber-50/40 leading-relaxed">
+                                        <ul class="list-disc list-inside space-y-2 font-medium">
+                                            <li>剛引入因數概念、建立整除定義時。</li>
+                                            <li>遇到三位數或超出九九乘法的大數字檢驗。</li>
+                                        </ul>
+                                    </td>
+                                    <td class="p-4 bg-pink-50/40 leading-relaxed">
+                                        <ul class="list-disc list-inside space-y-2 font-medium">
+                                            <li>目標數在 100 以內且九九乘法熟練時。</li>
+                                            <li>引導學生認識「因數成對」與數感培養。</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab5" class="tab-content hidden">
+            <div class="glass-card rounded-3xl p-6 sm:p-8 mb-6">
+                <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-yellow-500 text-white flex items-center justify-center text-xl shadow-lg">
+                            <i class="fa-solid fa-circle-question"></i>
+                        </span>
+                        <div>
+                            <h2 class="text-xl sm:text-2xl font-bold text-slate-800">隨堂測驗 (5 題)</h2>
+                            <p class="text-xs sm:text-sm text-slate-600">選好答案後點擊「提交答案」，答錯會有詳細教學提示喔！</p>
+                        </div>
+                    </div>
+                    <div id="quizScoreBadge" class="bg-yellow-100 text-yellow-800 px-4 py-1.5 rounded-full font-black text-sm border border-yellow-300">
+                        得分：0 / 100
+                    </div>
+                </div>
+
+                <div class="space-y-6" id="quizContainer">
+                    <!-- Q1 -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm" id="qBox-1">
+                        <div class="font-bold text-slate-800 text-base mb-3 flex gap-2">
+                            <span class="bg-indigo-100 text-indigo-700 px-2.5 py-0.5 rounded-lg text-xs font-black">Q1</span>
+                            根據算式「9 × 7 = 63」，下列哪一個敘述是正確的？
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                            <button onclick="selectOption(1, 0)" class="q-opt-1 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">A. 63 是 9 的因數</button>
+                            <button onclick="selectOption(1, 1)" class="q-opt-1 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">B. 9 是 63 的倍數</button>
+                            <button onclick="selectOption(1, 2)" class="q-opt-1 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">C. 63 是 7 的倍數</button>
+                            <button onclick="selectOption(1, 3)" class="q-opt-1 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">D. 7 是 9 的因數</button>
+                        </div>
+                        <div id="qFeedback-1" class="hidden p-3 rounded-xl text-xs font-bold"></div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm" id="qBox-2">
+                        <div class="font-bold text-slate-800 text-base mb-3 flex gap-2">
+                            <span class="bg-indigo-100 text-indigo-700 px-2.5 py-0.5 rounded-lg text-xs font-black">Q2</span>
+                            若「40 ÷ 8 = 5，餘數為 0」，則下列何者正確？
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                            <button onclick="selectOption(2, 0)" class="q-opt-2 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">A. 8 是 40 的因數</button>
+                            <button onclick="selectOption(2, 1)" class="q-opt-2 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">B. 40 是 8 的因數</button>
+                            <button onclick="selectOption(2, 2)" class="q-opt-2 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">C. 5 是 40 的倍數</button>
+                            <button onclick="selectOption(2, 3)" class="q-opt-2 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">D. 8 是 5 的倍數</button>
+                        </div>
+                        <div id="qFeedback-2" class="hidden p-3 rounded-xl text-xs font-bold"></div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm" id="qBox-3">
+                        <div class="font-bold text-slate-800 text-base mb-3 flex gap-2">
+                            <span class="bg-indigo-100 text-indigo-700 px-2.5 py-0.5 rounded-lg text-xs font-black">Q3</span>
+                            一盒遊戲卡少於 30 張，每 7 張一疊剛好分完。這盒遊戲卡「不可能」是多少張？
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                            <button onclick="selectOption(3, 0)" class="q-opt-3 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">A. 14 張</button>
+                            <button onclick="selectOption(3, 1)" class="q-opt-3 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">B. 21 張</button>
+                            <button onclick="selectOption(3, 2)" class="q-opt-3 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">C. 24 張</button>
+                            <button onclick="selectOption(3, 3)" class="q-opt-3 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">D. 28 張</button>
+                        </div>
+                        <div id="qFeedback-3" class="hidden p-3 rounded-xl text-xs font-bold"></div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm" id="qBox-4">
+                        <div class="font-bold text-slate-800 text-base mb-3 flex gap-2">
+                            <span class="bg-indigo-100 text-indigo-700 px-2.5 py-0.5 rounded-lg text-xs font-black">Q4</span>
+                            阿姨將 48 個月餅平分裝進盒子，每盒顆數相同（超過 10 個且小於 20 個），每盒可能是幾個？
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                            <button onclick="selectOption(4, 0)" class="q-opt-4 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">A. 12 個或 16 個</button>
+                            <button onclick="selectOption(4, 1)" class="q-opt-4 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">B. 10 個或 15 個</button>
+                            <button onclick="selectOption(4, 2)" class="q-opt-4 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">C. 14 個或 18 個</button>
+                            <button onclick="selectOption(4, 3)" class="q-opt-4 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">D. 11 個或 13 個</button>
+                        </div>
+                        <div id="qFeedback-4" class="hidden p-3 rounded-xl text-xs font-bold"></div>
+                    </div>
+
+                    <!-- Q5 -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm" id="qBox-5">
+                        <div class="font-bold text-slate-800 text-base mb-3 flex gap-2">
+                            <span class="bg-indigo-100 text-indigo-700 px-2.5 py-0.5 rounded-lg text-xs font-black">Q5</span>
+                            媽媽烤了 40 幾片餅乾，每位同學分 5 片剛好分完。吃掉 1 片後拿去學校，媽媽到底烤了多少片？
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                            <button onclick="selectOption(5, 0)" class="q-opt-5 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">A. 40 片</button>
+                            <button onclick="selectOption(5, 1)" class="q-opt-5 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">B. 41 片或 46 片</button>
+                            <button onclick="selectOption(5, 2)" class="q-opt-5 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">C. 45 片</button>
+                            <button onclick="selectOption(5, 3)" class="q-opt-5 text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition">D. 50 片</button>
+                        </div>
+                        <div id="qFeedback-5" class="hidden p-3 rounded-xl text-xs font-bold"></div>
+                    </div>
+                </div>
+
+                <!-- Submit & Reset Action Buttons -->
+                <div class="mt-8 flex flex-wrap gap-4 justify-center items-center">
+                    <button onclick="submitQuiz()" class="px-8 py-3 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-extrabold rounded-2xl shadow-lg transition transform active:scale-95 flex items-center gap-2 text-base">
+                        <i class="fa-solid fa-paper-plane"></i> 提交答案
+                    </button>
+                    <button onclick="resetQuiz()" class="px-8 py-3 bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-300 font-extrabold rounded-2xl shadow-md transition transform active:scale-95 flex items-center gap-2 text-base">
+                        <i class="fa-solid fa-rotate-right"></i> 重新測驗
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center text-xs text-white/70 py-4">
+        </footer>
+    </div>
+
+    <script>
+        // --- Star Sky Canvas Background Animation ---
+        const canvas = document.getElementById('skyCanvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initStars();
+        }
+
+        function initStars() {
+            stars = [];
+            const count = Math.floor((canvas.width * canvas.height) / 8000);
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 1.8 + 0.5,
+                    alpha: Math.random(),
+                    speed: Math.random() * 0.02 + 0.005
+                });
+            }
+        }
+
+        function drawStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            stars.forEach(star => {
+                star.alpha += star.speed;
+                if (star.alpha > 1 || star.alpha < 0) star.speed = -star.speed;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.abs(star.alpha)})`;
+                ctx.fill();
+            });
+            requestAnimationFrame(drawStars);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm sm:text-base transition-all duration-300 shadow-md bg-white/40 text-white hover:bg-white/60";
+            });
+
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.className = "tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm sm:text-base transition-all duration-300 shadow-md bg-white text-indigo-900 border-2 border-indigo-200";
+        }
+
+        function updateSection1() {
+            const a = parseInt(document.getElementById('sliderA').value);
+            const b = parseInt(document.getElementById('sliderB').value);
+            const product = a * b;
+
+            document.getElementById('valA').innerText = a;
+            document.getElementById('valB').innerText = b;
+            document.getElementById('matrixA').innerText = a;
+            document.getElementById('matrixB').innerText = b;
+
+            document.getElementById('exprMult').innerText = `${a} × ${b} = ${product}`;
+            document.getElementById('exprDiv1').innerText = `${product} ÷ ${a} = ${b}`;
+            document.getElementById('exprDiv2').innerText = `${product} ÷ ${b} = ${a}`;
+
+            const matrixDiv = document.getElementById('dotMatrix');
+            matrixDiv.innerHTML = '';
+            for (let r = 0; r < b; r++) {
+                const row = document.createElement('div');
+                row.className = 'flex gap-1.5';
+                for (let c = 0; c < a; c++) {
+                    const dot = document.createElement('span');
+                    dot.className = 'grid-item w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-pink-400 flex items-center justify-center text-[10px] text-white shadow-sm';
+                    dot.innerText = '✦';
+                    row.appendChild(dot);
+                }
+                matrixDiv.appendChild(row);
+            }
+
+            document.getElementById('summaryText1').innerHTML = 
+                `因為 <b>${a} × ${b} = ${product}</b>，所以 <b>${product}</b> 是 ${a} 和 ${b} 的<span class="text-yellow-300 font-extrabold underline">倍數</span>；${a} 和 ${b} 是 ${product} 的<span class="text-yellow-300 font-extrabold underline">因數</span>！`;
+        }
+
+        let currentTotal = 24;
+        let currentItemName = '柚子';
+        let currentEmoji = '🍊';
+
+        function setScenario(total, name, emoji) {
+            currentTotal = total;
+            currentItemName = name;
+            currentEmoji = emoji;
+
+            document.querySelectorAll('.scen-btn').forEach(btn => {
+                btn.className = "scen-btn px-4 py-2 rounded-xl text-sm font-bold bg-white text-slate-700 hover:bg-slate-100";
+            });
+            if (event && event.currentTarget) {
+                event.currentTarget.className = "scen-btn px-4 py-2 rounded-xl text-sm font-bold bg-amber-500 text-white shadow";
+            }
+
+            const slider = document.getElementById('packSlider');
+            slider.max = total;
+            slider.value = Math.min(parseInt(slider.value), total);
+
+            document.getElementById('totalItemsText').innerText = `${total} ${name}`;
+            updateSection2();
+        }
+
+        function updateSection2() {
+            const packSize = parseInt(document.getElementById('packSlider').value);
+            document.getElementById('packSizeVal').innerText = packSize;
+
+            const boxCount = Math.floor(currentTotal / packSize);
+            const remainder = currentTotal % packSize;
+
+            document.getElementById('mathDivExpr').innerText = `${currentTotal} ÷ ${packSize} = ${boxCount} ... ${remainder}`;
+            document.getElementById('boxCountText').innerText = `${boxCount} 盒/組`;
+            document.getElementById('remainderText').innerText = `${remainder} ${currentItemName}`;
+
+            const statusTag = document.getElementById('statusTag');
+            if (remainder === 0) {
+                statusTag.className = "p-3 rounded-xl text-center font-bold text-sm bg-emerald-100 text-emerald-800 border border-emerald-300";
+                statusTag.innerText = `🎉 剛好分完（餘數為0）！${packSize} 是 ${currentTotal} 的因數！`;
+            } else {
+                statusTag.className = "p-3 rounded-xl text-center font-bold text-sm bg-rose-100 text-rose-800 border border-rose-300";
+                statusTag.innerText = `⚠️ 剩下 ${remainder} 個未裝滿，無法整除。${packSize} 不是 ${currentTotal} 的因數！`;
+            }
+
+            // Boxes Container Visuals
+            const container = document.getElementById('boxesContainer');
+            container.innerHTML = '';
+            for (let i = 0; i < boxCount; i++) {
+                const box = document.createElement('div');
+                box.className = "p-2.5 rounded-xl border-2 border-emerald-400 bg-emerald-50/80 flex flex-wrap gap-1 items-center max-w-[160px]";
+                for (let j = 0; j < packSize; j++) {
+                    const item = document.createElement('span');
+                    item.className = "text-base";
+                    item.innerText = currentEmoji;
+                    box.appendChild(item);
+                }
+                container.appendChild(box);
+            }
+
+            // Remainder Container Visuals
+            const remContainer = document.getElementById('remainderContainer');
+            remContainer.innerHTML = '';
+            if (remainder === 0) {
+                remContainer.innerHTML = '<span class="text-xs text-slate-400 font-bold">零剩餘（完美整除！）</span>';
+            } else {
+                for (let k = 0; k < remainder; k++) {
+                    const item = document.createElement('span');
+                    item.className = "text-base animate-bounce";
+                    item.innerText = currentEmoji;
+                    remContainer.appendChild(item);
+                }
+            }
+        }
+
+        let activeSubTab = 1;
+
+        function switchSubTab(subId) {
+            activeSubTab = subId;
+            document.querySelectorAll('.submode-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`submode-${subId}`).classList.remove('hidden');
+
+            const btn1 = document.getElementById('subtab-btn-1');
+            const btn2 = document.getElementById('subtab-btn-2');
+
+            if (subId === 1) {
+                btn1.className = "subtab-btn px-4 py-2.5 rounded-t-xl font-bold text-sm transition-all border-b-2 border-purple-600 text-purple-700 bg-white/80";
+                btn2.className = "subtab-btn px-4 py-2.5 rounded-t-xl font-bold text-sm transition-all border-b-2 border-transparent text-slate-500 hover:text-slate-800";
+            } else {
+                btn2.className = "subtab-btn px-4 py-2.5 rounded-t-xl font-bold text-sm transition-all border-b-2 border-fuchsia-600 text-fuchsia-700 bg-white/80";
+                btn1.className = "subtab-btn px-4 py-2.5 rounded-t-xl font-bold text-sm transition-all border-b-2 border-transparent text-slate-500 hover:text-slate-800";
+            }
+        }
+
+        function runMultipleSearch() {
+            const perGroup = parseInt(document.getElementById('m1_perGroup').value) || 1;
+            const upperLimit = parseInt(document.getElementById('m1_upperLimit').value) || 0;
+            const extra = parseInt(document.getElementById('m1_extra').value) || 0;
+
+            const condTag = document.getElementById('m1_condTag');
+            const listContainer = document.getElementById('m1_resultsList');
+            const answerText = document.getElementById('m1_answerText');
+
+            let extraText = extra > 0 ? ` (+${extra})` : '';
+            condTag.innerHTML = `<i class="fa-solid fa-magnifying-glass text-purple-600"></i> 條件：每 ${perGroup} 一份，小於 ${upperLimit}${extraText}`;
+
+            listContainer.innerHTML = '';
+            let answers = [];
+
+            let k = 1;
+            while (true) {
+                let val = (perGroup * k) + extra;
+                let isMatch = val < upperLimit;
+
+                if (isMatch) {
+                    answers.push(val);
+                }
+
+                const item = document.createElement('div');
+                item.className = `p-3 rounded-xl border flex items-center justify-between font-mono text-sm ${
+                    isMatch ? 'bg-white border-emerald-200' : 'bg-slate-50 border-slate-200 opacity-60'
+                }`;
+
+                let exprText = extra > 0 
+                    ? `${perGroup} × ${k} + ${extra} = ${val}`
+                    : `${perGroup} × ${k} = ${val}`;
+
+                item.innerHTML = `
+                    <span class="font-bold text-slate-800">${exprText}</span>
+                    <span class="${isMatch ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-rose-100 text-rose-800 border border-rose-200'} text-xs font-bold px-2.5 py-1 rounded-full">
+                        ${isMatch ? `符合 (<${upperLimit})` : `超出 (≥${upperLimit})`}
+                    </span>
+                `;
+
+                listContainer.appendChild(item);
+
+                if (!isMatch) break;
+                k++;
+                if (k > 100) break;
+            }
+
+            if (answers.length > 0) {
+                answerText.innerText = answers.join('、');
+            } else {
+                answerText.innerText = "無符合條件的數字";
+            }
+        }
+
+        function runFactorSearch() {
+            const total = parseInt(document.getElementById('m2_total').value) || 1;
+            const minBox = parseInt(document.getElementById('m2_min').value) || 1;
+            const maxBox = parseInt(document.getElementById('m2_max').value) || total;
+
+            const condTag = document.getElementById('m2_condTag');
+            const pairsGrid = document.getElementById('m2_factorPairsGrid');
+            const answerHeader = document.getElementById('m2_answerHeader');
+            const answerText = document.getElementById('m2_answerText');
+
+            condTag.innerHTML = `📦 物品總數：${total}，尋找介於 ${minBox} ~ ${maxBox} 之間的因數（剛好分完）`;
+            answerHeader.innerHTML = `💡 介於 ${minBox} 到 ${maxBox} 之間的解答：`;
+
+            pairsGrid.innerHTML = '';
+
+            let factors = [];
+            let matchedFactors = [];
+
+            for (let i = 1; i <= Math.sqrt(total); i++) {
+                if (total % i === 0) {
+                    const pairVal = total / i;
+                    factors.push({ a: i, b: pairVal });
+
+                    if (i >= minBox && i <= maxBox) matchedFactors.push(i);
+                    if (pairVal !== i && pairVal >= minBox && pairVal <= maxBox) matchedFactors.push(pairVal);
+                }
+            }
+
+            matchedFactors = [...new Set(matchedFactors)].sort((a, b) => a - b);
+
+            factors.forEach(pair => {
+                const isMatched = (pair.a >= minBox && pair.a <= maxBox) || (pair.b >= minBox && pair.b <= maxBox);
+                const box = document.createElement('div');
+                box.className = isMatched 
+                    ? "p-3 rounded-xl border-2 border-rose-500 bg-rose-50/40 font-mono text-sm font-bold text-slate-800 shadow-sm flex items-center justify-between"
+                    : "p-3 rounded-xl border border-slate-200 bg-white font-mono text-sm font-bold text-slate-700 shadow-sm flex items-center justify-between";
+                box.innerHTML = `<span>${total} = ${pair.a} × ${pair.b}</span>`;
+                pairsGrid.appendChild(box);
+            });
+
+            if (matchedFactors.length > 0) {
+                answerText.innerText = `${matchedFactors.join(' 、 ')} ，共${matchedFactors.length}個`;
+            } else {
+                answerText.innerText = `無介於 ${minBox} 到 ${maxBox} 之間的因數`;
+            }
+        }
+
+        const quizAnswers = {
+            1: { correct: 2, explain: "因為 9 × 7 = 63，所以 63 是 9 和 7 的倍數。" },
+            2: { correct: 0, explain: "因為 40 ÷ 8 = 5 能整除，所以 8 是 40 的因數。" },
+            3: { correct: 2, explain: "30 以內 7 的倍數有 7, 14, 21, 28，24 不是 7 的倍數。" },
+            4: { correct: 0, explain: "48 在 10~20 之間的因數只有 12 和 16 (48÷12=4, 48÷16=3)。" },
+            5: { correct: 1, explain: "40幾區間內 5 的倍數是 40 或 45，吃掉1片前分別為 41 片或 46 片！" }
+        };
+
+        let userSelections = { 1: null, 2: null, 3: null, 4: null, 5: null };
+        let isQuizSubmitted = false;
+
+        function selectOption(qNum, optionIdx) {
+            if (isQuizSubmitted) return;
+            userSelections[qNum] = optionIdx;
+
+            const buttons = document.querySelectorAll(`.q-opt-${qNum}`);
+            buttons.forEach((btn, idx) => {
+                if (idx === optionIdx) {
+                    btn.className = "q-opt-" + qNum + " text-left p-3 rounded-xl font-bold text-sm bg-indigo-100 border-2 border-indigo-500 text-indigo-900 transition";
+                } else {
+                    btn.className = "q-opt-" + qNum + " text-left p-3 rounded-xl font-medium text-sm border border-slate-200 hover:bg-indigo-50 transition";
+                }
+            });
+        }
+
+        function submitQuiz() {
+            if (isQuizSubmitted) return;
+            isQuizSubmitted = true;
+            let totalScore = 0;
+
+            for (let qNum = 1; qNum <= 5; qNum++) {
+                const selectedOpt = userSelections[qNum];
+                const qData = quizAnswers[qNum];
+                const feedbackDiv = document.getElementById(`qFeedback-${qNum}`);
+                const buttons = document.querySelectorAll(`.q-opt-${qNum}`);
+
+                feedbackDiv.classList.remove('hidden');
+
+                if (selectedOpt === null || selectedOpt === undefined) {
+                    // Blank/unanswered question
+                    feedbackDiv.className = "mt-3 p-3 rounded-xl text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300";
+                    feedbackDiv.innerText = "未作答。";
+
+                    buttons.forEach(btn => {
+                        btn.disabled = true;
+                    });
+                } else {
+                    const isCorrect = (selectedOpt === qData.correct);
+                    if (isCorrect) {
+                        totalScore += 20;
+                        feedbackDiv.className = "mt-3 p-3 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200";
+                        feedbackDiv.innerHTML = `🎉 太棒了！答對了！${qData.explain}`;
+                    } else {
+                        feedbackDiv.className = "mt-3 p-3 rounded-xl text-xs font-bold bg-rose-50 text-rose-800 border border-rose-200";
+                        feedbackDiv.innerHTML = `❌ 差一點點！${qData.explain}`;
+                    }
+
+                    buttons.forEach((btn, idx) => {
+                        btn.disabled = true;
+                        if (idx === qData.correct) {
+                            btn.className = "q-opt-" + qNum + " text-left p-3 rounded-xl font-bold text-sm bg-emerald-100 border-2 border-emerald-500 text-emerald-800";
+                        } else if (idx === selectedOpt && !isCorrect) {
+                            btn.className = "q-opt-" + qNum + " text-left p-3 rounded-xl font-bold text-sm bg-rose-100 border-2 border-rose-500 text-rose-800";
+                        } else {
+                            btn.className = "q-opt-" + qNum + " text-left p-3 rounded-xl font-medium text-sm opacity-50 border border-slate-200";
+                        }
+                    });
+                }
+            }
+
+            document.getElementById('quizScoreBadge').innerText = `得分：${totalScore} / 100`;
+        }
+
+        function resetQuiz() {
+            isQuizSubmitted = false;
+            userSelections = { 1: null, 2: null, 3: null, 4: null, 5: null };
+
+            for (let qNum = 1; qNum <= 5; qNum++) {
+                const feedbackDiv = document.getElementById(`qFeedback-${qNum}`);
+                feedbackDiv.classList.add('hidden');
+                feedbackDiv.innerText = '';
+
+                const buttons = document.querySelectorAll(`.q-opt-${qNum}`);
+                buttons.forEach((btn) => {
+                    btn.disabled = false;
+                    btn.className = "q-opt-" + qNum + " text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm transition";
+                });
+            }
+
+            document.getElementById('quizScoreBadge').innerText = `得分：0 / 100`;
+        }
+
+        window.onload = function() {
+            resizeCanvas();
+            drawStars();
+            updateSection1();
+            updateSection2();
+            runMultipleSearch();
+            runFactorSearch();
+            updateSection4();
+        };
+
+        function setFactorNum(num) {
+            document.getElementById('factorNumInput').value = num;
+            updateSection4();
+        }
+
+        function updateSection4() {
+            const val = parseInt(document.getElementById('factorNumInput').value) || 1;
+            document.getElementById('divNumText').innerText = val;
+            document.getElementById('multNumText').innerText = val;
+
+            const divList = document.getElementById('divProcessList');
+            const multList = document.getElementById('multProcessList');
+            divList.innerHTML = '';
+            multList.innerHTML = '';
+
+            let factors = [];
+            let pairs = [];
+            let duplicatePair = null;
+
+            for (let i = 1; i <= val; i++) {
+                if (val % i === 0) {
+                    let q = val / i;
+                    factors.push(i);
+                    if (i <= q) {
+                        pairs.push({ a: i, b: q });
+                    } else if (!duplicatePair) {
+                        duplicatePair = { a: i, b: q };
+                    }
+                }
+            }
+
+            // Render Division List
+            pairs.forEach(p => {
+                const div = document.createElement('div');
+                div.className = "text-pink-600 font-extrabold tracking-wider";
+                div.innerText = `${val} ÷ ${p.a} = ${p.b}`;
+                divList.appendChild(div);
+            });
+            if (duplicatePair) {
+                const div = document.createElement('div');
+                div.className = "text-slate-400 font-bold tracking-wider flex items-center gap-2";
+                div.innerHTML = `<span class="line-through">${val} ÷ ${duplicatePair.a} = ${duplicatePair.b}</span> <span class="text-rose-500 font-bold text-xs sm:text-sm">( 重複 )</span>`;
+                divList.appendChild(div);
+            }
+
+            // Render Multiplication List
+            pairs.forEach((p, index) => {
+                const div = document.createElement('div');
+                div.className = "text-pink-600 font-extrabold tracking-wider";
+                if (index === 0) {
+                    div.innerText = `${val} = ${p.a} × ${p.b}`;
+                } else {
+                    const padLength = val.toString().length;
+                    const spaces = "&nbsp;".repeat(padLength + 1);
+                    div.innerHTML = `${spaces}= ${p.a} × ${p.b}`;
+                }
+                multList.appendChild(div);
+            });
+            if (duplicatePair) {
+                const div = document.createElement('div');
+                div.className = "text-slate-400 font-bold tracking-wider flex items-center gap-2";
+                const padLength = val.toString().length;
+                const spaces = "&nbsp;".repeat(padLength + 1);
+                div.innerHTML = `<span class="line-through">${spaces}= ${duplicatePair.a} × ${duplicatePair.b}</span> <span class="text-rose-500 font-bold text-xs sm:text-sm">( 重複 )</span>`;
+                multList.appendChild(div);
+            }
+
+            // Final Answer Output
+            factors = [...new Set(factors)].sort((a,b) => a - b);
+            document.getElementById('factorFinalAnswer').innerText = `答：${factors.join('、')} ，共${factors.length}個`;
+        }
+    </script>
+</body>
+</html>

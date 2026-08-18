@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>面積的變化與應用 - 互動探究學習網</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #1a2a6c 0%, #b21f1f 50%, #fdbb2d 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        /* 新海誠天空風格背景裝飾 */
+        .shinkai-bg {
+            background: linear-gradient(180deg, #2b5876 0%, #4e4376 40%, #e0c3fc 80%, #8ec5fc 100%);
+            background-attachment: fixed;
+        }
+
+        /* 玻璃擬態卡片 */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        /* 符合國小課本標準的直式分數樣式 */
+        .v-frac {
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            margin: 0 6px;
+            line-height: 1.15;
+        }
+        .v-frac .num {
+            border-bottom: 2px solid currentColor;
+            padding: 0 4px 2px 4px;
+            text-align: center;
+            width: 100%;
+            font-weight: bold;
+        }
+        .v-frac .den {
+            padding: 2px 4px 0 4px;
+            text-align: center;
+            width: 100%;
+            font-weight: bold;
+        }
+        .mixed-frac {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+        }
+        .mixed-frac .whole {
+            font-weight: bold;
+            margin-right: 3px;
+            font-size: 1.1em;
+        }
+
+        /* 自訂 Canvas 容器 */
+        canvas {
+            touch-action: none;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 1rem;
+        }
+
+        /* Tab 頁籤切換效果 */
+        .tab-btn.active {
+            background: linear-gradient(135deg, #4f46e5, #06b6d4);
+            color: white;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+        }
+    </style>
+</head>
+<body class="shinkai-bg text-slate-800 pb-12">
+
+    <!-- 頂部標題列 -->
+    <header class="w-full pt-6 pb-2 px-4 mb-4 relative overflow-hidden">
+        <!-- 閒雲數學小棧 Logo 與名稱 -->
+        <div class="w-full max-w-6xl mx-auto flex items-center justify-start mb-4 px-2 fade-in">
+            <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+            <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+        </div>
+
+        <div class="max-w-6xl mx-auto glass-card rounded-2xl p-6 relative z-10 text-center">
+            <div class="inline-block bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold mb-2">
+                <i class="fa-solid fa-graduation-cap mr-1"></i> 國小五上數學 8-4 互動學習網頁
+            </div>
+            <h1 class="text-3xl md:text-4xl font-black text-slate-800 tracking-wide mb-2">
+                面積的變化與應用 <span class="text-indigo-600">動態探究館</span>
+            </h1>
+            <p class="text-sm md:text-base text-slate-600">
+                滑動數值、拖曳圖形，觀察「底、高、面積」之間的變化秘密！
+            </p>
+        </div>
+    </header>
+
+    <!-- 主內容區塊 -->
+    <main class="max-w-6xl mx-auto px-4">
+
+        <!-- 標籤頁選單 (超過2個主題，採用Tab分頁呈現) -->
+        <div class="flex flex-wrap gap-2 mb-6 justify-center">
+            <button onclick="switchTab('tab1')" id="btn-tab1" class="tab-btn active px-4 py-3 rounded-xl font-bold text-sm md:text-base transition-all duration-300 flex items-center gap-2 bg-white text-slate-700 hover:bg-slate-50">
+                <i class="fa-solid fa-shapes text-indigo-500"></i> 1. 等底等高的變化
+            </button>
+            <button onclick="switchTab('tab2')" id="btn-tab2" class="tab-btn px-4 py-3 rounded-xl font-bold text-sm md:text-base transition-all duration-300 flex items-center gap-2 bg-white text-slate-700 hover:bg-slate-50">
+                <i class="fa-solid fa-expand text-cyan-500"></i> 2. 底高倍數與面積
+            </button>
+            <button onclick="switchTab('tab3')" id="btn-tab3" class="tab-btn px-4 py-3 rounded-xl font-bold text-sm md:text-base transition-all duration-300 flex items-center gap-2 bg-white text-slate-700 hover:bg-slate-50">
+                <i class="fa-solid fa-scissors text-amber-500"></i> 3. 複合圖形切割與扣除
+            </button>
+            <button onclick="switchTab('tab4')" id="btn-tab4" class="tab-btn px-4 py-3 rounded-xl font-bold text-sm md:text-base transition-all duration-300 flex items-center gap-2 bg-white text-slate-700 hover:bg-slate-50">
+                <i class="fa-solid fa-road text-emerald-500"></i> 4. 道路平移法
+            </button>
+            <button onclick="switchTab('tab5')" id="btn-tab5" class="tab-btn px-4 py-3 rounded-xl font-bold text-sm md:text-base transition-all duration-300 flex items-center gap-2 bg-white text-slate-700 hover:bg-slate-50">
+                <i class="fa-solid fa-pen-to-square text-rose-500"></i> 5. 隨堂測驗
+            </button>
+        </div>
+
+        <!-- ==================== TAB 1: 等底等高的變化 ==================== -->
+        <section id="tab1" class="tab-content block">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 左側控制區 -->
+                <div class="glass-card p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-indigo-900 mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-sliders"></i> 圖形變形操作台
+                        </h2>
+                        
+                        <!-- 切換圖形類型 -->
+                        <div class="mb-5">
+                            <label class="block text-sm font-bold text-slate-700 mb-2">選擇探究圖形：</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="setTab1Shape('para')" id="btn-shape-para" class="py-2 px-3 rounded-lg font-bold border-2 border-indigo-500 bg-indigo-50 text-indigo-700 text-sm">
+                                    平行四邊形
+                                </button>
+                                <button onclick="setTab1Shape('tri')" id="btn-shape-tri" class="py-2 px-3 rounded-lg font-bold border-2 border-slate-200 text-slate-600 text-sm">
+                                    三角形
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 滑桿 1：頂點位移 -->
+                        <div class="mb-5">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-sm font-bold text-slate-700">頂點水平偏移 (頂點左右平移)：</label>
+                                <span id="val-t1-offset" class="font-bold text-indigo-600">0 cm</span>
+                            </div>
+                            <input type="range" id="slider-t1-offset" min="-80" max="80" value="0" class="w-full accent-indigo-600 cursor-pointer" oninput="renderTab1()">
+                            <p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-circle-info"></i> 試著左右拉動，觀察高與底是否改變？</p>
+                        </div>
+
+                        <!-- 扣條形變示範（思考帽內容 - 僅在平行四邊形時顯示） -->
+                        <div id="box-t1-thinking-hat" class="mt-6 p-4 bg-amber-50 rounded-xl border border-amber-200">
+                            <h3 class="font-bold text-amber-900 text-sm mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-hat-wizard"></i> 思考帽探究：扣條拉斜變形
+                            </h3>
+                            <p class="text-xs text-amber-800 mb-3">
+                                用扣條做成固定邊長的長方形，推成傾斜平行四邊形時，高會變短還是變長？
+                            </p>
+                            <div class="flex justify-between items-center text-xs mb-1">
+                                <span>傾斜角度：</span>
+                                <span id="val-t1-angle" class="font-bold text-amber-700">90° (長方形)</span>
+                            </div>
+                            <input type="range" id="slider-t1-angle" min="30" max="90" value="90" class="w-full accent-amber-600 cursor-pointer" oninput="renderTab1()">
+                        </div>
+                    </div>
+
+                    <!-- 觀念說明卡 -->
+                    <div class="mt-6 p-4 bg-indigo-50 rounded-xl border border-indigo-100 text-xs text-indigo-900">
+                        <strong class="block text-sm mb-1"><i class="fa-solid fa-lightbulb"></i> 核心結論：</strong>
+                        只要<span class="font-bold text-indigo-700">「底長相等」</span>且<span class="font-bold text-indigo-700">「高相等」</span>，不論圖形怎麼歪斜，它們的面積都<span class="font-bold text-rose-600 text-sm">完全一樣大</span>！
+                    </div>
+                </div>
+
+                <!-- 右側動態繪圖區 -->
+                <div class="lg:col-span-2 glass-card p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-bold text-slate-700">動態幾何圖形展示 (底 = 8 cm, 高 = 6 cm)</h3>
+                            <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-md">1 格 = 1 cm</span>
+                        </div>
+                        <div class="w-full flex justify-center">
+                            <canvas id="canvasTab1" width="600" height="320" class="w-full border border-slate-200 shadow-inner"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 即時數據計算區 -->
+                    <div class="mt-4 p-4 bg-white rounded-xl shadow-sm border border-slate-100 grid grid-cols-1 md:grid-cols-4 gap-3 text-center">
+                        <div class="p-2 bg-slate-50 rounded-lg md:col-span-1">
+                            <div class="text-xs text-slate-500 mb-1">底長 (Base)</div>
+                            <div id="disp-t1-base" class="text-base font-black text-slate-700">8 cm</div>
+                        </div>
+                        <div class="p-2 bg-slate-50 rounded-lg md:col-span-1">
+                            <div class="text-xs text-slate-500 mb-1">垂直高 (Height)</div>
+                            <div id="disp-t1-height" class="text-base font-black text-slate-700">6 cm</div>
+                        </div>
+                        <div class="p-2 bg-indigo-50 rounded-lg border border-indigo-100 md:col-span-2">
+                            <div class="text-xs text-indigo-600 font-bold mb-1">即時計算面積</div>
+                            <div id="disp-t1-area" class="text-lg font-black text-indigo-700 flex items-center justify-center">
+                                48 cm²
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 2: 底高倍數與面積 ==================== -->
+        <section id="tab2" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 控制面版 -->
+                <div class="glass-card p-6 rounded-2xl">
+                    <h2 class="text-xl font-bold text-cyan-900 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-up-right-and-down-left-from-center"></i> 底高倍數調整器
+                    </h2>
+                    
+                    <p class="text-xs text-slate-600 mb-4">
+                        觀察當三角形的「底」或「高」變為原來的幾倍時，面積會產生什麼規律的變化？
+                    </p>
+
+                    <!-- 底的倍數 -->
+                    <div class="mb-5 bg-cyan-50/50 p-3 rounded-xl border border-cyan-100">
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-sm font-bold text-cyan-900">底邊長度倍數：</label>
+                            <span id="val-t2-basemul" class="font-extrabold text-cyan-600 text-base">1 倍</span>
+                        </div>
+                        <input type="range" id="slider-t2-basemul" min="1" max="4" value="1" step="1" class="w-full accent-cyan-600 cursor-pointer" oninput="renderTab2()">
+                        <div class="flex justify-between text-xs text-slate-400 px-1 mt-1">
+                            <span>1倍(5cm)</span>
+                            <span>2倍(10cm)</span>
+                            <span>3倍(15cm)</span>
+                            <span>4倍(20cm)</span>
+                        </div>
+                    </div>
+
+                    <!-- 高的倍數 -->
+                    <div class="mb-5 bg-indigo-50/50 p-3 rounded-xl border border-indigo-100">
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-sm font-bold text-indigo-900">垂直高度倍數：</label>
+                            <span id="val-t2-heightmul" class="font-extrabold text-indigo-600 text-base">1 倍</span>
+                        </div>
+                        <input type="range" id="slider-t2-heightmul" min="1" max="4" value="1" step="1" class="w-full accent-indigo-600 cursor-pointer" oninput="renderTab2()">
+                        <div class="flex justify-between text-xs text-slate-400 px-1 mt-1">
+                            <span>1倍(4cm)</span>
+                            <span>2倍(8cm)</span>
+                            <span>3倍(12cm)</span>
+                            <span>4倍(16cm)</span>
+                        </div>
+                    </div>
+
+                    <!-- 推理速查表 -->
+                    <div class="p-4 bg-white rounded-xl border border-slate-200 text-xs text-slate-700">
+                        <div class="font-bold text-slate-800 mb-2 border-b pb-1"><i class="fa-solid fa-calculator"></i> 免計算推論公式：</div>
+                        <div class="space-y-1">
+                            <p>底變為 <span class="font-bold text-cyan-600" id="txt-t2-b">1</span> 倍，高變為 <span class="font-bold text-indigo-600" id="txt-t2-h">1</span> 倍</p>
+                            <p class="text-sm font-bold text-rose-600 pt-1">
+                                面積變為：<span id="txt-t2-b">1</span> × <span id="txt-t2-h">1</span> = <span id="txt-t2-res">1</span> 倍！
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 繪圖呈現 -->
+                <div class="lg:col-span-2 glass-card p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-bold text-slate-700">基準三角形（藍）與放大後三角形（橘）對比</h3>
+                            <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-md">基準三角形：底 5 cm, 高 4 cm</span>
+                        </div>
+                        <div class="w-full flex justify-center">
+                            <canvas id="canvasTab2" width="600" height="360" class="w-full border border-slate-200 shadow-inner"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 計算過程 (包含標準直式分數) -->
+                    <div class="mt-4 p-4 bg-white rounded-xl shadow-sm border border-slate-100">
+                        <h4 class="text-xs font-bold text-slate-500 mb-2">算式邏輯對照：</h4>
+                        <div class="flex flex-wrap items-center gap-4 text-sm font-bold text-slate-800">
+                            <!-- 基準三角形算式 -->
+                            <div class="flex items-center">
+                                <span>基準甲面積 = (5 × 4) ÷ 2 = </span>
+                                <span class="v-frac text-indigo-600">
+                                    <span class="num">5 × 4</span>
+                                    <span class="den">2</span>
+                                </span>
+                                <span> = 10 cm²</span>
+                            </div>
+                            <i class="fa-solid fa-arrow-right text-slate-400"></i>
+                            <!-- 變形後三角形算式 -->
+                            <div class="flex items-center text-rose-600">
+                                <span>新面積 = (<span id="calc-t2-b">5</span> × <span id="calc-t2-h">4</span>) ÷ 2 = </span>
+                                <span class="v-frac">
+                                    <span class="num"><span id="calc-t2-b2">5</span> × <span id="calc-t2-h2">4</span></span>
+                                    <span class="den">2</span>
+                                </span>
+                                <span> = <span id="calc-t2-area">10</span> cm²</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 3: 複合圖形切割與扣除 ==================== -->
+        <section id="tab3" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 左控制列 -->
+                <div class="glass-card p-6 rounded-2xl">
+                    <h2 class="text-xl font-bold text-amber-900 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-puzzle-piece"></i> 解題策略切換
+                    </h2>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">選擇課本範例圖形：</label>
+                        <select id="select-t3-ex" onchange="renderTab3()" class="w-full p-2.5 bg-white border border-slate-300 rounded-xl font-bold text-slate-700 focus:ring-2 focus:ring-amber-500">
+                            <option value="1">範例 5：五邊形複合土地面積</option>
+                            <option value="2">範例 6：大三角形扣除中間白色部分</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">選擇思考分割解法：</label>
+                        <div class="space-y-2" id="t3-methods-container">
+                            <!-- 動態生成解法按鈕 -->
+                        </div>
+                    </div>
+
+                    <div id="t3-method-desc" class="p-4 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 leading-relaxed">
+                        <!-- 解法動態說明 -->
+                    </div>
+                </div>
+
+                <!-- 右展示圖與計算步驟 -->
+                <div class="lg:col-span-2 glass-card p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 id="t3-title" class="font-bold text-slate-700">複合圖形切割輔助圖</h3>
+                            <span class="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-md font-bold">動態圖形拆解</span>
+                        </div>
+                        <div class="w-full flex justify-center">
+                            <canvas id="canvasTab3" width="600" height="320" class="w-full border border-slate-200 shadow-inner"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 動態步驟算式展現 -->
+                    <div id="t3-step-math" class="mt-4 p-4 bg-white rounded-xl border border-slate-100 text-sm">
+                        <!-- 動態寫入直式分數與步驟 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 4: 道路平移法 ==================== -->
+        <section id="tab4" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 控制區 -->
+                <div class="glass-card p-6 rounded-2xl space-y-4">
+                    <h2 class="text-xl font-bold text-emerald-900 flex items-center gap-2">
+                        <i class="fa-solid fa-truck-ramp-box"></i> 道路平移動畫與參數控制
+                    </h2>
+
+                    <p class="text-xs text-slate-600">
+                        拖動下方滑桿改變土地尺寸或路寬，並觀察平移靠攏時圖形與算式的即時動態變化！
+                    </p>
+
+                    <!-- 動畫推動滑桿 -->
+                    <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-bold text-emerald-900">平移合併進度：</label>
+                            <span id="val-t4-progress" class="font-black text-emerald-600 text-sm">0 %</span>
+                        </div>
+                        <input type="range" id="slider-t4-shift" min="0" max="100" value="0" class="w-full accent-emerald-600 cursor-pointer" oninput="renderTab4()">
+                        <div class="flex justify-between text-[10px] text-slate-400 mt-0.5">
+                            <span>原始道路</span>
+                            <span>向中間靠攏</span>
+                            <span>完全拼合</span>
+                        </div>
+                    </div>
+
+                    <!-- 數據調整滑桿群 -->
+                    <div class="space-y-3 bg-white/80 p-3 rounded-xl border border-slate-200 text-xs">
+                        <div>
+                            <div class="flex justify-between font-bold mb-1">
+                                <span class="text-slate-700">原梯形上底：</span>
+                                <span id="val-t4-u" class="text-indigo-600">40 m</span>
+                            </div>
+                            <input type="range" id="slider-t4-u" min="30" max="60" step="5" value="40" class="w-full accent-indigo-600 cursor-pointer" oninput="renderTab4()">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between font-bold mb-1">
+                                <span class="text-slate-700">原梯形下底：</span>
+                                <span id="val-t4-l" class="text-indigo-600">75 m</span>
+                            </div>
+                            <input type="range" id="slider-t4-l" min="50" max="95" step="5" value="75" class="w-full accent-indigo-600 cursor-pointer" oninput="renderTab4()">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between font-bold mb-1">
+                                <span class="text-slate-700">梯形垂直高：</span>
+                                <span id="val-t4-h" class="text-indigo-600">40 m</span>
+                            </div>
+                            <input type="range" id="slider-t4-h" min="20" max="50" step="5" value="40" class="w-full accent-indigo-600 cursor-pointer" oninput="renderTab4()">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between font-bold mb-1">
+                                <span class="text-slate-700">道路寬度：</span>
+                                <span id="val-t4-w" class="text-rose-600">10 m</span>
+                            </div>
+                            <input type="range" id="slider-t4-w" min="5" max="25" step="5" value="10" class="w-full accent-rose-600 cursor-pointer" oninput="renderTab4()">
+                        </div>
+                    </div>
+
+                    <!-- 即時運算參數提示 -->
+                    <div class="space-y-1.5 text-xs bg-emerald-50/80 p-3 rounded-xl border border-emerald-200">
+                        <div class="flex justify-between font-bold text-emerald-800">
+                            <span>拼合後新上底：</span>
+                            <span id="disp-t4-new-u">40 - 10 = 30 m</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-emerald-800">
+                            <span>拼合後新下底：</span>
+                            <span id="disp-t4-new-l">75 - 10 = 65 m</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 動畫繪圖與算式比較 -->
+                <div class="lg:col-span-2 glass-card p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-bold text-slate-700">道路扣除與平移視覺動畫</h3>
+                            <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded-md font-bold">1 格 = 5 m</span>
+                        </div>
+                        <div class="w-full flex justify-center">
+                            <canvas id="canvasTab4" width="600" height="320" class="w-full border border-slate-200 shadow-inner"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 解法兩種比較（含直式分數與動態連動） -->
+                    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                        <div class="p-3 bg-white rounded-xl border border-slate-200" id="box-t4-m1">
+                            <!-- 動態填入解法一 -->
+                        </div>
+
+                        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200" id="box-t4-m2">
+                            <!-- 動態填入解法二 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 5: 隨堂測驗 ==================== -->
+        <section id="tab5" class="tab-content hidden">
+            <div class="glass-card p-6 md:p-8 rounded-2xl max-w-4xl mx-auto">
+                <div class="flex justify-between items-center border-b pb-4 mb-6">
+                    <div>
+                        <h2 class="text-2xl font-black text-rose-900 flex items-center gap-2">
+                            <i class="fa-solid fa-clipboard-check text-rose-500"></i> 隨堂測驗
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">共 5 題，回答後可獲得即時對錯反饋與詳細圖文解說！</p>
+                    </div>
+                    <div id="quiz-score-badge" class="hidden bg-rose-100 text-rose-700 px-4 py-2 rounded-xl font-black text-lg">
+                        得分：<span id="quiz-score">0</span> / 100
+                    </div>
+                </div>
+
+                <!-- 題目清單容器 -->
+                <form id="quiz-form" class="space-y-8">
+                    <!-- 題號動態插入 -->
+                </form>
+
+                <div class="mt-8 pt-4 border-t flex justify-center gap-4">
+                    <button type="button" onclick="submitQuiz()" class="px-8 py-3 bg-gradient-to-r from-rose-500 to-pink-600 text-white font-bold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
+                        <i class="fa-solid fa-paper-plane mr-2"></i> 提交答案
+                    </button>
+                    <button type="button" onclick="resetQuiz()" class="px-8 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-base rounded-xl shadow transition-all duration-300 transform hover:-translate-y-0.5">
+                        <i class="fa-solid fa-rotate-right mr-2"></i> 重新測驗
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // 全局狀態變數
+        let currentTab = 'tab1';
+        let tab1Shape = 'para'; // 'para' 或 'tri'
+        let tab3Method = 1; // 複合圖形解法模式
+
+        // 頁面載入完成後初始化
+        window.onload = function() {
+            renderTab1();
+            renderTab2();
+            renderTab3();
+            renderTab4();
+            initQuiz();
+        };
+
+        // 頁籤切換
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById('btn-' + tabId).classList.add('active');
+
+            // 重新繪製對應 Canvas
+            if (tabId === 'tab1') renderTab1();
+            if (tabId === 'tab2') renderTab2();
+            if (tabId === 'tab3') renderTab3();
+            if (tabId === 'tab4') renderTab4();
+        }
+
+        // ==================== TAB 1 繪圖與邏輯 ====================
+        function setTab1Shape(shape) {
+            tab1Shape = shape;
+            const btnPara = document.getElementById('btn-shape-para');
+            const btnTri = document.getElementById('btn-shape-tri');
+            const hatBox = document.getElementById('box-t1-thinking-hat');
+
+            if (shape === 'para') {
+                btnPara.className = "py-2 px-3 rounded-lg font-bold border-2 border-indigo-500 bg-indigo-50 text-indigo-700 text-sm";
+                btnTri.className = "py-2 px-3 rounded-lg font-bold border-2 border-slate-200 text-slate-600 text-sm";
+                if (hatBox) hatBox.classList.remove('hidden');
+            } else {
+                btnTri.className = "py-2 px-3 rounded-lg font-bold border-2 border-indigo-500 bg-indigo-50 text-indigo-700 text-sm";
+                btnPara.className = "py-2 px-3 rounded-lg font-bold border-2 border-slate-200 text-slate-600 text-sm";
+                if (hatBox) hatBox.classList.add('hidden');
+                // 切換至三角形時，角度重設為 90 度以固定高度
+                const sliderAngle = document.getElementById('slider-t1-angle');
+                if (sliderAngle) sliderAngle.value = 90;
+            }
+            renderTab1();
+        }
+
+        function renderTab1() {
+            const canvas = document.getElementById('canvasTab1');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const offset = parseInt(document.getElementById('slider-t1-offset').value);
+            // 三角形時固定為 90 度，平行四邊形時讀取拉條
+            const angle = tab1Shape === 'tri' ? 90 : parseInt(document.getElementById('slider-t1-angle').value);
+
+            document.getElementById('val-t1-offset').innerText = (offset / 10).toFixed(1) + " cm";
+            document.getElementById('val-t1-angle').innerText = angle + "°" + (angle < 90 ? " (傾斜)" : " (直角)");
+
+            // 背景方格網
+            drawGrid(ctx, canvas.width, canvas.height);
+
+            const baseLen = 160; // 代表 8 cm (1cm = 20px)
+            const origHeight = 120; // 代表 6 cm
+            
+            // 計算傾斜後的高度
+            const rad = angle * Math.PI / 180;
+            const currentHeight = origHeight * Math.sin(rad);
+
+            const startX = 200;
+            const startY = 240;
+
+            // 繪製平行線 (高輔助線)
+            ctx.setLineDash([4, 4]);
+            ctx.strokeStyle = '#94a3b8';
+            ctx.beginPath();
+            ctx.moveTo(40, startY - currentHeight);
+            ctx.lineTo(560, startY - currentHeight);
+            ctx.moveTo(40, startY);
+            ctx.lineTo(560, startY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 繪製主要的底邊
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#2563eb';
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(startX + baseLen, startY);
+            ctx.stroke();
+
+            // 頂點座標
+            const topShift = (origHeight * Math.cos(rad)) + offset;
+            const p1 = { x: startX + topShift, y: startY - currentHeight };
+            const p2 = { x: startX + baseLen + topShift, y: startY - currentHeight };
+
+            // 繪製圖形
+            ctx.fillStyle = tab1Shape === 'para' ? 'rgba(99, 102, 241, 0.35)' : 'rgba(16, 185, 129, 0.35)';
+            ctx.strokeStyle = tab1Shape === 'para' ? '#4f46e5' : '#059669';
+            ctx.lineWidth = 3;
+
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(startX + baseLen, startY);
+
+            if (tab1Shape === 'para') {
+                ctx.lineTo(p2.x, p2.y);
+                ctx.lineTo(p1.x, p1.y);
+            } else {
+                ctx.lineTo(p1.x, p1.y);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // 標示垂直高 (虛線箭頭)
+            ctx.strokeStyle = '#e11d48';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p1.x, startY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 繪製垂直符號
+            ctx.beginPath();
+            ctx.rect(p1.x, startY - 10, 10, 10);
+            ctx.strokeStyle = '#e11d48';
+            ctx.stroke();
+
+            // 更新數字顯示
+            const baseCm = 8;
+            const heightCm = (6 * Math.sin(rad)).toFixed(1);
+            let areaCm = 0;
+
+            if (tab1Shape === 'para') {
+                areaCm = (baseCm * heightCm).toFixed(1);
+                document.getElementById('disp-t1-area').innerText = `${baseCm} × ${heightCm} = ${areaCm} cm²`;
+            } else {
+                areaCm = ((baseCm * heightCm) / 2).toFixed(1);
+                // 移除分數步驟，直接呈現橫式算式
+                document.getElementById('disp-t1-area').innerText = `${baseCm} × ${heightCm} ÷ 2 = ${areaCm} cm²`;
+            }
+
+            document.getElementById('disp-t1-base').innerText = `${baseCm} cm`;
+            document.getElementById('disp-t1-height').innerText = `${heightCm} cm`;
+        }
+
+        // ==================== TAB 2 繪圖與邏輯 ====================
+        function renderTab2() {
+            const canvas = document.getElementById('canvasTab2');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawGrid(ctx, canvas.width, canvas.height);
+
+            const bMul = parseInt(document.getElementById('slider-t2-basemul').value);
+            const hMul = parseInt(document.getElementById('slider-t2-heightmul').value);
+
+            document.getElementById('val-t2-basemul').innerText = bMul + " 倍";
+            document.getElementById('val-t2-heightmul').innerText = hMul + " 倍";
+
+            document.getElementById('txt-t2-b').innerText = bMul;
+            document.getElementById('txt-t2-h').innerText = hMul;
+            document.querySelectorAll('#txt-t2-b').forEach(e => e.innerText = bMul);
+            document.querySelectorAll('#txt-t2-h').forEach(e => e.innerText = hMul);
+            document.getElementById('txt-t2-res').innerText = bMul * hMul;
+
+            // 1 cm = 20 px，對應背景格線每格 20px
+            const baseUnit = 20; 
+            const origBase = 5 * baseUnit; // 5cm = 100px (5格)
+            const origHeight = 4 * baseUnit; // 4cm = 80px (4格)
+
+            // 起始點對齊格線交點 (80, 340 皆為 20 的倍數)
+            const startX = 80;
+            const startY = 340;
+
+            // 繪製基準三角形 (藍色)
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.2)';
+            ctx.strokeStyle = '#2563eb';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(startX + origBase, startY);
+            ctx.lineTo(startX + origBase, startY - origHeight);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // 繪製變形後三角形 (橘紅色)
+            const newBase = origBase * bMul;
+            const newHeight = origHeight * hMul;
+
+            ctx.fillStyle = 'rgba(245, 158, 11, 0.35)';
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(startX + newBase, startY);
+            ctx.lineTo(startX + newBase, startY - newHeight);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // 標示文字
+            ctx.fillStyle = '#1e293b';
+            ctx.font = 'bold 12px Noto Sans TC';
+            ctx.fillText(`基準底 5cm`, startX + origBase / 2 - 20, startY + 15);
+            ctx.fillText(`新底 ${5 * bMul}cm`, startX + newBase / 2 - 20, startY + 30);
+
+            // 更新公式數據
+            const baseVal = 5 * bMul;
+            const heightVal = 4 * hMul;
+            const areaVal = (baseVal * heightVal) / 2;
+
+            document.getElementById('calc-t2-b').innerText = baseVal;
+            document.getElementById('calc-t2-h').innerText = heightVal;
+            document.getElementById('calc-t2-b2').innerText = baseVal;
+            document.getElementById('calc-t2-h2').innerText = heightVal;
+            document.getElementById('calc-t2-area').innerText = areaVal;
+        }
+
+        // ==================== TAB 3 繪圖與邏輯 ====================
+        function renderTab3() {
+            const exType = document.getElementById('select-t3-ex').value;
+            const container = document.getElementById('t3-methods-container');
+            
+            if (exType === '1') {
+                container.innerHTML = `
+                    <button onclick="setTab3Method(1)" class="w-full text-left p-2.5 rounded-lg border font-bold text-xs ${tab3Method===1?'border-amber-500 bg-amber-50 text-amber-900':'border-slate-200 text-slate-600'}">
+                        解法 1：分成三角形 ACE 與 三角形 ECD
+                    </button>
+                    <button onclick="setTab3Method(2)" class="w-full text-left p-2.5 rounded-lg border font-bold text-xs ${tab3Method===2?'border-amber-500 bg-amber-50 text-amber-900':'border-slate-200 text-slate-600'}">
+                        解法 2：分成梯形 BCDE 與 三角形 ABE
+                    </button>
+                `;
+            } else {
+                container.innerHTML = `
+                    <button onclick="setTab3Method(1)" class="w-full text-left p-2.5 rounded-lg border font-bold text-xs ${tab3Method===1?'border-amber-500 bg-amber-50 text-amber-900':'border-slate-200 text-slate-600'}">
+                        解法 1：分割成 2 個紫色三角形相加
+                    </button>
+                    <button onclick="setTab3Method(2)" class="w-full text-left p-2.5 rounded-lg border font-bold text-xs ${tab3Method===2?'border-amber-500 bg-amber-50 text-amber-900':'border-slate-200 text-slate-600'}">
+                        解法 2：用大三角形扣除下方白色三角形
+                    </button>
+                `;
+            }
+
+            const canvas = document.getElementById('canvasTab3');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGrid(ctx, canvas.width, canvas.height);
+
+            const mathBox = document.getElementById('t3-step-math');
+            const descBox = document.getElementById('t3-method-desc');
+
+            if (exType === '1') {
+                document.getElementById('t3-title').innerText = "課本範例 5：分割成已知的基本圖形求總面積";
+                drawEx5(ctx, tab3Method, mathBox, descBox);
+            } else {
+                document.getElementById('t3-title').innerText = "課本範例 6：紫色陰影面積計算";
+                drawEx6(ctx, tab3Method, mathBox, descBox);
+            }
+        }
+
+        function setTab3Method(m) {
+            tab3Method = m;
+            renderTab3();
+        }
+
+        function drawEx5(ctx, method, mathBox, descBox) {
+            // 繪製五邊形 ABCDE
+            const pA = {x: 180, y: 50};
+            const pB = {x: 180, y: 150};
+            const pC = {x: 180, y: 240};
+            const pD = {x: 420, y: 240};
+            const pE = {x: 360, y: 150};
+
+            ctx.lineWidth = 3;
+
+            if (method === 1) {
+                // 三角形 ACE (粉) + ECD (藍)
+                ctx.fillStyle = 'rgba(244, 63, 94, 0.3)';
+                ctx.beginPath();
+                ctx.moveTo(pA.x, pA.y);
+                ctx.lineTo(pC.x, pC.y);
+                ctx.lineTo(pE.x, pE.y);
+                ctx.closePath();
+                ctx.fill(); ctx.stroke();
+
+                ctx.fillStyle = 'rgba(59, 130, 246, 0.3)';
+                ctx.beginPath();
+                ctx.moveTo(pA.x, pA.y); // 分割線 CE
+                ctx.moveTo(pC.x, pC.y);
+                ctx.lineTo(pD.x, pD.y);
+                ctx.lineTo(pE.x, pE.y);
+                ctx.closePath();
+                ctx.fill(); ctx.stroke();
+
+                descBox.innerText = "將圖形過 C、E 點畫一條分割線，切分成「上方的三角形 ACE」與「下方的三角形 ECD」。";
+
+                mathBox.innerHTML = `
+                    <div class="space-y-2">
+                        <div class="flex items-center flex-wrap">
+                            <span>三角形 ACE 面積 = (9 + 9) × 20 ÷ 2 = </span>
+                            <span class="v-frac text-rose-600">
+                                <span class="num">(9 + 9) × 20</span>
+                                <span class="den">2</span>
+                            </span>
+                            <span> = 180</span>
+                        </div>
+                        <div class="flex items-center flex-wrap">
+                            <span>三角形 ECD 面積 = (20 + 6) × 9 ÷ 2 = </span>
+                            <span class="v-frac text-blue-600">
+                                <span class="num">(20 + 6) × 9</span>
+                                <span class="den">2</span>
+                            </span>
+                            <span> = 117</span>
+                        </div>
+                        <div class="font-bold text-amber-900 border-t pt-1">
+                            合起來總面積 = 180 + 117 = <span class="text-rose-600 text-lg">297</span> m²
+                        </div>
+                    </div>
+                `;
+            } else {
+                // 梯形 BCDE + 三角形 ABE
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.3)';
+                ctx.beginPath();
+                ctx.moveTo(pB.x, pB.y);
+                ctx.lineTo(pC.x, pC.y);
+                ctx.lineTo(pD.x, pD.y);
+                ctx.lineTo(pE.x, pE.y);
+                ctx.closePath();
+                ctx.fill(); ctx.stroke();
+
+                ctx.fillStyle = 'rgba(245, 158, 11, 0.3)';
+                ctx.beginPath();
+                ctx.moveTo(pA.x, pA.y);
+                ctx.lineTo(pB.x, pB.y);
+                ctx.lineTo(pE.x, pE.y);
+                ctx.closePath();
+                ctx.fill(); ctx.stroke();
+
+                descBox.innerText = "從 E 點畫平行線，將圖形拆成「下方的梯形 BCDE」與「頂部的三角形 ABE」。";
+
+                mathBox.innerHTML = `
+                    <div class="space-y-2">
+                        <div>梯形 BCDE 上底 = 20, 下底 = 20 + 6 = 26</div>
+                        <div class="flex items-center flex-wrap">
+                            <span>梯形 BCDE 面積 = (20 + 26) × 9 ÷ 2 = </span>
+                            <span class="v-frac text-emerald-600">
+                                <span class="num">(20 + 26) × 9</span>
+                                <span class="den">2</span>
+                            </span>
+                            <span> = 207</span>
+                        </div>
+                        <div class="flex items-center flex-wrap">
+                            <span>三角形 ABE 面積 = 20 × 9 ÷ 2 = </span>
+                            <span class="v-frac text-amber-600">
+                                <span class="num">20 × 9</span>
+                                <span class="den">2</span>
+                            </span>
+                            <span> = 90</span>
+                        </div>
+                        <div class="font-bold text-amber-900 border-t pt-1">
+                            合起來總面積 = 207 + 90 = <span class="text-rose-600 text-lg">297</span> m²
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 標示頂點標籤
+            ctx.fillStyle = '#0f172a';
+            ctx.font = 'bold 14px Noto Sans TC';
+            ctx.fillText('A', pA.x - 15, pA.y);
+            ctx.fillText('B', pB.x - 20, pB.y);
+            ctx.fillText('C', pC.x - 20, pC.y + 15);
+            ctx.fillText('D', pD.x + 10, pD.y + 15);
+            ctx.fillText('E', pE.x + 10, pE.y - 5);
+        }
+
+        function drawEx6(ctx, method, mathBox, descBox) {
+            const pTop = {x: 300, y: 60};
+            const pLeft = {x: 100, y: 240};
+            const pRight = {x: 500, y: 240};
+            const pInner = {x: 300, y: 200};
+
+            ctx.lineWidth = 3;
+
+            if (method === 1) {
+                // 兩個小三角形
+                ctx.fillStyle = 'rgba(168, 85, 247, 0.4)';
+                ctx.strokeStyle = '#a855f7';
+                ctx.beginPath();
+                ctx.moveTo(pTop.x, pTop.y);
+                ctx.lineTo(pLeft.x, pLeft.y);
+                ctx.lineTo(pInner.x, pInner.y);
+                ctx.closePath();
+                ctx.fill(); ctx.stroke();
+
+                ctx.fillStyle = 'rgba(236, 72, 153, 0.4)';
+                ctx.strokeStyle = '#ec4899';
+                ctx.beginPath();
+                ctx.moveTo(pTop.x, pTop.y);
+                ctx.lineTo(pRight.x, pRight.y);
+                ctx.lineTo(pInner.x, pInner.y);
+                ctx.closePath();
+                ctx.fill(); ctx.stroke();
+
+                descBox.innerText = "將紫色區域沿中間高線切開，分為左右兩個底為 6cm、高為 10cm 與 6cm 的三角形。";
+
+                mathBox.innerHTML = `
+                    <div class="space-y-2">
+                        <div class="flex items-center flex-wrap">
+                            <span>左三角形面積 = 6 × 10 ÷ 2 = </span>
+                            <span class="v-frac text-purple-600">
+                                <span class="num">6 × 10</span>
+                                <span class="den">2</span>
+                            </span>
+                            <span> = 30</span>
+                        </div>
+                        <div class="flex items-center flex-wrap">
+                            <span>右三角形面積 = 6 × 6 ÷ 2 = </span>
+                            <span class="v-frac text-pink-600">
+                                <span class="num">6 × 6</span>
+                                <span class="den">2</span>
+                            </span>
+                            <span> = 18</span>
+                        </div>
+                        <div class="font-bold text-amber-900 border-t pt-1">
+                            紫色陰影總面積 = 30 + 18 = <span class="text-rose-600 text-lg">48</span> cm²
+                        </div>
+                    </div>
+                `;
+            } else {
+                // 大三角形 - 白色三角形（邊線均改為深紫色）
+                ctx.fillStyle = 'rgba(168, 85, 247, 0.35)';
+                ctx.strokeStyle = '#581c87'; // 深紫色邊框
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(pTop.x, pTop.y);
+                ctx.lineTo(pLeft.x, pLeft.y);
+                ctx.lineTo(pRight.x, pRight.y);
+                ctx.closePath();
+                ctx.fill(); ctx.stroke();
+
+                // 挖空白色三角形（深紫色邊框）
+                ctx.fillStyle = '#ffffff';
+                ctx.strokeStyle = '#581c87'; // 深紫色邊框
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.moveTo(pInner.x, pInner.y);
+                ctx.lineTo(pLeft.x, pLeft.y);
+                ctx.lineTo(pRight.x, pRight.y);
+                ctx.closePath();
+                ctx.fill(); ctx.stroke();
+
+                descBox.innerText = "先計算包含底 16cm (10+6)、高 8cm (6+2) 的大三角形面積，再減去下方白色的三角形。";
+
+                mathBox.innerHTML = `
+                    <div class="space-y-2">
+                        <div>大三角形高 = 6 + 2 = 8, 底 = 10 + 6 = 16</div>
+                        <div class="flex items-center flex-wrap">
+                            <span>大三角形面積 = 16 × 8 ÷ 2 = </span>
+                            <span class="v-frac text-purple-600">
+                                <span class="num">16 × 8</span>
+                                <span class="den">2</span>
+                            </span>
+                            <span> = 64</span>
+                        </div>
+                        <div class="flex items-center flex-wrap">
+                            <span>下方白色三角形 = 16 × 2 ÷ 2 = </span>
+                            <span class="v-frac text-slate-500">
+                                <span class="num">16 × 2</span>
+                                <span class="den">2</span>
+                            </span>
+                            <span> = 16</span>
+                        </div>
+                        <div class="font-bold text-amber-900 border-t pt-1">
+                            紫色陰影總面積 = 64 - 16 = <span class="text-rose-600 text-lg">48</span> cm²
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // ==================== TAB 4 繪圖與邏輯 ====================
+        function renderTab4() {
+            const canvas = document.getElementById('canvasTab4');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawGrid(ctx, canvas.width, canvas.height);
+
+            // 讀取控制項數值
+            const shiftPercent = parseInt(document.getElementById('slider-t4-shift').value);
+            const uVal = parseInt(document.getElementById('slider-t4-u').value);
+            const lVal = parseInt(document.getElementById('slider-t4-l').value);
+            const hVal = parseInt(document.getElementById('slider-t4-h').value);
+            const wVal = parseInt(document.getElementById('slider-t4-w').value);
+
+            // 確保路寬不超過上底或下底
+            const maxW = Math.min(uVal - 5, lVal - 5);
+            const validW = Math.min(wVal, maxW);
+
+            // 更新控制介面數字
+            document.getElementById('val-t4-progress').innerText = shiftPercent + " %";
+            document.getElementById('val-t4-u').innerText = uVal + " m";
+            document.getElementById('val-t4-l').innerText = lVal + " m";
+            document.getElementById('val-t4-h').innerText = hVal + " m";
+            document.getElementById('val-t4-w').innerText = validW + " m";
+
+            const newU = uVal - validW;
+            const newL = lVal - validW;
+            document.getElementById('disp-t4-new-u').innerText = `${uVal} - ${validW} = ${newU} m`;
+            document.getElementById('disp-t4-new-l').innerText = `${lVal} - ${validW} = ${newL} m`;
+
+            // 計算兩解法面積
+            const bigArea = ((uVal + lVal) * hVal) / 2;
+            const roadArea = validW * hVal;
+            const landArea = bigArea - roadArea;
+
+            // 即時更新兩解法之文字與直式分數算式
+            document.getElementById('box-t4-m1').innerHTML = `
+                <strong class="text-slate-800 block mb-1">解法一：扣除法 (大梯形 - 道路)</strong>
+                <div class="flex items-center my-1.5 flex-wrap">
+                    <span>大梯形 = </span>
+                    <span class="v-frac">
+                        <span class="num">(${uVal} + ${lVal}) × ${hVal}</span>
+                        <span class="den">2</span>
+                    </span>
+                    <span> = ${bigArea}</span>
+                </div>
+                <div>道路 = ${validW} × ${hVal} = ${roadArea}</div>
+                <div class="font-bold text-indigo-600 mt-1">種茶面積 = ${bigArea} - ${roadArea} = ${landArea} m²</div>
+            `;
+
+            document.getElementById('box-t4-m2').innerHTML = `
+                <strong class="text-emerald-900 block mb-1">解法二：平移法 (直接算新梯形)</strong>
+                <div>新上底 = ${uVal} - ${validW} = ${newU}</div>
+                <div>新下底 = ${lVal} - ${validW} = ${newL}</div>
+                <div class="flex items-center my-1.5 font-bold text-emerald-700 flex-wrap">
+                    <span>新梯形 = </span>
+                    <span class="v-frac">
+                        <span class="num">(${newU} + ${newL}) × ${hVal}</span>
+                        <span class="den">2</span>
+                    </span>
+                    <span> = ${landArea} m²</span>
+                </div>
+            `;
+
+            // 繪圖計算： 1 格 = 20px = 5m (即 4px = 1m)
+            const meterPx = 4;
+            const centerY = 160;
+            const centerX = 300;
+
+            const topY = centerY - (hVal / 2) * meterPx;
+            const bottomY = centerY + (hVal / 2) * meterPx;
+
+            const uPx = uVal * meterPx;
+            const lPx = lVal * meterPx;
+            const wPx = validW * meterPx;
+
+            const shiftDx = (shiftPercent / 100) * wPx;
+
+            // 以圖形中心置中定位
+            const leftTopX = centerX - uPx / 2;
+            const leftBottomX = centerX - lPx / 2;
+
+            // 拆分左右土地區塊寬度
+            const leftTopW = (uVal - validW) * 0.5 * meterPx;
+            const leftBotW = (lVal - validW) * 0.5 * meterPx;
+
+            // 左側土地塊
+            ctx.fillStyle = 'rgba(52, 211, 153, 0.4)';
+            ctx.strokeStyle = '#059669';
+            ctx.lineWidth = 3;
+
+            ctx.beginPath();
+            ctx.moveTo(leftTopX, topY);
+            ctx.lineTo(leftTopX + leftTopW, topY);
+            ctx.lineTo(leftBottomX + leftBotW, bottomY);
+            ctx.lineTo(leftBottomX, bottomY);
+            ctx.closePath();
+            ctx.fill(); 
+            ctx.stroke();
+
+            // 右側土地塊 (隨進度向左平移靠攏)
+            const rTopStart = leftTopX + leftTopW + wPx - shiftDx;
+            const rBotStart = leftBottomX + leftBotW + wPx - shiftDx;
+            const rTopEnd = leftTopX + uPx - shiftDx;
+            const rBotEnd = leftBottomX + lPx - shiftDx;
+
+            ctx.fillStyle = 'rgba(52, 211, 153, 0.4)';
+            ctx.beginPath();
+            ctx.moveTo(rTopStart, topY);
+            ctx.lineTo(rTopEnd, topY);
+            ctx.lineTo(rBotEnd, bottomY);
+            ctx.lineTo(rBotStart, bottomY);
+            ctx.closePath();
+            ctx.fill(); 
+            ctx.stroke();
+
+            // 若道路未完全拼合，繪製中間平行四邊形道路
+            if (shiftPercent < 100) {
+                ctx.fillStyle = 'rgba(203, 213, 225, 0.65)';
+                ctx.strokeStyle = '#64748b';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(leftTopX + leftTopW, topY);
+                ctx.lineTo(rTopStart, topY);
+                ctx.lineTo(rBotStart, bottomY);
+                ctx.lineTo(leftBottomX + leftBotW, bottomY);
+                ctx.closePath();
+                ctx.fill(); 
+                ctx.stroke();
+
+                ctx.fillStyle = '#334155';
+                ctx.font = 'bold 12px Noto Sans TC';
+                ctx.textAlign = 'center';
+                ctx.fillText('平行四邊形道路', (leftTopX + leftTopW + rTopStart) / 2, centerY);
+                ctx.textAlign = 'start';
+            }
+        }
+
+        // ==================== TAB 5 歷程性評量邏輯 ====================
+        const quizData = [
+            {
+                id: 1,
+                question: "1. 有三個不同形狀但「底長都是 6cm、高都是 8cm」的平行四邊形，請問它們的面積大小關係為何？",
+                options: ["第一個最大", "第二個最大", "三個一樣大", "無法比較"],
+                answer: 2,
+                explain: "只要平行四邊形的「底相等」且「高相等」，根據公式（底×高），它們的面積就一定完全一樣大！"
+            },
+            {
+                id: 2,
+                question: "2. 三角形的高維持不變，當底邊長度變為原來的 3 倍時，面積會變為原來的幾倍？",
+                options: ["<span class=\"v-frac\"><span class=\"num\">1</span><span class=\"den\">3</span></span> 倍", "3 倍", "6 倍", "9 倍"],
+                answer: 1,
+                explain: "三角形面積 = 底 × 高 ÷ 2。高不變時，底擴大為 3 倍，面積也會隨之變為原來的 3 倍。"
+            },
+            {
+                id: 3,
+                question: "3. 用四根扣條圍成一個長方形，若將扣條往旁推，傾斜變成平行四邊形時，面積會有什麼變化？",
+                options: ["變大", "變小", "保持不變", "不一定"],
+                answer: 1,
+                explain: "傾斜時底邊長度不變，但「垂直高度變短了」，所以底×高計算出的面積會變小！"
+            },
+            {
+                id: 4,
+                question: "4. 三角形的底邊變為原來的 2 倍，高變為原來的 3 倍，則面積會變為原來的幾倍？",
+                options: ["5 倍", "6 倍", "<span class=\"v-frac\"><span class=\"num\">2</span><span class=\"den\">3</span></span> 倍", "12 倍"],
+                answer: 1,
+                explain: "面積倍數 = 底倍數 × 高倍數 = 2 × 3 = 6 倍。"
+            },
+            {
+                id: 5,
+                question: "5. 一塊梯形土地（上底40m, 下底75m, 高40m），中間開了一條寬10m的平行四邊形小路。若將道路平移移走，拼合後的新梯形「下底」是多少公尺？",
+                options: ["75 m", "65 m", "30 m", "35 m"],
+                answer: 1,
+                explain: "平移扣除道路後，新的下底為原本下底減去道路寬度：75 - 10 = 65 公尺。"
+            }
+        ];
+
+        function initQuiz() {
+            const form = document.getElementById('quiz-form');
+            form.innerHTML = quizData.map((q, idx) => `
+                <div class="p-5 bg-white rounded-xl border border-slate-200 shadow-sm" id="q-card-${idx}">
+                    <p class="font-bold text-slate-800 text-sm md:text-base mb-3">${q.question}</p>
+                    <div class="space-y-2">
+                        ${q.options.map((opt, oIdx) => `
+                            <label class="flex items-center gap-3 p-2.5 rounded-lg border border-slate-100 hover:bg-rose-50 cursor-pointer transition-colors text-sm">
+                                <input type="radio" name="q${idx}" value="${oIdx}" class="accent-rose-500 w-4 h-4">
+                                <span>${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                    <div id="q-feedback-${idx}" class="hidden mt-3 p-3 rounded-lg text-xs leading-relaxed"></div>
+                </div>
+            `).join('');
+        }
+
+        function submitQuiz() {
+            let score = 0;
+            quizData.forEach((q, idx) => {
+                const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+                const card = document.getElementById(`q-card-${idx}`);
+                const feedback = document.getElementById(`q-feedback-${idx}`);
+                feedback.classList.remove('hidden');
+
+                if (!selected) {
+                    // 未作答狀態：黃色系提示，僅顯示 "未作答。"
+                    card.className = "p-5 bg-amber-50/50 rounded-xl border-2 border-amber-300 shadow-sm";
+                    feedback.className = "mt-3 p-3 rounded-lg text-xs leading-relaxed bg-amber-100 text-amber-900 border border-amber-200 font-bold";
+                    feedback.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> 未作答。`;
+                } else if (parseInt(selected.value) === q.answer) {
+                    // 答對狀態
+                    score += 20;
+                    card.className = "p-5 bg-emerald-50/50 rounded-xl border-2 border-emerald-400 shadow-sm";
+                    feedback.className = "mt-3 p-3 rounded-lg text-xs leading-relaxed bg-emerald-100 text-emerald-900 border border-emerald-200";
+                    feedback.innerHTML = `<strong class="text-emerald-700"><i class="fa-solid fa-circle-check mr-1"></i> 答對了！</strong><br>${q.explain}`;
+                } else {
+                    // 答錯狀態
+                    card.className = "p-5 bg-rose-50/50 rounded-xl border-2 border-rose-300 shadow-sm";
+                    feedback.className = "mt-3 p-3 rounded-lg text-xs leading-relaxed bg-rose-100 text-rose-900 border border-rose-200";
+                    feedback.innerHTML = `<strong class="text-rose-700"><i class="fa-solid fa-circle-xmark mr-1"></i> 答錯了！正確答案為：${q.options[q.answer]}</strong><br>${q.explain}`;
+                }
+            });
+
+            const badge = document.getElementById('quiz-score-badge');
+            const scoreSpan = document.getElementById('quiz-score');
+            badge.classList.remove('hidden');
+            scoreSpan.innerText = score;
+
+            // 滾動至頂部檢視分數
+            badge.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetQuiz() {
+            const form = document.getElementById('quiz-form');
+            if (form) form.reset();
+
+            quizData.forEach((q, idx) => {
+                const card = document.getElementById(`q-card-${idx}`);
+                const feedback = document.getElementById(`q-feedback-${idx}`);
+                if (card) {
+                    card.className = "p-5 bg-white rounded-xl border border-slate-200 shadow-sm";
+                }
+                if (feedback) {
+                    feedback.classList.add('hidden');
+                    feedback.innerHTML = "";
+                }
+            });
+
+            const badge = document.getElementById('quiz-score-badge');
+            if (badge) badge.classList.add('hidden');
+
+            const scoreSpan = document.getElementById('quiz-score');
+            if (scoreSpan) scoreSpan.innerText = "0";
+
+            const quizTab = document.getElementById('tab5');
+            if (quizTab) quizTab.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 通用繪製背景方格圖
+        function drawGrid(ctx, width, height) {
+            ctx.strokeStyle = '#f1f5f9';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < width; x += 20) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < height; y += 20) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+        }
+    </script>
+</body>
+</html>

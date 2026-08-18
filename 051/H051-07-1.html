@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>擴分與約分 - 互動探究實驗室</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Noto Sans TC -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        shinkai: {
+                            deep: '#1a1c3b',
+                            twilight: '#2e3a64',
+                            sky: '#4b6cb7',
+                            sunset: '#ff7e5f',
+                            peach: '#feb47b',
+                            cloud: '#f0f4fd',
+                            glow: '#a8c0ff'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #181d31 0%, #283054 35%, #49547d 70%, #8ca6ce 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        /* Shinkai style glowing light rays effect */
+        .sky-glow {
+            position: fixed;
+            top: -10%;
+            right: -5%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(255, 182, 193, 0.25) 0%, rgba(135, 206, 250, 0.15) 50%, rgba(0, 0, 0, 0) 80%);
+            filter: blur(40px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Glassmorphism Card Style */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .glass-card-dark {
+            background: rgba(24, 27, 46, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            color: #e2e8f0;
+        }
+
+        .glass-nav {
+            background: rgba(26, 28, 59, 0.75);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 10px;
+            cursor: pointer;
+            background: linear-gradient(90deg, #38bdf8 0%, #1e293b 100%);
+            border-radius: 5px;
+            border: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #ff7e5f;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -7px;
+            box-shadow: 0 0 10px rgba(255, 126, 95, 0.8);
+            transition: transform 0.1s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Active Tab Button */
+        .tab-btn.active {
+            background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 126, 95, 0.4);
+        }
+
+        /* Standard Vertical Fraction Styles with Strict Vertical Alignment */
+        .frac {
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            text-align: center;
+            line-height: 1.1;
+            font-size: 0.9em;
+            padding: 0 0.15em;
+            margin: 0 0.1em;
+            white-space: nowrap;
+        }
+        .frac .num {
+            border-bottom: 1.5px solid currentColor;
+            padding-bottom: 1px;
+            display: block;
+            font-weight: inherit;
+        }
+        .frac .den {
+            padding-top: 1px;
+            display: block;
+            font-weight: inherit;
+        }
+        .mixed-frac {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            gap: 0.15em;
+            white-space: nowrap;
+        }
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-slate-800 relative pb-12">
+    <div class="sky-glow"></div>
+
+    <header class="glass-nav sticky top-0 z-50 text-white px-4 py-3 shadow-lg">
+        <div class="max-w-6xl mx-auto flex flex-col items-start gap-1">
+            <!-- 閒雲數學小棧 Logo -->
+            <div class="w-full max-w-4xl flex items-center justify-start mb-2 px-2 fade-in">
+                <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+                <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+            </div>
+            
+            <div class="w-full flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400 to-rose-500 flex items-center justify-center text-white text-xl font-bold shadow-md">
+                        <i class="fa-solid fa-shapes"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-black tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-blue-200 via-indigo-100 to-amber-200">
+                            國小五上數學 7-1 互動學習網頁
+                        </h1>
+                        <p class="text-xs text-blue-200/80">理解相同分量、體驗等值分數的數值變換規律</p>
+                    </div>
+                </div>
+                
+                <!-- Navigation Tabs -->
+                <nav class="flex flex-wrap justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium">
+                    <button id="btn-strip" onclick="switchTab('strip')" class="tab-btn active px-3 py-1.5 sm:px-4 sm:py-2 rounded-full transition flex items-center gap-1 sm:gap-2">
+                        <i class="fa-solid fa-ruler-horizontal"></i> <span class="hidden sm:inline">動態</span>紙條擴約分
+                    </button>
+                    <button id="btn-paper-sheet" onclick="switchTab('paper-sheet')" class="tab-btn text-blue-100 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full hover:bg-white/10 transition flex items-center gap-1 sm:gap-2">
+                        <i class="fa-solid fa-file-invoice"></i> <span class="hidden sm:inline">動態</span>紙張擴約分
+                    </button>
+                    <button id="btn-pie" onclick="switchTab('pie')" class="tab-btn text-blue-100 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full hover:bg-white/10 transition flex items-center gap-1 sm:gap-2">
+                        <i class="fa-solid fa-pizza-slice"></i> 蔥油餅與帶分數
+                    </button>
+                    <button id="btn-sandbox" onclick="switchTab('sandbox')" class="tab-btn text-blue-100 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full hover:bg-white/10 transition flex items-center gap-1 sm:gap-2">
+                        <i class="fa-solid fa-flask"></i> 自由探究
+                    </button>
+                    <button id="btn-quiz" onclick="switchTab('quiz')" class="tab-btn text-blue-100 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full hover:bg-white/10 transition flex items-center gap-1 sm:gap-2">
+                        <i class="fa-solid fa-pencil"></i> 歷程評量
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-6xl mx-auto px-4 mt-6 relative z-10">
+
+        <section id="tab-strip" class="tab-content space-y-6">
+            <!-- Concept Intro Card -->
+            <div class="glass-card rounded-2xl p-6 border-l-8 border-indigo-500">
+                <h2 class="text-lg sm:text-xl font-bold text-indigo-900 flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb text-amber-500"></i> 教學重點：等值分數與紙條切割／合併
+                </h2>
+                <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+                    透過把每一小份紙條「再分割成若干等分（擴分）」或「把若干小份合併成一大份（約分）」，塗色部分的總長度<b>完全沒有改變</b>。
+                    觀察分子與分母同時乘以或除以同一個數時的規律！
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Control Panel -->
+                <div class="glass-card rounded-2xl p-6 flex flex-col justify-between gap-4">
+                    <div>
+                        <h3 class="font-bold text-indigo-950 text-base mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-rose-500"></i> 參數控制項
+                        </h3>
+                        
+                        <!-- Mode selector -->
+                        <div class="mb-5">
+                            <label class="block text-xs font-semibold text-slate-500 mb-2">選擇操作模式：</label>
+                            <div class="flex rounded-xl p-1 bg-slate-200/60">
+                                <button id="mode-expand-btn" onclick="setStripMode('expand')" class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-white text-indigo-900 shadow">
+                                    <i class="fa-solid fa-arrows-split-up-and-left"></i> 擴分 (乘以)
+                                </button>
+                                <button id="mode-simplify-btn" onclick="setStripMode('simplify')" class="flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:text-indigo-900">
+                                    <i class="fa-solid fa-compress"></i> 約分 (除以)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Base fraction selector -->
+                        <div class="mb-5">
+                            <label class="block text-xs font-semibold text-slate-500 mb-2">選擇基礎分數：</label>
+                            <div id="strip-base-btn-container" class="grid grid-cols-3 gap-2">
+                                <!-- Dynamic Base buttons -->
+                            </div>
+                        </div>
+
+                        <!-- Multiplier/Divisor Slider -->
+                        <div class="mb-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <label id="slider-label" class="text-xs font-semibold text-slate-600">將每 1 份再細分：</label>
+                                <span id="strip-factor-display" class="text-base font-black text-rose-500">2 等分 (×2)</span>
+                            </div>
+                            <input type="range" id="strip-factor-slider" min="1" max="8" value="2" oninput="updateStripView()">
+                            <div id="slider-ticks" class="flex justify-between text-[10px] text-slate-400 mt-1">
+                                <span>1倍</span><span>2倍</span><span>3倍</span><span>4倍</span><span>5倍</span><span>6倍</span><span>7倍</span><span>8倍</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formula Glow Box -->
+                    <div class="bg-gradient-to-r from-indigo-900 to-purple-900 text-white rounded-xl p-4 shadow-inner text-center">
+                        <div class="text-xs text-indigo-200 mb-1 font-medium">等值分數算式紀錄</div>
+                        <div id="strip-math-expression" class="text-xl sm:text-2xl font-black text-amber-300 tracking-wider flex items-center justify-center">
+                            <!-- JS injected formula -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visual Graphic Board -->
+                <div class="lg:col-span-2 glass-card rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
+                            <h3 class="font-bold text-indigo-950 text-base flex items-center gap-2">
+                                <i class="fa-solid fa-eye text-indigo-600"></i> 動態紙條無縫視覺對照圖
+                            </h3>
+                            <div class="text-xs font-semibold text-slate-600 flex items-center gap-3">
+                                <span>原始每份：<span id="strip-unit-tag" class="text-indigo-700 font-bold"></span></span>
+                                <span>變換後每份：<span id="new-unit-text" class="text-rose-600 font-bold"></span></span>
+                            </div>
+                        </div>
+
+                        <!-- Seamless Paper Strip Container -->
+                        <div class="bg-slate-100/90 p-4 rounded-2xl border border-slate-200 shadow-inner space-y-2 my-2">
+                            <!-- Fraction Top Header Info Row -->
+                            <div class="flex justify-between items-center text-xs font-extrabold pb-1">
+                                <span class="text-indigo-800 flex items-center gap-1.5">
+                                    <span class="w-3 h-3 rounded-full bg-indigo-600 inline-block"></span>
+                                    [上圖] 原始紙條：<span id="orig-fraction-text"></span> 張
+                                </span>
+                            </div>
+
+                            <!-- Upper Strip SVG -->
+                            <div id="orig-strip-container" class="w-full h-14 relative rounded-lg overflow-hidden shadow-sm"></div>
+
+                            <!-- Lower Strip SVG directly adjacent without intervening text -->
+                            <div id="new-strip-container" class="w-full h-14 relative rounded-lg overflow-hidden shadow-sm"></div>
+
+                            <!-- Fraction Bottom Info Row (Placed below lower strip, aligned with top text) -->
+                            <div class="flex justify-between items-center text-xs font-extrabold pt-1">
+                                <span class="text-rose-600 flex items-center gap-1.5">
+                                    <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+                                    [下圖] <span id="new-strip-title">細分後紙條</span>：<span id="new-fraction-text"></span> 張
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Key Discovery Note -->
+                    <div class="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3.5 text-xs text-amber-900 flex items-start gap-2.5">
+                        <i class="fa-solid fa-lightbulb text-amber-600 text-base mt-0.5"></i>
+                        <div>
+                            <span class="font-bold">探究發現：</span>
+                            <span id="strip-discovery-text"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-paper-sheet" class="tab-content hidden space-y-6">
+            <div class="glass-card-dark rounded-2xl p-6 border-l-8 border-cyan-400">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg sm:text-xl font-bold text-cyan-300 flex items-center gap-2">
+                            <i class="fa-solid fa-file-lines text-amber-400"></i> 教學重點：紙張橫切摺紙與格子合併探究
+                        </h2>
+                        <p class="mt-1 text-sm text-slate-300 leading-relaxed">
+                            模擬將整張紙「橫向摺紙切分（擴分）」或「將多個小格子合併（約分）」，體驗等值分數與課本思考流程對照。
+                        </p>
+                    </div>
+                    <!-- Mode Selector Buttons -->
+                    <div class="flex bg-slate-900/80 p-1 rounded-xl border border-slate-700/80">
+                        <button id="ps-mode-expand" onclick="setPaperSheetMode('expand')" class="px-4 py-1.5 text-xs font-bold rounded-lg bg-cyan-500 text-slate-950 shadow-md transition">
+                            <i class="fa-solid fa-arrows-split-up-and-left me-1"></i> 擴分模式
+                        </button>
+                        <button id="ps-mode-simplify" onclick="setPaperSheetMode('simplify')" class="px-4 py-1.5 text-xs font-bold rounded-lg text-slate-300 hover:text-white transition">
+                            <i class="fa-solid fa-scissors me-1"></i> 約分模式
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Control Panel -->
+                <div class="glass-card-dark rounded-2xl p-6 flex flex-col justify-between gap-5 border border-slate-700/60">
+                    <div class="space-y-5">
+                        <h3 id="ps-panel-title" class="font-bold text-cyan-300 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-cyan-400"></i> 擴分參數設定
+                        </h3>
+
+                        <!-- Base Fraction Selector -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-2">選擇題目基礎分數：</label>
+                            <div id="ps-base-btn-container" class="grid grid-cols-2 gap-2.5">
+                                <!-- JS Injected Base Fraction Buttons -->
+                            </div>
+                        </div>
+
+                        <!-- Multiplier / Divisor Controls -->
+                        <div>
+                            <label id="ps-factor-label" class="block text-xs font-semibold text-slate-400 mb-2">分子分母同乘（分割倍數）：</label>
+                            <div id="ps-factor-control-container">
+                                <!-- JS Injected Range Slider or Divisor Buttons -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Discovery Note Box -->
+                    <div class="bg-indigo-950/70 border border-indigo-700/50 rounded-xl p-4 text-xs text-indigo-200 leading-relaxed space-y-1">
+                        <div class="font-bold text-amber-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-lightbulb"></i> 觀念發現：
+                        </div>
+                        <div id="ps-concept-text"></div>
+                    </div>
+                </div>
+
+                <!-- Visual Sheet Graphic & Thinking Steps -->
+                <div class="lg:col-span-2 glass-card-dark rounded-2xl p-6 flex flex-col justify-between border border-slate-700/60 space-y-6">
+                    <div>
+                        <!-- Header Bar -->
+                        <div class="flex flex-wrap justify-between items-center mb-4 gap-2 border-b border-slate-700/60 pb-3">
+                            <h3 id="ps-graphic-title" class="font-bold text-white text-base flex items-center gap-2">
+                                紙張橫切與摺紙探究動態圖
+                            </h3>
+                            <div id="ps-header-badge" class="bg-cyan-950 text-cyan-300 border border-cyan-700/60 text-xs px-3 py-1 rounded-full font-extrabold flex items-center gap-1.5">
+                                <!-- JS summary badge -->
+                            </div>
+                        </div>
+
+                        <!-- Visual Grid Display & Thinking Steps Side-by-Side -->
+                        <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                            <!-- Visual Sheet Container -->
+                            <div id="ps-sheet-container" class="flex flex-col items-center justify-center p-2 min-h-[220px]">
+                                <!-- SVG Sheet Grid Injected -->
+                            </div>
+
+                            <!-- Thinking Steps Box -->
+                            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-3">
+                                <div class="font-bold text-amber-300 text-xs sm:text-sm flex items-center gap-2 border-b border-slate-800 pb-2">
+                                    <i class="fa-solid fa-book-open text-amber-400"></i> 課本思考流程對照：
+                                </div>
+                                <div id="ps-steps-container" class="text-xs text-slate-300 space-y-2 leading-relaxed">
+                                    <!-- Dynamic Thinking Steps -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Giant Formula Box -->
+                    <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-5 text-center shadow-2xl">
+                        <div id="ps-formula-title" class="text-xs text-cyan-400 mb-2 font-bold tracking-wide">擴分數學算式表記</div>
+                        <div id="ps-giant-formula" class="text-2xl sm:text-3xl font-black text-white flex items-center justify-center gap-3">
+                            <!-- JS Giant Formula Injected -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-pie" class="tab-content hidden space-y-6">
+            <!-- 帶分數擴分概念區塊 (置於教學重點上方) -->
+            <div class="glass-card rounded-2xl p-6 border-l-8 border-amber-500 space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    <!-- 左側：觀念說明與算式 -->
+                    <div class="lg:col-span-5 space-y-4">
+                        <h3 class="text-lg font-bold text-amber-900 flex items-center gap-2">
+                            <i class="fa-solid fa-lightbulb text-amber-500"></i> 帶分數擴分概念
+                        </h3>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            例如：<span class="mixed-frac"><span>1</span><span class="frac"><span class="num">2</span><span class="den">5</span></span></span> 擴分乘以 4 時，<span class="underline font-bold text-slate-900">整數部分 1 保持不變</span>，只有真分數部分 <span class="frac"><span class="num">2</span><span class="den">5</span></span> 的分子和分母同乘以 4 變成 <span class="frac"><span class="num">8</span><span class="den">20</span></span>！
+                        </p>
+
+                        <!-- 帶分數擴分算式 -->
+                        <div class="bg-slate-900 text-white rounded-xl p-4 text-center shadow-inner">
+                            <div class="text-xs text-amber-300 font-bold mb-2">帶分數擴分算式</div>
+                            <div class="text-2xl sm:text-3xl font-black text-amber-300 flex items-center justify-center gap-2">
+                                <span class="mixed-frac"><span>1</span><span class="frac"><span class="num">2</span><span class="den">5</span></span></span>
+                                <span class="text-slate-400 font-normal">=</span>
+                                <span class="mixed-frac"><span>1</span><span class="frac"><span class="num">8</span><span class="den">20</span></span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右側：視覺圖解 -->
+                    <div class="lg:col-span-7 bg-slate-900/90 rounded-xl p-5 text-white border border-slate-700 flex flex-col items-center justify-center text-center">
+                        <div class="text-xs font-bold text-cyan-300 mb-3 flex items-center gap-1">
+                            視覺圖解：1 個完整紙帶 + <span class="frac"><span class="num">2</span><span class="den">5</span></span> 張紙帶 (擴分割劃為 20 等份)
+                        </div>
+                        
+                        <!-- 帶分數視覺 SVG 圖形 -->
+                        <div class="space-y-2 flex flex-col items-center">
+                            <!-- 完整 1 個紙張 -->
+                            <div class="w-[220px] h-[90px] bg-amber-400 border-2 border-red-500 flex items-center justify-center font-black text-slate-900 text-3xl shadow-md">
+                                1
+                            </div>
+                            <!-- 真分數擴分 2/5 -> 8/20 紙張 -->
+                            <div class="w-[220px] h-[90px] border-2 border-red-500 bg-slate-900 relative overflow-hidden">
+                                <svg width="220" height="90" viewBox="0 0 220 90" class="block">
+                                    <rect x="0" y="0" width="88" height="90" fill="#facc15" />
+                                    <!-- 垂直實線 5 個欄位 -->
+                                    <line x1="44" y1="0" x2="44" y2="90" stroke="#38bdf8" stroke-width="2" />
+                                    <line x1="88" y1="0" x2="88" y2="90" stroke="#f472b6" stroke-width="2.5" />
+                                    <line x1="132" y1="0" x2="132" y2="90" stroke="#38bdf8" stroke-width="2" />
+                                    <line x1="176" y1="0" x2="176" y2="90" stroke="#38bdf8" stroke-width="2" />
+                                    <!-- 橫向細分藍色虛線 4 個橫排 -->
+                                    <line x1="0" y1="22.5" x2="220" y2="22.5" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,3" />
+                                    <line x1="0" y1="45" x2="220" y2="45" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,3" />
+                                    <line x1="0" y1="67.5" x2="220" y2="67.5" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,3" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 底部迷思提醒 -->
+                <div class="bg-amber-100/80 border border-amber-300 rounded-xl p-3.5 text-xs text-amber-950 font-medium flex items-start gap-2.5">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-600 text-base mt-0.5 shrink-0"></i>
+                    <div>
+                        <span class="font-bold text-amber-900">常見迷思提醒：</span>
+                        學生常誤以為擴分時整數部分也要跟著一起乘。記住！整數代表「整盒/整張」，數量並沒有增加，所以整數部分維持不變！
+                    </div>
+                </div>
+            </div>
+
+            <!-- Concept Intro Card -->
+            <div class="glass-card rounded-2xl p-6 border-l-8 border-rose-500">
+                <h2 class="text-lg sm:text-xl font-bold text-rose-900 flex items-center gap-2">
+                    <i class="fa-solid fa-pizza-slice text-amber-500"></i> 教學重點：假分數與帶分數的擴分與約分（課本 P.107~P.110）
+                </h2>
+                <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+                    以「蔥油餅」與「鳳梨酥」為例：當分數超過 1（假分數或帶分數）時，擴分與約分對<b>每個單位的切片</b>進行細分或合併，整數張數（或完整盒數）保持不變！
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Controls -->
+                <div class="glass-card rounded-2xl p-6 flex flex-col justify-between">
+                    <div class="space-y-5">
+                        <h3 class="font-bold text-indigo-950 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-rose-500"></i> 課本情境選擇
+                        </h3>
+
+                        <!-- Preset selection -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-2">選擇教學主題：</label>
+                            <div class="space-y-2">
+                                <button onclick="setPieScenario('improper')" id="pie-scen-1" class="w-full text-left p-3 rounded-xl border border-rose-300 bg-rose-50 hover:bg-rose-100 transition flex justify-between items-center">
+                                    <div>
+                                        <div class="font-bold text-sm text-rose-900 inline-flex items-center gap-1">
+                                            <span class="frac"><span class="num">5</span><span class="den">4</span></span> 張蔥油餅 (假分數擴分)
+                                        </div>
+                                        <div class="text-[11px] text-rose-600 mt-1 flex items-center gap-1 flex-wrap">
+                                            每 <span class="frac"><span class="num">1</span><span class="den">4</span></span> 張切成 3 等分 <i class="fa-solid fa-arrow-right text-[10px]"></i> <span class="frac"><span class="num">15</span><span class="den">12</span></span> 張
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right text-rose-400"></i>
+                                </button>
+
+                                <button onclick="setPieScenario('mixed_expand')" id="pie-scen-2" class="w-full text-left p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition flex justify-between items-center">
+                                    <div>
+                                        <div class="font-bold text-sm text-slate-800 inline-flex items-center gap-1">
+                                            <span class="mixed-frac"><span>1</span><span class="frac"><span class="num">2</span><span class="den">5</span></span></span> 盒鳳梨酥 (帶分數擴分)
+                                        </div>
+                                        <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1 flex-wrap">
+                                            分子分母同乘 4 <i class="fa-solid fa-arrow-right text-[10px]"></i> <span class="mixed-frac"><span>1</span><span class="frac"><span class="num">8</span><span class="den">20</span></span></span> 盒 (整數不變)
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right text-slate-400"></i>
+                                </button>
+
+                                <button onclick="setPieScenario('mixed_simplify')" id="pie-scen-3" class="w-full text-left p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition flex justify-between items-center">
+                                    <div>
+                                        <div class="font-bold text-sm text-slate-800 inline-flex items-center gap-1">
+                                            <span class="mixed-frac"><span>1</span><span class="frac"><span class="num">8</span><span class="den">20</span></span></span> 盒鳳梨酥 (帶分數約分)
+                                        </div>
+                                        <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1 flex-wrap">
+                                            分子分母同除以 4 <i class="fa-solid fa-arrow-right text-[10px]"></i> <span class="mixed-frac"><span>1</span><span class="frac"><span class="num">2</span><span class="den">5</span></span></span> 盒
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right text-slate-400"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Slice Multiplier Slider -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label id="pie-slider-label" class="text-xs font-semibold text-slate-600">細分切片倍數：</label>
+                                <span id="pie-factor-text" class="text-sm font-bold text-rose-500">同乘 3 (每份切3等分)</span>
+                            </div>
+                            <input type="range" id="pie-slider" min="2" max="5" value="3" oninput="updatePieView()">
+                        </div>
+                    </div>
+
+                    <!-- Math calculation display -->
+                    <div class="mt-6 bg-slate-900 text-white rounded-xl p-4 shadow-inner text-center">
+                        <div class="text-xs text-slate-400 mb-1">算式表示</div>
+                        <div id="pie-math-display" class="text-lg font-bold text-amber-300 flex items-center justify-center">
+                            <!-- Dynamic math formula -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pie Graphic Rendering Area -->
+                <div class="lg:col-span-2 glass-card rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-indigo-950 text-base flex items-center gap-2">
+                                <i class="fa-solid fa-chart-pie text-rose-500"></i> 實物切片與圖示對照 (課本 P.107 蔥油餅)
+                            </h3>
+                            <span id="pie-summary-badge" class="bg-rose-100 text-rose-800 font-bold text-xs px-3 py-1.5 rounded-full inline-flex items-center gap-1">
+                                <!-- Dynamic Summary Badge -->
+                            </span>
+                        </div>
+
+                        <!-- Side-by-Side Graphic Display -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
+                            <!-- Original State Graphic -->
+                            <div class="bg-amber-50/60 p-4 rounded-xl border border-amber-200 text-center">
+                                <div id="pie-title-orig" class="text-xs font-bold text-amber-900 mb-3 flex items-center justify-center gap-1"></div>
+                                <div id="pie-svg-before" class="flex flex-wrap justify-center items-center gap-3 min-h-[160px]"></div>
+                            </div>
+
+                            <!-- Transformed State Graphic -->
+                            <div class="bg-rose-50/60 p-4 rounded-xl border border-rose-200 text-center">
+                                <div id="pie-title-new" class="text-xs font-bold text-rose-900 mb-3 flex items-center justify-center gap-1"></div>
+                                <div id="pie-svg-after" class="flex flex-wrap justify-center items-center gap-3 min-h-[160px]"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Clean Explanation Block -->
+                    <div class="mt-4 bg-sky-50 border border-sky-200 rounded-xl p-4 text-xs sm:text-sm text-sky-900 leading-relaxed flex items-start gap-3">
+                        <i class="fa-solid fa-circle-info text-sky-600 text-lg mt-0.5 shrink-0"></i>
+                        <div id="pie-explanation" class="space-y-1"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-sandbox" class="tab-content hidden space-y-6">
+            <div class="glass-card rounded-2xl p-6 border-l-8 border-emerald-500">
+                <h2 class="text-lg sm:text-xl font-bold text-emerald-900 flex items-center gap-2">
+                    <i class="fa-solid fa-flask text-emerald-600"></i> 自由擴分與約分實驗室
+                </h2>
+                <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+                    輸入任意分子與分母，自訂擴分或約分倍數，觀察圖形變化並確認您的算式！
+                </p>
+            </div>
+
+            <div class="glass-card rounded-2xl p-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">分子 (Numerator)</label>
+                        <input type="number" id="sandbox-num" value="2" min="1" max="50" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-bold text-lg text-slate-800" onchange="updateSandbox()">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">分母 (Denominator)</label>
+                        <input type="number" id="sandbox-den" value="5" min="1" max="50" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-bold text-lg text-slate-800" onchange="updateSandbox()">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">運算類型</label>
+                        <select id="sandbox-op" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-bold text-base text-slate-800" onchange="updateSandbox()">
+                            <option value="mult">擴分 ( × 倍數 )</option>
+                            <option value="div">約分 ( ÷ 倍數 )</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">倍數 (Factor)</label>
+                        <input type="number" id="sandbox-factor" value="4" min="1" max="12" class="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-bold text-lg text-slate-800" onchange="updateSandbox()">
+                    </div>
+                </div>
+
+                <!-- Sandbox Output -->
+                <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-xl space-y-4 text-center">
+                    <div class="text-xs text-slate-400">實驗室計算結果與等值關係</div>
+                    <div id="sandbox-math-output" class="text-2xl sm:text-3xl font-black text-amber-300 flex items-center justify-center">
+                        <!-- JS injected formula -->
+                    </div>
+                    <div id="sandbox-bar-container" class="w-full h-12 bg-slate-800 rounded-xl p-1 relative overflow-hidden border border-slate-700">
+                        <!-- JS injected Bar -->
+                    </div>
+                    <p id="sandbox-msg" class="text-xs text-emerald-300 font-medium"></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-quiz" class="tab-content hidden space-y-6">
+            <div class="glass-card rounded-2xl p-6 border-l-8 border-amber-500 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-lg sm:text-xl font-bold text-amber-900 flex items-center gap-2">
+                        <i class="fa-solid fa-graduation-cap text-amber-600"></i> 擴分與約分 - 歷程性小測驗
+                    </h2>
+                    <p class="mt-1 text-sm text-slate-600">
+                        依據課本隨堂練習設計 5 道題目，請選擇正確答案，即時自我檢測！
+                    </p>
+                </div>
+                <div class="bg-amber-100 text-amber-900 font-black px-4 py-2 rounded-2xl border border-amber-300 flex items-center gap-2">
+                    <span>得分：</span>
+                    <span id="quiz-score" class="text-2xl text-rose-600">0</span>
+                    <span>/ 100</span>
+                </div>
+            </div>
+
+            <!-- Quiz Questions List Container -->
+            <div id="quiz-list" class="space-y-6">
+                <!-- JS render questions -->
+            </div>
+
+            <!-- Submit & Reset Buttons -->
+            <div class="flex justify-center gap-4 pt-4">
+                <button onclick="checkAllQuiz()" class="px-8 py-3 bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white font-bold rounded-2xl shadow-lg transform hover:-translate-y-0.5 transition duration-150 flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> 提交答案
+                </button>
+                <button onclick="resetQuiz()" class="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-2xl transition flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-left"></i> 重新作答
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Custom Floating Toast Modal for Feedback -->
+    <div id="toast-modal" class="fixed bottom-6 right-6 max-w-sm bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border border-slate-700 transition transform translate-y-32 opacity-0 pointer-events-none z-50 flex items-center gap-3">
+        <div id="toast-icon" class="text-2xl text-emerald-400"><i class="fa-solid fa-circle-check"></i></div>
+        <div id="toast-message" class="text-xs sm:text-sm font-medium">訊息通知</div>
+    </div>
+
+    <script>
+        function fHTML(num, den, whole = null) {
+            const frac = `<span class="frac"><span class="num">${num}</span><span class="den">${den}</span></span>`;
+            if (whole !== null && whole !== '' && whole !== 0 && whole !== '0' && whole !== undefined) {
+                return `<span class="mixed-frac"><span>${whole}</span>${frac}</span>`;
+            }
+            return frac;
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('text-blue-100');
+            });
+
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.classList.remove('text-blue-100');
+            }
+
+            if (tabId === 'strip') updateStripView();
+            if (tabId === 'paper-sheet') updatePaperSheetView();
+            if (tabId === 'pie') updatePieView();
+            if (tabId === 'sandbox') updateSandbox();
+        }
+
+        const stripPresets = {
+            expand: [
+                { num: 3, den: 4, label: "3/4" },
+                { num: 1, den: 2, label: "1/2" },
+                { num: 2, den: 5, label: "2/5" }
+            ],
+            simplify: [
+                { num: 18, den: 24, factors: [2, 3, 6] },
+                { num: 12, den: 16, factors: [2, 4] },
+                { num: 8, den: 12, factors: [2, 4] }
+            ]
+        };
+
+        let stripState = {
+            mode: 'expand',
+            baseIndex: 0,
+            factor: 2
+        };
+
+        function setStripMode(mode) {
+            stripState.mode = mode;
+            stripState.baseIndex = 0;
+
+            const expBtn = document.getElementById('mode-expand-btn');
+            const simBtn = document.getElementById('mode-simplify-btn');
+            const sliderLabel = document.getElementById('slider-label');
+
+            if (mode === 'expand') {
+                expBtn.className = 'flex-1 py-1.5 text-xs font-bold rounded-lg bg-white text-indigo-900 shadow';
+                simBtn.className = 'flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:text-indigo-900';
+                sliderLabel.textContent = '將每 1 份再細分：';
+            } else {
+                simBtn.className = 'flex-1 py-1.5 text-xs font-bold rounded-lg bg-white text-indigo-900 shadow';
+                expBtn.className = 'flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:text-indigo-900';
+                sliderLabel.textContent = '將每幾小份合併為 1 大份：';
+            }
+
+            renderStripBaseButtons();
+            updateStripView();
+        }
+
+        function renderStripBaseButtons() {
+            const container = document.getElementById('strip-base-btn-container');
+            const list = stripPresets[stripState.mode];
+
+            container.innerHTML = list.map((item, idx) => `
+                <button onclick="selectStripBase(${idx})" class="strip-base-btn py-2 px-3 text-xs sm:text-sm font-bold rounded-lg border ${idx === stripState.baseIndex ? 'border-indigo-500 bg-indigo-100 text-indigo-900 shadow-sm' : 'border-indigo-200 bg-white hover:bg-indigo-50 text-indigo-700'} transition flex items-center justify-center gap-1">
+                    ${fHTML(item.num, item.den)} 張
+                </button>
+            `).join('');
+        }
+
+        function selectStripBase(idx) {
+            stripState.baseIndex = idx;
+            renderStripBaseButtons();
+            updateStripView();
+        }
+
+        function updateStripView() {
+            const { mode, baseIndex } = stripState;
+            const currentPreset = stripPresets[mode][baseIndex];
+            const slider = document.getElementById('strip-factor-slider');
+            const sliderTicks = document.getElementById('slider-ticks');
+
+            let baseNum = currentPreset.num;
+            let baseDen = currentPreset.den;
+            let factor, newNum, newDen;
+
+            if (mode === 'expand') {
+                slider.min = "1";
+                slider.max = "8";
+                slider.step = "1";
+                factor = parseInt(slider.value) || 2;
+                if (factor < 1 || factor > 8) { factor = 2; slider.value = "2"; }
+
+                newNum = baseNum * factor;
+                newDen = baseDen * factor;
+
+                sliderTicks.innerHTML = `<span>1倍</span><span>2倍</span><span>3倍</span><span>4倍</span><span>5倍</span><span>6倍</span><span>7倍</span><span>8倍</span>`;
+                document.getElementById('strip-factor-display').textContent = `${factor} 等分 (×${factor})`;
+                document.getElementById('new-strip-title').textContent = "細分後紙條";
+            } else {
+                const validFactors = currentPreset.factors;
+                slider.min = "0";
+                slider.max = (validFactors.length - 1).toString();
+                slider.step = "1";
+
+                let factorIdx = parseInt(slider.value);
+                if (isNaN(factorIdx) || factorIdx >= validFactors.length) {
+                    factorIdx = 0;
+                    slider.value = "0";
+                }
+                factor = validFactors[factorIdx];
+
+                newNum = baseNum / factor;
+                newDen = baseDen / factor;
+
+                sliderTicks.innerHTML = validFactors.map(f => `<span>÷${f}</span>`).join('');
+                document.getElementById('strip-factor-display').textContent = `${factor} 份合一 (÷${factor})`;
+                document.getElementById('new-strip-title').textContent = "約分合併後紙條";
+            }
+
+            document.getElementById('orig-fraction-text').innerHTML = fHTML(baseNum, baseDen);
+            document.getElementById('new-fraction-text').innerHTML = fHTML(newNum, newDen);
+            document.getElementById('strip-unit-tag').innerHTML = fHTML(1, baseDen) + ' 張';
+            document.getElementById('new-unit-text').innerHTML = fHTML(1, newDen) + ' 張';
+
+            const mathBox = document.getElementById('strip-math-expression');
+            if (mode === 'expand') {
+                mathBox.innerHTML = `
+                    <div class="inline-flex items-center gap-2 sm:gap-3">
+                        ${fHTML(baseNum, baseDen)}
+                        <span class="text-xs text-amber-200 font-normal inline-flex items-center gap-1">
+                            = <div class="frac"><span class="num">${baseNum} × ${factor}</span><span class="den">${baseDen} × ${factor}</span></div> =
+                        </span>
+                        <span class="text-rose-300 font-extrabold">${fHTML(newNum, newDen)}</span>
+                    </div>
+                `;
+            } else {
+                mathBox.innerHTML = `
+                    <div class="inline-flex items-center gap-2 sm:gap-3">
+                        ${fHTML(baseNum, baseDen)}
+                        <span class="text-xs text-amber-200 font-normal inline-flex items-center gap-1">
+                            = <div class="frac"><span class="num">${baseNum} ÷ ${factor}</span><span class="den">${baseDen} ÷ ${factor}</span></div> =
+                        </span>
+                        <span class="text-rose-300 font-extrabold">${fHTML(newNum, newDen)}</span>
+                    </div>
+                `;
+            }
+
+            document.getElementById('strip-discovery-text').innerHTML = mode === 'expand' ? 
+                `分子與分母同時乘以 <b>${factor}</b>，表示把原來每 1 個 ${fHTML(1, baseDen)} 張再平分為 ${factor} 小等份。<br>雖然塗色格數增加為 <b>${newNum}</b> 格（每小格單位變為 ${fHTML(1, newDen)}），但<b>塗色的總長度完全沒有改變</b>！` :
+                `分子與分母同時除以 <b>${factor}</b>，表示將每 <b>${factor}</b> 個 ${fHTML(1, baseDen)} 張小格合併成 1 大份。<br>塗色部分變成了 <b>${newNum}</b> 格（每格單位變為 ${fHTML(1, newDen)}），整體長度完全相等！`;
+
+            renderStripSVG('orig-strip-container', baseNum, baseDen, 1, '#4f46e5');
+            renderStripSVG('new-strip-container', newNum, newDen, factor, '#f43f5e', mode === 'simplify');
+        }
+
+        function renderStripSVG(containerId, num, den, factor, fillHex, isGrouped = false) {
+            const container = document.getElementById(containerId);
+            const width = container.clientWidth || 500;
+            const height = 56;
+
+            let rects = '';
+            const cellWidth = width / den;
+
+            for (let i = 0; i < den; i++) {
+                const x = i * cellWidth;
+                const isFilled = i < num;
+                const bgFill = isFilled ? fillHex : '#ffffff';
+                const opacity = isFilled ? '0.9' : '1';
+                const textColor = isFilled ? '#ffffff' : '#475569';
+
+                rects += `
+                    <rect x="${x}" y="0" width="${cellWidth}" height="${height}" 
+                          fill="${bgFill}" fill-opacity="${opacity}" stroke="#334155" stroke-width="1.2" rx="0" ry="0" />
+                    <text x="${x + cellWidth/2}" y="${height/2 - 4}" 
+                          font-size="10" font-weight="bold" fill="${textColor}" text-anchor="middle">1</text>
+                    <line x1="${x + cellWidth/2 - 6}" y1="${height/2}" x2="${x + cellWidth/2 + 6}" y2="${height/2}" 
+                          stroke="${textColor}" stroke-width="1.2" />
+                    <text x="${x + cellWidth/2}" y="${height/2 + 12}" 
+                          font-size="10" font-weight="bold" fill="${textColor}" text-anchor="middle">${den}</text>
+                `;
+            }
+
+            container.innerHTML = `
+                <svg width="100%" height="${height}" viewBox="0 0 ${width} ${height}" class="block">
+                    ${rects}
+                </svg>
+            `;
+        }
+
+        const paperSheetPresets = {
+            expand: [
+                { num: 3, den: 4, whole: 0 },
+                { num: 1, den: 2, whole: 0 },
+                { num: 2, den: 5, whole: 0 },
+                { num: 2, den: 5, whole: 1 }
+            ],
+            simplify: [
+                { num: 18, den: 24, whole: 0, divisors: [1, 2, 3, 6], baseCols: 4, baseRows: 6 },
+                { num: 12, den: 16, whole: 0, divisors: [1, 2, 4], baseCols: 4, baseRows: 4 },
+                { num: 8, den: 12, whole: 0, divisors: [1, 2, 4], baseCols: 3, baseRows: 4 },
+                { num: 8, den: 20, whole: 1, divisors: [1, 2, 4], baseCols: 5, baseRows: 4 }
+            ]
+        };
+
+        let paperSheetState = {
+            mode: 'expand',
+            baseIndex: 0,
+            factor: 2
+        };
+
+        function setPaperSheetMode(mode) {
+            paperSheetState.mode = mode;
+            paperSheetState.baseIndex = 0;
+
+            const expBtn = document.getElementById('ps-mode-expand');
+            const simBtn = document.getElementById('ps-mode-simplify');
+
+            if (mode === 'expand') {
+                expBtn.className = 'px-4 py-1.5 text-xs font-bold rounded-lg bg-cyan-500 text-slate-950 shadow-md transition';
+                simBtn.className = 'px-4 py-1.5 text-xs font-bold rounded-lg text-slate-300 hover:text-white transition';
+                document.getElementById('ps-panel-title').innerHTML = `<i class="fa-solid fa-sliders text-cyan-400"></i> 擴分參數設定`;
+                document.getElementById('ps-factor-label').textContent = '分子分母同乘（分割倍數）：';
+                document.getElementById('ps-graphic-title').textContent = '紙張橫切與摺紙探究動態圖';
+                document.getElementById('ps-formula-title').textContent = '擴分數學算式表記';
+                paperSheetState.factor = 2;
+            } else {
+                simBtn.className = 'px-4 py-1.5 text-xs font-bold rounded-lg bg-rose-500 text-white shadow-md transition';
+                expBtn.className = 'px-4 py-1.5 text-xs font-bold rounded-lg text-slate-300 hover:text-white transition';
+                document.getElementById('ps-panel-title').innerHTML = `<i class="fa-solid fa-scissors text-rose-400"></i> 約分參數設定`;
+                document.getElementById('ps-factor-label').textContent = '選擇分子分母同除以（公因數）：';
+                document.getElementById('ps-graphic-title').textContent = '紙張合併與約分探究動態圖';
+                document.getElementById('ps-formula-title').textContent = '約分數學算式表記';
+                paperSheetState.factor = 1;
+            }
+
+            renderPaperSheetBaseButtons();
+            updatePaperSheetView();
+        }
+
+        function renderPaperSheetBaseButtons() {
+            const container = document.getElementById('ps-base-btn-container');
+            const list = paperSheetPresets[paperSheetState.mode];
+
+            container.innerHTML = list.map((item, idx) => `
+                <button onclick="selectPaperSheetBase(${idx})" class="py-2 px-3 text-xs sm:text-sm font-bold rounded-xl border ${idx === paperSheetState.baseIndex ? 'border-cyan-400 bg-cyan-950/80 text-cyan-200 shadow-md' : 'border-slate-700 bg-slate-900/60 text-slate-300 hover:bg-slate-800'} transition flex items-center justify-center gap-1">
+                    ${fHTML(item.num, item.den, item.whole)}
+                </button>
+            `).join('');
+        }
+
+        function selectPaperSheetBase(idx) {
+            paperSheetState.baseIndex = idx;
+            if (paperSheetState.mode === 'simplify') {
+                paperSheetState.factor = paperSheetPresets.simplify[idx].divisors[0];
+            } else {
+                paperSheetState.factor = 2;
+            }
+            renderPaperSheetBaseButtons();
+            updatePaperSheetView();
+        }
+
+        function updatePaperSheetView() {
+            const { mode, baseIndex } = paperSheetState;
+            const preset = paperSheetPresets[mode][baseIndex];
+            const factorControl = document.getElementById('ps-factor-control-container');
+
+            let num = preset.num;
+            let den = preset.den;
+            let whole = preset.whole;
+            let factor = paperSheetState.factor;
+
+            if (mode === 'expand') {
+                factorControl.innerHTML = `
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-sm font-black text-amber-300">
+                            <span>切分倍數：</span>
+                            <span class="text-xl">× ${factor}</span>
+                        </div>
+                        <input type="range" min="1" max="8" value="${factor}" oninput="paperSheetState.factor = parseInt(this.value); updatePaperSheetView();">
+                        <div class="flex justify-between text-[10px] text-slate-400">
+                            <span>×1</span><span>×2</span><span>×4</span><span>×8</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const divisors = preset.divisors;
+                if (!divisors.includes(factor)) factor = divisors[0];
+
+                factorControl.innerHTML = `
+                    <div class="grid grid-cols-2 gap-2">
+                        ${divisors.map(d => `
+                            <button onclick="paperSheetState.factor = ${d}; updatePaperSheetView();" class="py-2 rounded-xl border text-sm font-black transition ${d === factor ? 'border-rose-400 bg-rose-950/80 text-rose-300 shadow-md' : 'border-slate-700 bg-slate-900/60 text-slate-300 hover:bg-slate-800'}">
+                                ÷ ${d}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            let newNum, newDen;
+            if (mode === 'expand') {
+                newNum = num * factor;
+                newDen = den * factor;
+            } else {
+                newNum = num / factor;
+                newDen = den / factor;
+            }
+
+            document.getElementById('ps-header-badge').innerHTML = mode === 'expand' ?
+                `原本：${fHTML(num, den, whole)} 張紙 <i class="fa-solid fa-arrow-right text-[10px]"></i> 擴分後：${fHTML(newNum, newDen, whole)} 張紙` :
+                `原本：${fHTML(num, den, whole)} 張紙 <i class="fa-solid fa-arrow-right text-[10px]"></i> 約分後：${fHTML(newNum, newDen, whole)} 張紙`;
+
+            document.getElementById('ps-concept-text').innerHTML = mode === 'expand' ?
+                `當分子與分母同時乘以一個大於 1 的整數時，雖然切割的每一小份變小了，但塗色的總面積保持完全不變！這就是<b>「擴分」</b>。` :
+                `把許多小格「合併」成較大的格子，分子與分母同時除以它們的公因數，分數的大小完全不變！這就是<b>「約分」</b>。`;
+
+            renderPaperSheetSVG('ps-sheet-container', num, den, whole, factor, mode, preset);
+
+            const stepsBox = document.getElementById('ps-steps-container');
+            if (whole > 0) {
+                if (mode === 'expand') {
+                    stepsBox.innerHTML = `
+                        <div class="bg-amber-950/80 border border-amber-600/60 text-amber-200 p-2.5 rounded-none text-[11px] font-bold mb-2">
+                            <i class="fa-solid fa-circle-info me-1"></i> 帶分數擴分提醒：整數 ${whole} 保持不變，只對真分數部分擴分！
+                        </div>
+                        <p class="flex items-start gap-1.5"><span class="text-cyan-400 font-bold">•</span> 把這張紙真分數部分的每個 ${fHTML(1, den)} 張再分成 <b>${factor}</b> 等分。</p>
+                        <p class="flex items-start gap-1.5"><span class="text-cyan-400 font-bold">•</span> 每一小等份是 ${fHTML(1, newDen)} 張。</p>
+                        <p class="flex items-start gap-1.5"><span class="text-cyan-400 font-bold">•</span> <b>${num}</b> 個 ${fHTML(1, den)} 變成 <b>${newNum}</b> 個 ${fHTML(1, newDen)}。</p>
+                        <p class="flex items-start gap-1.5"><span class="text-cyan-400 font-bold">•</span> <b>${fHTML(num, den, whole)}</b> 張也可以說是 <b>${fHTML(newNum, newDen, whole)}</b> 張。</p>
+                    `;
+                } else {
+                    stepsBox.innerHTML = `
+                        <div class="bg-amber-950/80 border border-amber-600/60 text-amber-200 p-2.5 rounded-none text-[11px] font-bold mb-2">
+                            <i class="fa-solid fa-circle-info me-1"></i> 帶分數約分提醒：整數 ${whole} 保持不變，只對真分數部分進行約分！
+                        </div>
+                        <p class="flex items-start gap-1.5"><span class="text-rose-400 font-bold">•</span> 把這張紙真分數部分每 <b>${factor}</b> 小格「合併」成 1 大格（同除以 ${factor}）。</p>
+                        <p class="flex items-start gap-1.5"><span class="text-rose-400 font-bold">•</span> 合併後共有 <b>${newDen}</b> 個大等份，每一大等份是 ${fHTML(1, newDen)} 張。</p>
+                        <p class="flex items-start gap-1.5"><span class="text-rose-400 font-bold">•</span> 原本塗色的 <b>${num}</b> 小格合併為 <b>${newNum}</b> 大格。</p>
+                        <p class="flex items-start gap-1.5"><span class="text-rose-400 font-bold">•</span> <b>${fHTML(num, den, whole)}</b> 張約分簡化後也可以說是 <b>${fHTML(newNum, newDen, whole)}</b> 張。</p>
+                    `;
+                }
+            } else {
+                if (mode === 'expand') {
+                    stepsBox.innerHTML = `
+                        <p class="flex items-start gap-1.5"><span class="text-cyan-400 font-bold">•</span> 把這張紙真分數部分的每個 ${fHTML(1, den)} 張再分成 <b>${factor}</b> 等分。</p>
+                        <p class="flex items-start gap-1.5"><span class="text-cyan-400 font-bold">•</span> 每一小等份是 ${fHTML(1, newDen)} 張。</p>
+                        <p class="flex items-start gap-1.5"><span class="text-cyan-400 font-bold">•</span> <b>${num}</b> 個 ${fHTML(1, den)} 變成 <b>${newNum}</b> 個 ${fHTML(1, newDen)}。</p>
+                        <p class="flex items-start gap-1.5"><span class="text-cyan-400 font-bold">•</span> <b>${fHTML(num, den)}</b> 張也可以說是 <b>${fHTML(newNum, newDen)}</b> 張。</p>
+                    `;
+                } else {
+                    stepsBox.innerHTML = `
+                        <p class="flex items-start gap-1.5"><span class="text-rose-400 font-bold">•</span> 把這張紙真分數部分每 <b>${factor}</b> 小格「合併」成 1 大格（同除以 ${factor}）。</p>
+                        <p class="flex items-start gap-1.5"><span class="text-rose-400 font-bold">•</span> 合併後共有 <b>${newDen}</b> 個大等份，每一大等份是 ${fHTML(1, newDen)} 張。</p>
+                        <p class="flex items-start gap-1.5"><span class="text-rose-400 font-bold">•</span> 原本塗色的 <b>${num}</b> 小格合併為 <b>${newNum}</b> 大格。</p>
+                        <p class="flex items-start gap-1.5"><span class="text-rose-400 font-bold">•</span> <b>${fHTML(num, den)}</b> 張約分簡化後也可以說是 <b>${fHTML(newNum, newDen)}</b> 張。</p>
+                    `;
+                }
+            }
+
+            const formulaBox = document.getElementById('ps-giant-formula');
+            const wPrefix = whole > 0 ? `<span class="text-amber-300 text-3xl font-black mr-1">${whole}</span>` : '';
+
+            if (mode === 'expand') {
+                formulaBox.innerHTML = `
+                    ${wPrefix}${fHTML(num, den)}
+                    <span class="text-slate-500 font-light mx-1">=</span>
+                    <div class="border-2 border-yellow-500/80 bg-yellow-950/30 px-4 py-2.5 rounded-xl inline-flex flex-col items-center relative">
+                        <span class="text-xs text-amber-300 font-extrabold mb-1">× ${factor}</span>
+                        <div class="flex items-center">
+                            ${wPrefix}
+                            <div class="frac">
+                                <span class="num text-amber-300">${num} × ${factor}</span>
+                                <span class="den text-amber-300">${den} × ${factor}</span>
+                            </div>
+                        </div>
+                        <span class="text-xs text-amber-300 font-extrabold mt-1">× ${factor}</span>
+                    </div>
+                    <span class="text-slate-500 font-light mx-1">=</span>
+                    ${wPrefix}<span class="text-amber-300">${fHTML(newNum, newDen)}</span>
+                `;
+            } else {
+                formulaBox.innerHTML = `
+                    ${wPrefix}${fHTML(num, den)}
+                    <span class="text-slate-500 font-light mx-1">=</span>
+                    <div class="border-2 border-cyan-500/80 bg-cyan-950/30 px-4 py-2.5 rounded-xl inline-flex flex-col items-center relative">
+                        <span class="text-xs text-cyan-300 font-extrabold mb-1">÷ ${factor}</span>
+                        <div class="flex items-center">
+                            ${wPrefix}
+                            <div class="frac">
+                                <span class="num text-cyan-300">${num} ÷ ${factor}</span>
+                                <span class="den text-cyan-300">${den} ÷ ${factor}</span>
+                            </div>
+                        </div>
+                        <span class="text-xs text-cyan-300 font-extrabold mt-1">÷ ${factor}</span>
+                    </div>
+                    <span class="text-slate-500 font-light mx-1">=</span>
+                    ${wPrefix}<span class="text-cyan-300">${fHTML(newNum, newDen)}</span>
+                `;
+            }
+        }
+
+        function renderPaperSheetSVG(containerId, num, den, whole, factor, mode, preset) {
+            const container = document.getElementById(containerId);
+            let html = '';
+
+            const gridWidth = 220;
+            const gridHeight = 120;
+
+            if (whole > 0) {
+                html += `
+                    <div class="w-[220px] h-[120px] bg-amber-400 border-2 border-red-500 rounded-none flex items-center justify-center font-black text-slate-900 text-3xl shadow-lg mb-3">
+                        ${whole}
+                    </div>
+                `;
+            }
+
+            let cellRects = '';
+            let lineElements = '';
+
+            if (mode === 'expand') {
+                const cols = den;
+                const rows = factor;
+                const fillCols = num;
+                const unitDenom = den * factor;
+
+                const cellW = gridWidth / cols;
+                const cellH = gridHeight / rows;
+
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const x = c * cellW;
+                        const y = r * cellH;
+                        const isFilled = c < fillCols;
+
+                        const bg = isFilled ? '#facc15' : '#1e293b';
+                        const textColor = isFilled ? '#1e293b' : '#94a3b8';
+
+                        cellRects += `
+                            <rect x="${x}" y="${y}" width="${cellW}" height="${cellH}" fill="${bg}" stroke="none" />
+                            <text x="${x + cellW/2}" y="${y + cellH/2 + 3}" font-size="${cols > 8 ? 8 : 10}" font-weight="extrabold" fill="${textColor}" text-anchor="middle">
+                                1/${unitDenom}
+                            </text>
+                        `;
+                    }
+                }
+
+                for (let c = 1; c < cols; c++) {
+                    const x = c * cellW;
+                    lineElements += `<line x1="${x}" y1="0" x2="${x}" y2="${gridHeight}" stroke="#f472b6" stroke-width="2" />`;
+                }
+
+                if (rows > 1) {
+                    for (let r = 1; r < rows; r++) {
+                        const y = r * cellH;
+                        lineElements += `<line x1="0" y1="${y}" x2="${gridWidth}" y2="${y}" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4,3" />`;
+                    }
+                }
+
+            } else {
+                const baseCols = preset.baseCols || 4;
+                const baseRows = preset.baseRows || 6;
+
+                const currentRows = baseRows / factor;
+                const currentCols = baseCols;
+                const newDenom = den / factor;
+                const fillCols = num / baseRows;
+
+                const cellW = gridWidth / currentCols;
+                const cellH = gridHeight / currentRows;
+
+                for (let r = 0; r < currentRows; r++) {
+                    for (let c = 0; c < currentCols; c++) {
+                        const x = c * cellW;
+                        const y = r * cellH;
+                        const isFilled = c < fillCols;
+
+                        const bg = isFilled ? '#facc15' : '#1e293b';
+                        const textColor = isFilled ? '#1e293b' : '#94a3b8';
+
+                        cellRects += `
+                            <rect x="${x}" y="${y}" width="${cellW}" height="${cellH}" fill="${bg}" stroke="none" />
+                            <text x="${x + cellW/2}" y="${y + cellH/2 + 3}" font-size="11" font-weight="extrabold" fill="${textColor}" text-anchor="middle">
+                                1/${newDenom}
+                            </text>
+                        `;
+                    }
+                }
+
+                for (let c = 1; c < currentCols; c++) {
+                    const x = c * cellW;
+                    lineElements += `<line x1="${x}" y1="0" x2="${x}" y2="${gridHeight}" stroke="#f472b6" stroke-width="2" />`;
+                }
+
+                if (currentRows > 1) {
+                    for (let r = 1; r < currentRows; r++) {
+                        const y = r * cellH;
+                        lineElements += `<line x1="0" y1="${y}" x2="${gridWidth}" y2="${y}" stroke="#f472b6" stroke-width="2" />`;
+                    }
+                }
+
+                const origRowH = gridHeight / baseRows;
+                for (let i = 1; i < baseRows; i++) {
+                    const y = i * origRowH;
+                    // 當該位置沒有粉紅色實線時（i 不能被 factor 整除），才繪製兩側藍色小刻度
+                    if (i % factor !== 0) {
+                        lineElements += `<line x1="0" y1="${y}" x2="6" y2="${y}" stroke="#38bdf8" stroke-width="2" />`;
+                        lineElements += `<line x1="${gridWidth - 6}" y1="${y}" x2="${gridWidth}" y2="${y}" stroke="#38bdf8" stroke-width="2" />`;
+                    }
+                }
+            }
+
+            const outerBorder = `<rect x="0" y="0" width="${gridWidth}" height="${gridHeight}" fill="none" stroke="#ef4444" stroke-width="2.5" />`;
+
+            html += `
+                <div class="rounded-none overflow-hidden shadow-xl">
+                    <svg width="${gridWidth}" height="${gridHeight}" viewBox="0 0 ${gridWidth} ${gridHeight}" class="block">
+                        ${cellRects}
+                        ${lineElements}
+                        ${outerBorder}
+                    </svg>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        let pieState = {
+            scenario: 'improper'
+        };
+
+        function setPieScenario(scen) {
+            pieState.scenario = scen;
+            ['improper', 'mixed_expand', 'mixed_simplify'].forEach((s, idx) => {
+                const btn = document.getElementById(`pie-scen-${idx + 1}`);
+                if (btn) {
+                    if (s === scen) {
+                        btn.className = "w-full text-left p-3 rounded-xl border border-rose-300 bg-rose-50 hover:bg-rose-100 transition flex justify-between items-center shadow-sm";
+                    } else {
+                        btn.className = "w-full text-left p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition flex justify-between items-center";
+                    }
+                }
+            });
+            updatePieView();
+        }
+
+        function updatePieView() {
+            const scen = pieState.scenario;
+            const slider = document.getElementById('pie-slider');
+            const sliderLabel = document.getElementById('pie-slider-label');
+            const factorText = document.getElementById('pie-factor-text');
+            const summaryBadge = document.getElementById('pie-summary-badge');
+            const mathDisplay = document.getElementById('pie-math-display');
+            const explanation = document.getElementById('pie-explanation');
+            const titleOrig = document.getElementById('pie-title-orig');
+            const titleNew = document.getElementById('pie-title-new');
+
+            if (!slider) return;
+
+            if (scen === 'improper') {
+                sliderLabel.textContent = "細分切片倍數：";
+                slider.min = "2"; slider.max = "5"; slider.step = "1";
+                let factor = parseInt(slider.value) || 3;
+                factorText.textContent = `同乘 ${factor} (每份切成 ${factor} 等分)`;
+
+                const baseNum = 5, baseDen = 4;
+                const newNum = baseNum * factor, newDen = baseDen * factor;
+
+                summaryBadge.innerHTML = `<span class="inline-flex items-center gap-1">${fHTML(baseNum, baseDen)} 張蔥油餅 = ${fHTML(newNum, newDen)} 張蔥油餅</span>`;
+                mathDisplay.innerHTML = `
+                    <div class="flex items-center justify-center gap-2">
+                        <span class="frac"><span class="num">5 × ${factor}</span><span class="den">4 × ${factor}</span></span> = 
+                        <span class="text-amber-300 font-black text-xl ml-1">${fHTML(newNum, newDen)}</span> 張
+                    </div>
+                `;
+
+                explanation.innerHTML = `
+                    <p>把每一個 ${fHTML(1, baseDen)} 張蔥油餅再切成 <b>${factor}</b> 小等分，每小等分就變成 ${fHTML(1, newDen)} 張。</p>
+                    <p>原本有 5 個 ${fHTML(1, baseDen)} 張，現在變成了 <b>${newNum}</b> 個 ${fHTML(1, newDen)} 張，總份數完全相等！</p>
+                `;
+
+                titleOrig.innerHTML = `變換前：${fHTML(baseNum, baseDen)} 張蔥油餅 (每份是 ${fHTML(1, baseDen)} 張)`;
+                titleNew.innerHTML = `變換後：${fHTML(newNum, newDen)} 張蔥油餅 (每小份是 ${fHTML(1, newDen)} 張)`;
+
+                renderPieGraphicGroup('pie-svg-before', baseDen, baseNum, factor, '#f59e0b');
+                renderPieGraphicGroup('pie-svg-after', newDen, newNum, factor, '#f43f5e');
+
+            } else if (scen === 'mixed_expand') {
+                sliderLabel.textContent = "細分倍數：";
+                slider.min = "2"; slider.max = "5"; slider.step = "1";
+                let factor = parseInt(slider.value) || 4;
+                factorText.textContent = `同乘 ${factor} (每份切成 ${factor} 等分)`;
+
+                const baseNum = 2, baseDen = 5, whole = 1;
+                const newNum = baseNum * factor, newDen = baseDen * factor;
+
+                summaryBadge.innerHTML = `<span class="inline-flex items-center gap-1">${fHTML(baseNum, baseDen, whole)} 盒 = ${fHTML(newNum, newDen, whole)} 盒</span>`;
+                mathDisplay.innerHTML = `
+                    <div class="flex items-center justify-center gap-2">
+                        <span>1</span>
+                        <span class="frac"><span class="num">2 × ${factor}</span><span class="den">5 × ${factor}</span></span> = 
+                        <span class="text-amber-300 font-black text-xl ml-1">${fHTML(newNum, newDen, whole)}</span> 盒
+                    </div>
+                `;
+
+                explanation.innerHTML = `
+                    <p><b>教學重點：</b>帶分數擴分時，<b>整數部分 (${whole} 完整盒) 保持不變</b>！</p>
+                    <p>只有真分數部分 ${fHTML(baseNum, baseDen)} 的分子與分母同時乘以 <b>${factor}</b>，擴分得到 ${fHTML(newNum, newDen)}。</p>
+                `;
+
+                titleOrig.innerHTML = `變換前：${fHTML(baseNum, baseDen, whole)} 盒鳳梨酥 (真分數為 ${fHTML(baseNum, baseDen)})`;
+                titleNew.innerHTML = `變換後：${fHTML(newNum, newDen, whole)} 盒鳳梨酥 (真分數細分為 ${fHTML(newNum, newDen)})`;
+
+                renderPieGraphicGroup('pie-svg-before', baseDen, baseDen + baseNum, factor, '#10b981');
+                renderPieGraphicGroup('pie-svg-after', newDen, newDen + newNum, factor, '#06b6d4');
+
+            } else {
+                sliderLabel.textContent = "約分除數：";
+                slider.min = "2"; slider.max = "4"; slider.step = "2";
+                let factor = parseInt(slider.value) || 4;
+                if (factor !== 2 && factor !== 4) factor = 4;
+                factorText.textContent = `同除以 ${factor} (每 ${factor} 份合併為 1 份)`;
+
+                const baseNum = 8, baseDen = 20, whole = 1;
+                const newNum = baseNum / factor, newDen = baseDen / factor;
+
+                summaryBadge.innerHTML = `<span class="inline-flex items-center gap-1">${fHTML(baseNum, baseDen, whole)} 盒 = ${fHTML(newNum, newDen, whole)} 盒</span>`;
+                mathDisplay.innerHTML = `
+                    <div class="flex items-center justify-center gap-2">
+                        <span>1</span>
+                        <span class="frac"><span class="num">8 ÷ ${factor}</span><span class="den">20 ÷ ${factor}</span></span> = 
+                        <span class="text-amber-300 font-black text-xl ml-1">${fHTML(newNum, newDen, whole)}</span> 盒
+                    </div>
+                `;
+
+                explanation.innerHTML = `
+                    <p><b>教學重點：</b>帶分數約分時，<b>整數部分 (${whole} 完整盒) 保持不變</b>！</p>
+                    <p>只將真分數部分 ${fHTML(baseNum, baseDen)} 的分子與分母同除以 <b>${factor}</b>，約分簡化得到 ${fHTML(newNum, newDen)}。</p>
+                `;
+
+                titleOrig.innerHTML = `約分前：${fHTML(baseNum, baseDen, whole)} 盒鳳梨酥`;
+                titleNew.innerHTML = `約分後：${fHTML(newNum, newDen, whole)} 盒鳳梨酥`;
+
+                renderPieGraphicGroup('pie-svg-before', baseDen, baseDen + baseNum, factor, '#8b5cf6');
+                renderPieGraphicGroup('pie-svg-after', newDen, newDen + newNum, factor, '#ec4899');
+            }
+        }
+
+        function renderPieGraphicGroup(containerId, den, totalFilled, factor, colorHex) {
+            const container = document.getElementById(containerId);
+            const numCircles = Math.ceil(totalFilled / den);
+            let html = '';
+
+            for (let c = 0; c < numCircles; c++) {
+                const filledInThis = Math.min(den, Math.max(0, totalFilled - c * den));
+                const isFull = filledInThis === den;
+
+                html += `
+                    <div class="flex flex-col items-center">
+                        <div class="text-[11px] font-bold text-slate-500 mb-1">${isFull ? '完整 1 個' : `部分 (${filledInThis}/${den})`}</div>
+                        <svg width="110" height="110" viewBox="-1.15 -1.15 2.3 2.3" class="transform -rotate-90">
+                            <circle cx="0" cy="0" r="1" fill="#ffffff" stroke="#334155" stroke-width="0.04" />
+                            ${renderPieSlicesSVG(den, filledInThis, colorHex)}
+                        </svg>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function renderPieSlicesSVG(den, filledCount, fillHex) {
+            let paths = '';
+            for (let i = 0; i < den; i++) {
+                const startAngle = (i * 2 * Math.PI) / den;
+                const endAngle = ((i + 1) * 2 * Math.PI) / den;
+
+                const x1 = Math.cos(startAngle);
+                const y1 = Math.sin(startAngle);
+                const x2 = Math.cos(endAngle);
+                const y2 = Math.sin(endAngle);
+
+                const isFilled = i < filledCount;
+                const fill = isFilled ? fillHex : '#f8fafc';
+                const opacity = isFilled ? '0.85' : '0.25';
+
+                const largeArc = (endAngle - startAngle) > Math.PI ? 1 : 0;
+                const d = `M 0 0 L ${x1} ${y1} A 1 1 0 ${largeArc} 1 ${x2} ${y2} Z`;
+
+                paths += `<path d="${d}" fill="${fill}" stroke="#334155" stroke-width="0.03" opacity="${opacity}" />`;
+            }
+            return paths;
+        }
+
+        function updateSandbox() {
+            const num = parseInt(document.getElementById('sandbox-num').value) || 1;
+            const den = parseInt(document.getElementById('sandbox-den').value) || 1;
+            const op = document.getElementById('sandbox-op').value;
+            const factor = parseInt(document.getElementById('sandbox-factor').value) || 1;
+
+            const mathOut = document.getElementById('sandbox-math-output');
+            const msg = document.getElementById('sandbox-msg');
+            const barContainer = document.getElementById('sandbox-bar-container');
+
+            let resNum, resDen;
+
+            if (op === 'mult') {
+                resNum = num * factor;
+                resDen = den * factor;
+                mathOut.innerHTML = `
+                    <div class="inline-flex items-center gap-3">
+                        ${fHTML(num, den)}
+                        <span class="text-slate-400 font-normal inline-flex items-center gap-1">
+                            = <div class="frac"><span class="num">${num} × ${factor}</span><span class="den">${den} × ${factor}</span></div> =
+                        </span>
+                        <span class="text-amber-400">${fHTML(resNum, resDen)}</span>
+                    </div>
+                `;
+                msg.className = "text-xs text-emerald-300 font-medium";
+                msg.textContent = `成功擴分！分子與分母同時乘以 ${factor}，數值大小完全不變。`;
+            } else {
+                if (num % factor === 0 && den % factor === 0) {
+                    resNum = num / factor;
+                    resDen = den / factor;
+                    mathOut.innerHTML = `
+                        <div class="inline-flex items-center gap-3">
+                            ${fHTML(num, den)}
+                            <span class="text-slate-400 font-normal inline-flex items-center gap-1">
+                                = <div class="frac"><span class="num">${num} ÷ ${factor}</span><span class="den">${den} ÷ ${factor}</span></div> =
+                            </span>
+                            <span class="text-emerald-400">${fHTML(resNum, resDen)}</span>
+                        </div>
+                    `;
+                    msg.className = "text-xs text-emerald-300 font-medium";
+                    msg.textContent = `成功約分！${factor} 是分子 ${num} 與分母 ${den} 的公因數。`;
+                } else {
+                    mathOut.innerHTML = `<span class="text-rose-400 text-xl font-bold">無法整除！</span>`;
+                    msg.className = "text-xs text-rose-300 font-medium";
+                    msg.textContent = `注意：${factor} 不是分子 ${num} 或分母 ${den} 的公因數，請選擇能同時整除兩者的數字。`;
+                    barContainer.innerHTML = '';
+                    return;
+                }
+            }
+
+            const pct = Math.min(100, (resNum / resDen) * 100);
+            barContainer.innerHTML = `
+                <div class="h-full bg-gradient-to-r from-teal-400 to-emerald-500 rounded-lg transition-all duration-300" style="width: ${pct}%"></div>
+                <div class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white shadow-sm">
+                    塗色占比：${pct.toFixed(1)}%
+                </div>
+            `;
+        }
+
+        const quizData = [
+            {
+                id: 1,
+                question: `把 ${fHTML(3, 4)} 張紙的每一個 ${fHTML(1, 4)} 張再平分成 3 等分，那麼 ${fHTML(3, 4)} 張紙會變成幾張？`,
+                options: [fHTML(6, 8), fHTML(9, 12), fHTML(12, 16), fHTML(15, 20)],
+                answer: 1,
+                explanation: `平分成 3 等分代表分子和分母要同乘 3。${fHTML(3, 4)} = <div class="frac"><span class="num">3 &times; 3</span><span class="den">4 &times; 3</span></div> = ${fHTML(9, 12)}。`
+            },
+            {
+                id: 2,
+                question: `蔥油餅問題：${fHTML(5, 4)} 張蔥油餅，如果把每個 ${fHTML(1, 4)} 張再切成 5 等分，會變成二十分之幾張？ ( ${fHTML(5, 4)} = <div class="frac"><span class="num">?</span><span class="den">20</span></div> )`,
+                options: ["15", "20", "25", "30"],
+                answer: 2,
+                explanation: `分母 4 變成 20 是乘以 5 (4 &times; 5 = 20)，所以分子 5 也要乘以 5，5 &times; 5 = 25。`
+            },
+            {
+                id: 3,
+                question: `約分觀念：一條紙帶塗色部分是 ${fHTML(18, 24)} 條。如果將每 6 個小格「合併」成 1 大份（同除以 6），這條紙帶也可以說是幾條？`,
+                options: [fHTML(9, 12), fHTML(6, 8), fHTML(3, 4), fHTML(2, 3)],
+                answer: 2,
+                explanation: `將分子 18 和分母 24 同時除以公因數 6，<div class="frac"><span class="num">18 &divide; 6</span><span class="den">24 &divide; 6</span></div> = ${fHTML(3, 4)}。`
+            },
+            {
+                id: 4,
+                question: `帶分數約分：關於帶分數 ${fHTML(8, 20, 1)} 的約分，下列哪一個觀念是正確的？`,
+                options: [
+                    `整數和分數都要除以 4，變成 ${fHTML(2, 5, "1/4")}`,
+                    `整數 1 保持不變，只把真分數部分同除以 4，變成 ${fHTML(2, 5, 1)}`,
+                    `只要分子除以 4，變成 ${fHTML(2, 20, 1)}`,
+                    `只要分母除以 4，變成 ${fHTML(8, 5, 1)}`
+                ],
+                answer: 1,
+                explanation: `帶分數約分（或擴分）時，<b>整數部分代表完整的數量，保持不變</b>，我們只需要對真分數的分子和分母同除以相同的數。`
+            },
+            {
+                id: 5,
+                question: `等值分數比較：桌上有 ${fHTML(15, 12)} 盒和 ${fHTML(5, 4)} 盒鳳梨酥。請問哪一邊的鳳梨酥比較多？`,
+                options: [
+                    `${fHTML(15, 12)} 盒比較多`,
+                    `${fHTML(5, 4)} 盒比較多`,
+                    `兩邊一樣多`,
+                    `無法比較`
+                ],
+                answer: 2,
+                explanation: `將 ${fHTML(15, 12)} 的分子和分母同除以 3 (約分)，<div class="frac"><span class="num">15 &divide; 3</span><span class="den">12 &divide; 3</span></div> = ${fHTML(5, 4)}。兩者為等值分數，所以一樣多。`
+            }
+        ];
+
+        let userAnswers = {};
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-list');
+            if (!container) return;
+            container.innerHTML = quizData.map((q, idx) => `
+                <div class="glass-card rounded-2xl p-6 relative border border-white/60">
+                    <div class="flex items-start justify-between gap-3 mb-3">
+                        <span class="bg-indigo-600 text-white font-black text-xs px-3 py-1 rounded-full">
+                            第 ${idx + 1} 題
+                        </span>
+                        <div id="quiz-status-${q.id}" class="text-xs font-bold px-3 py-1 rounded-full hidden"></div>
+                    </div>
+                    
+                    <h3 class="text-sm sm:text-base font-bold text-slate-800 mb-4 flex items-center flex-wrap gap-1 leading-loose">${q.question}</h3>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                        ${q.options.map((opt, i) => `
+                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-white/70 hover:bg-indigo-50/80 cursor-pointer transition">
+                                <input type="radio" name="quiz-${q.id}" value="${i}" onchange="recordAnswer(${q.id}, ${i})" class="w-4 h-4 text-indigo-600">
+                                <span class="text-xs sm:text-sm font-medium text-slate-700 inline-flex items-center gap-1">${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+
+                    <div id="quiz-exp-${q.id}" class="hidden bg-slate-100 rounded-xl p-3 text-xs text-slate-700 border border-slate-200 mt-2">
+                        <span class="font-bold text-indigo-900">💡 解析：</span><span class="inline-flex items-center flex-wrap gap-0.5">${q.explanation}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function recordAnswer(qId, value) {
+            userAnswers[qId] = value;
+        }
+
+        function checkAllQuiz() {
+            let score = 0;
+            let unansweredCount = 0;
+
+            quizData.forEach(q => {
+                const userAns = userAnswers[q.id];
+                const statusEl = document.getElementById(`quiz-status-${q.id}`);
+                const expEl = document.getElementById(`quiz-exp-${q.id}`);
+
+                if (statusEl && expEl) {
+                    statusEl.classList.remove('hidden');
+                    expEl.classList.remove('hidden');
+
+                    if (userAns === undefined) {
+                        // 未作答狀態：黃色系，解析僅顯示「未作答。」且不顯示答案與詳細說明
+                        unansweredCount++;
+                        statusEl.className = "text-xs font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300";
+                        statusEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1"></i> 未作答`;
+
+                        expEl.className = "bg-amber-50/90 border border-amber-200 rounded-xl p-3 text-xs text-amber-900 mt-2";
+                        expEl.innerHTML = `<span class="font-bold text-amber-900">💡 解析：</span>未作答。`;
+                    } else if (userAns === q.answer) {
+                        // 答對狀態：綠色系，顯示完整詳細解析
+                        score += 20;
+                        statusEl.className = "text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+                        statusEl.innerHTML = `<i class="fa-solid fa-check me-1"></i> 回答正確`;
+
+                        expEl.className = "bg-slate-100 rounded-xl p-3 text-xs text-slate-700 border border-slate-200 mt-2";
+                        expEl.innerHTML = `<span class="font-bold text-indigo-900">💡 解析：</span><span class="inline-flex items-center flex-wrap gap-0.5">${q.explanation}</span>`;
+                    } else {
+                        // 答錯狀態：紅色系，顯示完整詳細解析
+                        statusEl.className = "text-xs font-bold px-3 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-300";
+                        statusEl.innerHTML = `<i class="fa-solid fa-xmark me-1"></i> 回答錯誤`;
+
+                        expEl.className = "bg-rose-50/90 border border-rose-200 rounded-xl p-3 text-xs text-rose-900 mt-2";
+                        expEl.innerHTML = `<span class="font-bold text-rose-950">💡 解析：</span><span class="inline-flex items-center flex-wrap gap-0.5">${q.explanation}</span>`;
+                    }
+                }
+            });
+
+            const scoreEl = document.getElementById('quiz-score');
+            if (scoreEl) scoreEl.textContent = score;
+
+            if (score === 100) {
+                showToast("🎉 太棒了！您獲得了滿分 100 分！", 'success');
+            } else if (unansweredCount > 0) {
+                showToast(`測驗已核對！尚有 ${unansweredCount} 題未作答，獲得 ${score} 分。`, 'info');
+            } else {
+                showToast(`測驗完成！獲得 ${score} 分，請檢視解析修正錯誤。`, 'info');
+            }
+        }
+
+        function resetQuiz() {
+            userAnswers = {};
+            const scoreEl = document.getElementById('quiz-score');
+            if (scoreEl) scoreEl.textContent = '0';
+            renderQuiz();
+            showToast("已重置小測驗題庫", "info");
+        }
+
+        function showToast(msg, type='success') {
+            const toast = document.getElementById('toast-modal');
+            const msgEl = document.getElementById('toast-message');
+            const iconEl = document.getElementById('toast-icon');
+
+            if (!toast || !msgEl || !iconEl) return;
+
+            msgEl.textContent = msg;
+            iconEl.innerHTML = type === 'success' ? `<i class="fa-solid fa-circle-check text-emerald-400"></i>` : `<i class="fa-solid fa-circle-info text-amber-400"></i>`;
+
+            toast.classList.remove('translate-y-32', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-32', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        window.onload = function() {
+            renderStripBaseButtons();
+            updateStripView();
+            renderPaperSheetBaseButtons();
+            updatePaperSheetView();
+            updatePieView();
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>

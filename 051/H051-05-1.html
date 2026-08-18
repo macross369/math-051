@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五年級數學：5-1 面與面的垂直與平行</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js (3D 繪圖) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- OrbitControls (3D 旋轉控制) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- FontAwesome 圖示 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #74ebed 0%, #89f7fe 30%, #6b8cce 70%, #3a4173 100%);
+            min-height: 100vh;
+            color: #2d3748;
+            overflow-x: hidden;
+        }
+
+        /* 新海誠風夢幻天空微光背景 */
+        .sky-light {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            background: radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 50%),
+                        radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.15) 0%, rgba(255, 255, 255, 0) 40%);
+            z-index: 0;
+        }
+
+        /* 新海誠風毛玻璃卡片 */
+        .shinkai-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 10px 30px rgba(31, 45, 84, 0.12);
+            border-radius: 1.25rem;
+        }
+
+        /* 主按鈕風格 */
+        .btn-shinkai {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+        .btn-shinkai:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
+        }
+
+        /* 3D 頂點標籤 */
+        .vertex-label {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1e3a8a;
+            font-weight: 800;
+            font-size: 13px;
+            padding: 2px 7px;
+            border-radius: 9999px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.2s;
+            border: 1.5px solid #3b82f6;
+        }
+
+        /* 滑桿風格 */
+        input[type=range] {
+            accent-color: #0284c7;
+        }
+    </style>
+</head>
+<body class="p-3 md:p-6 relative">
+    <div class="sky-light"></div>
+
+    <div class="max-w-7xl mx-auto relative z-10">
+        <!-- 修改：使用轉換後的 Google Drive 直接連結 -->
+        <div class="w-full max-w-4xl flex items-center justify-start mb-4 px-2 fade-in">
+            <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+            <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+        </div>
+
+        <header class="shinkai-card p-4 md:p-6 mb-6 flex flex-col lg:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-500 to-cyan-300 flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-cube"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-black text-slate-800 tracking-wide">
+                        面與面的垂直與平行
+                    </h1>
+                    <p class="text-sm text-slate-600 font-medium">國小五上數學 5-1 互動學習網頁</p>
+                </div>
+            </div>
+            
+            <!-- 標籤頁列 -->
+            <div class="flex flex-wrap gap-2 bg-white/50 p-1.5 rounded-xl border border-white/60">
+                <button onclick="setMode('brief')" id="tab-brief" class="px-4 py-2 rounded-lg text-sm font-bold transition-all btn-shinkai">
+                    <i class="fa-solid fa-cube mr-1"></i> 3D空間探究(略)
+                </button>
+                <button onclick="setMode('explore')" id="tab-explore" class="px-4 py-2 rounded-lg text-sm font-bold text-slate-600 hover:bg-white/80 transition-all">
+                    <i class="fa-solid fa-compass mr-1"></i> 3D自由探究(詳)
+                </button>
+                <button onclick="setMode('life')" id="tab-life" class="px-4 py-2 rounded-lg text-sm font-bold text-slate-600 hover:bg-white/80 transition-all">
+                    <i class="fa-solid fa-house-laptop mr-1"></i> 生活實例觀察
+                </button>
+                <button onclick="setMode('quiz')" id="tab-quiz" class="px-4 py-2 rounded-lg text-sm font-bold text-slate-600 hover:bg-white/80 transition-all">
+                    <i class="fa-solid fa-graduation-cap mr-1"></i> 歷程評量
+                </button>
+            </div>
+        </header>
+
+        <!-- 視圖 1：3D空間探究(略) -->
+        <div id="view-brief" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-7 flex flex-col gap-4">
+                <div class="shinkai-card p-4 relative overflow-hidden flex flex-col h-[520px]">
+                    <div class="flex justify-between items-center mb-3 z-10">
+                        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                            3D 長方體/正方體視角探索
+                        </h2>
+                        <span class="text-xs font-semibold bg-sky-100 text-sky-700 px-3 py-1 rounded-full">
+                            <i class="fa-solid fa-hand-pointer mr-1"></i> 滑鼠可拖拽旋轉/縮放 3D 模型
+                        </span>
+                    </div>
+
+                    <div class="absolute top-14 left-7 z-20 flex flex-col gap-2">
+                        <button onclick="resetBriefCamera()" class="px-3 py-1.5 rounded-lg bg-white/90 hover:bg-white text-slate-700 text-xs font-bold shadow-sm border border-slate-200 flex items-center gap-1">
+                            <i class="fa-solid fa-rotate-left"></i> 重設視角
+                        </button>
+                        <button id="btn-brief-auto-rotate" onclick="toggleBriefAutoRotate()" class="px-3 py-1.5 rounded-lg bg-white/90 hover:bg-white text-slate-700 text-xs font-bold shadow-sm border border-slate-200 flex items-center gap-1">
+                            <i class="fa-solid fa-arrows-spin"></i> 自動旋轉: 關
+                        </button>
+                    </div>
+
+                    <div id="brief-canvas-container" class="w-full flex-1 rounded-xl bg-gradient-to-b from-sky-50/60 to-sky-100/40 relative overflow-hidden cursor-grab active:cursor-grabbing border border-sky-100">
+                        <div class="absolute bottom-4 left-4 z-20 flex flex-col gap-1.5 bg-white/90 backdrop-blur p-3 rounded-xl border border-sky-100 shadow-sm text-xs font-bold text-slate-700">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
+                                <span>目前選擇面：<span id="brief-lbl-selected" class="text-slate-900">丁面 (後)</span></span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span id="brief-dot-relation" class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                <span>連動呈現：<span id="brief-lbl-relation" class="text-emerald-600">相鄰面 (垂直)</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3 bg-white/80 rounded-xl border border-sky-100 flex items-center gap-4">
+                        <span class="text-xs font-extrabold text-sky-700 flex items-center gap-1.5 whitespace-nowrap">
+                            <i class="fa-solid fa-arrows-up-down-left-right"></i> 六面炸開距離
+                        </span>
+                        <input type="range" id="brief-slider-explode" min="0" max="2" value="0" step="0.05" oninput="updateBriefExplode(this.value)" class="w-full">
+                        <span id="brief-val-explode" class="text-xs font-black bg-sky-100 text-sky-700 px-2 py-1 rounded-lg">0.0x</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-5 flex flex-col gap-4">
+                <div class="shinkai-card p-5 flex flex-col gap-3">
+                    <h3 class="font-extrabold text-slate-800 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-hand text-amber-500"></i> 第一步：選擇基準面
+                    </h3>
+                    <div class="grid grid-cols-3 gap-2 text-xs font-bold">
+                        <button onclick="setBriefFace('top')" id="brief-btn-top" class="py-2.5 rounded-xl border border-slate-200 bg-white/80 hover:bg-sky-50 text-slate-700 transition">甲面 (上)</button>
+                        <button onclick="setBriefFace('bottom')" id="brief-btn-bottom" class="py-2.5 rounded-xl border border-slate-200 bg-white/80 hover:bg-sky-50 text-slate-700 transition">乙面 (下)</button>
+                        <button onclick="setBriefFace('front')" id="brief-btn-front" class="py-2.5 rounded-xl border border-slate-200 bg-white/80 hover:bg-sky-50 text-slate-700 transition">丙面 (前)</button>
+                        <button onclick="setBriefFace('back')" id="brief-btn-back" class="py-2.5 rounded-xl bg-yellow-400 text-yellow-950 border-2 border-yellow-500 transition">丁面 (後)</button>
+                        <button onclick="setBriefFace('left')" id="brief-btn-left" class="py-2.5 rounded-xl border border-slate-200 bg-white/80 hover:bg-sky-50 text-slate-700 transition">戊面 (左)</button>
+                        <button onclick="setBriefFace('right')" id="brief-btn-right" class="py-2.5 rounded-xl border border-slate-200 bg-white/80 hover:bg-sky-50 text-slate-700 transition">己面 (右)</button>
+                    </div>
+                </div>
+
+                <div class="shinkai-card p-5 flex flex-col gap-3">
+                    <h3 class="font-extrabold text-slate-800 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-diagram-project text-sky-500"></i> 第二步：觀察面與面的關係
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="setBriefRelation('perpendicular')" id="brief-btn-rel-perp" class="p-3 rounded-xl bg-emerald-500 text-white font-bold text-xs shadow-md transition flex flex-col items-center gap-1">
+                            <i class="fa-solid fa-arrows-split-up-and-left text-base"></i>
+                            <span>尋找相鄰面 (垂直 - 綠)</span>
+                        </button>
+                        <button onclick="setBriefRelation('parallel')" id="brief-btn-rel-para" class="p-3 rounded-xl border border-slate-200 bg-white/80 hover:bg-sky-50 font-bold text-xs text-slate-700 transition flex flex-col items-center gap-1">
+                            <i class="fa-solid fa-arrows-up-down text-base"></i>
+                            <span>尋找相對面 (平行 - 粉)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="shinkai-card p-5 flex flex-col gap-3 flex-1">
+                    <div class="flex justify-between items-center border-b border-slate-200/80 pb-2">
+                        <span class="font-black text-slate-800 text-sm flex items-center gap-2">
+                            <i class="fa-regular fa-lightbulb text-amber-500 text-base"></i> 核心知識點說明
+                        </span>
+                        <span id="brief-badge-relation" class="text-[11px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">相鄰與垂直關係</span>
+                    </div>
+                    <div id="brief-knowledge-content" class="text-xs leading-relaxed text-slate-700 space-y-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 視圖 2：3D自由探究(詳) -->
+        <div id="view-explore" class="hidden grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-7 flex flex-col gap-4">
+                <div class="shinkai-card p-4 relative overflow-hidden flex-1 flex flex-col min-h-[420px] md:min-h-[500px]">
+                    <div class="flex justify-between items-center mb-2 z-10">
+                        <span class="text-xs font-bold bg-blue-100 text-blue-700 px-3 py-1 rounded-full flex items-center gap-1">
+                            <i class="fa-solid fa-hand-pointer animate-bounce"></i> 滑鼠拖曳可 3D 旋轉視角
+                        </span>
+                        <button onclick="resetCamera()" class="text-xs bg-white/80 hover:bg-white text-slate-600 px-2.5 py-1 rounded-lg border border-slate-200 transition">
+                            <i class="fa-solid fa-rotate-left mr-1"></i> 重置視角
+                        </button>
+                    </div>
+
+                    <div id="canvas-container" class="w-full flex-1 rounded-xl bg-gradient-to-b from-sky-50/50 to-blue-100/30 relative overflow-hidden cursor-grab active:cursor-grabbing border border-blue-100">
+                        <div id="vertex-labels-overlay" class="absolute inset-0 pointer-events-none"></div>
+                    </div>
+
+                    <div id="canvas-status-bar" class="mt-3 p-3 bg-white/90 rounded-xl border border-blue-100 text-sm font-semibold text-slate-700 flex items-center justify-between">
+                        <span id="status-text"><i class="fa-solid fa-info-circle text-blue-500 mr-2"></i>點選右側按鈕選取「基準面」，觀察其垂直與平行面。</span>
+                    </div>
+                </div>
+
+                <div class="shinkai-card p-4 flex flex-col gap-3">
+                    <div class="flex items-center justify-between border-b border-slate-200/60 pb-2">
+                        <span class="font-bold text-slate-700 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-cyan-500"></i> 長方體尺寸動態微調 (觀察平行面距離)
+                        </span>
+                        <span id="dimension-readout" class="text-xs font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">長: 10, 寬: 8, 高: 6</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-3 text-xs font-bold text-slate-600">
+                        <div>
+                            <label class="block mb-1">長度 (X): <span id="val-x" class="text-blue-600">10</span></label>
+                            <input type="range" id="slider-x" min="4" max="14" value="10" step="0.5" class="w-full">
+                        </div>
+                        <div>
+                            <label class="block mb-1">寬度 (Z): <span id="val-z" class="text-blue-600">8</span></label>
+                            <input type="range" id="slider-z" min="4" max="14" value="8" step="0.5" class="w-full">
+                        </div>
+                        <div>
+                            <label class="block mb-1">高度 (Y): <span id="val-y" class="text-blue-600">6</span></label>
+                            <input type="range" id="slider-y" min="4" max="14" value="6" step="0.5" class="w-full">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-5 flex flex-col gap-4">
+                <div id="panel-learning" class="shinkai-card p-5 flex flex-col gap-4">
+                    <div class="flex items-center gap-2 border-b border-slate-200 pb-3">
+                        <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                        <h2 id="panel-title" class="font-black text-lg text-slate-800">1. 選擇觀察的基準面 (甲面)</h2>
+                    </div>
+
+                    <div class="bg-slate-100/80 p-1.5 rounded-xl flex gap-1 border border-slate-200">
+                        <button onclick="setSubRelation('all')" id="subtab-all" class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-white shadow-sm text-blue-600">全亮探索</button>
+                        <button onclick="setSubRelation('perpendicular')" id="subtab-perpendicular" class="flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:bg-white/60">相鄰面 (垂直 - 綠)</button>
+                        <button onclick="setSubRelation('parallel')" id="subtab-parallel" class="flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:bg-white/60">相對面 (平行 - 粉)</button>
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-bold text-slate-500 mb-2">點擊選擇長方體的其中一個面：</p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="selectTargetFace('top')" id="btn-face-top" class="p-2.5 rounded-xl border border-slate-200 bg-white/80 hover:bg-yellow-50 font-bold text-xs text-slate-700 transition flex flex-col items-center gap-1">
+                                <span>甲面 (上面)</span>
+                                <span id="sub-face-top" class="text-[10px] text-slate-400">ABCD</span>
+                            </button>
+                            <button onclick="selectTargetFace('bottom')" id="btn-face-bottom" class="p-2.5 rounded-xl border border-slate-200 bg-white/80 hover:bg-blue-50 font-bold text-xs text-slate-700 transition flex flex-col items-center gap-1">
+                                <span>乙面 (底面)</span>
+                                <span id="sub-face-bottom" class="text-[10px] text-slate-400">EFGH</span>
+                            </button>
+                            <button onclick="selectTargetFace('front')" id="btn-face-front" class="p-2.5 rounded-xl border border-slate-200 bg-white/80 hover:bg-blue-50 font-bold text-xs text-slate-700 transition flex flex-col items-center gap-1">
+                                <span>丙面 (前面)</span>
+                                <span id="sub-face-front" class="text-[10px] text-slate-400">ABFE</span>
+                            </button>
+                            <button onclick="selectTargetFace('back')" id="btn-face-back" class="p-2.5 rounded-xl border border-slate-200 bg-white/80 hover:bg-blue-50 font-bold text-xs text-slate-700 transition flex flex-col items-center gap-1">
+                                <span>丁面 (後面)</span>
+                                <span id="sub-face-back" class="text-[10px] text-slate-400">DCGH</span>
+                            </button>
+                            <button onclick="selectTargetFace('left')" id="btn-face-left" class="p-2.5 rounded-xl border border-slate-200 bg-white/80 hover:bg-blue-50 font-bold text-xs text-slate-700 transition flex flex-col items-center gap-1">
+                                <span>戊面 (左面)</span>
+                                <span id="sub-face-left" class="text-[10px] text-slate-400">AEHD</span>
+                            </button>
+                            <button onclick="selectTargetFace('right')" id="btn-face-right" class="p-2.5 rounded-xl border border-slate-200 bg-white/80 hover:bg-blue-50 font-bold text-xs text-slate-700 transition flex flex-col items-center gap-1">
+                                <span>己面 (右面)</span>
+                                <span id="sub-face-right" class="text-[10px] text-slate-400">BFGC</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="learning-content" class="bg-blue-50/80 p-4 rounded-xl border border-blue-100 text-sm leading-relaxed text-slate-700 space-y-2"></div>
+
+                    <div class="space-y-2 pt-2 border-t border-slate-200/60">
+                        <label class="flex items-center justify-between p-2 rounded-lg bg-white/60 hover:bg-white cursor-pointer transition text-xs font-bold text-slate-700">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-eye text-indigo-500"></i> 半透明視角</span>
+                            <input type="checkbox" id="toggle-translucent" onchange="toggleTranslucent()" class="w-4 h-4 rounded">
+                        </label>
+                        <label class="flex items-center justify-between p-2 rounded-lg bg-white/60 hover:bg-white cursor-pointer transition text-xs font-bold text-slate-700">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-ruler-vertical text-red-500"></i> 顯示平行面之間的紅色垂直距離實線</span>
+                            <input type="checkbox" id="toggle-distance-lines" checked onchange="toggleDistanceLines()" class="w-4 h-4 rounded">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 視圖 3：生活實例觀察 -->
+        <div id="view-life" class="hidden grid-cols-1 gap-6">
+            <div class="shinkai-card p-6 md:p-8 flex flex-col gap-6 max-w-4xl mx-auto w-full">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-sky-500 text-white flex items-center justify-center text-xl shadow-md shrink-0">
+                        <i class="fa-solid fa-book-bookmark"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-black text-slate-800">
+                            情境觀察：櫃子側面與地面垂直嗎？
+                        </h2>
+                        <p class="text-sm text-slate-500 font-bold mt-1">
+                            拖動滑桿傾斜櫃子，觀察側面與地面的即時夾角與轉動中心變化
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 互動圖形繪製區 -->
+                <div class="w-full bg-gradient-to-b from-sky-50/50 to-blue-50/60 rounded-2xl p-6 border border-sky-100 flex items-center justify-center min-h-[300px] relative overflow-hidden">
+                    <svg id="cabinet-svg" viewBox="0 0 600 280" class="w-full max-w-lg h-auto overflow-visible">
+                        <!-- 地面黑色線 -->
+                        <line x1="80" y1="210" x2="520" y2="210" stroke="#000000" stroke-width="4" stroke-linecap="round" />
+                        <text x="460" y="235" fill="#000000" font-size="14" font-weight="bold">地面 (水平面)</text>
+
+                        <!-- 櫃子動態 Group -->
+                        <g id="cabinet-group">
+                            <!-- 櫃子主體外框 (#b45309 深黃色) 內部填色 #fef3c7 -->
+                            <rect x="-50" y="-120" width="100" height="120" fill="#fef3c7" stroke="#b45309" stroke-width="3.5" rx="3" />
+                            <!-- 層板 -->
+                            <line x1="-50" y1="-80" x2="50" y2="-80" stroke="#b45309" stroke-width="3" />
+                            <line x1="-50" y1="-40" x2="50" y2="-40" stroke="#b45309" stroke-width="3" />
+                        </g>
+
+                        <!-- 角度標示與符號容器 -->
+                        <g id="angle-indicator-group"></g>
+                    </svg>
+                </div>
+
+                <!-- 滑桿控制區塊 -->
+                <div class="bg-white/90 p-5 rounded-2xl border border-sky-100 shadow-sm flex flex-col gap-4">
+                    <div class="flex justify-between items-center">
+                        <span class="font-extrabold text-slate-700 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-sky-500"></i> 調整櫃子傾斜角度：
+                        </span>
+                        <span id="life-angle-badge" class="px-3.5 py-1 rounded-full bg-sky-100 text-sky-700 font-extrabold text-xs">
+                            垂直角度 (90°)
+                        </span>
+                    </div>
+
+                    <input type="range" id="life-slider-tilt" min="-25" max="25" value="0" step="1" oninput="updateCabinetTilt(this.value)" class="w-full cursor-pointer h-2 bg-slate-200 rounded-lg appearance-none">
+
+                    <div class="flex justify-between text-xs font-bold text-slate-400 px-1">
+                        <span>左傾 (+25°)</span>
+                        <span>正立 (0°)</span>
+                        <span>右傾 (+25°)</span>
+                    </div>
+                </div>
+
+                <div id="life-status-card" class="p-4 rounded-xl border flex items-center gap-3 transition-all">
+                    <div id="life-status-icon" class="text-xl"></div>
+                    <p id="life-status-text" class="text-xs md:text-sm font-bold leading-relaxed"></p>
+                </div>
+            </div>
+
+            <!-- 觀察 2：用長方體檢驗牆面與地面是否垂直 -->
+            <div class="shinkai-card p-6 md:p-8 flex flex-col gap-6 max-w-4xl mx-auto w-full">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-500 text-white flex items-center justify-center text-xl shadow-md shrink-0">
+                        <i class="fa-solid fa-shapes"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-black text-slate-800">
+                            觀念檢驗：用長方體檢驗牆面與地面是否垂直？
+                        </h2>
+                        <p class="text-sm text-slate-500 font-bold mt-1">
+                            拖動拉桿改變牆面（灰色）與地面的夾角，觀察右側角度變化以及甲面跟隨牆面往右移動的密合情形
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 互動 SVG 繪製區 -->
+                <div class="w-full bg-gradient-to-b from-slate-50 to-sky-50/60 rounded-2xl p-6 border border-slate-200 flex items-center justify-center min-h-[320px] relative overflow-hidden">
+                    <svg id="wall-check-svg" viewBox="0 0 600 300" class="w-full max-w-lg h-auto overflow-visible">
+                        <!-- 地面黑色實線 -->
+                        <line x1="40" y1="240" x2="560" y2="240" stroke="#000000" stroke-width="4" stroke-linecap="round" />
+                        <text x="470" y="265" fill="#000000" font-size="13" font-weight="bold">地面 (水平面)</text>
+
+                        <!-- 牆面 灰色斜線 (動態) -->
+                        <g id="wall-plane-group"></g>
+
+                        <!-- 放置在角落的長方體 (動態推移位置) -->
+                        <g id="wall-check-box"></g>
+
+                        <!-- 牆與地面右側夾角弧線與標籤容器 -->
+                        <g id="wall-angle-indicator"></g>
+                    </svg>
+                </div>
+
+                <!-- 控制區塊 -->
+                <div class="bg-white/90 p-5 rounded-2xl border border-sky-100 shadow-sm flex flex-col gap-4">
+                    <div class="flex justify-between items-center flex-wrap gap-2">
+                        <span class="font-extrabold text-slate-700 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-indigo-500"></i> 調整牆面與地面的夾角：
+                        </span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="setWallAngle(70)" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border">外擴 (110°)</button>
+                            <button onclick="setWallAngle(90)" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-300">垂直 (90°)</button>
+                            <button onclick="setWallAngle(110)" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border">傾斜 (70°)</button>
+                            <span id="wall-angle-badge" class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-xs">
+                                垂直 (90°)
+                            </span>
+                        </div>
+                    </div>
+
+                    <input type="range" id="slider-wall-angle" min="60" max="120" value="90" step="1" oninput="updateWallAngle(this.value)" class="w-full cursor-pointer h-2 bg-slate-200 rounded-lg appearance-none">
+
+                    <div class="flex justify-between text-xs font-bold text-slate-400 px-1">
+                        <span>外擴 (120°)</span>
+                        <span>垂直 (90°)</span>
+                        <span>右傾推移 (60°)</span>
+                    </div>
+                </div>
+
+                <!-- 回饋卡片 -->
+                <div id="wall-status-card" class="p-4 rounded-xl border flex items-center gap-3 transition-all">
+                    <div id="wall-status-icon" class="text-xl"></div>
+                    <p id="wall-status-text" class="text-xs md:text-sm font-bold leading-relaxed"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 視圖 4：歷程評量 -->
+        <div id="view-quiz" class="hidden grid-cols-1 gap-6">
+            <div class="shinkai-card p-6 max-w-3xl mx-auto w-full flex flex-col gap-6">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                    <span class="font-black text-lg text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square text-indigo-500"></i> 概念隨堂檢測
+                    </span>
+                    <span class="text-xs font-bold bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full">共 5 題（滿分 100 分）</span>
+                </div>
+
+                <!-- 得分總覽卡片 (提交答案後顯示) -->
+                <div id="quiz-score-card" class="hidden p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-100 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xl shadow">
+                            <i class="fa-solid fa-award"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs font-bold text-slate-500">測驗總結</div>
+                            <div class="text-xl font-black text-slate-800">您的得分：<span id="quiz-total-score" class="text-indigo-600">0</span> / 100 分</div>
+                        </div>
+                    </div>
+                    <div id="quiz-score-eval" class="text-xs font-extrabold px-3 py-1.5 rounded-lg bg-white border border-indigo-200 text-indigo-700"></div>
+                </div>
+
+                <!-- 5 題一次呈現容器 -->
+                <div id="quiz-container" class="space-y-6"></div>
+
+                <!-- 按鈕區：提交答案與重新測驗 -->
+                <div class="flex items-center justify-center gap-4 pt-4 border-t border-slate-200">
+                    <button id="btn-submit-quiz" onclick="submitQuiz()" class="px-6 py-2.5 rounded-xl btn-shinkai font-bold text-sm shadow-md flex items-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> 提交答案
+                    </button>
+                    <button id="btn-reset-quiz" onclick="resetQuiz()" class="px-6 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> 重新測驗
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let scene, camera, renderer, controls;
+        let briefScene, briefCamera, briefRenderer, briefControls;
+        let cuboidGroup, meshFaces = {}, distanceLinesGroup;
+        let briefCuboidGroup, briefMeshFaces = {};
+        
+        let currentMode = 'brief';
+        let subRelation = 'all';
+        let selectedFaceKey = 'top'; 
+        
+        let briefFaceKey = 'back';
+        let briefRelationMode = 'perpendicular';
+        let briefExplodeValue = 0;
+        let briefAutoRotate = false;
+
+        let dim = { x: 10, y: 6, z: 8 };
+
+        const FACE_DEFINITIONS = {
+            top:    { name: "甲面 (上)", vertices: "ABCD", color: 0x3b82f6, opposite: "bottom", adjacent: ["front", "back", "left", "right"] },
+            bottom: { name: "乙面 (下)", vertices: "EFGH", color: 0x10b981, opposite: "top", adjacent: ["front", "back", "left", "right"] },
+            front:  { name: "丙面 (前)", vertices: "ABFE", color: 0xf59e0b, opposite: "back", adjacent: ["top", "bottom", "left", "right"] },
+            back:   { name: "丁面 (後)", vertices: "DCGH", color: 0x8b5cf6, opposite: "front", adjacent: ["top", "bottom", "left", "right"] },
+            left:   { name: "戊面 (左)", vertices: "AEHD", color: 0xec4899, opposite: "right", adjacent: ["top", "bottom", "front", "back"] },
+            right:  { name: "己面 (右)", vertices: "BFGC", color: 0x14b8a6, opposite: "left", adjacent: ["top", "bottom", "front", "back"] }
+        };
+
+        const VERTEX_NAMES = ["A", "B", "C", "D", "E", "F", "G", "H"];
+        let vertexOverlayContainer;
+
+        function init3D() {
+            const container = document.getElementById('canvas-container');
+            if(!container) return;
+            vertexOverlayContainer = document.getElementById('vertex-labels-overlay');
+
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(16, 14, 22);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
+            dirLight.position.set(15, 25, 15);
+            scene.add(dirLight);
+
+            cuboidGroup = new THREE.Group();
+            distanceLinesGroup = new THREE.Group();
+            scene.add(cuboidGroup);
+            scene.add(distanceLinesGroup);
+
+            createCuboidMesh();
+            createVertexDOM();
+            initBrief3D();
+
+            window.addEventListener('resize', onWindowResize);
+            animate();
+        }
+
+        function createFaceTexture(label) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 256, 256);
+
+            ctx.strokeStyle = '#0284c7';
+            ctx.lineWidth = 12;
+            ctx.strokeRect(10, 10, 236, 236);
+
+            ctx.fillStyle = '#0284c7';
+            ctx.font = 'bold 110px Noto Sans TC, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, 128, 128);
+
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function createCuboidMesh() {
+            while(cuboidGroup.children.length > 0) cuboidGroup.remove(cuboidGroup.children[0]); 
+            meshFaces = {};
+
+            const hx = dim.x / 2, hy = dim.y / 2, hz = dim.z / 2;
+
+            const faceConfigs = [
+                { key: 'top',    geom: new THREE.PlaneGeometry(dim.x, dim.z), pos: [0, hy, 0], rot: [-Math.PI/2, 0, 0] },
+                { key: 'bottom', geom: new THREE.PlaneGeometry(dim.x, dim.z), pos: [0, -hy, 0], rot: [Math.PI/2, 0, 0] },
+                { key: 'front',  geom: new THREE.PlaneGeometry(dim.x, dim.y), pos: [0, 0, hz], rot: [0, 0, 0] },
+                { key: 'back',   geom: new THREE.PlaneGeometry(dim.x, dim.y), pos: [0, 0, -hz], rot: [0, Math.PI, 0] },
+                { key: 'left',   geom: new THREE.PlaneGeometry(dim.z, dim.y), pos: [-hx, 0, 0], rot: [0, -Math.PI/2, 0] },
+                { key: 'right',  geom: new THREE.PlaneGeometry(dim.z, dim.y), pos: [hx, 0, 0], rot: [0, Math.PI/2, 0] }
+            ];
+
+            faceConfigs.forEach(cfg => {
+                const mat = new THREE.MeshStandardMaterial({
+                    color: FACE_DEFINITIONS[cfg.key].color,
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.75,
+                    roughness: 0.3
+                });
+                const mesh = new THREE.Mesh(cfg.geom, mat);
+                mesh.position.set(...cfg.pos);
+                mesh.rotation.set(...cfg.rot);
+                mesh.userData = { key: cfg.key };
+                
+                cuboidGroup.add(mesh);
+                meshFaces[cfg.key] = mesh;
+            });
+
+            const boxGeom = new THREE.BoxGeometry(dim.x, dim.y, dim.z);
+            const edges = new THREE.EdgesGeometry(boxGeom);
+            const wireframe = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x1e293b, linewidth: 2 }));
+            cuboidGroup.add(wireframe);
+
+            updateVisualsByMode();
+        }
+
+        function initBrief3D() {
+            const container = document.getElementById('brief-canvas-container');
+            if(!container) return;
+            briefScene = new THREE.Scene();
+
+            briefCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            briefCamera.position.set(14, 12, 18);
+
+            briefRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            briefRenderer.setSize(container.clientWidth, container.clientHeight);
+            briefRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(briefRenderer.domElement);
+
+            briefControls = new THREE.OrbitControls(briefCamera, briefRenderer.domElement);
+            briefControls.enableDamping = true;
+            briefControls.dampingFactor = 0.05;
+
+            const ambient = new THREE.AmbientLight(0xffffff, 0.85);
+            briefScene.add(ambient);
+
+            const light = new THREE.DirectionalLight(0xffffff, 0.5);
+            light.position.set(10, 20, 15);
+            briefScene.add(light);
+
+            briefCuboidGroup = new THREE.Group();
+            briefScene.add(briefCuboidGroup);
+
+            createBriefCuboidMesh();
+        }
+
+        function createBriefCuboidMesh() {
+            while(briefCuboidGroup.children.length > 0) briefCuboidGroup.remove(briefCuboidGroup.children[0]);
+            briefMeshFaces = {};
+
+            const size = 6;
+            const hs = size / 2;
+
+            const configs = [
+                { key: 'top',    label: '甲', normal: new THREE.Vector3(0, 1, 0), pos: [0, hs, 0], rot: [-Math.PI/2, 0, 0] },
+                { key: 'bottom', label: '乙', normal: new THREE.Vector3(0, -1, 0), pos: [0, -hs, 0], rot: [Math.PI/2, 0, 0] },
+                { key: 'front',  label: '丙', normal: new THREE.Vector3(0, 0, 1), pos: [0, 0, hs], rot: [0, 0, 0] },
+                { key: 'back',   label: '丁', normal: new THREE.Vector3(0, 0, -1), pos: [0, 0, -hs], rot: [0, Math.PI, 0] },
+                { key: 'left',   label: '戊', normal: new THREE.Vector3(-1, 0, 0), pos: [-hs, 0, 0], rot: [0, -Math.PI/2, 0] },
+                { key: 'right',  label: '己', normal: new THREE.Vector3(1, 0, 0), pos: [hs, 0, 0], rot: [0, Math.PI/2, 0] }
+            ];
+
+            configs.forEach(cfg => {
+                const texture = createFaceTexture(cfg.label);
+                const mat = new THREE.MeshStandardMaterial({
+                    map: texture,
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.9,
+                    roughness: 0.2
+                });
+
+                const geom = new THREE.PlaneGeometry(size, size);
+                const mesh = new THREE.Mesh(geom, mat);
+                mesh.position.set(...cfg.pos);
+                mesh.rotation.set(...cfg.rot);
+                mesh.userData = { 
+                    key: cfg.key, 
+                    basePos: new THREE.Vector3(...cfg.pos),
+                    normal: cfg.normal 
+                };
+
+                briefCuboidGroup.add(mesh);
+                briefMeshFaces[cfg.key] = mesh;
+            });
+
+            updateBriefVisuals();
+        }
+
+        function createVertexDOM() {
+            vertexOverlayContainer.innerHTML = '';
+            VERTEX_NAMES.forEach(name => {
+                const el = document.createElement('div');
+                el.className = 'vertex-label';
+                el.id = `v-label-${name}`;
+                el.innerText = name;
+                vertexOverlayContainer.appendChild(el);
+            });
+        }
+
+        function updateVertexLabels() {
+            if (currentMode !== 'explore') return;
+            const hx = dim.x / 2, hy = dim.y / 2, hz = dim.z / 2;
+            const coords = {
+                A: new THREE.Vector3(-hx,  hy,  hz),
+                B: new THREE.Vector3( hx,  hy,  hz),
+                C: new THREE.Vector3( hx,  hy, -hz),
+                D: new THREE.Vector3(-hx,  hy, -hz),
+                E: new THREE.Vector3(-hx, -hy,  hz),
+                F: new THREE.Vector3( hx, -hy,  hz),
+                G: new THREE.Vector3( hx, -hy, -hz),
+                H: new THREE.Vector3(-hx, -hy, -hz),
+            };
+
+            const container = document.getElementById('canvas-container');
+            const widthHalf = container.clientWidth / 2;
+            const heightHalf = container.clientHeight / 2;
+
+            VERTEX_NAMES.forEach(name => {
+                const pos = coords[name].clone();
+                pos.applyMatrix4(cuboidGroup.matrixWorld);
+                pos.project(camera);
+
+                const x = (pos.x * widthHalf) + widthHalf;
+                const y = -(pos.y * heightHalf) + heightHalf;
+
+                const labelEl = document.getElementById(`v-label-${name}`);
+                if(labelEl) {
+                    labelEl.style.left = `${x}px`;
+                    labelEl.style.top = `${y}px`;
+                    labelEl.style.opacity = (pos.z > 1) ? '0' : '1';
+                }
+            });
+        }
+
+        function updateDistanceAndAngleVisuals() {
+            while(distanceLinesGroup.children.length > 0) distanceLinesGroup.remove(distanceLinesGroup.children[0]);
+
+            const showLines = document.getElementById('toggle-distance-lines').checked;
+
+            if ((subRelation === 'parallel' || subRelation === 'all') && showLines) {
+                const hx = dim.x / 2, hy = dim.y / 2, hz = dim.z / 2;
+
+                let linePairs = [];
+                if (selectedFaceKey === 'top' || selectedFaceKey === 'bottom') {
+                    linePairs = [
+                        [new THREE.Vector3(-hx, hy, hz), new THREE.Vector3(-hx, -hy, hz)],
+                        [new THREE.Vector3(hx, hy, hz), new THREE.Vector3(hx, -hy, hz)],
+                        [new THREE.Vector3(hx, hy, -hz), new THREE.Vector3(hx, -hy, -hz)],
+                        [new THREE.Vector3(-hx, hy, -hz), new THREE.Vector3(-hx, -hy, -hz)]
+                    ];
+                } else if (selectedFaceKey === 'front' || selectedFaceKey === 'back') {
+                    linePairs = [
+                        [new THREE.Vector3(-hx, hy, hz), new THREE.Vector3(-hx, hy, -hz)],
+                        [new THREE.Vector3(hx, hy, hz), new THREE.Vector3(hx, hy, -hz)],
+                        [new THREE.Vector3(hx, -hy, hz), new THREE.Vector3(hx, -hy, -hz)],
+                        [new THREE.Vector3(-hx, -hy, hz), new THREE.Vector3(-hx, -hy, -hz)]
+                    ];
+                } else {
+                    linePairs = [
+                        [new THREE.Vector3(-hx, hy, hz), new THREE.Vector3(hx, hy, hz)],
+                        [new THREE.Vector3(-hx, hy, -hz), new THREE.Vector3(hx, hy, -hz)],
+                        [new THREE.Vector3(-hx, -hy, hz), new THREE.Vector3(hx, -hy, hz)],
+                        [new THREE.Vector3(-hx, -hy, -hz), new THREE.Vector3(hx, -hy, -hz)]
+                    ];
+                }
+
+                linePairs.forEach(pair => {
+                    const geom = new THREE.BufferGeometry().setFromPoints(pair);
+                    const mat = new THREE.LineBasicMaterial({
+                        color: 0xff0000,
+                        linewidth: 3
+                    });
+                    const line = new THREE.Line(geom, mat);
+                    distanceLinesGroup.add(line);
+                });
+            }
+        }
+
+        function updateVisualsByMode() {
+            const isTranslucent = document.getElementById('toggle-translucent').checked;
+            const targetDef = FACE_DEFINITIONS[selectedFaceKey];
+
+            const faceKeys = ['top', 'bottom', 'front', 'back', 'left', 'right'];
+
+            faceKeys.forEach(key => {
+                const mesh = meshFaces[key];
+                if(!mesh) return;
+                mesh.material.opacity = isTranslucent ? 0.35 : 0.75;
+                mesh.material.color.setHex(0xcbd5e1);
+
+                const btn = document.getElementById(`btn-face-${key}`);
+                const subSpan = document.getElementById(`sub-face-${key}`);
+                if (btn) {
+                    btn.className = "p-2.5 rounded-xl border border-slate-200 bg-white/80 hover:bg-yellow-50 font-bold text-xs text-slate-700 transition flex flex-col items-center gap-1";
+                    if(subSpan) subSpan.className = "text-[10px] text-slate-400";
+                }
+            });
+
+            // 基準面 (黃色)
+            meshFaces[selectedFaceKey].material.color.setHex(0xfacc15);
+            meshFaces[selectedFaceKey].material.opacity = 0.95;
+            
+            const selBtn = document.getElementById(`btn-face-${selectedFaceKey}`);
+            const selSub = document.getElementById(`sub-face-${selectedFaceKey}`);
+            if (selBtn) {
+                selBtn.className = "p-2.5 rounded-xl border-2 border-yellow-500 bg-yellow-400 font-bold text-xs text-yellow-950 shadow-md transition flex flex-col items-center gap-1";
+                if(selSub) selSub.className = "text-[10px] text-yellow-950 font-semibold";
+            }
+
+            const statusEl = document.getElementById('status-text');
+            const learningEl = document.getElementById('learning-content');
+
+            if (subRelation === 'perpendicular') {
+                targetDef.adjacent.forEach(adjKey => {
+                    meshFaces[adjKey].material.color.setHex(0x22c55e);
+                    meshFaces[adjKey].material.opacity = 0.85;
+
+                    const adjBtn = document.getElementById(`btn-face-${adjKey}`);
+                    const adjSub = document.getElementById(`sub-face-${adjKey}`);
+                    if (adjBtn) {
+                        adjBtn.className = "p-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-500 font-bold text-xs text-white shadow-md transition flex flex-col items-center gap-1";
+                        if(adjSub) adjSub.className = "text-[10px] text-emerald-100 font-semibold";
+                    }
+                });
+
+                statusEl.innerHTML = `<i class="fa-solid fa-border-all text-emerald-600 mr-2"></i><b>${targetDef.name}</b> 有 <b>4 個相鄰的面</b>，且這 4 個面都與它<b>互相垂直</b>！`;
+                learningEl.innerHTML = `
+                    <div class="font-bold text-emerald-900 mb-1"><i class="fa-solid fa-circle-info mr-1"></i> 垂直與相鄰的概念：</div>
+                    <p>1. 長方體中，只要是<b>相鄰的面</b>（綠色面），兩面夾角即為 90 度，與基準面（黃色面）互相垂直。</p>
+                    <p>2. 因此：<span class="bg-emerald-200 text-emerald-900 px-1.5 py-0.5 rounded font-bold">長方體中的每一個面，都有 4 個和它互相垂直的面</span>。</p>
+                `;
+            } else if (subRelation === 'parallel') {
+                const oppKey = targetDef.opposite;
+                const oppDef = FACE_DEFINITIONS[oppKey];
+                meshFaces[oppKey].material.color.setHex(0xec4899);
+                meshFaces[oppKey].material.opacity = 0.95;
+
+                const oppBtn = document.getElementById(`btn-face-${oppKey}`);
+                const oppSub = document.getElementById(`sub-face-${oppKey}`);
+                if (oppBtn) {
+                    oppBtn.className = "p-2.5 rounded-xl border-2 border-pink-500 bg-pink-500 font-bold text-xs text-white shadow-md transition flex flex-col items-center gap-1";
+                    if(oppSub) oppSub.className = "text-[10px] text-pink-100 font-semibold";
+                }
+
+                statusEl.innerHTML = `<i class="fa-solid fa-arrows-up-down text-pink-500 mr-2"></i><b>${targetDef.name}</b> 與相對的 <b>${oppDef.name}</b> <b>互相平行</b>！`;
+                learningEl.innerHTML = `
+                    <div class="font-bold text-pink-900 mb-1"><i class="fa-solid fa-circle-info mr-1"></i> 平行與相對的概念：</div>
+                    <p>1. 長方體中<b>相對的面</b>（粉色面），與基準面（黃色面）延伸後永不相交，互相平行。</p>
+                    <p>2. 長方體共有 <span class="bg-pink-200 text-pink-900 px-1.5 py-0.5 rounded font-bold">3 組互相平行的面</span>。</p>
+                    <p>3. <b>距離固定：</b>觀察紅色實線（垂直距離），兩平行面間各處的距離都相等！</p>
+                `;
+            } else {
+                statusEl.innerHTML = `<i class="fa-solid fa-cube text-yellow-500 mr-2"></i>當前選取基準面：<b class="text-yellow-700">${targetDef.name} (${targetDef.vertices})</b>`;
+                learningEl.innerHTML = `
+                    <p><b>【3D 自由探究模式】</b></p>
+                    <p>• 長方體由 <b>6 個面</b>、<b>12 條邊</b> 與 <b>8 個頂點</b> 組成。</p>
+                    <p>• 點擊上方按鈕更換基準面，或滑動下方滑桿改變長寬高，觀察面的大小與位置變化。</p>
+                `;
+            }
+
+            updateDistanceAndAngleVisuals();
+        }
+
+        function updateBriefVisuals() {
+            const def = FACE_DEFINITIONS[briefFaceKey];
+
+            Object.keys(briefMeshFaces).forEach(key => {
+                const mesh = briefMeshFaces[key];
+                mesh.material.color.setHex(0xffffff);
+                mesh.material.opacity = 0.5;
+
+                if (key === briefFaceKey) {
+                    mesh.material.color.setHex(0xfef08a);
+                    mesh.material.opacity = 1.0;
+                } else if (briefRelationMode === 'perpendicular' && def.adjacent.includes(key)) {
+                    mesh.material.color.setHex(0x86efac);
+                    mesh.material.opacity = 0.9;
+                } else if (briefRelationMode === 'parallel' && key === def.opposite) {
+                    mesh.material.color.setHex(0xfbcfe8);
+                    mesh.material.opacity = 0.9;
+                }
+            });
+
+            document.getElementById('brief-lbl-selected').innerText = `${def.name}`;
+            const dotEl = document.getElementById('brief-dot-relation');
+            
+            if (briefRelationMode === 'perpendicular') {
+                document.getElementById('brief-lbl-relation').innerText = '相鄰面 (垂直)';
+                document.getElementById('brief-lbl-relation').className = 'text-emerald-600 font-bold';
+                dotEl.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500';
+                document.getElementById('brief-badge-relation').innerText = '相鄰與垂直關係';
+                document.getElementById('brief-badge-relation').className = 'text-[11px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full';
+
+                const adjNames = def.adjacent.map(k => FACE_DEFINITIONS[k].name.split(' ')[0]).join('、');
+                document.getElementById('brief-knowledge-content').innerHTML = `
+                    <p>與【<b>${def.name}</b>】相鄰的面共有 <b class="text-emerald-600">4 個</b> (${adjNames})。</p>
+                    <p>相鄰的面會接在一條邊上，且兩面夾角為 <b class="text-emerald-600">90度 (互相垂直)</b>。</p>
+                    <div class="mt-2 p-2 bg-emerald-50 rounded-lg text-emerald-800 font-bold">
+                        • 垂直相鄰面：<b>${adjNames}</b>
+                    </div>
+                `;
+            } else {
+                document.getElementById('brief-lbl-relation').innerText = '相對面 (平行)';
+                document.getElementById('brief-lbl-relation').className = 'text-pink-600 font-bold';
+                dotEl.className = 'w-2.5 h-2.5 rounded-full bg-pink-500';
+                document.getElementById('brief-badge-relation').innerText = '相對與平行關係';
+                document.getElementById('brief-badge-relation').className = 'text-[11px] font-bold bg-pink-100 text-pink-700 px-2 py-0.5 rounded-full';
+
+                const oppName = FACE_DEFINITIONS[def.opposite].name.split(' ')[0];
+                document.getElementById('brief-knowledge-content').innerHTML = `
+                    <p>與【<b>${def.name}</b>】相對的面共有 <b class="text-pink-600">1 個</b> (${oppName})。</p>
+                    <p>相對的面完全不相接，且兩面之間的垂直距離處處相等 <b class="text-pink-600">(互相平行)</b>。</p>
+                    <div class="mt-2 p-2 bg-pink-50 rounded-lg text-pink-700 font-bold">
+                        • 平行相對面：<b>${oppName}</b>
+                    </div>
+                `;
+            }
+        }
+
+        function setBriefFace(key) {
+            briefFaceKey = key;
+            ['top', 'bottom', 'front', 'back', 'left', 'right'].forEach(k => {
+                const btn = document.getElementById(`brief-btn-${k}`);
+                if (k === key) {
+                    btn.className = "py-2.5 rounded-xl bg-yellow-400 text-yellow-950 border-2 border-yellow-500 font-bold transition";
+                } else {
+                    btn.className = "py-2.5 rounded-xl border border-slate-200 bg-white/80 hover:bg-sky-50 text-slate-700 transition";
+                }
+            });
+            updateBriefVisuals();
+        }
+
+        function setBriefRelation(mode) {
+            briefRelationMode = mode;
+            const btnPerp = document.getElementById('brief-btn-rel-perp');
+            const btnPara = document.getElementById('brief-btn-rel-para');
+
+            if (mode === 'perpendicular') {
+                btnPerp.className = "p-3 rounded-xl bg-emerald-500 text-white font-bold text-xs shadow-md transition flex flex-col items-center gap-1";
+                btnPara.className = "p-3 rounded-xl border border-slate-200 bg-white/80 hover:bg-sky-50 font-bold text-xs text-slate-700 transition flex flex-col items-center gap-1";
+            } else {
+                btnPara.className = "p-3 rounded-xl bg-pink-500 text-white font-bold text-xs shadow-md transition flex flex-col items-center gap-1";
+                btnPerp.className = "p-3 rounded-xl border border-slate-200 bg-white/80 hover:bg-sky-50 font-bold text-xs text-slate-700 transition flex flex-col items-center gap-1";
+            }
+            updateBriefVisuals();
+        }
+
+        function updateBriefExplode(val) {
+            briefExplodeValue = parseFloat(val);
+            document.getElementById('brief-val-explode').innerText = `${briefExplodeValue.toFixed(1)}x`;
+
+            Object.keys(briefMeshFaces).forEach(key => {
+                const mesh = briefMeshFaces[key];
+                const base = mesh.userData.basePos;
+                const norm = mesh.userData.normal;
+                mesh.position.set(
+                    base.x + norm.x * briefExplodeValue * 2.5,
+                    base.y + norm.y * briefExplodeValue * 2.5,
+                    base.z + norm.z * briefExplodeValue * 2.5
+                );
+            });
+        }
+
+        function toggleBriefAutoRotate() {
+            briefAutoRotate = !briefAutoRotate;
+            briefControls.autoRotate = briefAutoRotate;
+            briefControls.autoRotateSpeed = 2.0;
+            const btn = document.getElementById('btn-brief-auto-rotate');
+            btn.innerHTML = briefAutoRotate 
+                ? `<i class="fa-solid fa-arrows-spin text-sky-500"></i> 自動旋轉: 開`
+                : `<i class="fa-solid fa-arrows-spin"></i> 自動旋轉: 關`;
+        }
+
+        function resetBriefCamera() {
+            briefCamera.position.set(14, 12, 18);
+            briefControls.target.set(0, 0, 0);
+            briefControls.update();
+        }
+
+        function updateCabinetTilt(tiltVal) {
+            const tilt = parseFloat(tiltVal);
+            const group = document.getElementById('cabinet-group');
+            const indicatorGroup = document.getElementById('angle-indicator-group');
+            const badge = document.getElementById('life-angle-badge');
+            const statusCard = document.getElementById('life-status-card');
+            const statusIcon = document.getElementById('life-status-icon');
+            const statusText = document.getElementById('life-status-text');
+
+            if (tilt === 0) {
+                group.setAttribute('transform', `translate(300, 210) rotate(0)`);
+                indicatorGroup.innerHTML = `
+                    <g transform="translate(250, 210)">
+                        <!-- 標準兩線段直角符號與 90° 標籤 (無紅點、非四邊封閉正方形) -->
+                        <path d="M 0 -20 L 20 -20 L 20 0" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                        <text x="28" y="-12" fill="#ef4444" font-size="15" font-weight="black" dominant-baseline="central">90°</text>
+                    </g>
+                `;
+                badge.className = "px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-xs";
+                badge.innerText = `垂直角度 (90°)`;
+                statusCard.className = "p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 flex items-center gap-3 shadow-sm";
+                statusIcon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 text-2xl"></i>`;
+                statusText.innerHTML = `<b>櫃子側面與地面夾角為 90°，達到【互相垂直】！</b>櫃子非常平穩正立。`;
+            } else if (tilt < 0) {
+                // 向左傾斜: 以左下角 (250, 210) 為圓心進行旋轉
+                group.setAttribute('transform', `translate(250, 210) rotate(${tilt}) translate(50, 0)`);
+                
+                // 實施正確的幾何角度計算：地面與櫃子左側夾角 realAngle (例如 76°)
+                const realAngle = Math.round(90 + tilt);
+                const rad = realAngle * Math.PI / 180;
+                const halfRad = rad / 2;
+                const r = 38;
+                const cx = (250 - r * Math.cos(rad)).toFixed(1);
+                const cy = (210 - r * Math.sin(rad)).toFixed(1);
+                const tx = (250 - 58 * Math.cos(halfRad)).toFixed(1);
+                const ty = (210 - 58 * Math.sin(halfRad)).toFixed(1);
+
+                indicatorGroup.innerHTML = `
+                    <!-- 地面 (212, 210) 到櫃子左邊 (cx, cy) 的紅色圓弧線 -->
+                    <path d="M 212 210 A 38 38 0 0 1 ${cx} ${cy}" fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round" />
+                    <!-- 角度數值文字標籤 -->
+                    <text x="${tx}" y="${ty}" fill="#ef4444" font-size="15" font-weight="black" text-anchor="middle" dominant-baseline="central">${realAngle}°</text>
+                `;
+                badge.className = "px-3.5 py-1 rounded-full bg-amber-100 text-amber-800 font-extrabold text-xs";
+                badge.innerText = `左側夾角 (${realAngle}°)`;
+                statusCard.className = "p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center gap-3 shadow-sm";
+                statusIcon.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-500 text-2xl"></i>`;
+                statusText.innerHTML = `<b>向左傾斜！以左下角為圓心，左側與地面夾角為 ${realAngle}°，沒有垂直！</b>`;
+            } else {
+                // 向右傾斜: 以右下角 (350, 210) 為圓心進行旋轉
+                group.setAttribute('transform', `translate(350, 210) rotate(${tilt}) translate(-50, 0)`);
+                
+                // 實施正確的幾何角度計算：地面與櫃子右側夾角 realAngle (例如 76°)
+                const realAngle = Math.round(90 - tilt);
+                const rad = realAngle * Math.PI / 180;
+                const halfRad = rad / 2;
+                const r = 38;
+                const cx = (350 + r * Math.cos(rad)).toFixed(1);
+                const cy = (210 - r * Math.sin(rad)).toFixed(1);
+                const tx = (350 + 58 * Math.cos(halfRad)).toFixed(1);
+                const ty = (210 - 58 * Math.sin(halfRad)).toFixed(1);
+
+                indicatorGroup.innerHTML = `
+                    <!-- 地面 (388, 210) 到櫃子右邊 (cx, cy) 的紅色圓弧線 -->
+                    <path d="M 388 210 A 38 38 0 0 0 ${cx} ${cy}" fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round" />
+                    <!-- 角度數值文字標籤 -->
+                    <text x="${tx}" y="${ty}" fill="#ef4444" font-size="15" font-weight="black" text-anchor="middle" dominant-baseline="central">${realAngle}°</text>
+                `;
+                badge.className = "px-3.5 py-1 rounded-full bg-amber-100 text-amber-800 font-extrabold text-xs";
+                badge.innerText = `右側夾角 (${realAngle}°)`;
+                statusCard.className = "p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center gap-3 shadow-sm";
+                statusIcon.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-500 text-2xl"></i>`;
+                statusText.innerHTML = `<b>向右傾斜！以右下角為圓心，右側與地面夾角為 ${realAngle}°，沒有垂直！</b>`;
+            }
+        }
+
+        function updateWallAngle(angleVal) {
+            const angle = parseFloat(angleVal);
+            document.getElementById('slider-wall-angle').value = angle;
+            const wallGroup = document.getElementById('wall-plane-group');
+            const indicatorGroup = document.getElementById('wall-angle-indicator');
+            const boxGroup = document.getElementById('wall-check-box');
+            const badge = document.getElementById('wall-angle-badge');
+            const statusCard = document.getElementById('wall-status-card');
+            const statusIcon = document.getElementById('wall-status-icon');
+            const statusText = document.getElementById('wall-status-text');
+
+            const px = 200; // 原點 X (牆面與地面相交點)
+            const py = 240; // 原點 Y
+            const wallLen = 190;
+            const rad = Math.PI / 180;
+
+            // 右側夾角計算：拉桿往右 (angle > 90) 時，右側夾角 theta 變小 (< 90)，牆面往右傾斜
+            let theta = 180 - angle;
+            if (angle === 90) theta = 90;
+
+            const thetaRad = theta * rad;
+            const wx = (px + wallLen * Math.cos(thetaRad)).toFixed(1);
+            const wy = (py - wallLen * Math.sin(thetaRad)).toFixed(1);
+
+            // 計算長方體 (甲面) 的動態 X 位置：拉桿往右拉動時，長方體順著牆面相交位置往右移動
+            let boxX = 200;
+            if (angle > 90) {
+                const dx = 120 / Math.tan(thetaRad);
+                boxX = px + dx;
+            }
+
+            // 更新甲面矩形與標籤位置 (已移除藍色乙面文字)
+            boxGroup.innerHTML = `
+                <rect x="${boxX}" y="120" width="120" height="120" fill="#fef3c7" stroke="#b45309" stroke-width="3" rx="2" />
+                <text x="${boxX + 60}" y="185" fill="#b45309" font-size="18" font-weight="black" text-anchor="middle">甲面</text>
+            `;
+
+            let wallHTML = `
+                <!-- 牆面 灰色實線 -->
+                <line x1="${px}" y1="${py}" x2="${wx}" y2="${wy}" stroke="#64748b" stroke-width="7" stroke-linecap="round" />
+                <text x="${(parseFloat(wx) + 10).toFixed(1)}" y="${(parseFloat(wy) - 10).toFixed(1)}" fill="#475569" font-size="13" font-weight="bold">牆面 (平面)</text>
+            `;
+
+            if (angle < 90) {
+                // 外擴產生隙縫 (將無法密合文字移動至牆面左方)
+                const mx = (px + parseFloat(wx)) / 2;
+                const my = (py + parseFloat(wy)) / 2;
+                const gapTextX = (mx - 20).toFixed(1);
+                const gapTextY = my.toFixed(1);
+                wallHTML += `
+                    <polygon points="${px},${py} ${wx},${wy} 200,120 200,240" fill="rgba(245, 158, 11, 0.15)" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 3" />
+                    <text x="${gapTextX}" y="${gapTextY}" fill="#d97706" font-size="13" font-weight="black" text-anchor="end">無法密合</text>
+                `;
+            } else if (angle > 90) {
+                // 右傾推移未密合區域 (將推移未密合文字移動至牆面左方)
+                const mx = (px + parseFloat(wx)) / 2;
+                const my = (py + parseFloat(wy)) / 2;
+                const gapTextX = (mx - 20).toFixed(1);
+                const gapTextY = my.toFixed(1);
+                wallHTML += `
+                    <polygon points="${px},${py} ${wx},${wy} ${boxX},120 ${px},240" fill="rgba(244, 63, 94, 0.15)" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="4 3" />
+                    <text x="${gapTextX}" y="${gapTextY}" fill="#d97706" font-size="13" font-weight="black" text-anchor="end">推移未密合</text>
+                `;
+            }
+
+            wallGroup.innerHTML = wallHTML;
+
+            // 右側角度標示 (牆面與地面右側夾角)
+            const r = 40;
+            if (angle === 90) {
+                indicatorGroup.innerHTML = `
+                    <path d="M ${px + 22} ${py} L ${px + 22} ${py - 22} L ${px} ${py - 22}" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                    <text x="${px + 28}" y="${py - 30}" fill="#ef4444" font-size="15" font-weight="black">90°</text>
+                    <g transform="translate(340, 175)">
+                        <rect x="0" y="0" width="70" height="26" rx="6" fill="#10b981" />
+                        <text x="35" y="17" fill="#ffffff" font-size="11" font-weight="black" text-anchor="middle">完全密合</text>
+                    </g>
+                `;
+                badge.className = "px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-xs";
+                badge.innerText = "垂直 (90°)";
+                statusCard.className = "p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 flex items-center gap-3 shadow-sm";
+                statusIcon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 text-2xl"></i>`;
+                statusText.innerHTML = `<b>如果長方體的相鄰兩面和兩個平面完全密合，我們就說【兩個平面互相垂直】！</b>`;
+            } else {
+                // 於右側繪製弧線與角度數值 (修正圓弧方向)
+                const arcX = (px + r * Math.cos(thetaRad)).toFixed(1);
+                const arcY = (py - r * Math.sin(thetaRad)).toFixed(1);
+                const halfRad = thetaRad / 2;
+                const tx = (px + 58 * Math.cos(halfRad)).toFixed(1);
+                const ty = (py - 58 * Math.sin(halfRad)).toFixed(1);
+
+                indicatorGroup.innerHTML = `
+                    <path d="M ${px + r} ${py} A ${r} ${r} 0 0 0 ${arcX} ${arcY}" fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round" />
+                    <text x="${tx}" y="${ty}" fill="#ef4444" font-size="15" font-weight="black" text-anchor="middle" dominant-baseline="central">${theta}°</text>
+                `;
+
+                if (angle > 90) {
+                    badge.className = "px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-extrabold text-xs";
+                    badge.innerText = `右側夾角 ${theta}° (推移未垂直)`;
+                    statusCard.className = "p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center gap-3 shadow-sm";
+                    statusIcon.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-500 text-2xl"></i>`;
+                    statusText.innerHTML = `<b>【兩個平面沒有互相垂直】！</b>牆面傾斜（右側夾角 ${theta}°），長方體甲面被推移往右移動，無法完全密合。`;
+                } else {
+                    badge.className = "px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-extrabold text-xs";
+                    badge.innerText = `右側夾角 ${theta}° (外擴未垂直)`;
+                    statusCard.className = "p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center gap-3 shadow-sm";
+                    statusIcon.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-500 text-2xl"></i>`;
+                    statusText.innerHTML = `<b>【兩個平面沒有互相垂直】！</b>牆面外擴（右側夾角 ${theta}°），長方體相鄰兩面與牆面出現隙縫，無法完全密合。`;
+                }
+            }
+        }
+
+        function setWallAngle(val) {
+            updateWallAngle(val);
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            
+            ['brief', 'explore', 'life', 'quiz'].forEach(m => {
+                const btn = document.getElementById(`tab-${m}`);
+                if (m === mode) {
+                    btn.className = "px-4 py-2 rounded-lg text-sm font-bold transition-all btn-shinkai";
+                } else {
+                    btn.className = "px-4 py-2 rounded-lg text-sm font-bold text-slate-600 hover:bg-white/80 transition-all";
+                }
+            });
+
+            const vBrief = document.getElementById('view-brief');
+            const vExplore = document.getElementById('view-explore');
+            const vLife = document.getElementById('view-life');
+            const vQuiz = document.getElementById('view-quiz');
+
+            vBrief.classList.add('hidden'); vBrief.classList.remove('grid');
+            vExplore.classList.add('hidden'); vExplore.classList.remove('grid');
+            vLife.classList.add('hidden'); vLife.classList.remove('grid');
+            vQuiz.classList.add('hidden'); vQuiz.classList.remove('grid');
+
+            if (mode === 'brief') {
+                vBrief.classList.remove('hidden'); vBrief.classList.add('grid');
+            } else if (mode === 'explore') {
+                vExplore.classList.remove('hidden'); vExplore.classList.add('grid');
+                updateVisualsByMode();
+            } else if (mode === 'life') {
+                vLife.classList.remove('hidden'); vLife.classList.add('grid');
+                updateCabinetTilt(document.getElementById('life-slider-tilt').value);
+                updateWallAngle(document.getElementById('slider-wall-angle').value);
+            } else if (mode === 'quiz') {
+                vQuiz.classList.remove('hidden'); vQuiz.classList.add('grid');
+                renderQuizAll();
+            }
+
+            setTimeout(onWindowResize, 50);
+        }
+
+        function setSubRelation(sub) {
+            subRelation = sub;
+            ['all', 'perpendicular', 'parallel'].forEach(s => {
+                const btn = document.getElementById(`subtab-${s}`);
+                if (s === sub) {
+                    btn.className = "flex-1 py-1.5 text-xs font-bold rounded-lg bg-white shadow-sm text-blue-600";
+                } else {
+                    btn.className = "flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:bg-white/60";
+                }
+            });
+            updateVisualsByMode();
+        }
+
+        function selectTargetFace(faceKey) {
+            selectedFaceKey = faceKey;
+            document.getElementById('panel-title').innerText = `1. 觀察基準面：${FACE_DEFINITIONS[faceKey].name}`;
+            updateVisualsByMode();
+        }
+
+        ['x', 'y', 'z'].forEach(axis => {
+            document.getElementById(`slider-${axis}`).addEventListener('input', (e) => {
+                dim[axis] = parseFloat(e.target.value);
+                document.getElementById(`val-${axis}`).innerText = dim[axis];
+                document.getElementById('dimension-readout').innerText = `長: ${dim.x}, 寬: ${dim.z}, 高: ${dim.y}`;
+                createCuboidMesh();
+            });
+        });
+
+        function toggleTranslucent() { updateVisualsByMode(); }
+        function toggleDistanceLines() { updateDistanceAndAngleVisuals(); }
+
+        function resetCamera() {
+            camera.position.set(16, 14, 22);
+            controls.target.set(0, 0, 0);
+            controls.update();
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('canvas-container');
+            if (container && container.clientWidth > 0) {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            }
+
+            const briefContainer = document.getElementById('brief-canvas-container');
+            if (briefContainer && briefContainer.clientWidth > 0) {
+                briefCamera.aspect = briefContainer.clientWidth / briefContainer.clientHeight;
+                briefCamera.updateProjectionMatrix();
+                briefRenderer.setSize(briefContainer.clientWidth, briefContainer.clientHeight);
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if(controls) controls.update();
+            if(renderer && scene && camera) renderer.render(scene, camera);
+            
+            if(briefControls) briefControls.update();
+            if(briefRenderer && briefScene && briefCamera) briefRenderer.render(briefScene, briefCamera);
+
+            updateVertexLabels();
+        }
+
+        const QUIZ_QUESTIONS = [
+            {
+                q: "1. 觀察長方體，甲面 (上面) 與哪一個面是「互相平行」的？",
+                options: ["丙面 (前面)", "乙面 (底面)", "己面 (右面)", "戊面 (左面)"],
+                ans: 1,
+                exp: "甲面與乙面為相對的面，兩面互相平行。"
+            },
+            {
+                q: "2. 在長方體中，每一個面各有幾個與它「互相垂直」的面？",
+                options: ["1 個", "2 個", "3 個", "4 個"],
+                ans: 3,
+                exp: "長方體中的每一個面，四周都有 4 個相鄰的面與它互相垂直。"
+            },
+            {
+                q: "3. 長方體中共有幾組「互相平行」的面？",
+                options: ["2 組", "3 組", "4 組", "6 組"],
+                ans: 1,
+                exp: "長方體有 6 個面，每 2 個相對的面為一組，共 3 組平行面。"
+            },
+            {
+                q: "4. 將長方體的手工皂擺在桌上，改變它的擺放方式後，有記號的面與桌面的垂直關係會改變嗎？",
+                options: ["會改變，變成平行", "不會改變，依然互相垂直", "不一定，看角度而定", "無法判斷"],
+                ans: 1,
+                exp: "無論如何翻轉擺放，直角關係不變，相鄰面依然維持互相垂直。"
+            },
+            {
+                q: "5. 若將書櫃的層板高度調高 5 公分，層板與書櫃最底面之間的垂直距離會怎麼變化？",
+                options: ["距離增加 5 公分，但兩面依然互相平行", "距離減少 5 公分，兩面變成垂直", "距離不變", "兩面不再平行"],
+                ans: 0,
+                exp: "平行面間的各處距離同步增加 5 公分，且依然保持互相平行！"
+            }
+        ];
+
+        let userAnswers = Array(QUIZ_QUESTIONS.length).fill(null);
+        let isSubmitted = false;
+
+        function renderQuizAll() {
+            const container = document.getElementById('quiz-container');
+            if (!container) return;
+
+            let html = '';
+            QUIZ_QUESTIONS.forEach((q, qIdx) => {
+                const userChoice = userAnswers[qIdx];
+                const qTitleText = q.q.replace(/^\d+\.\s*/, '');
+
+                html += `
+                    <div class="p-4 rounded-xl border border-slate-200 bg-white/70 space-y-3 shadow-sm">
+                        <div class="font-bold text-slate-800 text-sm flex items-start gap-2">
+                            <span class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs shrink-0 font-extrabold">${qIdx + 1}</span>
+                            <span class="leading-relaxed">${qTitleText}</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pl-2">
+                `;
+
+                q.options.forEach((opt, optIdx) => {
+                    const isSelected = userChoice === optIdx;
+                    let btnStyle = "w-full p-2.5 text-left rounded-xl border transition text-xs font-medium flex items-center ";
+                    
+                    if (isSelected) {
+                        btnStyle += "border-2 border-indigo-500 bg-indigo-50 text-indigo-900 font-bold shadow-sm";
+                    } else {
+                        btnStyle += "border-slate-200 bg-white/90 hover:bg-slate-50 text-slate-700";
+                    }
+
+                    const disabledAttr = isSubmitted ? 'disabled' : '';
+
+                    html += `
+                        <button onclick="selectQuizOption(${qIdx}, ${optIdx})" ${disabledAttr} class="${btnStyle}">
+                            <span class="inline-block w-5 h-5 rounded-full border text-center text-[11px] leading-4 mr-2.5 shrink-0 ${isSelected ? 'bg-indigo-500 text-white border-indigo-500' : 'border-slate-300 text-slate-500'}">
+                                ${String.fromCharCode(65 + optIdx)}
+                            </span>
+                            <span>${opt}</span>
+                        </button>
+                    `;
+                });
+
+                html += `</div>`;
+
+                // 提交後的對錯解析呈現邏輯
+                if (isSubmitted) {
+                    if (userChoice === null) {
+                        // 未作答：黃色系，僅顯示 "未作答。"，不透露正確答案與觀念說明
+                        html += `
+                            <div class="p-3 rounded-xl text-xs font-bold leading-relaxed bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1.5 mt-2">
+                                <i class="fa-solid fa-triangle-exclamation text-amber-500 text-sm"></i>
+                                <span>未作答。</span>
+                            </div>
+                        `;
+                    } else if (userChoice === q.ans) {
+                        // 答對：綠色系，讚賞語 + 觀念解析
+                        html += `
+                            <div class="p-3 rounded-xl text-xs font-bold leading-relaxed bg-emerald-50 text-emerald-800 border border-emerald-200 space-y-1 mt-2">
+                                <div class="flex items-center gap-1.5 text-emerald-700 font-extrabold">
+                                    <i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i> 答對了！
+                                </div>
+                                <div class="text-emerald-900 font-medium">${q.exp}</div>
+                            </div>
+                        `;
+                    } else {
+                        // 答錯：紅色系，明確給予正確答案 + 觀念解析 (無讚賞語矛盾)
+                        html += `
+                            <div class="p-3 rounded-xl text-xs font-bold leading-relaxed bg-rose-50 text-rose-800 border border-rose-200 space-y-1 mt-2">
+                                <div class="flex items-center gap-1.5 text-rose-700 font-extrabold">
+                                    <i class="fa-solid fa-circle-xmark text-rose-500 text-sm"></i> 答錯了！正確答案是：（${String.fromCharCode(65 + q.ans)}）${q.options[q.ans]}
+                                </div>
+                                <div class="text-rose-900 font-medium">${q.exp}</div>
+                            </div>
+                        `;
+                    }
+                }
+
+                html += `</div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function selectQuizOption(qIdx, optIdx) {
+            if (isSubmitted) return;
+            userAnswers[qIdx] = optIdx;
+            renderQuizAll();
+        }
+
+        function submitQuiz() {
+            if (isSubmitted) return;
+            isSubmitted = true;
+
+            let score = 0;
+            userAnswers.forEach((ans, i) => {
+                if (ans === QUIZ_QUESTIONS[i].ans) {
+                    score += 20; // 5 題，每題 20 分，滿分 100 分
+                }
+            });
+
+            const scoreCard = document.getElementById('quiz-score-card');
+            const totalScoreEl = document.getElementById('quiz-total-score');
+            const evalEl = document.getElementById('quiz-score-eval');
+
+            if (scoreCard && totalScoreEl && evalEl) {
+                scoreCard.classList.remove('hidden');
+                totalScoreEl.innerText = score;
+
+                if (score === 100) {
+                    evalEl.innerText = "太棒了！概念非常清晰！";
+                    evalEl.className = "text-xs font-extrabold px-3 py-1.5 rounded-lg bg-emerald-100 border border-emerald-300 text-emerald-800";
+                } else if (score >= 60) {
+                    evalEl.innerText = "表現不錯，繼續加油！";
+                    evalEl.className = "text-xs font-extrabold px-3 py-1.5 rounded-lg bg-amber-100 border border-amber-300 text-amber-800";
+                } else {
+                    evalEl.innerText = "建議重新複習 3D 模型觀念喔！";
+                    evalEl.className = "text-xs font-extrabold px-3 py-1.5 rounded-lg bg-rose-100 border border-rose-300 text-rose-800";
+                }
+            }
+
+            renderQuizAll();
+        }
+
+        function resetQuiz() {
+            isSubmitted = false;
+            userAnswers.fill(null);
+
+            const scoreCard = document.getElementById('quiz-score-card');
+            if (scoreCard) scoreCard.classList.add('hidden');
+
+            renderQuizAll();
+        }
+
+        window.onload = function() {
+            init3D();
+            selectTargetFace('top');
+            setBriefFace('back');
+            setBriefRelation('perpendicular');
+            setMode('brief');
+            updateWallAngle(90);
+        };
+    </script>
+</body>
+</html>

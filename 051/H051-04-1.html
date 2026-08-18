@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4-1 公倍數與最小公倍數 - 互動探究實驗室</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Noto Sans TC', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif']
+                    },
+                    colors: {
+                        shinkai: {
+                            skyDark: '#1b2a47',
+                            skyBlue: '#3b82f6',
+                            sunsetPink: '#f472b6',
+                            sunsetOrange: '#fb923c',
+                            twilightPurple: '#6366f1',
+                            cloudLight: '#f0f9ff',
+                            gold: '#fbbf24'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* 新海誠天空天色漸層背景與雲朵粒子效果 */
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #1e1b4b 50%, #311b92 75%, #4a148c 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #f8fafc;
+        }
+
+        .shinkai-card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .shinkai-card-light {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            color: #1e293b;
+        }
+
+        /* 夢幻漸層文字 */
+        .text-gradient-shinkai {
+            background: linear-gradient(135deg, #a5f3fc 0%, #38bdf8 40%, #f472b6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .text-gradient-gold {
+            background: linear-gradient(135deg, #fef08a 0%, #facc15 50%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 積木樣式動畫 */
+        .block-item {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .block-item:hover {
+            transform: translateY(-3px) scale(1.02);
+        }
+
+        /* 重合發光脈衝 */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(250, 204, 21, 0.8), 0 0 30px rgba(250, 204, 21, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(250, 204, 21, 1), 0 0 50px rgba(250, 204, 21, 0.8); }
+        }
+
+        .aligned-glow {
+            animation: pulse-glow 1.8s infinite ease-in-out;
+            border-color: #facc15 !important;
+        }
+
+        /* 流星雲朵裝飾 */
+        .cloud-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 30%, rgba(244, 114, 182, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 50% 80%, rgba(129, 140, 248, 0.15) 0%, transparent 50%);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased relative selection:bg-pink-500 selection:text-white pb-12">
+    <div class="cloud-bg"></div>
+
+    <div class="relative z-10 max-w-6xl mx-auto px-4 py-6">
+        <!-- 閒雲數學小棧 Logo 區塊 -->
+        <div class="w-full max-w-4xl flex items-center justify-start mb-4 px-2 fade-in">
+            <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+            <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+        </div>
+
+        <!-- 頂部標題區 -->
+        <header class="text-center my-6">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-3 text-cyan-200 text-sm font-medium">
+                <i class="fa-solid font-sparkles text-amber-300"></i> 國小五上數學 4-1 互動學習網頁
+            </div>
+            <h1 class="text-3xl sm:text-5xl font-black text-gradient-shinkai tracking-wide mb-2">
+                公倍數與最小公倍數 探究實驗室
+            </h1>
+            <p class="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto">
+                移動滑桿與對齊積木，觀察長度相等的神奇時刻！找出兩數的「共同倍數」與「最小公倍數」。
+            </p>
+        </header>
+
+        <!-- 功能分頁切換按鈕 -->
+        <div class="flex justify-center gap-2 sm:gap-4 mb-8 flex-wrap">
+            <button onclick="switchTab('blocks')" id="tab-btn-blocks" class="tab-btn active px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/30">
+                <i class="fa-solid fa-cubes"></i> 🧱 積木對齊實驗室
+            </button>
+            <button onclick="switchTab('numberline')" id="tab-btn-numberline" class="tab-btn px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all bg-white/10 text-slate-300 hover:bg-white/20">
+                <i class="fa-solid fa-ruler-horizontal"></i> 📏 數線圈選器
+            </button>
+            <button onclick="switchTab('strategy')" id="tab-btn-strategy" class="tab-btn px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all bg-white/10 text-slate-300 hover:bg-white/20">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> 💡 魔法解題策略
+            </button>
+            <button onclick="switchTab('quiz')" id="tab-btn-quiz" class="tab-btn px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all bg-white/10 text-slate-300 hover:bg-white/20">
+                <i class="fa-solid fa-circle-check"></i> 📝 隨堂練習
+            </button>
+        </div>
+
+        <!-- TAB 1: 積木對齊實驗室 -->
+        <section id="section-blocks" class="space-y-6">
+            <div class="shinkai-card rounded-3xl p-6 sm:p-8">
+                <!-- 模組說明與模式選擇 -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 border-b border-white/10 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-layer-group text-amber-300"></i> 積木堆疊排排看
+                        </h2>
+                        <p class="text-slate-300 text-sm mt-1">
+                            當兩種不同長度的積木排成一樣長時，這個總長度就是兩數的<span class="text-amber-300 font-bold">公倍數</span>！
+                        </p>
+                    </div>
+
+                    <!-- 預設情境快速套用 -->
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="presetBlocks(3, 2)" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-amber-500/20 hover:border-amber-400 border border-white/20 text-xs font-semibold text-amber-200 transition">
+                            課本範例：3cm 與 2cm
+                        </button>
+                        <button onclick="presetBlocks(3, 4)" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-cyan-500/20 hover:border-cyan-400 border border-white/20 text-xs font-semibold text-cyan-200 transition">
+                            類題：3cm 與 4cm
+                        </button>
+                        <button onclick="presetBlocks(4, 6)" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-pink-500/20 hover:border-pink-400 border border-white/20 text-xs font-semibold text-pink-200 transition">
+                            課本：4 與 6
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 控制儀表板 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- 上層積木 A 控制 -->
+                    <div class="bg-slate-900/50 rounded-2xl p-4 border border-cyan-500/30">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="font-bold text-cyan-300 flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-cyan-400 inline-block"></span> 上層積木 A
+                            </span>
+                            <span class="text-xs text-slate-400">單塊長度：<b id="lenA-val" class="text-cyan-300 text-base">3</b> cm</span>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-xs text-slate-300 flex justify-between">
+                                    <span>設定單塊積木長度 (cm)</span>
+                                    <span id="labelA-len">3 cm</span>
+                                </label>
+                                <input type="range" id="input-lenA" min="1" max="10" value="3" class="w-full accent-cyan-400 cursor-pointer" oninput="updateBlocks()">
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-300 flex justify-between">
+                                    <span>積木數量 (塊)</span>
+                                    <span id="labelA-count" class="text-cyan-300 font-bold">1 塊</span>
+                                </label>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="changeCount('A', -1)" class="w-8 h-8 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/40 text-cyan-200 font-bold">-</button>
+                                    <input type="range" id="input-countA" min="1" max="15" value="1" class="w-full accent-cyan-400 cursor-pointer" oninput="updateBlocks()">
+                                    <button onclick="changeCount('A', 1)" class="w-8 h-8 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/40 text-cyan-200 font-bold">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 下層積木 B 控制 -->
+                    <div class="bg-slate-900/50 rounded-2xl p-4 border border-pink-500/30">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="font-bold text-pink-300 flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-pink-400 inline-block"></span> 下層積木 B
+                            </span>
+                            <span class="text-xs text-slate-400">單塊長度：<b id="lenB-val" class="text-pink-300 text-base">2</b> cm</span>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-xs text-slate-300 flex justify-between">
+                                    <span>設定單塊積木長度 (cm)</span>
+                                    <span id="labelB-len">2 cm</span>
+                                </label>
+                                <input type="range" id="input-lenB" min="1" max="10" value="2" class="w-full accent-pink-400 cursor-pointer" oninput="updateBlocks()">
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-300 flex justify-between">
+                                    <span>積木數量 (塊)</span>
+                                    <span id="labelB-count" class="text-pink-300 font-bold">1 塊</span>
+                                </label>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="changeCount('B', -1)" class="w-8 h-8 rounded-lg bg-pink-500/20 hover:bg-pink-500/40 text-pink-200 font-bold">-</button>
+                                    <input type="range" id="input-countB" min="1" max="15" value="1" class="w-full accent-pink-400 cursor-pointer" oninput="updateBlocks()">
+                                    <button onclick="changeCount('B', 1)" class="w-8 h-8 rounded-lg bg-pink-500/20 hover:bg-pink-500/40 text-pink-200 font-bold">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 積木視覺化繪製區域 -->
+                <div class="bg-slate-950/70 rounded-2xl p-4 sm:p-6 border border-white/10 overflow-x-auto">
+                    <div class="min-w-[600px] space-y-6">
+                        <!-- Ruler scale Header -->
+                        <div id="ruler-container" class="relative h-6 border-b border-slate-600 font-outfit text-xs text-slate-400">
+                            <!-- JS將動態產生刻度 -->
+                        </div>
+
+                        <!-- 積木 A 列 -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs text-cyan-300 font-medium">
+                                <span>積木 A 排列</span>
+                                <span>總長度：<b id="totalA-text" class="text-base text-cyan-400">3</b> cm</span>
+                            </div>
+                            <div id="containerA" class="flex h-12 items-center relative transition-all duration-300">
+                                <!-- JS 動態產生的積木 -->
+                            </div>
+                        </div>
+
+                        <!-- 積木 B 列 -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs text-pink-300 font-medium">
+                                <span>積木 B 排列</span>
+                                <span>總長度：<b id="totalB-text" class="text-base text-pink-400">2</b> cm</span>
+                            </div>
+                            <div id="containerB" class="flex h-12 items-center relative transition-all duration-300">
+                                <!-- JS 動態產生的積木 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 自動對齊與結果提示狀態 -->
+                <div id="align-status-card" class="mt-6 p-4 rounded-2xl bg-white/5 border border-white/10 flex flex-col sm:flex-row justify-between items-center gap-4 transition-all duration-300">
+                    <div class="flex items-center gap-3">
+                        <div id="status-icon" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
+                            <i class="fa-solid fa-scale-unbalanced text-lg"></i>
+                        </div>
+                        <div>
+                            <div id="status-title" class="font-bold text-white text-base">目前長度未對齊</div>
+                            <div id="status-desc" class="text-xs text-slate-300">點擊下方按鈕可自動將積木排至「第一個對齊點（最小公倍數）」。</div>
+                        </div>
+                    </div>
+                    <button onclick="autoAlignLCM()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-900 font-black text-sm shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> 一鍵對齊至最小公倍數 (LCM)
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: 數線圈選器 -->
+        <section id="section-numberline" class="space-y-6 hidden">
+            <div class="shinkai-card rounded-3xl p-6 sm:p-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 border-b border-white/10 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-ruler-horizontal text-cyan-300"></i> 動態數線倍數圈選器
+                        </h2>
+                        <p class="text-slate-300 text-sm mt-1">
+                            選擇數字後點擊「執行」，觀察數線上同時被藍色與粉色圈選的數字（<span class="text-amber-300 font-bold">公倍數</span>）！
+                        </p>
+                    </div>
+
+                    <!-- 選擇數字組合與執行按鈕 -->
+                    <div class="flex items-center gap-3 bg-slate-900/60 p-2 sm:p-2.5 rounded-xl border border-white/10 flex-wrap">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-xs text-cyan-300 font-bold">數字 1:</span>
+                            <select id="num1-select" class="bg-slate-800 text-cyan-300 font-bold rounded-lg px-2 py-1 text-sm border border-cyan-500/30 outline-none">
+                                <option value="2">2</option>
+                                <option value="3" selected>3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                            </select>
+                        </div>
+                        <span class="text-slate-500">&amp;</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-xs text-pink-300 font-bold">數字 2:</span>
+                            <select id="num2-select" class="bg-slate-800 text-pink-300 font-bold rounded-lg px-2 py-1 text-sm border border-pink-500/30 outline-none">
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4" selected>4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                                <option value="16">16</option>
+                                <option value="17">17</option>
+                                <option value="18">18</option>
+                                <option value="19">19</option>
+                                <option value="20">20</option>
+                            </select>
+                        </div>
+                        <button onclick="executeNumberLine()" class="ml-1 px-4 py-1.5 rounded-lg bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs transition shadow-lg shadow-amber-500/20 flex items-center gap-1.5 active:scale-95">
+                            <i class="fa-solid fa-play text-xs"></i> 執行
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 尚未執行的預設提示區 -->
+                <div id="numberline-placeholder" class="py-12 text-center bg-slate-950/40 rounded-2xl border border-dashed border-white/20">
+                    <div class="w-12 h-12 rounded-full bg-cyan-500/20 text-cyan-300 flex items-center justify-center mx-auto mb-3 text-xl">
+                        <i class="fa-solid fa-hand-pointer"></i>
+                    </div>
+                    <p class="text-slate-300 font-bold text-base">請選擇兩數後，點擊右上方「執行」按鈕</p>
+                    <p class="text-slate-400 text-xs mt-1">系統將會在下方 10×10 數線圖中標示出倍數與公倍數</p>
+                </div>
+
+                <!-- 點擊執行後才顯示的結果區域 -->
+                <div id="numberline-results" class="hidden space-y-6">
+                    <!-- 倍數清單摘要 -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-cyan-950/40 border border-cyan-500/30 p-4 rounded-2xl">
+                            <div class="text-xs text-cyan-300 font-bold mb-1 flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span> 數字 <span id="summary-num1">3</span> 的倍數
+                            </div>
+                            <div id="list-num1" class="text-sm text-cyan-100 font-mono font-medium break-words">
+                                3, 6, 9, 12, 15, 18...
+                            </div>
+                        </div>
+
+                        <div class="bg-pink-950/40 border border-pink-500/30 p-4 rounded-2xl">
+                            <div class="text-xs text-pink-300 font-bold mb-1 flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-pink-400"></span> 數字 <span id="summary-num2">4</span> 的倍數
+                            </div>
+                            <div id="list-num2" class="text-sm text-pink-100 font-mono font-medium break-words">
+                                4, 8, 12, 16, 20...
+                            </div>
+                        </div>
+
+                        <div class="bg-amber-950/40 border border-amber-500/40 p-4 rounded-2xl">
+                            <div class="text-xs text-amber-300 font-bold mb-1 flex items-center gap-2">
+                                <i class="fa-solid fa-crown text-amber-400"></i> 共同倍數 (公倍數)
+                            </div>
+                            <div id="list-common" class="text-sm text-amber-200 font-mono font-bold break-words">
+                                12, 24, 36...
+                            </div>
+                            <div class="text-[11px] text-amber-300/80 mt-1">
+                                最小公倍數 (LCM) = <b id="lcm-display" class="text-amber-300 text-sm">12</b>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 互動數線 Grid -->
+                    <div class="bg-slate-950/80 rounded-2xl p-6 border border-white/10">
+                        <div class="text-xs text-slate-400 mb-3 flex items-center justify-between">
+                            <span>數線範圍：1 ~ 100 (10×10 百數格)</span>
+                            <div class="flex items-center gap-4 text-xs">
+                                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-cyan-500/50 border border-cyan-400"></span> 數1倍數</span>
+                                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-pink-500/50 border border-pink-400"></span> 數2倍數</span>
+                                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 border border-amber-300"></span> 公倍數</span>
+                            </div>
+                        </div>
+                        
+                        <div id="numberline-grid" class="grid grid-cols-10 gap-1.5 sm:gap-2 font-outfit">
+                            <!-- JS 動態生成數字格子 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: 尋找公倍數的魔法策略 -->
+        <section id="section-strategy" class="space-y-6 hidden">
+            <div class="shinkai-card rounded-3xl p-6 sm:p-8">
+                <!-- 標頭資訊 -->
+                <div class="mb-6 border-b border-white/10 pb-4">
+                    <span class="inline-block px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-bold mb-2">
+                        課本第 55 頁重點
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-2">
+                        💡 尋找公倍數的魔法策略
+                    </h2>
+                    <p class="text-slate-300 text-sm sm:text-base mt-2">
+                        觀察皮皮與丹丹兩種不同的思維方式，點擊下方策略卡片查看哪一種方法更快找到 <b>9</b> 和 <b>30</b> 的最小公倍數！
+                    </p>
+                </div>
+
+                <!-- 策略對比區域 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- 策略一：丹丹 -->
+                    <div id="card-strat1" onclick="revealStrategy(1)" class="relative bg-slate-900/80 border border-cyan-500/30 hover:border-cyan-400 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-lg cursor-pointer transition-all duration-300">
+                        <span id="badge-strat1" class="absolute top-3 right-3 px-3 py-1 bg-sky-500 text-white font-bold text-xs rounded-lg">
+                            策略一
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-full bg-sky-500/20 border border-sky-400 flex items-center justify-center font-bold text-sky-300 text-lg">
+                                    丹
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-white text-base sm:text-lg">從較小的數 (9) 開始列舉</h3>
+                                    <p class="text-xs text-slate-300">先列出 9 的倍數，再檢查是否能被 30 整除</p>
+                                </div>
+                            </div>
+
+                            <!-- 預設提示點擊 -->
+                            <div id="prompt-strat1" class="my-6 py-6 text-center bg-slate-950/50 rounded-xl border border-dashed border-sky-500/30 text-sky-300 text-xs font-bold flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-hand-pointer animate-bounce"></i> 哪一個方法最快？
+                            </div>
+
+                            <!-- 列舉示範（預設隱藏） -->
+                            <div id="details-strat1" class="hidden bg-slate-950/70 rounded-xl p-4 my-4 border border-white/10 font-mono text-xs sm:text-sm leading-relaxed text-slate-200">
+                                <p class="mb-2">9 的倍數：9, 18, 27, 36, 45, 54, 63, 72, 81, <span class="bg-amber-400 text-slate-950 px-1.5 py-0.5 rounded font-black">90</span> ...</p>
+                                <p class="text-sky-300 font-sans text-xs">需要列出 <b class="text-amber-300 text-sm">10</b> 個數字才找到第一個 30 的倍數！</p>
+                            </div>
+                        </div>
+
+                        <!-- 特點（預設隱藏） -->
+                        <div id="feature-strat1" class="hidden bg-sky-950/40 border border-sky-500/20 p-3 rounded-xl text-xs text-sky-200 flex items-center gap-2">
+                            <i class="fa-solid fa-circle-info text-sky-400 text-sm"></i>
+                            <span><b>特點：</b>列舉數字較多，速度較慢，但非常符合直覺。</span>
+                        </div>
+                    </div>
+
+                    <!-- 策略二：皮皮 -->
+                    <div id="card-strat2" onclick="revealStrategy(2)" class="relative bg-slate-900/80 border border-slate-700 hover:border-emerald-400/60 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-xl cursor-pointer transition-all duration-300">
+                        <span id="badge-strat2" class="absolute top-3 right-3 px-3 py-1 bg-sky-500 text-white font-bold text-xs rounded-lg transition-all duration-300">
+                            策略二
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-3 mb-3">
+                                <div id="avatar-strat2" class="w-10 h-10 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center font-bold text-slate-300 text-lg transition-all duration-300">
+                                    皮
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-white text-base sm:text-lg">從較大的數 (30) 開始列舉</h3>
+                                    <p class="text-xs text-slate-300">先列出 30 的倍數，再檢查是否為 9 的倍數</p>
+                                </div>
+                            </div>
+
+                            <!-- 預設提示點擊 -->
+                            <div id="prompt-strat2" class="my-6 py-6 text-center bg-slate-950/50 rounded-xl border border-dashed border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-hand-pointer animate-bounce"></i> 哪一個方法最快？
+                            </div>
+
+                            <!-- 列舉示範（預設隱藏） -->
+                            <div id="details-strat2" class="hidden bg-slate-950/70 rounded-xl p-4 my-4 border border-emerald-500/30 font-mono text-xs sm:text-sm space-y-1.5 text-slate-300">
+                                <div>30 × 1 = 30 <span class="text-slate-400 text-xs">(非9的倍數)</span></div>
+                                <div>30 × 2 = 60 <span class="text-slate-400 text-xs">(非9的倍數)</span></div>
+                                <div class="text-emerald-300 font-bold bg-emerald-500/20 p-1.5 rounded-lg border border-emerald-500/40">
+                                    30 × 3 = <span class="bg-amber-400 text-slate-950 px-1.5 py-0.5 rounded font-black">90</span> <span class="text-emerald-300 text-xs">(是9的倍數！ 90 ÷ 9 = 10)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 特點（預設隱藏） -->
+                        <div id="feature-strat2" class="hidden bg-emerald-950/50 border border-emerald-500/30 p-3 rounded-xl text-xs text-emerald-200 flex items-center gap-2">
+                            <i class="fa-solid fa-bolt text-emerald-400 text-sm"></i>
+                            <span><b>特點：</b>只需要試算 <b class="text-amber-300 text-sm">3</b> 次就能快速找到最小公倍數 90！效率極高！</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: 隨堂歷程測驗 -->
+        <section id="section-quiz" class="space-y-6 hidden">
+            <div class="shinkai-card rounded-3xl p-6 sm:p-8">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-white/10 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-clipboard-question text-amber-300"></i> 隨堂練習 (5題)
+                        </h2>
+                        <p class="text-slate-300 text-sm mt-1">
+                            檢測你對「倍數、公倍數與最小公倍數」的理解程度！
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900/80 px-4 py-2 rounded-xl border border-white/20 text-right">
+                        <span class="text-xs text-slate-400 block">目前得分</span>
+                        <span id="quiz-score" class="text-2xl font-black text-amber-300 font-outfit">0 / 100</span>
+                    </div>
+                </div>
+
+                <!-- 測驗題目容器 -->
+                <div id="quiz-container" class="space-y-6">
+                    <!-- JS 將動態渲染 5 個測驗卡片 -->
+                </div>
+
+                <!-- 重設測驗與提交按鈕 -->
+                <div class="flex flex-wrap justify-center gap-4 pt-6">
+                    <button onclick="resetQuiz()" class="px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold transition text-sm inline-flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> 重新測驗
+                    </button>
+                    <button id="btn-submit-quiz" onclick="submitQuiz()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-900 font-bold transition text-sm inline-flex items-center gap-2 shadow-lg shadow-amber-500/20">
+                        <i class="fa-solid fa-paper-plane"></i> 提交答案
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // 全域狀態變數
+        let blockA = { len: 3, count: 1 };
+        let blockB = { len: 2, count: 1 };
+        let userAnswers = {};
+        let isQuizSubmitted = false;
+
+        // 5題歷程評量題目資料
+        const quizData = [
+            {
+                id: 1,
+                question: "1. 2 公分與 3 公分的積木排成一樣長時，最少需要幾公分的總長度？（即 2 與 3 的最小公倍數）",
+                options: ["A. 5 公分", "B. 6 公分", "C. 12 公分", "D. 18 公分"],
+                correct: 1,
+                explanation: "2的倍數有2, 4, 6, 8...；3的倍數有3, 6, 9...，第一個共同出現的倍數是 6 公分。"
+            },
+            {
+                id: 2,
+                question: "2. 關於「公倍數與最小公倍數」的敘述，下列何者正確？",
+                options: ["A. 兩數的公倍數只有一個", "B. 最小公倍數只有一個，但公倍數有無限多個", "C. 兩數的公倍數一定比這兩個數都小", "D. 最大的公倍數可以直接求出來"],
+                correct: 1,
+                explanation: "公倍數可以一直列舉下去有無限多個，但其中最小的那一個稱為最小公倍數（LCM）。"
+            },
+            {
+                id: 3,
+                question: "3. 4 與 6 的前三個公倍數依序是多少？",
+                options: ["A. 4, 8, 12", "B. 6, 12, 18", "C. 12, 24, 36", "D. 24, 48, 72"],
+                correct: 2,
+                explanation: "4的倍數有4, 8, 12, 16, 20, 24, 28, 32, 36...；6的倍數有6, 12, 18, 24, 30, 36...，共同倍數為 12, 24, 36..."
+            },
+            {
+                id: 4,
+                question: "4. 6 與 9 的最小公倍數 (LCM) 是多少？",
+                options: ["A. 54", "B. 36", "C. 18", "D. 12"],
+                correct: 2,
+                explanation: "6的倍數有6, 12, 18...；9的倍數有9, 18...，最小的共同倍數是 18。"
+            },
+            {
+                id: 5,
+                question: "5. 在尋找 9 與 30 的最小公倍數時，採用哪一種策略可以最快找到解答？",
+                options: ["A. 從較小的數 (9) 開始列舉倍數", "B. 從較大的數 (30) 開始列舉並檢查是否為 9 的倍數", "C. 將兩數直接相加", "D. 任意列舉數字直到猜中"],
+                correct: 1,
+                explanation: "皮皮的策略：從較大的數 (30) 開始試算，只需 30×1=30, 30×2=60, 30×3=90 (是9的倍數)，試算 3 次即可找到 90！"
+            }
+        ];
+
+        // 數學工具函數：最大公因數 (GCD) 與最小公倍數 (LCM)
+        function gcd(a, b) {
+            return b === 0 ? a : gcd(b, a % b);
+        }
+
+        function lcm(a, b) {
+            if (a === 0 || b === 0) return 0;
+            return Math.abs(a * b) / gcd(a, b);
+        }
+
+        // 頁籤切換功能
+        function switchTab(tabName) {
+            const tabs = ['blocks', 'numberline', 'strategy', 'quiz'];
+            tabs.forEach(tab => {
+                const sec = document.getElementById(`section-${tab}`);
+                const btn = document.getElementById(`tab-btn-${tab}`);
+                if (sec) {
+                    if (tab === tabName) {
+                        sec.classList.remove('hidden');
+                    } else {
+                        sec.classList.add('hidden');
+                    }
+                }
+                if (btn) {
+                    if (tab === tabName) {
+                        btn.className = "tab-btn active px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/30";
+                    } else {
+                        btn.className = "tab-btn px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all bg-white/10 text-slate-300 hover:bg-white/20";
+                    }
+                }
+            });
+
+            if (tabName === 'quiz') {
+                renderQuiz();
+            }
+        }
+
+        // 執行數線圖算繪
+        function executeNumberLine() {
+            document.getElementById('numberline-placeholder').classList.add('hidden');
+            document.getElementById('numberline-results').classList.remove('hidden');
+            renderNumberLine();
+        }
+
+        // 數線圖繪製 (1~100 百數格)
+        function renderNumberLine() {
+            const n1 = parseInt(document.getElementById('num1-select').value);
+            const n2 = parseInt(document.getElementById('num2-select').value);
+
+            document.getElementById('summary-num1').innerText = n1;
+            document.getElementById('summary-num2').innerText = n2;
+
+            const grid = document.getElementById('numberline-grid');
+            grid.innerHTML = '';
+
+            const multiples1 = [];
+            const multiples2 = [];
+            const commonMultiples = [];
+
+            const currentLCM = lcm(n1, n2);
+            document.getElementById('lcm-display').innerText = currentLCM;
+
+            for (let i = 1; i <= 100; i++) {
+                const isM1 = (i % n1 === 0);
+                const isM2 = (i % n2 === 0);
+                const isCommon = isM1 && isM2;
+
+                if (isM1) multiples1.push(i);
+                if (isM2) multiples2.push(i);
+                if (isCommon) commonMultiples.push(i);
+
+                const cell = document.createElement('div');
+                let cellClass = "h-10 sm:h-11 rounded-xl flex flex-col items-center justify-center font-bold text-xs sm:text-sm transition-all border ";
+
+                if (isCommon) {
+                    cellClass += "bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 border-amber-300 shadow-lg shadow-amber-500/30 scale-105 z-10";
+                } else if (isM1) {
+                    cellClass += "bg-cyan-900/60 text-cyan-200 border-cyan-400/60";
+                } else if (isM2) {
+                    cellClass += "bg-pink-900/60 text-pink-200 border-pink-400/60";
+                } else {
+                    cellClass += "bg-slate-900/40 text-slate-500 border-white/5 hover:border-white/20";
+                }
+
+                cell.className = cellClass;
+                cell.innerHTML = `<span>${i}</span>`;
+                
+                if (isCommon) {
+                    cell.innerHTML += `<span class="text-[8px] sm:text-[9px] font-black tracking-tighter uppercase px-0.5 rounded bg-slate-950/40 text-amber-200">公倍數</span>`;
+                }
+
+                grid.appendChild(cell);
+            }
+
+            document.getElementById('list-num1').innerText = multiples1.slice(0, 10).join(', ') + '...';
+            document.getElementById('list-num2').innerText = multiples2.slice(0, 10).join(', ') + '...';
+            document.getElementById('list-common').innerText = commonMultiples.length > 0 ? commonMultiples.join(', ') : '無（在100以內）';
+        }
+
+        // 點擊解鎖魔法解題策略內容
+        function revealStrategy(stratId) {
+            // 點擊任一卡片直接展開兩邊的說明與特點
+            document.getElementById('prompt-strat1').classList.add('hidden');
+            document.getElementById('details-strat1').classList.remove('hidden');
+            document.getElementById('feature-strat1').classList.remove('hidden');
+
+            document.getElementById('prompt-strat2').classList.add('hidden');
+            document.getElementById('details-strat2').classList.remove('hidden');
+            document.getElementById('feature-strat2').classList.remove('hidden');
+
+            const badge2 = document.getElementById('badge-strat2');
+            badge2.className = "absolute top-3 right-3 px-3 py-1 bg-emerald-500 text-white font-bold text-xs rounded-lg flex items-center gap-1 shadow-md shadow-emerald-500/30";
+            badge2.innerHTML = "推薦策略✦";
+
+            const card2 = document.getElementById('card-strat2');
+            card2.className = "relative bg-slate-900/80 border-2 border-emerald-400/80 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-xl shadow-emerald-500/10 transition-all duration-300";
+
+            const avatar2 = document.getElementById('avatar-strat2');
+            avatar2.className = "w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center font-bold text-emerald-300 text-lg transition-all duration-300";
+        }
+
+        // 改變積木數量 +/-
+        function changeCount(type, delta) {
+            if (type === 'A') {
+                const input = document.getElementById('input-countA');
+                let val = parseInt(input.value) + delta;
+                if (val >= 1 && val <= 15) {
+                    input.value = val;
+                    updateBlocks();
+                }
+            } else {
+                const input = document.getElementById('input-countB');
+                let val = parseInt(input.value) + delta;
+                if (val >= 1 && val <= 15) {
+                    input.value = val;
+                    updateBlocks();
+                }
+            }
+        }
+
+        // 預設情境套用
+        function presetBlocks(aLen, bLen) {
+            document.getElementById('input-lenA').value = aLen;
+            document.getElementById('input-lenB').value = bLen;
+            document.getElementById('input-countA').value = 1;
+            document.getElementById('input-countB').value = 1;
+            updateBlocks();
+        }
+
+        // 更新積木畫面
+        function updateBlocks() {
+            blockA.len = parseInt(document.getElementById('input-lenA').value);
+            blockA.count = parseInt(document.getElementById('input-countA').value);
+            
+            blockB.len = parseInt(document.getElementById('input-lenB').value);
+            blockB.count = parseInt(document.getElementById('input-countB').value);
+
+            document.getElementById('lenA-val').innerText = blockA.len;
+            document.getElementById('labelA-len').innerText = `${blockA.len} cm`;
+            document.getElementById('labelA-count').innerText = `${blockA.count} 塊`;
+
+            document.getElementById('lenB-val').innerText = blockB.len;
+            document.getElementById('labelB-len').innerText = `${blockB.len} cm`;
+            document.getElementById('labelB-count').innerText = `${blockB.count} 塊`;
+
+            const totalA = blockA.len * blockA.count;
+            const totalB = blockB.len * blockB.count;
+
+            document.getElementById('totalA-text').innerText = totalA;
+            document.getElementById('totalB-text').innerText = totalB;
+
+            const scaleWidth = 24;
+
+            const containerA = document.getElementById('containerA');
+            containerA.innerHTML = '';
+            for (let i = 0; i < blockA.count; i++) {
+                const block = document.createElement('div');
+                block.className = 'block-item flex items-center justify-center h-10 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 border border-cyan-300/60 shadow-md font-bold text-xs text-white mr-0.5 relative shrink-0';
+                block.style.width = `${blockA.len * scaleWidth - 2}px`;
+                block.innerHTML = `<span>${blockA.len}cm</span>`;
+                containerA.appendChild(block);
+            }
+
+            const containerB = document.getElementById('containerB');
+            containerB.innerHTML = '';
+            for (let i = 0; i < blockB.count; i++) {
+                const block = document.createElement('div');
+                block.className = 'block-item flex items-center justify-center h-10 rounded-lg bg-gradient-to-r from-pink-500 to-rose-500 border border-pink-300/60 shadow-md font-bold text-xs text-white mr-0.5 relative shrink-0';
+                block.style.width = `${blockB.len * scaleWidth - 2}px`;
+                block.innerHTML = `<span>${blockB.len}cm</span>`;
+                containerB.appendChild(block);
+            }
+
+            const statusCard = document.getElementById('align-status-card');
+            const statusIcon = document.getElementById('status-icon');
+            const statusTitle = document.getElementById('status-title');
+            const statusDesc = document.getElementById('status-desc');
+
+            if (totalA === totalB) {
+                statusCard.className = "mt-6 p-4 rounded-2xl bg-amber-500/20 border-2 border-amber-400 aligned-glow flex flex-col sm:flex-row justify-between items-center gap-4 transition-all duration-300";
+                statusIcon.className = "w-10 h-10 rounded-full bg-amber-400 text-slate-900 flex items-center justify-center text-xl font-bold animate-bounce";
+                statusIcon.innerHTML = `<i class="fa-solid fa-star"></i>`;
+                
+                const currentLCM = lcm(blockA.len, blockB.len);
+                const isLCM = (totalA === currentLCM);
+
+                statusTitle.innerHTML = `<span class="text-amber-300 font-extrabold text-lg">🎉 長度完美對齊！總長 = ${totalA} cm</span>`;
+                statusDesc.innerHTML = `${totalA} 是 ${blockA.len} 與 ${blockB.len} 的<b>公倍數</b>！` + (isLCM ? `<span class="text-amber-200 font-bold ml-1">(這也是最小公倍數 LCM！)</span>` : '');
+
+                playChimeSound();
+            } else {
+                statusCard.className = "mt-6 p-4 rounded-2xl bg-white/5 border border-white/10 flex flex-col sm:flex-row justify-between items-center gap-4 transition-all duration-300";
+                statusIcon.className = "w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400";
+                statusIcon.innerHTML = `<i class="fa-solid fa-scale-unbalanced text-lg"></i>`;
+                statusTitle.innerText = "目前長度未對齊";
+                statusDesc.innerText = `積木A總長 (${totalA}cm) 與 積木B總長 (${totalB}cm) 尚不相等。`;
+            }
+        }
+
+        // 一鍵自動對齊至最小公倍數
+        function autoAlignLCM() {
+            const targetLCM = lcm(blockA.len, blockB.len);
+            const countA = targetLCM / blockA.len;
+            const countB = targetLCM / blockB.len;
+
+            document.getElementById('input-countA').value = countA;
+            document.getElementById('input-countB').value = countB;
+            updateBlocks();
+        }
+
+        // Web Audio API 音效
+        function playChimeSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(659.25, ctx.currentTime + 0.15);
+                osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.3);
+                
+                gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+                
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                
+                osc.start();
+                osc.stop(ctx.currentTime + 0.5);
+            } catch(e) {}
+        }
+
+        // 渲染 5 題歷程評量
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            quizData.forEach((q) => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-900/70 border border-white/10 rounded-2xl p-5 sm:p-6 space-y-4";
+
+                let optionsHTML = '';
+                q.options.forEach((opt, optIndex) => {
+                    const isSelected = userAnswers[q.id] === optIndex;
+                    let optStyle = 'bg-slate-800/60 border-white/10 text-slate-300 hover:bg-slate-800 hover:border-white/20';
+                    let checkStyle = 'border-slate-500';
+                    let checkContent = '';
+                    
+                    if (isSelected) {
+                        optStyle = 'bg-cyan-500/20 border-cyan-400 text-cyan-200 font-bold';
+                        checkStyle = 'border-cyan-400 bg-cyan-400 text-slate-900';
+                        checkContent = '✓';
+                    }
+                    
+                    if (isQuizSubmitted) {
+                        optionsHTML += `
+                            <button disabled class="w-full cursor-default opacity-90">
+                                <div class="w-full text-left p-3.5 rounded-xl border transition-all text-sm flex items-center justify-between ${optStyle}">
+                                    <span>${opt}</span>
+                                    <span class="w-5 h-5 rounded-full border flex items-center justify-center text-xs ${checkStyle}">
+                                        ${checkContent}
+                                    </span>
+                                </div>
+                            </button>
+                        `;
+                    } else {
+                        optionsHTML += `
+                            <button onclick="selectAnswer(${q.id}, ${optIndex})" class="w-full">
+                                <div class="w-full text-left p-3.5 rounded-xl border transition-all text-sm flex items-center justify-between ${optStyle}">
+                                    <span>${opt}</span>
+                                    <span class="w-5 h-5 rounded-full border flex items-center justify-center text-xs ${checkStyle}">
+                                        ${checkContent}
+                                    </span>
+                                </div>
+                            </button>
+                        `;
+                    }
+                });
+
+                let feedbackHTML = '';
+                if (isQuizSubmitted) {
+                    if (userAnswers[q.id] === undefined) {
+                        feedbackHTML = `
+                            <div class="mt-3 p-3.5 rounded-xl text-sm font-medium bg-amber-500/20 border border-amber-500/40 text-amber-200">
+                                <div class="font-bold flex items-center gap-2">
+                                    <i class="fa-solid fa-triangle-exclamation text-amber-400"></i> 未作答。
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        const isCorrect = userAnswers[q.id] === q.correct;
+                        feedbackHTML = `
+                            <div class="mt-3 p-3.5 rounded-xl text-xs sm:text-sm font-medium ${
+                                isCorrect ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-200' : 'bg-rose-500/20 border border-rose-500/40 text-rose-200'
+                            }">
+                                <div class="font-bold flex items-center gap-2 mb-1">
+                                    ${isCorrect ? '<i class="fa-solid fa-circle-check text-emerald-400"></i> 回答正確！' : '<i class="fa-solid fa-circle-xmark text-rose-400"></i> 答案不正確喔！正確解析如下：'}
+                                </div>
+                                <div>${q.explanation}</div>
+                            </div>
+                        `;
+                    }
+                }
+
+                card.innerHTML = `
+                    <div class="font-bold text-white text-base sm:text-lg">${q.question}</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        ${optionsHTML}
+                    </div>
+                    ${feedbackHTML}
+                `;
+
+                container.appendChild(card);
+            });
+
+            updateScore();
+            
+            const submitBtn = document.getElementById('btn-submit-quiz');
+            if (submitBtn) {
+                if (isQuizSubmitted) {
+                    submitBtn.classList.add('hidden');
+                } else {
+                    submitBtn.classList.remove('hidden');
+                }
+            }
+        }
+
+        // 選擇測驗答案
+        function selectAnswer(questionId, optionIndex) {
+            if (isQuizSubmitted) return;
+            userAnswers[questionId] = optionIndex;
+            renderQuiz();
+        }
+
+        // 更新得分計算
+        function updateScore() {
+            let score = 0;
+            if (isQuizSubmitted) {
+                quizData.forEach(q => {
+                    if (userAnswers[q.id] === q.correct) {
+                        score += 20;
+                    }
+                });
+            }
+            const scoreEl = document.getElementById('quiz-score');
+            if (scoreEl) {
+                scoreEl.innerText = `${score} / 100`;
+            }
+        }
+        
+        // 提交測驗
+        function submitQuiz() {
+            isQuizSubmitted = true;
+            renderQuiz();
+            document.getElementById('section-quiz').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 重設測驗
+        function resetQuiz() {
+            userAnswers = {};
+            isQuizSubmitted = false;
+            renderQuiz();
+            const scoreEl = document.getElementById('quiz-score');
+            if (scoreEl) {
+                scoreEl.innerText = '0 / 100';
+            }
+        }
+
+        // 初始化載入
+        window.addEventListener('DOMContentLoaded', () => {
+            updateBlocks();
+            switchTab('blocks');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6-4 平均問題 - 移多補少互動教室</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Noto Sans TC -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans TC', system-ui, sans-serif;
+            background: linear-gradient(160deg, #0f2027 0%, #203a43 25%, #2c5364 50%, #3a6073 70%, #d4a373 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #2D3748;
+        }
+
+        .shinkai-bg-glow {
+            position: fixed;
+            top: -10%;
+            right: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(255, 236, 179, 0.25) 0%, rgba(255, 182, 193, 0.15) 50%, rgba(255, 255, 255, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            animation: pulse-glow 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            0% { transform: scale(1) translate(0, 0); opacity: 0.8; }
+            100% { transform: scale(1.1) translate(-20px, 20px); opacity: 1; }
+        }
+
+        /* 玻璃擬態卡片 */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 點陣圓圈樣式 */
+        .dot-item {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+
+        /* 例題3大圓點 */
+        .dot-item-large {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 900;
+            line-height: 1;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+
+        .dot-solid-green { background-color: #2ecc71; color: white; }
+        .dot-solid-blue { background-color: #3498db; color: white; }
+        .dot-solid-orange { background-color: #e67e22; color: white; }
+        .dot-solid-purple { background-color: #9b59b6; color: white; }
+        .dot-solid-yellow { background-color: #f1c40f; color: #5c3d00; }
+        
+        /* 多出平均部分：外框改為紅色粗體實線 */
+        .dot-surplus {
+            border: 2.5px solid #ef4444 !important;
+            box-sizing: border-box;
+        }
+
+        .dot-deficit {
+            border: 2px dashed #e74c3c;
+            background-color: rgba(231, 76, 60, 0.1);
+            color: transparent;
+        }
+
+        /* 不足平均的半個圓點 (半圓虛線) */
+        .dot-half-deficit {
+            width: 8px !important;
+            height: 16px;
+            border-radius: 16px 0 0 16px;
+            border: 2px dashed #e74c3c;
+            border-right: none;
+            background-color: rgba(231, 76, 60, 0.1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+
+        .dot-half-deficit-large {
+            width: 13px !important;
+            height: 26px;
+            border-radius: 26px 0 0 26px;
+            border: 2px dashed #e74c3c;
+            border-right: none;
+            background-color: rgba(231, 76, 60, 0.1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            flex-shrink: 0;
+            font-size: 8px;
+            color: transparent;
+        }
+
+        /* 滑桿樣式 */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: #E2E8F0;
+            border-radius: 8px;
+            height: 8px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 22px;
+            width: 22px;
+            border-radius: 50%;
+            background: #3B82F6;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.5);
+            transition: transform 0.1s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* 長條圖直角與色彩定義 */
+        .bar-base-blue { 
+            background-color: #93C5FD;
+            border: 1.5px solid #2563EB;
+        }
+        .bar-surplus-orange { 
+            background-color: #FFC085;
+            border: 1.5px solid #EA580C;
+        }
+        .bar-deficit-red { 
+            background-color: rgba(252, 165, 165, 0.45);
+            border: 1.5px dashed #ef4444;
+        }
+    </style>
+</head>
+<body class="relative p-3 md:p-6 overflow-x-hidden">
+    <div class="shinkai-bg-glow"></div>
+
+    <div class="max-w-5xl mx-auto relative z-10">
+        <!-- 頂部標誌列：閒雲數學小棧 -->
+        <div class="w-full max-w-5xl flex items-center justify-start mb-4 px-2 fade-in">
+            <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+            <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+        </div>
+
+        <!-- 頁首標題區 -->
+        <header class="glass-card rounded-3xl p-6 mb-6 text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-sky-400 via-indigo-500 to-pink-400"></div>
+            <div class="inline-block px-4 py-1 bg-sky-100 text-sky-800 rounded-full text-xs font-bold tracking-wide mb-2">
+                <i class="fa-solid fa-cloud-sun mr-1"></i> 國小五上數學 6-4 互動學習網頁
+            </div>
+            <h1 class="text-2xl md:text-4xl font-black text-slate-800 tracking-tight">
+                「平均問題」移多補少互動教室
+            </h1>
+            <p class="text-slate-600 text-sm md:text-base mt-2 max-w-2xl mx-auto">
+                觀察點陣移多補少過程，並搭配精準座標長條圖與平均線，掌握「總和 ÷ 個數 = 平均」！
+            </p>
+        </header>
+
+        <nav class="flex flex-wrap justify-center mb-6 gap-2 md:gap-4">
+            <button onclick="switchTab('dot')" id="tab-dot" class="tab-btn px-4 md:px-5 py-2.5 rounded-2xl font-bold text-sm md:text-base transition-all duration-300 glass-card text-sky-600 shadow-md">
+                <i class="fa-solid fa-braille mr-2"></i>1. 點陣圖 (移多補少觀念)
+            </button>
+            <button onclick="switchTab('bar')" id="tab-bar" class="tab-btn px-4 md:px-5 py-2.5 rounded-2xl font-bold text-sm md:text-base transition-all duration-300 opacity-70 hover:opacity-100 text-slate-700 glass-card">
+                <i class="fa-solid fa-chart-simple mr-2"></i>2. 直角長條圖 (座標與平均線)
+            </button>
+            <button onclick="switchTab('lab')" id="tab-lab" class="tab-btn px-4 md:px-5 py-2.5 rounded-2xl font-bold text-sm md:text-base transition-all duration-300 opacity-70 hover:opacity-100 text-slate-700 glass-card">
+                <i class="fa-solid fa-flask mr-2"></i>3. 自由實驗室
+            </button>
+            <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn px-4 md:px-5 py-2.5 rounded-2xl font-bold text-sm md:text-base transition-all duration-300 opacity-70 hover:opacity-100 text-slate-700 glass-card">
+                <i class="fa-solid fa-circle-check mr-2"></i>4. 觀念大挑戰
+            </button>
+        </nav>
+
+        <!-- ==================== TAB 1: 點陣圖 (移多補少) ==================== -->
+        <main id="content-dot" class="space-y-6">
+            <div class="glass-card rounded-3xl p-6">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-slate-200 pb-4">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                        <i class="fa-solid fa-shapes text-sky-500 mr-2"></i> 課本例題 (點陣移多補少)
+                    </h2>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="loadPreset('cookies')" id="dot-preset-cookies" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-500 text-white shadow">
+                            例題1: 餅乾 (單位: 1)
+                        </button>
+                        <button onclick="loadPreset('mungbeans')" id="dot-preset-mungbeans" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300">
+                            例題2: 綠豆 (單位: 1)
+                        </button>
+                        <button onclick="loadPreset('lunch')" id="dot-preset-lunch" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300">
+                            例題3: 午餐 (單位: 10)
+                        </button>
+                    </div>
+                </div>
+
+                <p id="dot-description" class="text-slate-700 font-medium mb-4 bg-sky-50/80 p-3 rounded-xl border border-sky-100">
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    <div class="lg:col-span-4 space-y-4">
+                        <div class="bg-white/80 p-4 rounded-2xl border border-slate-100 space-y-3" id="dot-sliders-container">
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button onclick="triggerDotBalanceAnimation()" class="w-full py-3 bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-500 hover:to-orange-500 text-white font-bold rounded-2xl shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> 一鍵執行「移多補少」
+                            </button>
+                            <button onclick="resetCurrentPreset()" class="px-4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-2xl transition">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-8 bg-white/95 rounded-2xl p-6 border border-slate-200 relative min-h-[320px] flex flex-col justify-between shadow-inner overflow-x-auto">
+                        <div class="flex justify-between items-center mb-3 border-b border-slate-100 pb-2">
+                            <span class="text-xs font-bold text-slate-600"><i class="fa-solid fa-braille text-sky-500 mr-1"></i> 點陣觀察圖</span>
+                            <span id="unit-badge" class="text-xs font-bold px-2.5 py-1 bg-amber-100 text-amber-800 rounded-lg">
+                                單位：1
+                            </span>
+                        </div>
+
+                        <div id="dot-matrix-display" class="space-y-4 my-auto relative py-2">
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap gap-4 text-xs font-bold text-slate-600">
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3.5 h-3.5 rounded-full border-2 border-red-500 bg-orange-400 inline-block"></span>
+                                <span>多出平均的部分 (紅色粗體實線外框)</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3.5 h-3.5 rounded-full border-2 border-dashed border-red-500 bg-red-50 inline-block"></span>
+                                <span>不足平均的填補位置</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 bg-amber-50/80 border border-amber-200/80 rounded-2xl p-4">
+                    <h3 class="font-bold text-amber-900 flex items-center gap-2 mb-1 text-sm">
+                        <i class="fa-solid fa-calculator text-amber-600"></i> 解題步驟與算式：
+                    </h3>
+                    <div class="text-slate-800 font-mono text-sm md:text-base bg-white p-3 rounded-xl border border-amber-100 shadow-sm" id="dot-formula-display">
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ==================== TAB 2: 直角長條圖 (米黃底色 + 淺橙多出) ==================== -->
+        <main id="content-bar" class="space-y-6 hidden">
+            <div class="glass-card rounded-3xl p-6">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-slate-200 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-chart-column text-indigo-500 mr-2"></i> 直角長條圖與精準平均線
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">藍色為基礎值，淺橙色為多出平均，淺紅色虛線區塊為不足平均延伸至平均線部分。</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="loadPreset('cookies')" id="bar-preset-cookies" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-500 text-white shadow">
+                            例題1: 餅乾
+                        </button>
+                        <button onclick="loadPreset('mungbeans')" id="bar-preset-mungbeans" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300">
+                            例題2: 綠豆
+                        </button>
+                        <button onclick="loadPreset('lunch')" id="bar-preset-lunch" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300">
+                            例題3: 午餐
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    <div class="lg:col-span-4 space-y-4">
+                        <div class="bg-white/80 p-4 rounded-2xl border border-slate-100 space-y-3" id="bar-sliders-container">
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-8 bg-[#FFFDF0] border border-amber-200/80 rounded-2xl p-6 text-slate-800 relative min-h-[380px] flex flex-col justify-between shadow-md overflow-hidden">
+                        
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-200/80 pb-3 text-xs z-10">
+                            <div class="flex items-center gap-3 font-bold">
+                                <span class="flex items-center gap-1"><span class="w-3 h-3 inline-block bar-base-blue"></span> 基礎/平均內</span>
+                                <span class="flex items-center gap-1"><span class="w-3 h-3 inline-block bar-surplus-orange"></span> 多出平均</span>
+                                <span class="flex items-center gap-1"><span class="w-3 h-3 inline-block bar-deficit-red"></span> 不足平均延伸</span>
+                            </div>
+                            <span class="text-sky-700 font-bold"><i class="fa-solid fa-ruler-combined mr-1"></i> 精準 Y 軸座標軸</span>
+                        </div>
+
+                        <div class="relative flex-1 flex items-stretch mt-4 mb-2">
+                            <div class="w-10 flex flex-col-reverse justify-between text-[11px] text-slate-500 font-mono pr-2 border-r border-amber-300/80" id="y-axis-ticks">
+                            </div>
+
+                            <div class="flex-1 relative ml-0 flex items-end border-b-2 border-amber-300/80" id="bar-chart-container">
+                                <div class="absolute inset-0 flex flex-col-reverse justify-between pointer-events-none" id="grid-lines">
+                                </div>
+
+                                <div class="w-full h-full grid z-10" id="bars-render-area">
+                                </div>
+
+                                <div id="precise-avg-line" class="absolute left-0 right-0 border-b-2 border-dashed border-sky-600 z-20 pointer-events-none transition-all duration-500 flex items-center justify-end" style="bottom: 0%;">
+                                    <span class="bg-sky-500 text-white font-black text-xs px-2.5 py-1 rounded shadow-md -mt-3 mr-2">
+                                        平均: <span id="precise-avg-val">0</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid ml-10 text-xs text-slate-700 font-bold pt-2" id="x-axis-labels">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ==================== TAB 3: 自由數據實驗室 (米黃底色) ==================== -->
+        <main id="content-lab" class="space-y-6 hidden">
+            <div class="glass-card rounded-3xl p-6">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-slate-200 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-flask text-indigo-500 mr-2"></i>自由數據實驗室</h2>
+                        <p class="text-xs text-slate-500 mt-1">自由增減項目與數值，即時觀察長條圖與平均線的連動！</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="addLabItem()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> 新增項目
+                        </button>
+                        <button onclick="removeLabItem()" class="px-3 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded-xl transition flex items-center gap-1">
+                            <i class="fa-solid fa-minus"></i> 減少項目
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    <div class="md:col-span-4 space-y-3 bg-white/80 p-4 rounded-2xl border border-slate-100 max-h-[400px] overflow-y-auto" id="lab-inputs">
+                    </div>
+
+                    <div class="md:col-span-8 bg-[#FFFDF0] border border-amber-200/80 rounded-2xl p-6 text-slate-800 flex flex-col justify-between relative min-h-[350px]">
+                        <div class="relative flex-1 flex items-stretch">
+                            <div class="w-10 flex flex-col-reverse justify-between text-[11px] text-slate-500 font-mono pr-2 border-r border-amber-300/80" id="lab-y-ticks"></div>
+                            
+                            <div class="flex-1 relative ml-0 flex items-end justify-around border-b-2 border-amber-300/80" id="lab-chart-area">
+                                <div class="absolute inset-0 flex flex-col-reverse justify-between pointer-events-none" id="lab-grid-lines"></div>
+                                <div class="w-full h-full flex items-end justify-around z-10" id="lab-bars-render"></div>
+                                <div id="lab-avg-line-elem" class="absolute left-0 right-0 border-b-2 border-dashed border-sky-600 z-20 pointer-events-none transition-all duration-500 flex items-center justify-end" style="bottom: 0%;">
+                                    <span class="bg-sky-500 text-white font-black text-xs px-2 py-0.5 rounded shadow -mt-3 mr-2">
+                                        平均: <span id="lab-avg-val">0</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-around ml-10 text-xs text-slate-700 font-bold pt-2" id="lab-x-labels"></div>
+
+                        <div class="mt-4 bg-amber-100/60 p-3 rounded-xl text-center border border-amber-200/80">
+                            <div class="text-xs text-slate-600">總和 ÷ 項數 = 平均</div>
+                            <div class="text-base md:text-lg font-black text-indigo-700 font-mono" id="lab-formula-text">0 ÷ 0 = 0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ==================== TAB 4: 歷程性評量 ==================== -->
+        <main id="content-quiz" class="space-y-6 hidden">
+            <div class="glass-card rounded-3xl p-6">
+                <div class="flex items-center justify-between mb-6 border-b border-slate-200 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-clipboard-question text-emerald-500 mr-2"></i>單元觀念檢測站</h2>
+                        <p class="text-xs text-slate-500 mt-1">共 5 題，測試你對「移多補少」與「平均數算式」的理解！</p>
+                    </div>
+                    <div class="bg-emerald-100 text-emerald-800 px-4 py-1.5 rounded-2xl font-bold text-sm" id="score-badge">
+                        得分: 0 / 100
+                    </div>
+                </div>
+
+                <div class="space-y-6" id="quiz-container">
+                </div>
+
+                <div class="mt-8 flex flex-wrap justify-center gap-4">
+                    <button onclick="checkAllAnswers()" class="px-8 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold rounded-2xl shadow-xl transition transform active:scale-95 text-base">
+                        <i class="fa-solid fa-paper-plane mr-2"></i> 提交答案
+                    </button>
+                    <button onclick="resetQuiz()" class="px-8 py-3.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-2xl shadow-md transition transform active:scale-95 text-base">
+                        <i class="fa-solid fa-rotate-left mr-2"></i> 重新測驗
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ==================== STATE MANAGEMENT ====================
+        let currentTab = 'dot';
+        
+        // 課本預設情境資料
+        const presets = {
+            cookies: {
+                key: 'cookies',
+                title: "例題1: 餅乾合買 (3人)",
+                desc: "皮皮出 17 元，丹丹出 20 元，妮妮出 23 元。如果 3 人平分餅乾錢，平均一人要出幾元？",
+                unitName: "元",
+                unitScale: 1, 
+                groupSize: 5, 
+                items: [
+                    { name: "皮皮", value: 17, colorClass: "dot-solid-green" },
+                    { name: "丹丹", value: 20, colorClass: "dot-solid-blue" },
+                    { name: "妮妮", value: 23, colorClass: "dot-solid-orange" }
+                ],
+                maxScale: 30
+            },
+            mungbeans: {
+                key: 'mungbeans',
+                title: "例題2: 採收綠豆 (3天)",
+                desc: "李伯伯第一天採收 68 公斤，第二天採收 82 公斤，第三天採收 93 公斤，平均一天採收幾公斤？",
+                unitName: "公斤",
+                unitScale: 1, 
+                groupSize: 10, 
+                items: [
+                    { name: "第一天", value: 68, colorClass: "dot-solid-green" },
+                    { name: "第二天", value: 82, colorClass: "dot-solid-blue" },
+                    { name: "第三天", value: 93, colorClass: "dot-solid-purple" }
+                ],
+                maxScale: 110
+            },
+            lunch: {
+                key: 'lunch',
+                title: "例題3: 午餐花費 (4天)",
+                desc: "爸爸星期一到星期四午餐花費分別為 120元、120元、80元、80元，平均每天花幾元？",
+                unitName: "元",
+                unitScale: 10, // 1 個點 = 10元
+                groupSize: 5, 
+                step: 10, // 個位數恆為 0
+                items: [
+                    { name: "星期一", value: 120, colorClass: "dot-solid-orange" }, // 橙
+                    { name: "星期二", value: 120, colorClass: "dot-solid-yellow" }, // 黃
+                    { name: "星期三", value: 80, colorClass: "dot-solid-blue" },   // 藍
+                    { name: "星期四", value: 80, colorClass: "dot-solid-green" }   // 綠
+                ],
+                maxScale: 200
+            }
+        };
+
+        let currentDataKey = 'cookies';
+        let activeData = JSON.parse(JSON.stringify(presets.cookies));
+
+        let labItems = [
+            { name: "項目 1", value: 40 },
+            { name: "項目 2", value: 60 },
+            { name: "項目 3", value: 80 }
+        ];
+
+        const quizQuestions = [
+            {
+                id: 1,
+                title: "基礎算式理解",
+                question: "李伯伯採收綠豆，三天分別採收 68 公斤、82 公斤、93 公斤。求平均數的正確算式為何？",
+                options: [
+                    "( 68 + 82 + 93 ) ÷ 3",
+                    "( 68 + 82 + 93 ) × 3",
+                    "68 + 82 + 93 ÷ 3",
+                    "( 68 + 93 ) ÷ 2"
+                ],
+                answer: 0,
+                explanation: "求平均數要先算「總和」，加上括號後再「除以總項數(3)」。"
+            },
+            {
+                id: 2,
+                title: "多位數平均數計算",
+                question: "多多 4 次數學小考分數分別為 85 分、92 分、88 分和 95 分，這 4 次小考的平均分數是幾分？",
+                options: [
+                    "88 分",
+                    "90 分",
+                    "92 分",
+                    "95 分"
+                ],
+                answer: 1,
+                explanation: "( 85 + 92 + 88 + 95 ) ÷ 4 = 360 ÷ 4 = 90 分。"
+            },
+            {
+                id: 3,
+                title: "以多補少概念驗證",
+                question: "小宇前三個月分別存了 76 元、42 元、56 元，若要用「移多補少」觀念，平攤後平均一個月存多少元？",
+                options: [
+                    "50 元",
+                    "56 元",
+                    "58 元",
+                    "60 元"
+                ],
+                answer: 2,
+                explanation: "( 76 + 42 + 56 ) ÷ 3 = 174 ÷ 3 = 58 元。"
+            },
+            {
+                id: 4,
+                title: "觀念推測題",
+                question: "若原本有 4 個數的平均是 80。現在如果把其中一個數增大 20，總和增加了 20，那麼新的平均數會增加多少？",
+                options: [
+                    "平均數不變",
+                    "平均數增加 20",
+                    "平均數增加 5",
+                    "平均數減少 5"
+                ],
+                answer: 2,
+                explanation: "增加的 20 會平分給 4 個數，所以平均數增加 20 ÷ 4 = 5。"
+            },
+            {
+                id: 5,
+                title: "生活素養進階題",
+                question: "皮皮、美美和妮妮合買禮物，平攤後平均每人要付 250 元。若美美付了 500 元，妮妮付了 80 元，關於皮皮的說明何者正確？",
+                options: [
+                    "皮皮付了 170 元，且妮妮與皮皮都需要再給美美錢",
+                    "皮皮付了 250 元，剛好不欠任何人錢",
+                    "美美付的錢不夠，需要再付錢給皮皮",
+                    "總金額為 500 元"
+                ],
+                answer: 0,
+                explanation: "總金額 = 250 × 3 = 750元。皮皮付了 750 - 500 - 80 = 170元。因為皮皮(170)與妮妮(80)都低於平均值(250)，故兩人皆需給美美錢！"
+            }
+        ];
+
+        function switchTab(tab) {
+            currentTab = tab;
+            ['dot', 'bar', 'lab', 'quiz'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                const content = document.getElementById(`content-${t}`);
+                if (t === tab) {
+                    btn.classList.remove('opacity-70', 'text-slate-700');
+                    btn.classList.add('text-sky-600', 'shadow-md');
+                    content.classList.remove('hidden');
+                } else {
+                    btn.classList.add('opacity-70', 'text-slate-700');
+                    btn.classList.remove('text-sky-600', 'shadow-md');
+                    content.classList.add('hidden');
+                }
+            });
+
+            if (tab === 'dot') renderDotTab();
+            if (tab === 'bar') renderBarTab();
+            if (tab === 'lab') renderLabTab();
+            if (tab === 'quiz') renderQuizTab();
+        }
+
+        function loadPreset(key) {
+            currentDataKey = key;
+            activeData = JSON.parse(JSON.stringify(presets[key]));
+
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.remove('bg-sky-500', 'text-white', 'shadow');
+                btn.classList.add('bg-slate-200', 'text-slate-700');
+            });
+            const dotBtn = document.getElementById(`dot-preset-${key}`);
+            const barBtn = document.getElementById(`bar-preset-${key}`);
+            if (dotBtn) {
+                dotBtn.classList.remove('bg-slate-200', 'text-slate-700');
+                dotBtn.classList.add('bg-sky-500', 'text-white', 'shadow');
+            }
+            if (barBtn) {
+                barBtn.classList.remove('bg-slate-200', 'text-slate-700');
+                barBtn.classList.add('bg-sky-500', 'text-white', 'shadow');
+            }
+
+            if (currentTab === 'dot') renderDotTab();
+            if (currentTab === 'bar') renderBarTab();
+        }
+
+        function resetCurrentPreset() {
+            activeData = JSON.parse(JSON.stringify(presets[currentDataKey]));
+            if (currentTab === 'dot') renderDotTab();
+            if (currentTab === 'bar') renderBarTab();
+        }
+
+        function renderDotTab() {
+            document.getElementById('dot-description').innerText = activeData.desc;
+            document.getElementById('unit-badge').innerText = `1 個圓點 = ${activeData.unitScale} ${activeData.unitName}`;
+
+            const sliderContainer = document.getElementById('dot-sliders-container');
+            sliderContainer.innerHTML = '';
+            
+            const min = 0;
+            const max = activeData.maxScale;
+            const mid = Math.round((min + max) / 2);
+            const step = activeData.step || 1;
+
+            activeData.items.forEach((item, index) => {
+                const row = document.createElement('div');
+                row.className = 'space-y-1';
+                row.innerHTML = `
+                    <div class="flex justify-between text-sm font-bold text-slate-700">
+                        <span>${item.name}</span>
+                        <span class="text-sky-600 font-mono">${item.value} ${activeData.unitName}</span>
+                    </div>
+                    <input type="range" min="${min}" max="${max}" step="${step}" value="${item.value}" 
+                        oninput="updateDataValue(${index}, this.value)" class="w-full">
+                    <div class="flex justify-between text-[10px] text-slate-400 font-mono px-0.5">
+                        <span>${min}</span>
+                        <span>${mid}</span>
+                        <span>${max}</span>
+                    </div>
+                `;
+                sliderContainer.appendChild(row);
+            });
+
+            renderDotMatrixVisual();
+        }
+
+        function updateDataValue(index, val) {
+            activeData.items[index].value = parseInt(val) || 0;
+            if (currentTab === 'dot') renderDotMatrixVisual();
+            if (currentTab === 'bar') renderBarChartVisual();
+        }
+
+        function renderDotMatrixVisual() {
+            const items = activeData.items;
+            const scale = activeData.unitScale;
+            const groupSize = activeData.groupSize;
+            const total = items.reduce((sum, item) => sum + item.value, 0);
+            const count = items.length;
+            const avg = total / count;
+            const avgUnits = avg / scale;
+            const isLunch = (activeData.key === 'lunch');
+            
+            // 每列最大點數設定：例題1、2為20點，例題3為14點
+            const maxDotsPerRow = isLunch ? 14 : 20;
+
+            const matrixContainer = document.getElementById('dot-matrix-display');
+            matrixContainer.innerHTML = '';
+
+            items.forEach((item) => {
+                const itemUnits = item.value / scale;
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'flex items-center gap-2 text-xs w-full justify-start';
+
+                // 姓名標籤：緊靠左側
+                const nameLabel = document.createElement('span');
+                nameLabel.className = 'w-14 pt-0.5 font-bold text-slate-800 underline decoration-sky-400 decoration-2 text-left shrink-0';
+                nameLabel.innerText = item.name;
+                rowDiv.appendChild(nameLabel);
+
+                // 點陣與數值區域容器（精準依 20 或 15 個點設定寬度，並留出舒適邊距）
+                const contentGroup = document.createElement('div');
+                contentGroup.className = 'flex items-center gap-3';
+
+                const linesContainer = document.createElement('div');
+                // 依據各例題需求設定專屬點陣底框寬度
+                let containerWidthClass = 'w-[450px]';
+                if (activeData.key === 'mungbeans') {
+                    containerWidthClass = 'w-[430px]';
+                } else if (activeData.key === 'lunch') {
+                    containerWidthClass = 'w-[460px]';
+                }
+                linesContainer.className = `flex flex-col gap-1.5 ${containerWidthClass} bg-slate-50 p-2.5 rounded-xl border border-slate-200 shrink-0`;
+
+                const displayTotalUnits = Math.max(itemUnits, Math.ceil(avgUnits));
+                let currentLineDiv = null;
+
+                for (let u = 1; u <= Math.ceil(displayTotalUnits); u++) {
+                    if ((u - 1) % maxDotsPerRow === 0) {
+                        currentLineDiv = document.createElement('div');
+                        currentLineDiv.className = 'flex items-center gap-1 flex-nowrap';
+                        linesContainer.appendChild(currentLineDiv);
+                    }
+
+                    // 檢查是否為不足平均的「半個圓點」情況 (例如 avgUnits = 20.5 時，第 21 個單位為半圓)
+                    const isHalfDeficit = (u > Math.floor(avgUnits) && u <= Math.ceil(avgUnits) && (avgUnits % 1 !== 0) && itemUnits < avgUnits);
+
+                    const dot = document.createElement('span');
+
+                    if (isHalfDeficit) {
+                        // 渲染半個圓點
+                        dot.className = isLunch ? 'dot-half-deficit-large' : 'dot-half-deficit';
+                        dot.title = '不足0.5個單位';
+                    } else {
+                        // 正常圓點
+                        if (isLunch) {
+                            dot.className = `dot-item-large ${item.colorClass}`;
+                            dot.innerText = '10';
+                        } else {
+                            dot.className = `dot-item ${item.colorClass}`;
+                        }
+                        
+                        if (u <= itemUnits && u <= avgUnits) {
+                            // 基礎點
+                        } else if (u > avgUnits && u <= itemUnits) {
+                            // 多出平均：紅色粗體實線外框
+                            dot.classList.add('dot-surplus');
+                            dot.title = '多出的數量';
+                        } else if (u > itemUnits && u <= avgUnits) {
+                            // 不足平均：虛線框點
+                            dot.className = isLunch ? 'dot-item-large dot-deficit' : 'dot-item dot-deficit';
+                            dot.title = '缺少的數量';
+                        }
+                    }
+
+                    currentLineDiv.appendChild(dot);
+
+                    if (u % groupSize === 0 && u % maxDotsPerRow !== 0 && u < displayTotalUnits) {
+                        const divider = document.createElement('span');
+                        divider.className = `${isLunch ? 'h-6' : 'h-4'} border-r border-dashed border-slate-300 mx-0.5 inline-block shrink-0`;
+                        currentLineDiv.appendChild(divider);
+                    }
+                }
+
+                contentGroup.appendChild(linesContainer);
+
+                // 金額/數量標籤：稍微往右移動留出足夠間距，避免與圖形重合
+                const valTag = document.createElement('div');
+                valTag.className = 'font-mono font-bold text-slate-700 text-xs shrink-0 whitespace-nowrap ml-3';
+                valTag.innerText = `${item.value} ${activeData.unitName}`;
+                contentGroup.appendChild(valTag);
+
+                rowDiv.appendChild(contentGroup);
+                matrixContainer.appendChild(rowDiv);
+            });
+
+            const formattedAvg = Number.isInteger(avg) ? avg : avg.toFixed(1);
+            const sumExpression = items.map(i => i.value).join(' + ');
+            document.getElementById('dot-formula-display').innerHTML = `
+                <div>1. 求總和：${sumExpression} = <span class="text-indigo-600 font-bold">${total}</span> ${activeData.unitName}</div>
+                <div class="mt-1">2. 求平均：( ${sumExpression} ) ÷ ${count} = <span class="text-emerald-600 font-bold">${total} ÷ ${count} = ${formattedAvg}</span> ${activeData.unitName}</div>
+            `;
+        }
+
+        function triggerDotBalanceAnimation() {
+            const items = activeData.items;
+            const total = items.reduce((s, i) => s + i.value, 0);
+            const avg = Math.round(total / items.length);
+
+            items.forEach(i => i.value = avg);
+            renderDotTab();
+        }
+
+        function renderBarTab() {
+            const sliderContainer = document.getElementById('bar-sliders-container');
+            sliderContainer.innerHTML = '';
+            
+            const min = 0;
+            const max = activeData.maxScale;
+            const mid = Math.round((min + max) / 2);
+            const step = activeData.step || 1;
+
+            activeData.items.forEach((item, index) => {
+                const row = document.createElement('div');
+                row.className = 'space-y-1';
+                row.innerHTML = `
+                    <div class="flex justify-between text-sm font-bold text-slate-700">
+                        <span>${item.name}</span>
+                        <span class="text-sky-600 font-mono">${item.value} ${activeData.unitName}</span>
+                    </div>
+                    <input type="range" min="${min}" max="${max}" step="${step}" value="${item.value}" 
+                        oninput="updateDataValue(${index}, this.value)" class="w-full">
+                    <div class="flex justify-between text-[10px] text-slate-400 font-mono px-0.5">
+                        <span>${min}</span>
+                        <span>${mid}</span>
+                        <span>${max}</span>
+                    </div>
+                `;
+                sliderContainer.appendChild(row);
+            });
+
+            renderBarChartVisual();
+        }
+
+        function renderBarChartVisual() {
+            const items = activeData.items;
+            const total = items.reduce((s, i) => s + i.value, 0);
+            const count = items.length;
+            const avg = total / count;
+            const maxScale = activeData.maxScale;
+
+            const yTicksContainer = document.getElementById('y-axis-ticks');
+            const gridContainer = document.getElementById('grid-lines');
+            yTicksContainer.innerHTML = '';
+            gridContainer.innerHTML = '';
+
+            const step = maxScale / 5;
+            for (let i = 0; i <= 5; i++) {
+                const val = Math.round(i * step);
+                const tick = document.createElement('div');
+                tick.innerText = val;
+                yTicksContainer.appendChild(tick);
+
+                const line = document.createElement('div');
+                // 網格橫線：0位置不顯虛線，其餘為虛線
+                if (i === 0) {
+                    line.className = 'w-full';
+                } else {
+                    line.className = 'border-b border-dashed border-amber-300/80 w-full';
+                }
+                gridContainer.appendChild(line);
+            }
+
+            const renderArea = document.getElementById('bars-render-area');
+            const xLabelsContainer = document.getElementById('x-axis-labels');
+            renderArea.innerHTML = '';
+            xLabelsContainer.innerHTML = '';
+
+            // 使用 CSS Grid 確保長條圖與下方文字 100% 垂直對齊
+            renderArea.className = `w-full h-full grid grid-cols-${count} items-end justify-items-center z-10`;
+            xLabelsContainer.className = `grid grid-cols-${count} justify-items-center ml-10 text-xs text-slate-700 font-bold pt-2`;
+
+            items.forEach(item => {
+                const val = item.value;
+                const col = document.createElement('div');
+                col.className = 'flex flex-col items-center justify-end h-full w-full max-w-[32px] relative z-10';
+
+                const totalBarHeightPct = (Math.max(val, avg) / maxScale) * 100;
+                
+                let innerHtml = `<span class="text-xs font-bold font-mono text-slate-800 mb-1 z-20">${val}</span>`;
+                innerHtml += `<div class="w-full flex flex-col justify-end transition-all duration-500" style="height: ${totalBarHeightPct}%;">`;
+
+                if (val >= avg) {
+                    const orangePct = ((val - avg) / val) * 100;
+                    const bluePct = 100 - orangePct;
+
+                    if (val > avg) {
+                        innerHtml += `<div class="w-full bar-surplus-orange transition-all duration-500" style="height: ${orangePct}%;" title="多出平均: ${val - avg}"></div>`;
+                    }
+                    innerHtml += `<div class="w-full bar-base-blue transition-all duration-500" style="height: ${bluePct}%;"></div>`;
+                } else {
+                    const redPct = ((avg - val) / avg) * 100;
+                    const bluePct = 100 - redPct;
+
+                    innerHtml += `<div class="w-full bar-deficit-red transition-all duration-500" style="height: ${redPct}%;" title="不足平均: ${avg - val}"></div>`;
+                    innerHtml += `<div class="w-full bar-base-blue transition-all duration-500" style="height: ${bluePct}%;"></div>`;
+                }
+
+                innerHtml += `</div>`;
+                col.innerHTML = innerHtml;
+                renderArea.appendChild(col);
+
+                const xLabel = document.createElement('span');
+                xLabel.className = 'text-center truncate w-full';
+                xLabel.innerText = item.name;
+                xLabelsContainer.appendChild(xLabel);
+            });
+
+            const avgLinePct = Math.min(100, Math.max(0, (avg / maxScale) * 100));
+            const avgLine = document.getElementById('precise-avg-line');
+            avgLine.style.bottom = `${avgLinePct}%`;
+            
+            const formattedAvg = Number.isInteger(avg) ? avg : avg.toFixed(1);
+            document.getElementById('precise-avg-val').innerText = `${formattedAvg} ${activeData.unitName}`;
+        }
+
+        function renderLabTab() {
+            const container = document.getElementById('lab-inputs');
+            container.innerHTML = '';
+
+            const min = 0;
+            const max = 100;
+            const mid = 50;
+
+            labItems.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'flex flex-col gap-1 bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm';
+                div.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-600">${item.name}</span>
+                        <span class="text-sm font-bold text-indigo-600 font-mono">${item.value}</span>
+                    </div>
+                    <input type="range" min="${min}" max="${max}" value="${item.value}" oninput="updateLabValue(${idx}, this.value)" class="w-full">
+                    <div class="flex justify-between text-[10px] text-slate-400 font-mono px-0.5">
+                        <span>${min}</span>
+                        <span>${mid}</span>
+                        <span>${max}</span>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            updateLabChartVisual();
+        }
+
+        function updateLabValue(idx, val) {
+            labItems[idx].value = parseInt(val) || 0;
+            renderLabTab();
+        }
+
+        function addLabItem() {
+            if (labItems.length < 6) {
+                labItems.push({ name: `項目 ${labItems.length + 1}`, value: 50 });
+                renderLabTab();
+            }
+        }
+
+        function removeLabItem() {
+            if (labItems.length > 2) {
+                labItems.pop();
+                renderLabTab();
+            }
+        }
+
+        function updateLabChartVisual() {
+            const total = labItems.reduce((s, i) => s + i.value, 0);
+            const count = labItems.length;
+            const avg = count > 0 ? (total / count) : 0;
+            const maxScale = 100;
+
+            const yTicks = document.getElementById('lab-y-ticks');
+            const gridLines = document.getElementById('lab-grid-lines');
+            yTicks.innerHTML = '';
+            gridLines.innerHTML = '';
+
+            for (let i = 0; i <= 5; i++) {
+                const val = i * 20;
+                const t = document.createElement('div');
+                t.innerText = val;
+                yTicks.appendChild(t);
+
+                const l = document.createElement('div');
+                if (i === 0) {
+                    l.className = 'w-full';
+                } else {
+                    l.className = 'border-b border-dashed border-amber-300/80 w-full';
+                }
+                gridLines.appendChild(l);
+            }
+
+            const renderArea = document.getElementById('lab-bars-render');
+            const xLabels = document.getElementById('lab-x-labels');
+            renderArea.innerHTML = '';
+            xLabels.innerHTML = '';
+
+            labItems.forEach(item => {
+                const val = item.value;
+                const col = document.createElement('div');
+                col.className = 'flex flex-col items-center justify-end h-full w-1/6 max-w-[28px] relative z-10';
+
+                const totalBarPct = (Math.max(val, avg) / maxScale) * 100;
+                let html = `<span class="text-xs font-bold font-mono text-slate-800 mb-1 z-20">${val}</span>`;
+                html += `<div class="w-full flex flex-col justify-end transition-all duration-300" style="height: ${totalBarPct}%;">`;
+
+                if (val >= avg) {
+                    const orangePct = ((val - avg) / val) * 100;
+                    const bluePct = 100 - orangePct;
+                    if (val > avg) html += `<div class="w-full bar-surplus-orange transition-all" style="height:${orangePct}%"></div>`;
+                    html += `<div class="w-full bar-base-blue transition-all" style="height:${bluePct}%"></div>`;
+                } else {
+                    const redPct = ((avg - val) / avg) * 100;
+                    const bluePct = 100 - redPct;
+                    html += `<div class="w-full bar-deficit-red transition-all" style="height:${redPct}%"></div>`;
+                    html += `<div class="w-full bar-base-blue transition-all" style="height:${bluePct}%"></div>`;
+                }
+
+                html += `</div>`;
+                col.innerHTML = html;
+                renderArea.appendChild(col);
+
+                const xL = document.createElement('span');
+                xL.className = 'text-center truncate w-12';
+                xL.innerText = item.name;
+                xLabels.appendChild(xL);
+            });
+
+            const avgLinePct = Math.min(100, Math.max(0, (avg / maxScale) * 100));
+            const avgLine = document.getElementById('lab-avg-line-elem');
+            avgLine.style.bottom = `${avgLinePct}%`;
+
+            const formattedAvg = Number.isInteger(avg) ? avg : avg.toFixed(1);
+            document.getElementById('lab-avg-val').innerText = formattedAvg;
+            document.getElementById('lab-formula-text').innerText = `( ${labItems.map(i=>i.value).join(' + ')} ) ÷ ${count} = ${total} ÷ ${count} = ${formattedAvg}`;
+        }
+
+        function renderQuizTab() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+
+            quizQuestions.forEach((q, idx) => {
+                const qCard = document.createElement('div');
+                qCard.className = 'bg-white/90 p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3';
+                
+                let optionsHTML = '';
+                q.options.forEach((opt, optIdx) => {
+                    optionsHTML += `
+                        <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="q-${q.id}" value="${optIdx}" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500">
+                            <span class="text-sm text-slate-700 font-medium">${opt}</span>
+                        </label>
+                    `;
+                });
+
+                qCard.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <h3 class="font-bold text-slate-800 text-base">
+                            <span class="text-emerald-600 mr-1">Q${idx + 1}.</span> [${q.title}] ${q.question}
+                        </h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                        ${optionsHTML}
+                    </div>
+                    <div id="feedback-${q.id}" class="hidden p-3 rounded-xl text-xs font-semibold mt-2"></div>
+                `;
+                container.appendChild(qCard);
+            });
+        }
+
+        function checkAllAnswers() {
+            let score = 0;
+
+            quizQuestions.forEach(q => {
+                const selected = document.querySelector(`input[name="q-${q.id}"]:checked`);
+                const feedbackDiv = document.getElementById(`feedback-${q.id}`);
+                feedbackDiv.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-rose-100', 'text-rose-800', 'bg-amber-100', 'text-amber-800');
+
+                if (selected) {
+                    const userAns = parseInt(selected.value);
+                    if (userAns === q.answer) {
+                        score += 20;
+                        feedbackDiv.classList.add('bg-emerald-100', 'text-emerald-800');
+                        feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> 回答正確！ ${q.explanation}`;
+                    } else {
+                        feedbackDiv.classList.add('bg-rose-100', 'text-rose-800');
+                        feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1"></i> 回答錯誤！正確答案是「${q.options[q.answer]}」。解析：${q.explanation}`;
+                    }
+                } else {
+                    feedbackDiv.classList.add('bg-amber-100', 'text-amber-800');
+                    feedbackDiv.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> 未作答。`;
+                }
+            });
+
+            document.getElementById('score-badge').innerText = `得分: ${score} / 100`;
+        }
+
+        function resetQuiz() {
+            quizQuestions.forEach(q => {
+                const selectedInputs = document.querySelectorAll(`input[name="q-${q.id}"]`);
+                selectedInputs.forEach(input => input.checked = false);
+                const feedbackDiv = document.getElementById(`feedback-${q.id}`);
+                if (feedbackDiv) {
+                    feedbackDiv.classList.add('hidden');
+                    feedbackDiv.innerHTML = '';
+                }
+            });
+            document.getElementById('score-badge').innerText = '得分: 0 / 100';
+        }
+
+        window.onload = function() {
+            renderDotTab();
+        };
+    </script>
+</body>
+</html>

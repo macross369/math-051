@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>認識扇形 - 互動探索學習網</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* 新海誠天空風格背景與卡片樣式 */
+    body {
+      font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+      background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 50%, #e0c3fc 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+    }
+    
+    .shinkai-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      box-shadow: 0 10px 30px rgba(71, 85, 105, 0.12);
+      border-radius: 1.25rem;
+    }
+
+    .shinkai-tab-active {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .shinkai-tab-inactive {
+      background: rgba(255, 255, 255, 0.6);
+      color: #334155;
+    }
+    .shinkai-tab-inactive:hover {
+      background: rgba(255, 255, 255, 0.9);
+      color: #1e40af;
+    }
+
+    /* 國小數學標準直式分數樣式 */
+    .math-fraction {
+      display: inline-flex;
+      align-items: center;
+      vertical-align: middle;
+      margin: 0 3px;
+      font-weight: 600;
+    }
+    .math-fraction .whole-number {
+      margin-right: 3px;
+      font-size: 1.1em;
+    }
+    .math-fraction .fraction-body {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.1;
+      font-size: 0.88em;
+    }
+    .math-fraction .numerator {
+      border-bottom: 1.5px solid currentColor;
+      padding: 0 4px 1px 4px;
+      text-align: center;
+      width: 100%;
+    }
+    .math-fraction .denominator {
+      padding: 1px 4px 0 4px;
+      text-align: center;
+      width: 100%;
+    }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: spinSlow 12s linear infinite;
+    }
+
+    .drag-card {
+      cursor: grab;
+      user-select: none;
+    }
+    .drag-card:active {
+      cursor: grabbing;
+    }
+    .drop-zone-highlight {
+      border-color: #3b82f6 !important;
+      background-color: rgba(219, 234, 254, 0.6) !important;
+    }
+
+    /* 客製化藍底勾選框 (比對圖1) */
+    .custom-checkbox {
+      appearance: none;
+      width: 1.25rem;
+      height: 1.25rem;
+      background-color: #0ea5e9;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+    }
+    .custom-checkbox:checked::after {
+      content: '✔';
+      color: #334155;
+      font-size: 0.9rem;
+      font-weight: 900;
+      position: absolute;
+    }
+  </style>
+</head>
+<body class="text-slate-800 p-3 md:p-6 relative overflow-x-hidden">
+
+  <!-- 閒雲數學小棧 頂部 Logo -->
+  <div class="w-full max-w-6xl mx-auto flex items-center justify-start mb-4 px-2 fade-in">
+    <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+    <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+  </div>
+
+  <!-- 頁頭資訊 -->
+  <header class="max-w-6xl mx-auto mb-6 text-center relative z-10">
+    <div class="inline-block bg-white/70 backdrop-blur-md px-6 py-2 rounded-full border border-white/80 shadow-sm mb-3">
+      <span class="text-sky-600 font-bold text-sm tracking-wide"><i class="fa-solid fa-graduation-cap mr-1"></i> 國小五上數學 10-1 互動學習網頁</span>
+    </div>
+    <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight mb-2 drop-shadow-sm">
+      <i class="fa-solid fa-fan text-sky-500 mr-2 animate-spin-slow"></i>認識扇形：探索與發現
+    </h1>
+    <p class="text-slate-600 text-sm md:text-base max-w-2xl mx-auto">
+      透過動態幾何圖形、生活實例與互動工具，輕鬆掌握扇形的頂點、半徑與弧！
+    </p>
+  </header>
+
+  <!-- 多主題標籤頁導覽 -->
+  <nav class="max-w-6xl mx-auto mb-6 flex flex-wrap justify-center gap-2 relative z-10" id="tabNav">
+    <button onclick="switchTab('tab1')" id="btn-tab1" class="shinkai-tab-active px-5 py-2.5 rounded-xl font-bold transition-all text-sm md:text-base flex items-center gap-2">
+      <i class="fa-solid fa-compass"></i> 主題一：摺扇與扇形三要素
+    </button>
+    <button onclick="switchTab('tab2')" id="btn-tab2" class="shinkai-tab-inactive px-5 py-2.5 rounded-xl font-bold transition-all text-sm md:text-base flex items-center gap-2">
+      <i class="fa-solid fa-table-cells"></i> 主題二：扇形特徵辨識
+    </button>
+    <button onclick="switchTab('tab3')" id="btn-tab3" class="shinkai-tab-inactive px-5 py-2.5 rounded-xl font-bold transition-all text-sm md:text-base flex items-center gap-2">
+      <i class="fa-solid fa-baseball-bat-ball"></i> 主題三：素養實踐與檢驗
+    </button>
+    <button onclick="switchTab('tab4')" id="btn-tab4" class="shinkai-tab-inactive px-5 py-2.5 rounded-xl font-bold transition-all text-sm md:text-base flex items-center gap-2">
+      <i class="fa-solid fa-pen-to-square"></i> 自我評量
+    </button>
+  </nav>
+
+  <!-- 主內容容器 -->
+  <main class="max-w-6xl mx-auto relative z-10">
+
+    <!-- TAB 1: 摺扇與扇形三要素 -->
+    <section id="tab1" class="tab-content block">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- 左側：動態繪圖面板 -->
+        <div class="lg:col-span-7 shinkai-card p-5 md:p-6 flex flex-col items-center justify-between relative">
+          <div class="w-full flex flex-wrap justify-start items-center mb-2 gap-4">
+            <h2 class="text-xl font-bold text-sky-800 flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie"></i> 動態摺扇展示台
+            </h2>
+            
+            <!-- 模式切換按鈕 (移至此處) -->
+            <div class="flex bg-slate-200 rounded-full p-0.5 shadow-inner ml-2 mr-2">
+              <button onclick="setMode('fan')" id="btnFanMode" class="px-3 py-1 rounded-full text-xs font-bold bg-sky-500 text-white shadow-sm transition">摺扇模式</button>
+              <button onclick="setMode('geo')" id="btnGeoMode" class="px-3 py-1 rounded-full text-xs font-bold text-slate-500 hover:text-slate-700 transition">幾何模式</button>
+            </div>
+
+            <!-- 功能開關 -->
+            <div class="flex flex-wrap gap-4 items-center text-xs font-bold text-slate-700">
+              <label class="flex items-center gap-1.5 cursor-pointer hover:text-sky-600 transition">
+                <input type="checkbox" id="chkShowLabels" checked onchange="updateFanGraphics()" class="custom-checkbox">
+                <span class="mt-0.5">顯示名稱標籤</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer hover:text-sky-600 transition">
+                <input type="checkbox" id="chkShowDashedCircle" checked onchange="updateFanGraphics()" class="custom-checkbox">
+                <span class="mt-0.5">顯示外圈虛線圖</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- SVG 繪圖區域 -->
+          <div class="w-full h-72 md:h-80 flex items-center justify-center bg-sky-50/50 rounded-2xl border border-sky-100 relative my-2 overflow-hidden">
+            <svg id="fanSvg" viewBox="0 0 400 300" class="w-full h-full max-w-md">
+              <circle id="dashedCircle" cx="200" cy="180" r="110" fill="none" stroke="#cbd5e1" stroke-dasharray="4,4" stroke-width="1.5" />
+              <path id="fanSector" fill="rgba(56, 189, 248, 0.35)" stroke="#0284c7" stroke-width="3" />
+              <!-- 扇骨群組 (僅在摺扇模式顯示) -->
+              <g id="fanBones"></g>
+              <line id="radiusA" stroke="#2563eb" stroke-width="4" stroke-linecap="round" />
+              <line id="radiusB" stroke="#2563eb" stroke-width="4" stroke-linecap="round" />
+              <path id="fanArcHighlight" fill="none" stroke="transparent" stroke-width="6" stroke-linecap="round" />
+              <circle cx="200" cy="180" r="7" fill="#ef4444" id="centerPoint" />
+              <g id="fanLabels">
+                <!-- 頂點文字 -->
+                <text id="labelVertex" x="200" y="202" font-size="14" font-weight="bold" fill="#dc2626" text-anchor="middle">圓心 (頂點)</text>
+                <text id="labelArc" font-size="14" font-weight="bold" fill="#16a34a" text-anchor="middle">弧</text>
+                <!-- 兩個半徑標籤 -->
+                <text id="labelRadiusA" font-size="14" font-weight="bold" fill="#2563eb" text-anchor="middle">半徑</text>
+                <text id="labelRadiusB" font-size="14" font-weight="bold" fill="#2563eb" text-anchor="middle">半徑</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- 控制面板 (要素高亮) -->
+          <div class="w-full space-y-4 bg-white/60 p-4 rounded-xl border border-slate-100 mt-2">
+            <!-- 要素高亮顯示開關 -->
+            <div class="flex flex-wrap gap-3 justify-center">
+              <button onclick="toggleElementHighlight('vertex')" id="btnHighlightVertex" class="px-5 py-2 rounded-xl border border-red-300 bg-red-50 text-red-600 text-sm font-bold hover:bg-red-100 transition flex items-center gap-2">
+                <i class="fa-solid fa-circle-dot"></i>高亮「頂點」
+              </button>
+              <button onclick="toggleElementHighlight('radius')" id="btnHighlightRadius" class="px-5 py-2 rounded-xl border border-blue-300 bg-blue-50 text-blue-600 text-sm font-bold hover:bg-blue-100 transition flex items-center gap-2">
+                <i class="fa-solid fa-arrows-left-right"></i>高亮「兩半徑」
+              </button>
+              <button onclick="toggleElementHighlight('arc')" id="btnHighlightArc" class="px-5 py-2 rounded-xl border border-green-300 bg-green-50 text-green-600 text-sm font-bold hover:bg-green-100 transition flex items-center gap-2">
+                <i class="fa-solid fa-bezier-curve"></i>高亮「弧」
+              </button>
+            </div>
+          </div>
+
+          <!-- 展開張角與比例面板 (圖3) -->
+          <div class="w-full bg-sky-50 rounded-2xl border border-sky-100 flex items-center justify-center p-5 mt-4">
+            <div class="flex-1 flex flex-col items-center justify-center border-r border-slate-300/80 pr-4">
+              <div class="text-xs text-slate-500 mb-1 font-bold">展開張角 (圓心角)</div>
+              <div class="text-3xl font-black text-sky-700" id="infoAngleText">120°</div>
+            </div>
+            <div class="flex-1 flex flex-col items-center justify-center pl-4">
+              <div class="text-xs text-slate-500 mb-1 font-bold">相當於完整圓的</div>
+              <div class="text-3xl font-black text-emerald-600 flex items-center gap-2" id="infoFractionDisplay">
+                <!-- JS動態生成分數與文字 -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 右側：觀念與直式分數對應說明 -->
+        <div class="lg:col-span-5 space-y-4 flex flex-col justify-start">
+          
+          <!-- 將滑桿控制移至此處 (定義卡片上方) -->
+          <div class="shinkai-card p-4 md:p-5 mb-2">
+            <div class="flex justify-between text-sm font-bold text-slate-700 mb-2">
+              <label for="angleRange"><i class="fa-solid fa-sliders text-sky-500 mr-1"></i> 拉動滑桿開合扇子：</label>
+              <span id="angleValue" class="text-sky-600 font-extrabold text-base">120°</span>
+            </div>
+            <input type="range" id="angleRange" min="10" max="360" value="120" step="10" class="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-500 mb-1">
+            
+            <!-- 預設角度按鈕 (圖4) -->
+            <div class="flex justify-between mt-4">
+              <button onclick="setAngleFromPreset(60)" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-sky-50 hover:border-sky-300 text-slate-700 text-sm font-bold shadow-sm transition flex-1 mx-1">60°</button>
+              <button onclick="setAngleFromPreset(90)" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-sky-50 hover:border-sky-300 text-slate-700 text-sm font-bold shadow-sm transition flex-1 mx-1">90°</button>
+              <button onclick="setAngleFromPreset(180)" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-sky-50 hover:border-sky-300 text-slate-700 text-sm font-bold shadow-sm transition flex-1 mx-1">180°</button>
+              <button onclick="setAngleFromPreset(240)" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-sky-50 hover:border-sky-300 text-slate-700 text-sm font-bold shadow-sm transition flex-1 mx-1">240°</button>
+              <button onclick="setAngleFromPreset(360)" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-sky-50 hover:border-sky-300 text-slate-700 text-sm font-bold shadow-sm transition flex-1 mx-1">360°</button>
+            </div>
+          </div>
+
+          <div class="shinkai-card p-5">
+            <h3 class="text-lg font-bold text-sky-900 mb-3 flex items-center border-b pb-2 border-slate-200">
+              <i class="fa-solid fa-lightbulb text-amber-500 mr-2"></i>扇形的定義與組成要素
+            </h3>
+            <ul class="space-y-3 text-slate-700 text-sm md:text-base">
+              <li class="flex items-start gap-2">
+                <span class="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</span>
+                <div><strong class="text-red-600">頂點：</strong>一定要在<strong class="underline decoration-red-400">圓心</strong>上。</div>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</span>
+                <div><strong class="text-blue-600">邊：</strong>兩條直線邊必須是圓的<strong class="underline decoration-blue-400">半徑</strong>（長度相等）。</div>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">3</span>
+                <div><strong class="text-green-600">曲線：</strong>圍成的曲線必須是<strong class="underline decoration-green-400">圓周的一部分</strong>，稱為「弧」。</div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="shinkai-card p-5 bg-gradient-to-br from-white/90 to-sky-50/90">
+            <h3 class="text-lg font-bold text-slate-800 mb-2 flex items-center">
+              <i class="fa-solid fa-pie-chart text-sky-600 mr-2"></i>圓心角與幾分之幾圓
+            </h3>
+            <p class="text-xs text-slate-500 mb-3">當圓心角改變時，扇形佔整個圓的比例：</p>
+            
+            <div class="space-y-2 text-slate-700 text-sm">
+              <div class="flex items-center justify-between p-2 bg-white rounded-lg shadow-sm border border-slate-100">
+                <span>當圓心角為 90° 時：</span>
+                <span class="font-bold text-sky-700 flex items-center">
+                  是 
+                  <span class="math-fraction">
+                    <span class="fraction-body">
+                      <span class="numerator">1</span>
+                      <span class="denominator">4</span>
+                    </span>
+                  </span> 
+                  個圓
+                </span>
+              </div>
+              <div class="flex items-center justify-between p-2 bg-white rounded-lg shadow-sm border border-slate-100">
+                <span>當圓心角為 180° 時 (半圓)：</span>
+                <span class="font-bold text-sky-700 flex items-center">
+                  是 
+                  <span class="math-fraction">
+                    <span class="fraction-body">
+                      <span class="numerator">1</span>
+                      <span class="denominator">2</span>
+                    </span>
+                  </span> 
+                  個圓
+                </span>
+              </div>
+              <div class="flex items-center justify-between p-2 bg-white rounded-lg shadow-sm border border-slate-100">
+                <span>當前的圓心角 (<span id="fractionAngleText">120°</span>)：</span>
+                <span class="font-bold text-sky-700 flex items-center">
+                  是 
+                  <span id="currentFractionDisplay" class="math-fraction">
+                    <span class="fraction-body">
+                      <span class="numerator">1</span>
+                      <span class="denominator">3</span>
+                    </span>
+                  </span> 
+                  個圓
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 2: 扇形特徵辨識 (包含甲~己卡片與拖曳分類) -->
+    <section id="tab2" class="tab-content hidden">
+      <div class="space-y-6">
+        <!-- 課本經典：圖形特徵卡片檢核區 (甲~己) -->
+        <div class="shinkai-card p-5 md:p-6">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-3 border-b border-slate-200/80 pb-4">
+            <div>
+              <h2 class="text-xl font-bold text-sky-900 flex items-center gap-2">
+                <i class="fa-solid fa-list-check text-sky-600"></i> 課本圖形特徵檢核卡片
+              </h2>
+              <p class="text-xs text-slate-500 mt-1">請觀察圖形，勾選正確的特徵條件，並點擊「驗證是否為扇形」！</p>
+            </div>
+            <button onclick="autoVerifyAllCards()" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5 shrink-0">
+              <i class="fa-solid fa-check-double"></i> 顯示全部答案與解析
+            </button>
+          </div>
+
+          <!-- 卡片網格區域 (甲~己 6張卡片) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            
+            <!-- 圖形 甲 (紅色) -->
+            <div class="bg-white/90 backdrop-blur rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4" id="card-甲">
+              <div class="flex justify-between items-center">
+                <h3 class="font-extrabold text-slate-800 text-base flex items-center gap-1.5">
+                  <i class="fa-solid fa-shapes text-red-500"></i> 圖形 甲
+                </h3>
+                <span id="badge-甲" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-500">未判斷</span>
+              </div>
+              <div class="w-full h-40 bg-sky-50/40 rounded-xl border border-sky-100/60 flex items-center justify-center p-2">
+                <svg viewBox="0 0 100 100" class="w-32 h-32">
+                  <circle cx="50" cy="50" r="38" stroke="#94a3b8" stroke-dasharray="3,3" stroke-width="1.2" fill="none" />
+                  <path d="M 50 50 L 43.4 87.4 A 38 38 0 0 1 12.1 53.3 Z" fill="#fca5a5" stroke="#dc2626" stroke-width="2" />
+                  <circle cx="50" cy="50" r="3" fill="#000" />
+                </svg>
+              </div>
+              <div class="space-y-2 text-xs text-slate-700">
+                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition">
+                  <input type="checkbox" id="check-甲-1" class="w-4 h-4 accent-sky-600 rounded">
+                  <span>兩直線邊長度相等 (是半徑)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition">
+                  <input type="checkbox" id="check-甲-2" class="w-4 h-4 accent-sky-600 rounded">
+                  <span>頂點在圓心上</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition">
+                  <input type="checkbox" id="check-甲-3" class="w-4 h-4 accent-sky-600 rounded">
+                  <span>弧在圓周上</span>
+                </label>
+              </div>
+              <div>
+                <button onclick="verifyShapeCard('甲')" class="w-full py-2 bg-sky-500 hover:bg-sky-600 active:bg-sky-700 text-white font-bold text-xs rounded-xl transition shadow-sm">
+                  驗證是否為扇形
+                </button>
+                <div id="feedback-甲" class="hidden mt-3 p-2.5 rounded-xl text-xs leading-relaxed"></div>
+              </div>
+            </div>
+
+            <!-- 圖形 乙 (橙色) -->
+            <div class="bg-white/90 backdrop-blur rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4" id="card-乙">
+              <div class="flex justify-between items-center">
+                <h3 class="font-extrabold text-slate-800 text-base flex items-center gap-1.5">
+                  <i class="fa-solid fa-shapes text-orange-500"></i> 圖形 乙
+                </h3>
+                <span id="badge-乙" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-500">未判斷</span>
+              </div>
+              <div class="w-full h-40 bg-sky-50/40 rounded-xl border border-sky-100/60 flex items-center justify-center p-2">
+                <svg viewBox="0 0 100 100" class="w-32 h-32">
+                  <circle cx="50" cy="50" r="38" stroke="#94a3b8" stroke-dasharray="3,3" stroke-width="1.2" fill="none" />
+                  <path d="M 34 50 L 81 28 A 38 38 0 0 1 81 72 Z" fill="#fed7aa" stroke="#ea580c" stroke-width="2" />
+                  <circle cx="50" cy="50" r="3" fill="#000" />
+                </svg>
+              </div>
+              <div class="space-y-2 text-xs text-slate-700">
+                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition">
+                  <input type="checkbox" id="check-乙-1" class="w-4 h-4 accent-sky-600 rounded">
+                  <span>兩直線邊長度相等 (是半徑)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition">
+                  <input type="checkbox" id="check-乙-2" class="w-4 h-4 accent-sky-600 rounded">
+                  <span>頂點在圓心上</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition">
+                  <input type="checkbox" id="check-乙-3" class="w-4 h-4 accent-sky-600 rounded">
+                  <span>弧在圓周上</span>
+                </label>
+              </div>
+              <div>
+                <button onclick="verifyShapeCard('乙')" class="w-full py-2 bg-sky-500 hover:bg-sky-600 active:bg-sky-700 text-white font-bold text-xs rounded-xl transition shadow-sm">
+                  驗證是否為扇形
+                </button>
+                <div id="feedback-乙" class="hidden mt-3 p-2.5 rounded-xl text-xs leading-relaxed"></div>
+              </div>
+            </div>
+
+            <!-- 圖形 丙 (黃色) -->
+            <div class="bg-white/90 backdrop-blur rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4" id="card-丙">
+              <div class="flex justify-between items-center">
+                <h3 class="font-extrabold text-slate-800 text-base flex items-center gap-1.5">
+                  <i class="fa-solid fa-shapes text-yellow-500"></i> 圖形 丙
+                </h3>
+                <span id="badge-丙" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-500">未判斷</span>
+              </div>
+              <div class="w-full h-40 bg-sky-50/40 rounded-xl border border-sky-100/60 flex items-center justify-center p-2">
+                <svg viewBox="0 0 100 100" class="w-32 h-32">
+                  <circle cx="50" cy="50" r="38" stroke="#94a3b8" stroke-dasharray="3,3" stroke-width="1.2" fill="none" />
+                  <path d="M 42 32 L 50 12 A 38 38 0 0 0 12 50 Z" fill="#fef08a" stroke="#ca8a04" stroke-width="2" />
+                  <circle cx="50" cy="50" r="3" fill="#000" />
+                </svg>
+              </div>
+              <div class="space-y-2 text-xs text-slate-700">
+                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition">
+                  <input type="checkbox" id="check-丙-1" class="w-4 h-4 accent-sky-600 rounded">
+                  <span>兩直線邊長度相等 (是半徑)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition">
+                  <input type="checkbox" id="check-丙-2" class="w-4 h-4 accent-sky-600 rounded">
+                  <span>頂點在圓心上</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition">
+                  <input type="checkbox" id="check-丙-3" class="w-4 h-4 accent-sky-600 rounded">
+                  <span>弧在圓周上</span>
+                </label>
+              </div>
+              <div>
+                <button onclick="verifyShapeCard('丙')" class="w-full py-2 bg-sky-500 hover:bg-sky-600 active:bg-sky-700 text-white font-bold text-xs rounded-xl transition shadow-sm">
+                  驗證是否為扇形
+                </button>
+                <div id="feedback-丙" class="hidden mt-3 p-2.5 rounded-xl text-xs leading-relaxed"></div>
+              </div>
+            </div>
+
+            <!-- 圖形 丁 (綠色) -->
+            <div class="bg-white/90 backdrop-blur rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4" id="card-丁">
+              <div class="flex justify-between items-center">
+                <h3 class="font-extrabold text-slate-800 text-base flex items-center gap-1.5">
+                  <i class="fa-solid fa-shapes text-green-500"></i> 圖形 丁 (優扇形)
+                </h3>
+                <span id="badge-丁" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-500">未判斷</span>
+              </div>
+              <div class="w-full h-40 bg-sky-50/40 rounded-xl border border-sky-100/60 flex items-center justify-center p-2">
+                <svg viewBox="0 0 100 100" class="w-32 h-32">
+                  <circle cx="50" cy="50" r="38" stroke="#94a3b8" stroke-dasharray="3,3" stroke-width="1.2" fill="none" />
+                  <path d="M 50 50 L 25.6 79.1 A 38 38 0 1 1 74.4 79.1 Z" fill="#bbf7d0" stroke="#16a34a" stroke-width="2" />
+                  <circle cx="50" cy="50" r="3" fill="#000" />
+                </svg>
+              </div>
+              <div class="space-y-2 text-xs text-slate-700">
+                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition">
+                  <input type="checkbox" id="check-丁-1" class="w-4 h-4 accent-sky-600 rounded">
+                  <span>兩直線邊長度相等 (是半徑)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition">
+                  <input type="checkbox" id="check-丁-2" class="w-4 h-4 accent-sky-600 rounded">
+                  <span>頂點在圓心上</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition">
+                  <input type="checkbox" id="check-丁-3" class="w-4 h-4 accent-sky-600 rounded">
+                  <span>弧在圓周上</span>
+                </label>
+              </div>
+              <div>
+                <button onclick="verifyShapeCard('丁')" class="w-full py-2 bg-sky-500 hover:bg-sky-600 active:bg-sky-700 text-white font-bold text-xs rounded-xl transition shadow-sm">
+                  驗證是否為扇形
+                </button>
+                <div id="feedback-丁" class="hidden mt-3 p-2.5 rounded-xl text-xs leading-relaxed"></div>
+              </div>
+            </div>
+
+            <!-- 圖形 戊 (藍色) -->
+            <div class="bg-white/90 backdrop-blur rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4" id="card-戊">
+              <div class="flex justify-between items-center">
+                <h3 class="font-extrabold text-slate-800 text-base flex items-center gap-1.5">
+                  <i class="fa-solid fa-shapes text-blue-500"></i> 圖形 戊
+                </h3>
+                <span id="badge-戊" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-500">未判斷</span>
+              </div>
+              <div class="w-full h-40 bg-sky-50/40 rounded-xl border border-sky-100/60 flex items-center justify-center p-2">
+                <svg viewBox="0 0 100 100" class="w-32 h-32">
+                  <circle cx="50" cy="50" r="38" stroke="#94a3b8" stroke-dasharray="3,3" stroke-width="1.2" fill="none" />
+                  <path d="M 50 50 L 38 29.2 A 24 24 0 0 1 70.8 38 Z" fill="#bfdbfe" stroke="#2563eb" stroke-width="2" />
+                  <circle cx="50" cy="50" r="3" fill="#000" />
+                </svg>
+              </div>
+              <div class="space-y-2 text-xs text-slate-700">
+                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition">
+                  <input type="checkbox" id="check-戊-1" class="w-4 h-4 accent-sky-600 rounded">
+                  <span>兩直線邊長度相等 (是半徑)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition">
+                  <input type="checkbox" id="check-戊-2" class="w-4 h-4 accent-sky-600 rounded">
+                  <span>頂點在圓心上</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition">
+                  <input type="checkbox" id="check-戊-3" class="w-4 h-4 accent-sky-600 rounded">
+                  <span>弧在圓周上</span>
+                </label>
+              </div>
+              <div>
+                <button onclick="verifyShapeCard('戊')" class="w-full py-2 bg-sky-500 hover:bg-sky-600 active:bg-sky-700 text-white font-bold text-xs rounded-xl transition shadow-sm">
+                  驗證是否為扇形
+                </button>
+                <div id="feedback-戊" class="hidden mt-3 p-2.5 rounded-xl text-xs leading-relaxed"></div>
+              </div>
+            </div>
+
+            <!-- 圖形 己 (紫色) -->
+            <div class="bg-white/90 backdrop-blur rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4" id="card-己">
+              <div class="flex justify-between items-center">
+                <h3 class="font-extrabold text-slate-800 text-base flex items-center gap-1.5">
+                  <i class="fa-solid fa-shapes text-purple-500"></i> 圖形 己
+                </h3>
+                <span id="badge-己" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-500">未判斷</span>
+              </div>
+              <div class="w-full h-40 bg-sky-50/40 rounded-xl border border-sky-100/60 flex items-center justify-center p-2">
+                <svg viewBox="0 0 100 100" class="w-32 h-32">
+                  <circle cx="50" cy="50" r="38" stroke="#94a3b8" stroke-dasharray="3,3" stroke-width="1.2" fill="none" />
+                  <path d="M 50 50 L 65 15 A 38 38 0 0 0 14 62 Z" fill="#e9d5ff" stroke="#9333ea" stroke-width="2" />
+                  <circle cx="50" cy="50" r="3" fill="#000" />
+                </svg>
+              </div>
+              <div class="space-y-2 text-xs text-slate-700">
+                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition">
+                  <input type="checkbox" id="check-己-1" class="w-4 h-4 accent-sky-600 rounded">
+                  <span>兩直線邊長度相等 (是半徑)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition">
+                  <input type="checkbox" id="check-己-2" class="w-4 h-4 accent-sky-600 rounded">
+                  <span>頂點在圓心上</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition">
+                  <input type="checkbox" id="check-己-3" class="w-4 h-4 accent-sky-600 rounded">
+                  <span>弧在圓周上</span>
+                </label>
+              </div>
+              <div>
+                <button onclick="verifyShapeCard('己')" class="w-full py-2 bg-sky-500 hover:bg-sky-600 active:bg-sky-700 text-white font-bold text-xs rounded-xl transition shadow-sm">
+                  驗證是否為扇形
+                </button>
+                <div id="feedback-己" class="hidden mt-3 p-2.5 rounded-xl text-xs leading-relaxed"></div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="mt-6 p-3.5 bg-sky-50/80 border border-sky-200 rounded-xl text-xs text-sky-900 flex items-start gap-2.5">
+            <i class="fa-solid fa-circle-info text-sky-500 mt-0.5 text-sm shrink-0"></i>
+            <div>
+              <strong>重點提醒：</strong>圖形「丁」的圓心角雖然大於 180°，但完全符合「頂點在圓心、兩邊為半徑、弧在圓周上」三個條件，因此它也是標準扇形喔！
+            </div>
+          </div>
+        </div>
+
+        <!-- 扇形快速拖曳分類遊戲 -->
+        <div class="shinkai-card p-5 md:p-6">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-3">
+            <div>
+              <h3 class="text-lg font-bold text-sky-900 flex items-center gap-2">
+                <i class="fa-solid fa-hand-pointer text-sky-600"></i> 扇形快速拖曳分類練習
+              </h3>
+              <p class="text-xs text-slate-500 mt-1">請將下方卡片<strong>拖曳（Drag & Drop）</strong>或點擊歸類至正確的區域，完成後點擊「驗證答案」！</p>
+            </div>
+          </div>
+
+          <!-- 未分類卡片區 -->
+          <div class="mb-5 p-4 bg-slate-100/80 rounded-2xl border border-slate-200">
+            <div class="text-xs font-bold text-slate-600 mb-2 flex items-center justify-between">
+              <span><i class="fa-solid fa-box-open text-amber-500 mr-1"></i> 待分類卡片 (請拖曳或點擊卡片)：</span>
+              <button onclick="resetDragGame()" class="text-sky-600 hover:underline text-xs flex items-center gap-1">
+                <i class="fa-solid fa-rotate-left"></i> 重置卡片
+              </button>
+            </div>
+            <div id="unclassifiedCards" class="flex flex-wrap gap-3 min-h-[50px] items-center"></div>
+          </div>
+
+          <!-- 作答投放區域 Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <!-- 是扇形投放區 -->
+            <div id="dropZoneYes" ondragover="allowDrop(event)" ondrop="drop(event, 'yes')" ondragenter="highlightZone(this)" ondragleave="unhighlightZone(this)" class="min-h-44 p-4 rounded-2xl bg-emerald-50/80 border-2 border-dashed border-emerald-400 transition flex flex-col items-center justify-start">
+              <h4 class="font-bold text-emerald-800 mb-3 text-sm flex items-center gap-1.5">
+                <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i> 【是扇形】投放區
+              </h4>
+              <div class="flex flex-wrap gap-2 justify-center w-full min-h-[80px]" id="cardContainerYes"></div>
+            </div>
+
+            <!-- 不是扇形投放區 -->
+            <div id="dropZoneNo" ondragover="allowDrop(event)" ondrop="drop(event, 'no')" ondragenter="highlightZone(this)" ondragleave="unhighlightZone(this)" class="min-h-44 p-4 rounded-2xl bg-rose-50/80 border-2 border-dashed border-rose-400 transition flex flex-col items-center justify-start">
+              <h4 class="font-bold text-rose-800 mb-3 text-sm flex items-center gap-1.5">
+                <i class="fa-solid fa-circle-xmark text-rose-600 text-base"></i> 【不是扇形】投放區
+              </h4>
+              <div class="flex flex-wrap gap-2 justify-center w-full min-h-[80px]" id="cardContainerNo"></div>
+            </div>
+          </div>
+
+          <!-- 驗證答案按鈕與結果回饋 -->
+          <div class="mt-6 text-center space-y-3">
+            <button onclick="verifyClassificationGame()" class="px-8 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 active:scale-95 text-white font-extrabold text-sm rounded-xl shadow-lg transition flex items-center gap-2 mx-auto">
+              <i class="fa-solid fa-clipboard-check text-base"></i> 驗證答案
+            </button>
+            <div id="dragGameFeedback" class="hidden max-w-2xl mx-auto p-4 rounded-xl text-xs md:text-sm leading-relaxed border"></div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: 素養實踐與檢驗 -->
+    <section id="tab3" class="tab-content hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- 課本例題：圖形ㄅ、ㄆ、ㄇ 圓規檢驗器 -->
+        <div class="shinkai-card p-5 md:p-6 flex flex-col justify-start">
+          <div>
+            <h2 class="text-xl font-bold text-sky-900 mb-2">
+              <i class="fa-solid fa-compass-drafting text-sky-600 mr-2"></i>圓規等長檢驗體驗
+            </h2>
+            <p class="text-xs text-slate-500 mb-4">用圓規以頂點為圓心、邊長為半徑畫圓，檢查弧是否落在圓周上：</p>
+
+            <div class="flex gap-2 mb-4 justify-center">
+              <button onclick="inspectShape('ㄅ')" id="btnInspectㄅ" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-sky-600 text-white shadow-sm">圖形 ㄅ</button>
+              <button onclick="inspectShape('ㄆ')" id="btnInspectㄆ" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-slate-200 text-slate-700">圖形 ㄆ</button>
+              <button onclick="inspectShape('ㄇ')" id="btnInspectㄇ" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-slate-200 text-slate-700">圖形 ㄇ</button>
+            </div>
+
+            <div class="w-full h-64 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-center relative overflow-hidden">
+              <svg id="inspectSvg" viewBox="0 0 300 220" class="w-full h-full max-w-xs"></svg>
+            </div>
+
+            <!-- 檢核結果欄位移至圖形正下方 -->
+            <div id="inspectExplanation" class="mt-3 p-3 rounded-lg bg-sky-50 text-slate-700 text-xs leading-relaxed border border-sky-100"></div>
+          </div>
+        </div>
+
+        <!-- 生活素養題：臺中洲際棒球場 (精準比對圖1) -->
+        <div class="shinkai-card p-5 md:p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <h2 class="text-xl font-bold text-amber-900">
+                <i class="fa-solid fa-baseball text-amber-600 mr-2"></i>生活素養：棒球場是扇形嗎？
+              </h2>
+            </div>
+            <p class="text-xs text-slate-500 mb-3">臺中洲際棒球場從本壘板到全壘打牆的距離如下：</p>
+
+            <div class="overflow-x-auto mb-3">
+              <table class="w-full text-xs text-center border-collapse bg-white rounded-lg overflow-hidden border">
+                <tr class="bg-amber-100/70 font-bold text-amber-900">
+                  <td class="p-2 border-r">全壘打標竿</td>
+                  <td class="p-2">左外野</td>
+                  <td class="p-2">中外野</td>
+                  <td class="p-2">右外野</td>
+                </tr>
+                <tr class="text-slate-700">
+                  <td class="p-2 font-semibold bg-slate-50 border-r">距離 (呎)</td>
+                  <td class="p-2">325 呎</td>
+                  <td class="p-2 font-bold text-red-600">400 呎</td>
+                  <td class="p-2">325 呎</td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- 精準棒球場 SVG 繪製 (圖 1 樣式) -->
+            <div class="w-full h-60 bg-amber-50/40 rounded-2xl border border-amber-200/80 flex items-center justify-center p-2 relative">
+              <svg viewBox="0 0 320 260" class="w-full h-full max-w-sm">
+                <!-- 外野草地綠色區域 -->
+                <path d="M 160 215 L 60 115 A 140 140 0 0 1 260 115 Z" fill="#4ade80" stroke="#dc2626" stroke-width="2.5" />
+                <!-- 內野紅土弧形區域 -->
+                <path d="M 160 215 L 110 165 A 70 70 0 0 1 210 165 Z" fill="#fdba74" stroke="#d97706" stroke-width="1.5" />
+                <!-- 內野草地小菱形區域 -->
+                <polygon points="160,205 142,187 160,169 178,187" fill="#4ade80" />
+                
+                <!-- 兩側全壘打標竿線條 -->
+                <line x1="58" y1="120" x2="58" y2="45" stroke="#64748b" stroke-width="4" stroke-linecap="round" />
+                <line x1="262" y1="120" x2="262" y2="45" stroke="#64748b" stroke-width="4" stroke-linecap="round" />
+                
+                <!-- 全壘打牆頂部紅線 -->
+                <path d="M 60 115 A 140 140 0 0 1 260 115" stroke="#dc2626" stroke-width="3" fill="none" />
+                
+                <!-- 中邊線標示 -->
+                <line x1="160" y1="215" x2="160" y2="75" stroke="#1e293b" stroke-width="1.5" stroke-dasharray="4,4" />
+                
+                <!-- 本壘板與圓圈 -->
+                <polygon points="160,215 155,220 155,225 165,225 165,220" fill="#ffffff" stroke="#000" stroke-width="1" />
+                <circle cx="160" cy="220" r="8" fill="none" stroke="#f97316" stroke-width="1.5" />
+                <text x="160" y="245" font-size="11" font-weight="bold" fill="#0f172a" text-anchor="middle">本壘板</text>
+                
+                <!-- 距離標籤文字 -->
+                <text x="100" y="150" font-size="11" font-weight="bold" fill="#dc2626" transform="rotate(-40 100 150)">325呎</text>
+                <text x="232" y="152" font-size="11" font-weight="bold" fill="#dc2626" transform="rotate(40 232 152)">325呎</text>
+                
+                <!-- 中外野與全壘打牆標籤 -->
+                <rect x="135" y="80" width="50" height="34" rx="4" fill="rgba(0,0,0,0.5)" />
+                <text x="160" y="95" font-size="11" font-weight="bold" fill="#ef4444" text-anchor="middle">400呎</text>
+                <text x="160" y="108" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">中外野</text>
+                <text x="160" y="68" font-size="11" font-weight="bold" fill="#1e293b" text-anchor="middle">全壘打牆</text>
+                
+                <!-- 左右全壘打標竿標籤 -->
+                <rect x="25" y="25" width="66" height="32" rx="4" fill="#ef4444" />
+                <text x="58" y="38" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">左外野</text>
+                <text x="58" y="50" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">全壘打標竿</text>
+                
+                <rect x="229" y="25" width="66" height="32" rx="4" fill="#ef4444" />
+                <text x="262" y="38" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">右外野</text>
+                <text x="262" y="50" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">全壘打標竿</text>
+              </svg>
+            </div>
+          </div>
+
+          <!-- 生活素養探究思考互動問答 (比對圖 2~4 樣式) -->
+          <div class="mt-3 p-4 bg-amber-50/80 rounded-2xl border border-amber-200/90 shadow-sm">
+            <div class="text-xs font-bold text-amber-800 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+              <i class="fa-solid fa-brain text-amber-600"></i> 思考問題
+            </div>
+            <p class="text-sm md:text-base font-extrabold text-slate-800 mb-3.5 leading-snug">
+              如果以本壘板為頂點，球場邊線為邊，全壘打牆圍成的圖形，是一個扇形嗎？
+            </p>
+            <!-- 按鈕位置置中 -->
+            <div class="flex flex-wrap gap-3 justify-center">
+              <button onclick="checkBaseballAnswer('yes')" id="btnBaseballYes" class="px-6 py-2.5 bg-rose-500 hover:bg-rose-600 active:scale-95 text-white font-extrabold text-xs md:text-sm rounded-xl shadow-md transition flex items-center gap-2">
+                是扇形
+              </button>
+              <button onclick="checkBaseballAnswer('no')" id="btnBaseballNo" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold text-xs md:text-sm rounded-xl shadow-md transition flex items-center gap-2">
+                不是扇形
+              </button>
+            </div>
+            <div id="baseballFeedback" class="hidden mt-3 p-3.5 rounded-xl text-xs md:text-sm leading-relaxed border transition-all"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 4: 歷程性自我評量 -->
+    <section id="tab4" class="tab-content hidden">
+      <div class="shinkai-card p-5 md:p-8 max-w-4xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-4 border-b border-slate-200 gap-2">
+          <div>
+            <h2 class="text-2xl font-extrabold text-sky-900">
+              <i class="fa-solid fa-clipboard-check text-sky-600 mr-2"></i>自我評量
+            </h2>
+            <p class="text-xs text-slate-500">回答問題獲得即時反饋，測驗你的掌握程度！</p>
+          </div>
+          <div class="bg-sky-50 px-4 py-2 rounded-xl border border-sky-200 text-right">
+            <span class="text-xs text-slate-500 block">目前得分</span>
+            <span id="quizScore" class="text-2xl font-black text-sky-600">0 / 100</span>
+          </div>
+        </div>
+
+        <div id="quizContainer" class="space-y-6"></div>
+
+        <div class="mt-8 flex justify-center gap-4">
+          <button onclick="submitQuiz()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg transition flex items-center">
+            <i class="fa-solid fa-paper-plane mr-2"></i>提交答案
+          </button>
+          <button onclick="resetQuiz()" class="px-6 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl shadow-lg transition flex items-center">
+            <i class="fa-solid fa-rotate-right mr-2"></i>重新測驗
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="max-w-6xl mx-auto mt-10 text-center text-xs text-slate-500 pb-6 relative z-10">
+  </footer>
+
+  <script>
+    let currentTab = 'tab1';
+    let currentAngle = 120;
+    let highlightMode = null;
+    let currentDisplayMode = 'fan'; // 'fan' (摺扇模式) 或 'geo' (幾何模式)
+
+    function switchTab(tabId) {
+      currentTab = tabId;
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(tabId).classList.remove('hidden');
+
+      ['tab1', 'tab2', 'tab3', 'tab4'].forEach(id => {
+        const btn = document.getElementById('btn-' + id);
+        if (id === tabId) {
+          btn.className = 'shinkai-tab-active px-5 py-2.5 rounded-xl font-bold transition-all text-sm md:text-base flex items-center gap-2';
+        } else {
+          btn.className = 'shinkai-tab-inactive px-5 py-2.5 rounded-xl font-bold transition-all text-sm md:text-base flex items-center gap-2';
+        }
+      });
+
+      if (tabId === 'tab1') updateFanGraphics();
+      if (tabId === 'tab3') inspectShape('ㄅ');
+    }
+
+    const angleRange = document.getElementById('angleRange');
+    const angleValue = document.getElementById('angleValue');
+    const fractionAngleText = document.getElementById('fractionAngleText');
+    const currentFractionDisplay = document.getElementById('currentFractionDisplay');
+
+    if (angleRange) {
+      angleRange.addEventListener('input', (e) => {
+        setAngleFromPreset(parseInt(e.target.value), false);
+      });
+    }
+
+    function setAngleFromPreset(val, updateSlider = true) {
+      currentAngle = val;
+      if (updateSlider) angleRange.value = val;
+      angleValue.textContent = currentAngle + '°';
+      fractionAngleText.textContent = currentAngle + '°';
+      updateFanGraphics();
+      updateFractionDisplay(currentAngle);
+    }
+
+    function updateFractionDisplay(deg) {
+      const infoAngleText = document.getElementById('infoAngleText');
+      const infoFractionDisplay = document.getElementById('infoFractionDisplay');
+      
+      if(infoAngleText) infoAngleText.textContent = deg + '°';
+
+      if (deg === 360) {
+        currentFractionDisplay.innerHTML = '<span class="font-bold">1 (整圓)</span>';
+        if (infoFractionDisplay) infoFractionDisplay.innerHTML = '<span class="font-bold text-3xl">1</span> <span class="text-lg font-bold text-emerald-700 mt-2">圓</span>';
+      } else {
+        const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+        const g = gcd(deg, 360);
+        const num = deg / g;
+        const den = 360 / g;
+        currentFractionDisplay.innerHTML = `
+          <span class="fraction-body">
+            <span class="numerator">${num}</span>
+            <span class="denominator">${den}</span>
+          </span>
+        `;
+        if (infoFractionDisplay) {
+          infoFractionDisplay.innerHTML = `
+            <span class="math-fraction text-3xl">
+              <span class="fraction-body">
+                <span class="numerator border-b-[3px] border-emerald-600 pb-0.5">${num}</span>
+                <span class="denominator pt-0.5">${den}</span>
+              </span>
+            </span>
+            <span class="text-xl font-bold text-emerald-700 mt-2 ml-1 block">圓</span>
+          `;
+        }
+      }
+    }
+
+    // 模式切換邏輯
+    function setMode(mode) {
+      currentDisplayMode = mode;
+      const btnFan = document.getElementById('btnFanMode');
+      const btnGeo = document.getElementById('btnGeoMode');
+      
+      if (mode === 'fan') {
+        btnFan.className = 'px-3 py-1 rounded-full text-xs font-bold bg-sky-500 text-white shadow-sm transition';
+        btnGeo.className = 'px-3 py-1 rounded-full text-xs font-bold text-slate-500 hover:text-slate-700 transition';
+      } else {
+        btnGeo.className = 'px-3 py-1 rounded-full text-xs font-bold bg-sky-500 text-white shadow-sm transition';
+        btnFan.className = 'px-3 py-1 rounded-full text-xs font-bold text-slate-500 hover:text-slate-700 transition';
+      }
+      updateFanGraphics();
+    }
+
+    function toggleElementHighlight(mode) {
+      if (highlightMode === mode) {
+        highlightMode = null;
+      } else {
+        highlightMode = mode;
+      }
+      updateFanGraphics();
+    }
+
+    function updateFanGraphics() {
+      const cx = 200, cy = 180, r = 110;
+      const startAngle = -90 - (currentAngle / 2);
+      const endAngle = -90 + (currentAngle / 2);
+
+      const startRad = (startAngle * Math.PI) / 180;
+      const endRad = (endAngle * Math.PI) / 180;
+
+      const x1 = cx + r * Math.cos(startRad);
+      const y1 = cy + r * Math.sin(startRad);
+      const x2 = cx + r * Math.cos(endRad);
+      const y2 = cy + r * Math.sin(endRad);
+
+      const largeArcFlag = currentAngle > 180 ? 1 : 0;
+
+      const sectorPath = currentAngle === 360
+        ? `M ${cx - r} ${cy} A ${r} ${r} 0 1 0 ${cx + r} ${cy} A ${r} ${r} 0 1 0 ${cx - r} ${cy}`
+        : `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
+
+      const fanSector = document.getElementById('fanSector');
+      if (fanSector) fanSector.setAttribute('d', sectorPath);
+
+      // 套用模式樣式 (摺扇 / 幾何)
+      const fanBones = document.getElementById('fanBones');
+      const labelVertex = document.getElementById('labelVertex');
+      
+      if (currentDisplayMode === 'fan') {
+        // 摺扇模式外觀
+        fanSector.setAttribute('fill', '#fef08a'); // 金黃色扇面
+        fanSector.setAttribute('stroke', '#ca8a04'); // 橘黃色邊框
+        fanSector.setAttribute('stroke-width', '3');
+        labelVertex.textContent = "扇釘 (頂點)";
+        labelVertex.setAttribute('fill', '#78350f');
+        
+        // 動態生成扇骨
+        fanBones.innerHTML = '';
+        if (currentAngle > 0) {
+          const numBones = Math.max(2, Math.floor(currentAngle / 20)); // 約每 20 度一根扇骨
+          const startI = (currentAngle === 360) ? 0 : 1;
+          for (let i = startI; i < numBones; i++) {
+            const angle = startAngle + (currentAngle * (i / numBones));
+            const rad = (angle * Math.PI) / 180;
+            const bx = cx + r * Math.cos(rad);
+            const by = cy + r * Math.sin(rad);
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', cx); line.setAttribute('y1', cy);
+            line.setAttribute('x2', bx); line.setAttribute('y2', by);
+            line.setAttribute('stroke', '#b45309'); // 深橘色扇骨
+            line.setAttribute('stroke-width', '1.5');
+            fanBones.appendChild(line);
+          }
+        }
+      } else {
+        // 幾何模式外觀
+        fanSector.setAttribute('fill', 'rgba(56, 189, 248, 0.35)'); // 天空藍透明
+        fanSector.setAttribute('stroke', '#0284c7');
+        fanSector.setAttribute('stroke-width', '3');
+        labelVertex.textContent = "圓心 (頂點)";
+        labelVertex.setAttribute('fill', '#dc2626');
+        fanBones.innerHTML = ''; // 清除扇骨
+      }
+
+      const radiusA = document.getElementById('radiusA');
+      const radiusB = document.getElementById('radiusB');
+      if (radiusA && radiusB) {
+        radiusA.setAttribute('x1', cx); radiusA.setAttribute('y1', cy);
+        radiusA.setAttribute('x2', x1); radiusA.setAttribute('y2', y1);
+        radiusB.setAttribute('x1', cx); radiusB.setAttribute('y1', cy);
+        radiusB.setAttribute('x2', x2); radiusB.setAttribute('y2', y2);
+      }
+
+      // 控制外圈虛線圓與名稱標籤的顯示與隱藏
+      const dashedCircle = document.getElementById('dashedCircle');
+      const chkShowDashedCircle = document.getElementById('chkShowDashedCircle');
+      if (dashedCircle && chkShowDashedCircle) {
+        dashedCircle.style.display = chkShowDashedCircle.checked ? 'block' : 'none';
+      }
+
+      const fanLabels = document.getElementById('fanLabels');
+      const chkShowLabels = document.getElementById('chkShowLabels');
+      if (fanLabels && chkShowLabels) {
+        fanLabels.style.display = chkShowLabels.checked ? 'block' : 'none';
+      }
+
+      const centerPoint = document.getElementById('centerPoint');
+      
+      if (centerPoint) {
+        if (highlightMode === 'vertex') {
+          centerPoint.setAttribute('fill', '#ef4444'); // 強制亮紅色點
+          centerPoint.setAttribute('r', '12');
+        } else {
+          if (currentDisplayMode === 'fan') {
+            centerPoint.setAttribute('fill', '#78350f'); // 扇釘顏色
+            centerPoint.setAttribute('r', '8');
+          } else {
+            centerPoint.setAttribute('fill', '#ef4444');
+            centerPoint.setAttribute('r', '7');
+          }
+        }
+      }
+
+      if (radiusA && radiusB) {
+        let strokeColor = currentDisplayMode === 'fan' ? '#ca8a04' : '#2563eb';
+        if (currentAngle === 360) {
+          radiusA.style.display = 'none';
+          radiusB.style.display = 'none';
+        } else if (highlightMode === 'radius') {
+          radiusA.style.display = 'block';
+          radiusB.style.display = 'block';
+          radiusA.setAttribute('stroke', '#3b82f6'); // 強制亮藍色邊
+          radiusA.setAttribute('stroke-width', '7');
+          radiusB.setAttribute('stroke', '#3b82f6');
+          radiusB.setAttribute('stroke-width', '7');
+        } else {
+          radiusA.style.display = 'block';
+          radiusB.style.display = 'block';
+          radiusA.setAttribute('stroke', strokeColor);
+          radiusA.setAttribute('stroke-width', currentDisplayMode === 'fan' ? '3' : '4');
+          radiusB.setAttribute('stroke', strokeColor);
+          radiusB.setAttribute('stroke-width', currentDisplayMode === 'fan' ? '3' : '4');
+        }
+      }
+
+      const fanArcHighlight = document.getElementById('fanArcHighlight');
+      if (fanArcHighlight) {
+        const arcPath = currentAngle === 360
+          ? `M ${cx - r} ${cy} A ${r} ${r} 0 1 0 ${cx + r} ${cy} A ${r} ${r} 0 1 0 ${cx - r} ${cy}`
+          : `M ${x1} ${y1} A ${r} ${r} 0 ${largeArcFlag} 1 ${x2} ${y2}`;
+        
+        fanArcHighlight.setAttribute('d', arcPath);
+        
+        if (highlightMode === 'arc') {
+          fanArcHighlight.setAttribute('stroke', '#22c55e'); // 強制僅亮綠色弧 (不干擾半徑)
+          fanArcHighlight.setAttribute('stroke-width', '6');
+        } else {
+          fanArcHighlight.setAttribute('stroke', 'transparent');
+        }
+      }
+
+      // 計算文字標籤不重疊的座標
+      const labelRadiusA = document.getElementById('labelRadiusA');
+      const labelRadiusB = document.getElementById('labelRadiusB');
+      const labelArc = document.getElementById('labelArc');
+
+      if (labelRadiusA && labelRadiusB && labelArc) {
+        // 半徑 A (起始邊) 文字位置 (往外推)
+        const midRadA = startRad;
+        // 為了不重疊，將文字法向量推移
+        const normX_A = Math.cos(midRadA - Math.PI/2);
+        const normY_A = Math.sin(midRadA - Math.PI/2);
+        labelRadiusA.setAttribute('x', cx + (r/2) * Math.cos(midRadA) + normX_A * 20);
+        labelRadiusA.setAttribute('y', cy + (r/2) * Math.sin(midRadA) + normY_A * 20 + 5);
+
+        // 半徑 B (結束邊) 文字位置
+        const midRadB = endRad;
+        const normX_B = Math.cos(midRadB + Math.PI/2);
+        const normY_B = Math.sin(midRadB + Math.PI/2);
+        labelRadiusB.setAttribute('x', cx + (r/2) * Math.cos(midRadB) + normX_B * 20);
+        labelRadiusB.setAttribute('y', cy + (r/2) * Math.sin(midRadB) + normY_B * 20 + 5);
+
+        // 弧標籤位置 (往外推)
+        const midArcAngle = startRad + (endRad - startRad) / 2;
+        labelArc.setAttribute('x', cx + (r + 25) * Math.cos(midArcAngle));
+        labelArc.setAttribute('y', cy + (r + 25) * Math.sin(midArcAngle) + 5);
+
+        // 在摺扇模式下隱藏「弧」與「半徑」標籤；幾何模式下 360° 時隱藏「半徑」標籤
+        if (currentDisplayMode === 'fan') {
+          labelRadiusA.style.display = 'none';
+          labelRadiusB.style.display = 'none';
+          labelArc.style.display = 'none';
+        } else {
+          labelArc.style.display = 'block';
+          if (currentAngle === 360) {
+            labelRadiusA.style.display = 'none';
+            labelRadiusB.style.display = 'none';
+          } else {
+            labelRadiusA.style.display = 'block';
+            labelRadiusB.style.display = 'block';
+          }
+        }
+      }
+    }
+
+    const shapeSpecs = {
+      '甲': { side: true, vertex: true, arc: true, isSector: true, reason: '【是扇形】頂點在圓心上，兩直線邊為半徑，弧落在圓周上！' },
+      '乙': { side: false, vertex: false, arc: true, isSector: false, reason: '【不是扇形】頂點偏離了圓心，兩條直線邊也不等於半徑！' },
+      '丙': { side: false, vertex: false, arc: true, isSector: false, reason: '【不是扇形】頂點不在圓心上，兩條直線邊長度也不等於半徑！' },
+      '丁': { side: true, vertex: true, arc: true, isSector: true, reason: '【是扇形】圓心角大於 180° (優扇形)，頂點在圓心且兩邊為半徑！' },
+      '戊': { side: false, vertex: true, arc: false, isSector: false, reason: '【不是扇形】頂點雖然在圓心上，但兩條邊長度不等於半徑，弧也沒有在圓周上！' },
+      '己': { side: true, vertex: true, arc: true, isSector: true, reason: '【是扇形】頂點在圓心，兩條邊為半徑且長度相等！' }
+    };
+
+    function verifyShapeCard(name) {
+      const spec = shapeSpecs[name];
+      const c1 = document.getElementById(`check-${name}-1`).checked;
+      const c2 = document.getElementById(`check-${name}-2`).checked;
+      const c3 = document.getElementById(`check-${name}-3`).checked;
+
+      const isUserCorrect = (c1 === spec.side && c2 === spec.vertex && c3 === spec.arc);
+      const badge = document.getElementById(`badge-${name}`);
+      const fb = document.getElementById(`feedback-${name}`);
+
+      fb.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-rose-50', 'text-rose-800', 'border-rose-200');
+
+      if (isUserCorrect) {
+        if (spec.isSector) {
+          badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-300';
+          badge.textContent = '是扇形 ✓';
+        } else {
+          badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 border border-rose-300';
+          badge.textContent = '不是扇形 ✗';
+        }
+        fb.className = 'mt-3 p-2.5 rounded-xl text-xs leading-relaxed bg-emerald-50 text-emerald-800 border border-emerald-200';
+        fb.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i><strong>答對了！</strong> ${spec.reason}`;
+      } else {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-300';
+        badge.textContent = '請再想想';
+        fb.className = 'mt-3 p-2.5 rounded-xl text-xs leading-relaxed bg-rose-50 text-rose-800 border border-rose-200';
+        fb.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600 mr-1"></i><strong>再觀察看看：</strong> 請對照圓心黑點的位置與直線邊長度，重新勾選喔！`;
+      }
+    }
+
+    function autoVerifyAllCards() {
+      ['甲', '乙', '丙', '丁', '戊', '己'].forEach(name => {
+        const spec = shapeSpecs[name];
+        document.getElementById(`check-${name}-1`).checked = spec.side;
+        document.getElementById(`check-${name}-2`).checked = spec.vertex;
+        document.getElementById(`check-${name}-3`).checked = spec.arc;
+        verifyShapeCard(name);
+      });
+    }
+
+    const cardsData = [
+      { id: 'c1', title: '頂點在圓心、半徑相等', isSector: true },
+      { id: 'c2', title: '頂點偏離圓心', isSector: false },
+      { id: 'c3', title: '圓心角 180° 的半圓', isSector: true },
+      { id: 'c4', title: '兩邊直線不等長', isSector: false },
+      { id: 'c5', title: '圓心角 240° 的優扇形', isSector: true },
+      { id: 'c6', title: '兩條直線邊未連接圓心', isSector: false }
+    ];
+
+    let currentCardPositions = {};
+
+    function initClassificationCards() {
+      const container = document.getElementById('unclassifiedCards');
+      if (!container) return;
+      container.innerHTML = '';
+      document.getElementById('cardContainerYes').innerHTML = '';
+      document.getElementById('cardContainerNo').innerHTML = '';
+      currentCardPositions = {};
+
+      cardsData.forEach(card => {
+        currentCardPositions[card.id] = 'unclassified';
+
+        const div = document.createElement('div');
+        div.id = card.id;
+        div.draggable = true;
+        div.ondragstart = (e) => drag(e);
+        div.onclick = () => cycleCardZone(card.id);
+        div.className = 'drag-card bg-white px-3.5 py-2.5 rounded-xl shadow-md border border-slate-200 text-xs font-bold text-slate-700 flex items-center gap-2 hover:border-sky-400 transition transform active:scale-95';
+        div.innerHTML = `<i class="fa-solid fa-grip-vertical text-slate-300 mr-0.5"></i><i class="fa-solid fa-shapes text-sky-500"></i> ${card.title}`;
+        container.appendChild(div);
+      });
+
+      const fb = document.getElementById('dragGameFeedback');
+      if (fb) fb.classList.add('hidden');
+    }
+
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function highlightZone(elem) {
+      elem.classList.add('drop-zone-highlight');
+    }
+
+    function unhighlightZone(elem) {
+      elem.classList.remove('drop-zone-highlight');
+    }
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text/plain", ev.target.id);
+    }
+
+    function drop(ev, targetZone) {
+      ev.preventDefault();
+      const zoneElem = ev.currentTarget;
+      unhighlightZone(zoneElem);
+
+      const cardId = ev.dataTransfer.getData("text/plain");
+      moveCardToZone(cardId, targetZone);
+    }
+
+    function moveCardToZone(cardId, targetZone) {
+      const cardElem = document.getElementById(cardId);
+      if (!cardElem) return;
+
+      if (targetZone === 'yes') {
+        document.getElementById('cardContainerYes').appendChild(cardElem);
+        currentCardPositions[cardId] = 'yes';
+        cardElem.className = 'drag-card bg-emerald-100/80 border-emerald-300 px-3.5 py-2.5 rounded-xl shadow-sm border text-xs font-bold text-emerald-900 flex items-center gap-2';
+      } else if (targetZone === 'no') {
+        document.getElementById('cardContainerNo').appendChild(cardElem);
+        currentCardPositions[cardId] = 'no';
+        cardElem.className = 'drag-card bg-rose-100/80 border-rose-300 px-3.5 py-2.5 rounded-xl shadow-sm border text-xs font-bold text-rose-900 flex items-center gap-2';
+      } else {
+        document.getElementById('unclassifiedCards').appendChild(cardElem);
+        currentCardPositions[cardId] = 'unclassified';
+        cardElem.className = 'drag-card bg-white px-3.5 py-2.5 rounded-xl shadow-md border border-slate-200 text-xs font-bold text-slate-700 flex items-center gap-2 hover:border-sky-400 transition';
+      }
+    }
+
+    function cycleCardZone(cardId) {
+      const pos = currentCardPositions[cardId];
+      if (pos === 'unclassified') moveCardToZone(cardId, 'yes');
+      else if (pos === 'yes') moveCardToZone(cardId, 'no');
+      else moveCardToZone(cardId, 'unclassified');
+    }
+
+    function verifyClassificationGame() {
+      const fb = document.getElementById('dragGameFeedback');
+      if (!fb) return;
+
+      let total = cardsData.length;
+      let correct = 0;
+      let unclassifiedCount = 0;
+
+      cardsData.forEach(card => {
+        const userPos = currentCardPositions[card.id];
+        const expectedPos = card.isSector ? 'yes' : 'no';
+        if (userPos === 'unclassified') {
+          unclassifiedCount++;
+        } else if (userPos === expectedPos) {
+          correct++;
+        }
+      });
+
+      fb.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-rose-50', 'text-rose-800', 'border-rose-200', 'bg-amber-50', 'text-amber-800', 'border-amber-200');
+
+      if (unclassifiedCount > 0) {
+        fb.className = 'max-w-2xl mx-auto p-4 rounded-xl text-xs md:text-sm leading-relaxed border bg-amber-50 text-amber-800 border-amber-200';
+        fb.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-600 mr-1.5 text-base"></i><strong>還有 ${unclassifiedCount} 張卡片未分類！</strong> 請將所有卡片拖曳至【是扇形】或【不是扇形】區域後再驗證喔！`;
+        return;
+      }
+
+      if (correct === total) {
+        fb.className = 'max-w-2xl mx-auto p-4 rounded-xl text-xs md:text-sm leading-relaxed border bg-emerald-50 text-emerald-800 border-emerald-200';
+        fb.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1.5 text-base"></i><strong>太棒了！完全正確 (得分：100 分)！</strong><br>你已經徹底掌握了「頂點在圓心、兩邊為半徑、弧在圓周上」的扇形三要素！`;
+      } else {
+        fb.className = 'max-w-2xl mx-auto p-4 rounded-xl text-xs md:text-sm leading-relaxed border bg-rose-50 text-rose-800 border-rose-200';
+        fb.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600 mr-1.5 text-base"></i><strong>答對了 ${correct} / ${total} 題！</strong><br>提示：記得半圓與圓心角大於 180° 的優扇形也是標準扇形；但如果頂點不在圓心或邊長不等，就「不是」扇形喔！請修正後再試一次！`;
+      }
+    }
+
+    function resetDragGame() {
+      initClassificationCards();
+    }
+
+    function inspectShape(shapeName) {
+      const svg = document.getElementById('inspectSvg');
+      const exp = document.getElementById('inspectExplanation');
+      if (!svg || !exp) return;
+
+      ['ㄅ', 'ㄆ', 'ㄇ'].forEach(name => {
+        const btn = document.getElementById('btnInspect' + name);
+        if (btn) {
+          if (name === shapeName) {
+            btn.className = 'px-4 py-1.5 rounded-lg text-xs font-bold bg-sky-600 text-white shadow-sm';
+          } else {
+            btn.className = 'px-4 py-1.5 rounded-lg text-xs font-bold bg-slate-200 text-slate-700';
+          }
+        }
+      });
+
+      if (shapeName === 'ㄅ') {
+        /* 圖形 ㄅ：淺藍色，頂點在上方，用圓規畫圓時無法重疊 (比對圖1) */
+        svg.innerHTML = `
+          <path d="M 100 35 L 100 165 A 130 130 0 0 0 220 175 L 100 35 Z" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+          <circle cx="100" cy="35" r="130" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-dasharray="4,4" fill="none"/>
+          <circle cx="100" cy="35" r="5" fill="#ef4444"/>
+          <text x="100" y="22" font-size="12" font-weight="bold" fill="#dc2626" text-anchor="middle">頂點 (圓心)</text>
+        `;
+        exp.innerHTML = `<strong>圖形 ㄅ 檢驗結果：</strong>圖形 ㄅ 兩直線邊不一樣長，以直線邊為半徑畫圓時，圓弧無法完全重疊，因此<strong>不是扇形</strong>。`;
+      } else if (shapeName === 'ㄆ') {
+        /* 圖形 ㄆ：淺綠色扇形，向上開啟，紅虛線完美重疊 (比對圖2) */
+        svg.innerHTML = `
+          <path d="M 150 175 L 45 70 A 148 148 0 0 1 255 70 Z" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+          <path d="M 45 70 A 148 148 0 0 1 255 70" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="4,4" fill="none"/>
+          <circle cx="150" cy="175" r="6" fill="#ef4444"/>
+          <text x="150" y="198" font-size="12" font-weight="bold" fill="#dc2626" text-anchor="middle">頂點 (圓心)</text>
+        `;
+        exp.innerHTML = `<strong>圖形 ㄆ 檢驗結果：</strong>圖形 ㄆ 兩直線邊等長，以直線邊為半徑畫圓，弧完全重疊，因此這個圖形<strong>是扇形</strong>。`;
+      } else if (shapeName === 'ㄇ') {
+        /* 圖形 ㄇ：狹長紫色楔形，邊線全改為紫色 */
+        svg.innerHTML = `
+          <path d="M 30 110 L 250 50 A 180 100 0 0 1 250 170 Z" fill="#e9d5ff" stroke="#7e22ce" stroke-width="2"/>
+          <circle cx="30" cy="110" r="5" fill="#ef4444"/>
+          <path d="M 30 110 L 250 50" stroke="#7e22ce" stroke-width="2"/>
+          <path d="M 30 110 L 250 170" stroke="#7e22ce" stroke-width="2"/>
+          <circle cx="30" cy="110" r="226" stroke="#ef4444" stroke-width="2" stroke-dasharray="4,4" fill="none"/>
+          <text x="20" y="130" font-size="12" font-weight="bold" fill="#dc2626">頂點</text>
+        `;
+        exp.innerHTML = `<strong>圖形 ㄇ 檢驗結果：</strong>以頂點為圓心、直線邊為半徑畫圓時，圖形的曲線與圓規畫出的紅色虛線圓弧無法完全重疊，因此<strong>不是扇形</strong>。`;
+      }
+    }
+
+    /* 生活素養：棒球場思考問題互動判斷 (比對圖 2~4) */
+    function checkBaseballAnswer(userChoice) {
+      const fb = document.getElementById('baseballFeedback');
+      if (!fb) return;
+
+      fb.classList.remove('hidden', 'bg-rose-50', 'text-rose-900', 'border-rose-300', 'bg-emerald-50', 'text-emerald-900', 'border-emerald-300');
+
+      if (userChoice === 'yes') {
+        /* 選擇「是扇形」(錯誤回饋 - 比對圖 3) */
+        fb.className = 'mt-3 p-3.5 rounded-xl text-xs md:text-sm leading-relaxed border bg-rose-50/90 text-rose-900 border-rose-300 shadow-sm';
+        fb.innerHTML = `
+          <div class="font-bold text-rose-700 flex items-center gap-1.5 mb-1 text-sm">
+            <i class="fa-solid fa-circle-xmark text-rose-600 text-base"></i> 再思考一下下喔！
+          </div>
+          <div>
+            扇形的兩條邊是「半徑」，圓心到弧上一點也都要等於半徑。棒球場中外野深達 400 呎，比兩側的 325 呎更長，因此距離並不等長喔！
+          </div>
+        `;
+      } else if (userChoice === 'no') {
+        /* 選擇「不是扇形」(正確回饋 - 比對圖 4) */
+        fb.className = 'mt-3 p-3.5 rounded-xl text-xs md:text-sm leading-relaxed border bg-emerald-50/90 text-emerald-900 border-emerald-300 shadow-sm';
+        fb.innerHTML = `
+          <div class="font-bold text-emerald-700 flex items-center gap-1.5 mb-1 text-sm">
+            <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i> 回答完全正確！
+          </div>
+          <div>
+            因為本壘板到左外野、右外野標桿距離為 325 呎，但到中外野牆卻是 400 呎。<u class="underline decoration-emerald-500 font-bold">圓心到牆上各點的距離不相等</u>（不符合半徑等長原則），所以這不是一個標準的扇形！
+          </div>
+        `;
+      }
+    }
+
+    const quizData = [
+      {
+        id: 1,
+        question: "1. 關於扇形的頂點，下列敘述何者正確？",
+        options: [
+          "頂點可以位於圖形的任意位置",
+          "頂點必須一定要在「圓心」上",
+          "頂點必須要在圓周上",
+          "扇形沒有頂點"
+        ],
+        answer: 1,
+        explanation: "扇形的定義中，頂點必須是該圓的「圓心」。"
+      },
+      {
+        id: 2,
+        question: "2. 圓心角為 180 度的「半圓」，是不是扇形呢？",
+        options: [
+          "是扇形，且佔整個圓的 <span class='math-fraction'><span class='fraction-body'><span class='numerator'>1</span><span class='denominator'>2</span></span></span>",
+          "不是扇形，因為它是半圓",
+          "不是扇形，因為角度太大",
+          "是扇形，且佔整個圓的 <span class='math-fraction'><span class='fraction-body'><span class='numerator'>1</span><span class='denominator'>4</span></span></span>"
+        ],
+        answer: 0,
+        explanation: "半圓滿足頂點在圓心、兩條半徑邊與弧，是圓心角 180° 的扇形 (即 1/2 個圓)。"
+      },
+      {
+        id: 3,
+        question: "3. 當扇形的圓心角是 90 度時，這個扇形是幾分之幾圓？",
+        options: [
+          "是 <span class='math-fraction'><span class='fraction-body'><span class='numerator'>1</span><span class='denominator'>2</span></span></span> 個圓",
+          "是 <span class='math-fraction'><span class='fraction-body'><span class='numerator'>1</span><span class='denominator'>3</span></span></span> 個圓",
+          "是 <span class='math-fraction'><span class='fraction-body'><span class='numerator'>1</span><span class='denominator'>4</span></span></span> 個圓",
+          "是 <span class='math-fraction'><span class='fraction-body'><span class='numerator'>1</span><span class='denominator'>8</span></span></span> 個圓"
+        ],
+        answer: 2,
+        explanation: "整個圓是 360°，90° ÷ 360° = 1/4 (四分之一圓)。"
+      },
+      {
+        id: 4,
+        question: "4. 臺中洲際棒球場從本壘板到中外野牆為 400 呎，到左右外野牆為 325 呎。請問本壘區所組成的圖形是扇形嗎？為什麼？",
+        options: [
+          "是扇形，因為形狀看起來像扇子",
+          "不是扇形，因為中外野距離 (400呎) 與兩側 (325呎) 不相等，半徑不同",
+          "是扇形，因為頂點在圓心",
+          "不是扇形，因為沒有曲線弧線"
+        ],
+        answer: 1,
+        explanation: "扇形的兩條直線邊必須是「圓的半徑」（長度必須完全相等）。400 呎 ≠ 325 呎，故非扇形。"
+      },
+      {
+        id: 5,
+        question: "5. 下列哪一個條件「不是」構成扇形的必要條件？",
+        options: [
+          "頂點位在圓心",
+          "兩條直線邊是圓的半徑",
+          "圍成的曲線是圓周的一部分",
+          "圓心角必須小於 180 度"
+        ],
+        answer: 3,
+        explanation: "圓心角大於 180° 的圖形（如 240° 的優扇形）只要滿足其他三要素，一樣也是標準扇形！"
+      }
+    ];
+
+    let userAnswers = {};
+
+    function renderQuiz() {
+      const container = document.getElementById('quizContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      quizData.forEach((q) => {
+        const card = document.createElement('div');
+        card.className = 'p-5 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-3';
+        
+        let optionsHtml = '';
+        q.options.forEach((opt, oIndex) => {
+          optionsHtml += `
+            <label class="flex items-center p-3 rounded-xl border border-slate-100 hover:bg-sky-50/60 cursor-pointer transition text-sm">
+              <input type="radio" name="question_${q.id}" value="${oIndex}" onchange="recordAnswer(${q.id}, ${oIndex})" class="w-4 h-4 text-sky-600 accent-sky-500 mr-3">
+              <span class="text-slate-700 font-medium">${opt}</span>
+            </label>
+          `;
+        });
+
+        card.innerHTML = `
+          <h3 class="font-bold text-slate-800 text-base leading-snug">${q.question}</h3>
+          <div class="space-y-2">${optionsHtml}</div>
+          <div id="feedback_${q.id}" class="hidden p-3 rounded-xl text-xs leading-relaxed mt-2"></div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function recordAnswer(qId, optionIndex) {
+      userAnswers[qId] = optionIndex;
+    }
+
+    function submitQuiz() {
+      let correctCount = 0;
+      
+      quizData.forEach(q => {
+        const feedbackEl = document.getElementById('feedback_' + q.id);
+        if (!feedbackEl) return;
+        
+        feedbackEl.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-rose-50', 'text-rose-800', 'border-rose-200', 'bg-amber-50', 'text-amber-800', 'border-amber-200');
+        
+        if (userAnswers[q.id] === undefined) {
+          // 未作答狀態
+          feedbackEl.className = 'p-3 rounded-xl text-xs leading-relaxed mt-2 bg-amber-50 text-amber-800 border border-amber-200 font-bold';
+          feedbackEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-600 mr-1"></i>未作答。`;
+        } else if (userAnswers[q.id] === q.answer) {
+          // 答對狀態
+          correctCount++;
+          feedbackEl.className = 'p-3 rounded-xl text-xs leading-relaxed mt-2 bg-emerald-50 text-emerald-800 border border-emerald-200';
+          feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i><strong>答對了！</strong> ${q.explanation}`;
+        } else {
+          // 答錯狀態
+          feedbackEl.className = 'p-3 rounded-xl text-xs leading-relaxed mt-2 bg-rose-50 text-rose-800 border border-rose-200';
+          feedbackEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600 mr-1"></i><strong>答錯了！</strong> ${q.explanation}`;
+        }
+      });
+
+      const totalScore = (correctCount / quizData.length) * 100;
+      const scoreEl = document.getElementById('quizScore');
+      if (scoreEl) scoreEl.textContent = `${totalScore} / 100`;
+    }
+
+    function resetQuiz() {
+      userAnswers = {};
+      const scoreEl = document.getElementById('quizScore');
+      if (scoreEl) scoreEl.textContent = '0 / 100';
+      renderQuiz();
+    }
+
+    window.onload = function() {
+      setAngleFromPreset(120, true);
+      initClassificationCards();
+      renderQuiz();
+      inspectShape('ㄅ');
+    };
+  </script>
+</body>
+</html>

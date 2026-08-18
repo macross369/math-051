@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>平行四邊形面積 - 新海誠風互動探究網頁</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Noto Sans TC -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #1a1c2e 0%, #30336b 35%, #6c5ce7 70%, #ff7675 100%);
+            background-attachment: fixed;
+            color: #2d3436;
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism containers */
+        .shinkai-glass {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 0 20px rgba(108, 92, 231, 0.2);
+        }
+
+        .shinkai-card {
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.08);
+        }
+
+        /* Shinkai styled dynamic buttons */
+        .btn-shinkai {
+            background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+        }
+        .btn-shinkai:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 92, 231, 0.6);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(214, 48, 49, 0.4);
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(214, 48, 49, 0.6);
+        }
+        
+        /* Tab buttons */
+        .tab-btn {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #ff7675 0%, #e84393 100%);
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(232, 67, 147, 0.4);
+        }
+
+        /* Standard vertical fraction layout (教育部國小數學標準直式分數) */
+        .frac {
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            text-align: center;
+            font-size: 0.95em;
+            margin: 0 4px;
+            line-height: 1.1;
+        }
+        .frac .top {
+            border-bottom: 2px solid currentColor;
+            padding: 0 4px 1px 4px;
+        }
+        .frac .bottom {
+            padding: 1px 4px 0 4px;
+        }
+        .mixed-frac {
+            display: inline-flex;
+            align-items: center;
+            font-size: 1.1em;
+        }
+        .mixed-frac .whole {
+            margin-right: 3px;
+            font-weight: bold;
+        }
+
+        /* Custom range slider styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 10px;
+            cursor: pointer;
+            background: #dfe6e9;
+            border-radius: 5px;
+            border: 1px solid #b2bec3;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #6c5ce7;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -7px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: background-color 0.2s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            background: #e84393;
+        }
+
+        /* Single unified SVG grid background class (已移除多餘 CSS 背景重疊網格) */
+        .svg-canvas-container {
+            background-color: #ffffff;
+        }
+
+        /* Floating stars background effect */
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+    </style>
+</head>
+<body class="p-2 sm:p-6 min-h-screen relative overflow-x-hidden">
+
+    <!-- Background Starry Decorative Elements -->
+    <div id="stars-container" class="fixed inset-0 pointer-events-none z-0"></div>
+
+    <div class="max-w-6xl mx-auto relative z-10">
+        
+        <!-- 修改：新增頁面最上方左上角的品牌標頭 -->
+        <div class="w-full max-w-4xl flex items-center justify-start mb-4 px-2 fade-in">
+            <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+            <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+        </div>
+
+        <!-- Banner Header -->
+        <header class="shinkai-glass rounded-3xl p-6 mb-6 text-center text-gray-800 relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-pink-400 rounded-full blur-3xl opacity-30"></div>
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-400 rounded-full blur-3xl opacity-30"></div>
+            
+            <div class="inline-block bg-indigo-100 text-indigo-700 px-4 py-1 rounded-full text-sm font-bold mb-2">
+                <i class="fa-solid fa-shapes mr-2"></i>國小五上數學 8-1 互動學習網頁
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-600 mb-2">
+                平行四邊形的面積探索之旅
+            </h1>
+            <p class="text-gray-600 max-w-2xl mx-auto text-sm sm:text-base">
+                透過拖曳、剪拼與動態視覺，觀察平行四邊形如何轉化為長方形，掌握底與高對應的幾何秘密！
+            </p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6">
+            <button onclick="switchTab('tab1')" id="btn-tab1" class="tab-btn active px-4 py-2.5 rounded-2xl text-sm sm:text-base bg-white/80 hover:bg-white font-semibold text-gray-700 shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-scissors text-pink-500"></i> 1. 切割拼補實驗
+            </button>
+            <button onclick="switchTab('tab2')" id="btn-tab2" class="tab-btn px-4 py-2.5 rounded-2xl text-sm sm:text-base bg-white/80 hover:bg-white font-semibold text-gray-700 shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-ruler-combined text-indigo-500"></i> 2. 認識底與高
+            </button>
+            <button onclick="switchTab('tab3')" id="btn-tab3" class="tab-btn px-4 py-2.5 rounded-2xl text-sm sm:text-base bg-white/80 hover:bg-white font-semibold text-gray-700 shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-calculator text-emerald-500"></i> 3. 面積公式推導
+            </button>
+            <button onclick="switchTab('tab4')" id="btn-tab4" class="tab-btn px-4 py-2.5 rounded-2xl text-sm sm:text-base bg-white/80 hover:bg-white font-semibold text-gray-700 shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-draw-polygon text-amber-500"></i> 4. 三角板畫高體驗
+            </button>
+            <button onclick="switchTab('tab5')" id="btn-tab5" class="tab-btn px-4 py-2.5 rounded-2xl text-sm sm:text-base bg-white/80 hover:bg-white font-semibold text-gray-700 shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-award text-purple-500"></i> 5. 隨堂大挑戰
+            </button>
+        </nav>
+
+        <!-- TAB 1: 切割拼補大作戰 -->
+        <section id="tab1" class="tab-content block">
+            <div class="shinkai-glass rounded-3xl p-6 mb-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="w-10 h-10 rounded-2xl bg-pink-500 text-white flex items-center justify-center font-bold text-lg">1</span>
+                    <h2 class="text-2xl font-bold text-gray-800">操作長方形與平行四邊形的「切割與重組」</h2>
+                </div>
+                <p class="text-gray-600 mb-6 leading-relaxed">
+                    請拖拉下方的「剪切與移動滑桿」，將平行四邊形左側的直角三角形沿著<span class="text-red-500 font-bold">高（紅線）</span>剪下並平移至最右側，觀察拼成的新圖形與發現！
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                    <!-- Interactive Visual SVG Canvas -->
+                    <div class="lg:col-span-2 bg-white/90 rounded-2xl p-4 shadow-inner border border-purple-100 flex flex-col items-center justify-center relative min-h-[320px] svg-canvas-container rounded-2xl overflow-hidden">
+                        
+                        <svg id="svg-tab1" viewBox="0 0 500 280" class="w-full h-auto max-w-lg">
+                            <!-- SVG elements dynamically modified by JS -->
+                        </svg>
+
+                        <div class="mt-4 w-full max-w-md px-4">
+                            <label class="block text-sm font-bold text-indigo-900 mb-2 flex justify-between">
+                                <span><i class="fa-solid fa-sliders text-indigo-500 mr-2"></i>切割與平移進度：</span>
+                                <span id="cut-progress-text" class="text-pink-600 font-black">0% (原始平行四邊形)</span>
+                            </label>
+                            <input type="range" id="cutSlider" min="0" max="100" value="0" oninput="updateTab1()">
+                        </div>
+                    </div>
+
+                    <!-- Side Learning Card (Hidden until slider is at 100% - Styled as Image 1) -->
+                    <div id="tab1-findings" class="space-y-4 hidden">
+                        <!-- Box 1: Key Observations -->
+                        <div class="bg-amber-50/90 p-5 rounded-2xl border border-amber-200 shadow-sm space-y-3">
+                            <h3 class="font-bold text-lg text-amber-900 flex items-center gap-2">
+                                <i class="fa-solid fa-magnifying-glass text-amber-700"></i> 關鍵觀察點：
+                            </h3>
+                            <ul class="space-y-2.5 text-sm text-amber-950 font-medium">
+                                <li class="flex items-start gap-1.5">
+                                    <span class="text-amber-600 font-bold">•</span>
+                                    <span>平行四邊形的<span class="text-sky-600 font-bold">「底」</span>與變形後長方形的<span class="text-emerald-600 font-bold">「長」</span>一樣長。</span>
+                                </li>
+                                <li class="flex items-start gap-1.5">
+                                    <span class="text-amber-600 font-bold">•</span>
+                                    <span>平行四邊形的<span class="text-rose-600 font-bold">「高」</span>與變形後長方形的<span class="text-amber-600 font-bold">「寬」</span>一樣長。</span>
+                                </li>
+                                <li class="flex items-start gap-1.5">
+                                    <span class="text-amber-600 font-bold">•</span>
+                                    <span>因為只是切割重組，所以<span class="text-indigo-600 font-bold">面積完全一樣大</span>！</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Box 2: Derivation Conclusion -->
+                        <div class="bg-blue-50/90 p-5 rounded-2xl border border-blue-200 shadow-sm text-center space-y-3">
+                            <div class="text-sky-700 font-bold text-base">推導結論</div>
+                            <div class="text-gray-800 font-bold text-lg">長方形面積 = 長 × 寬</div>
+                            <div class="text-sky-600 font-extrabold text-lg">↓ 對應代換 ↓</div>
+                            <div class="bg-white py-3 px-4 rounded-xl shadow-md border border-indigo-100 text-indigo-900 font-extrabold text-lg sm:text-xl inline-block w-full">
+                                平行四邊形面積 = 底 × 高
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: 認識底與高 -->
+        <section id="tab2" class="tab-content hidden">
+            <div class="shinkai-glass rounded-3xl p-6 mb-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="w-10 h-10 rounded-2xl bg-indigo-500 text-white flex items-center justify-center font-bold text-lg">2</span>
+                    <h2 class="text-2xl font-bold text-gray-800">平行線間的距離即為「高」</h2>
+                </div>
+                <p class="text-gray-600 mb-6">
+                    平行四邊形上下兩條對邊互相平行。<b>底邊到對邊的垂直距離，就是平行四邊形的「高」</b>。點擊下方按鈕，看看在不同位置畫高，長度會改變嗎？
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <button onclick="setTab2Mode('inside1')" id="tab2-btn-inside1" class="p-4 rounded-2xl border-2 border-indigo-400 bg-indigo-50 font-bold text-indigo-900 flex items-center justify-center gap-2 hover:shadow-md transition">
+                        <i class="fa-solid fa-ruler-vertical text-indigo-600"></i> 位置一：圖形內部（左側）
+                    </button>
+                    <button onclick="setTab2Mode('inside2')" id="tab2-btn-inside2" class="p-4 rounded-2xl border-2 border-gray-200 bg-white font-bold text-gray-700 flex items-center justify-center gap-2 hover:shadow-md transition">
+                        <i class="fa-solid fa-ruler-vertical text-indigo-600"></i> 位置二：圖形內部（中間）
+                    </button>
+                    <button onclick="setTab2Mode('outside')" id="tab2-btn-outside" class="p-4 rounded-2xl border-2 border-gray-200 bg-white font-bold text-gray-700 flex items-center justify-center gap-2 hover:shadow-md transition">
+                        <i class="fa-solid fa-ruler-vertical text-pink-600"></i> 位置三：圖形外部（延長線）
+                    </button>
+                </div>
+
+                <div class="bg-white/90 rounded-2xl p-6 shadow-inner border border-purple-100 flex flex-col items-center justify-center svg-canvas-container">
+                    <svg id="svg-tab2" viewBox="0 0 600 260" class="w-full max-w-2xl h-auto">
+                        <!-- SVG content driven by JS -->
+                    </svg>
+
+                    <div id="tab2-info" class="mt-4 p-4 bg-indigo-50 rounded-2xl border border-indigo-200 text-indigo-900 font-bold text-center w-full max-w-xl">
+                        平行線間的距離處處相等！不論高畫在哪裡，長度都一模一樣（皆為 <span class="text-pink-600 text-xl font-extrabold">6</span> 公分）。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: 面積公式推導與動態計算 -->
+        <section id="tab3" class="tab-content hidden">
+            <div class="shinkai-glass rounded-3xl p-6 mb-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="w-10 h-10 rounded-2xl bg-emerald-500 text-white flex items-center justify-center font-bold text-lg">3</span>
+                    <h2 class="text-2xl font-bold text-gray-800">平行四邊形面積公式：底 × 高</h2>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Controls Column -->
+                    <div class="lg:col-span-5 shinkai-card p-6 space-y-6">
+                        <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2 border-b pb-3">
+                            <i class="fa-solid fa-sliders text-emerald-500"></i> 動態調整尺寸參數
+                        </h3>
+
+                        <!-- Base Slider -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="font-bold text-gray-700 flex items-center gap-2">
+                                    <span class="w-3 h-3 bg-blue-500 rounded-full inline-block"></span> 底 (Base):
+                                </label>
+                                <span class="text-xl font-extrabold text-blue-600"><span id="val-base">8</span> cm</span>
+                            </div>
+                            <input type="range" id="slider-base" min="3" max="14" value="8" oninput="updateTab3()">
+                        </div>
+
+                        <!-- Height Slider -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="font-bold text-gray-700 flex items-center gap-2">
+                                    <span class="w-3 h-3 bg-red-500 rounded-full inline-block"></span> 高 (Height):
+                                </label>
+                                <span class="text-xl font-extrabold text-red-600"><span id="val-height">5</span> cm</span>
+                            </div>
+                            <input type="range" id="slider-height" min="2" max="9" value="5" oninput="updateTab3()">
+                        </div>
+
+                        <!-- Slant Slider -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="font-bold text-gray-700 flex items-center gap-2">
+                                    <span class="w-3 h-3 bg-amber-500 rounded-full inline-block"></span> 斜率 (傾斜度):
+                                </label>
+                                <span class="text-sm font-bold text-amber-600"><span id="val-slant">3</span> 格</span>
+                            </div>
+                            <input type="range" id="slider-slant" min="1" max="6" value="3" oninput="updateTab3()">
+                        </div>
+
+                        <!-- Live Formula Result Card -->
+                        <div class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl p-5 shadow-lg space-y-3">
+                            <div class="text-xs uppercase tracking-wider text-emerald-100 font-bold">即時面積計算</div>
+                            <div class="text-2xl font-black flex items-center justify-between">
+                                <span>底 × 高 = 面積</span>
+                            </div>
+                            <div class="bg-white/20 backdrop-blur-md rounded-xl p-3 text-center text-xl font-bold">
+                                <span class="text-blue-200" id="calc-base">8</span> cm 
+                                × 
+                                <span class="text-red-200" id="calc-height">5</span> cm 
+                                = 
+                                <span class="text-amber-300 text-2xl font-black" id="calc-area">40</span> cm²
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Visualization Column -->
+                    <div class="lg:col-span-7 bg-white/90 rounded-2xl p-4 shadow-inner border border-purple-100 flex flex-col items-center justify-center svg-canvas-container min-h-[380px]">
+                        
+                        <!-- Top Toggle Control above Canvas (As requested in Item 4) -->
+                        <div class="w-full mb-3 bg-indigo-50/90 p-3 rounded-2xl border border-indigo-200 flex items-center justify-center gap-3">
+                            <input type="checkbox" id="chk-overlay-rect" onchange="updateTab3()" class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer">
+                            <label for="chk-overlay-rect" class="font-bold text-indigo-900 text-sm sm:text-base cursor-pointer flex items-center gap-2">
+                                <i class="fa-solid fa-layer-group text-indigo-600"></i> 重疊顯示等面積長方形對比
+                            </label>
+                        </div>
+
+                        <svg id="svg-tab3" viewBox="0 0 550 320" class="w-full h-auto max-w-lg">
+                            <!-- SVG Grid & Parallelogram rendered by JS -->
+                        </svg>
+                        <div class="mt-2 text-xs text-gray-500 flex gap-4">
+                            <span><i class="fa-solid fa-square text-blue-500 mr-1"></i>每個小方格為 1cm × 1cm</span>
+                            <span><i class="fa-solid fa-eye text-indigo-500 mr-1"></i>拖動左側滑桿可即時觀察圖形變化</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: 三角板畫高體驗區 -->
+        <section id="tab4" class="tab-content hidden">
+            <div class="shinkai-glass rounded-3xl p-6 mb-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold text-lg">4</span>
+                    <h2 class="text-2xl font-bold text-gray-800">如何使用三角板畫出平行四邊形的高？</h2>
+                </div>
+                <p class="text-gray-600 mb-6">
+                    請照著步驟操作：先移動三角板尋找適合位置，再點擊「畫線」按鈕繪製垂直的高線段！
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-white/90 rounded-2xl p-5 shadow-inner border border-purple-100 flex flex-col items-center justify-center svg-canvas-container">
+                        <svg id="svg-tab4" viewBox="0 0 550 280" class="w-full h-auto max-w-lg">
+                            <!-- SVG set square animation rendered by JS -->
+                        </svg>
+
+                        <!-- Step Controls -->
+                        <div class="mt-4 w-full max-w-md px-4 space-y-4">
+                            <!-- Step 1 Control -->
+                            <div class="bg-amber-50/90 p-3.5 rounded-2xl border border-amber-200">
+                                <label class="block text-sm font-bold text-amber-900 mb-2 flex justify-between items-center">
+                                    <span><i class="fa-solid fa-sliders text-amber-600 mr-1.5"></i><b>步驟一：</b>移動三角板位置</span>
+                                    <span id="ruler-pos-text" class="text-amber-700 font-bold text-xs">對齊底邊中點</span>
+                                </label>
+                                <input type="range" id="rulerSlider" min="0" max="100" value="40" oninput="updateTab4()">
+                            </div>
+
+                            <!-- Step 2 Control with Draw/Remove Toggle Button -->
+                            <div class="bg-indigo-50/90 p-3.5 rounded-2xl border border-indigo-200 flex items-center justify-between gap-3">
+                                <div class="font-bold text-indigo-900 text-sm">
+                                    <i class="fa-solid fa-pencil text-indigo-600 mr-1.5"></i><b>步驟二：</b>畫出高
+                                </div>
+                                <div id="tab4-btn-container">
+                                    <button onclick="toggleDrawHeightTab4()" class="btn-shinkai px-5 py-2 rounded-xl text-sm font-bold flex items-center gap-1.5">
+                                        <i class="fa-solid fa-pen-ruler"></i> 畫線
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="shinkai-card p-5 space-y-4 border-l-4 border-amber-400">
+                        <h3 class="font-bold text-lg text-amber-900 flex items-center gap-2">
+                            <i class="fa-solid fa-pencil text-amber-600"></i> 畫高的三個要領
+                        </h3>
+                        <ol class="space-y-3 text-sm text-gray-700 list-decimal list-inside">
+                            <li class="leading-relaxed"><b>選底邊：</b> 先確定哪一條邊作為「底」。</li>
+                            <li class="leading-relaxed"><b>貼直角：</b> 將三角板的一條直角邊緊貼在底邊（或底邊的延長線上）。</li>
+                            <li class="leading-relaxed"><b>畫垂線：</b> 沿著三角板的另一條直角邊畫出連到對邊的垂直線段，並標示<b>直角符號 (┐)</b>。</li>
+                        </ol>
+                        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-amber-900 text-xs font-semibold">
+                            💡 提示：點擊「畫線」後會由三角板目前位置畫出垂直高線（紅線）。畫出後可點擊「移除」還原畫布。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 畫線後展開的三個課本延伸練習題 -->
+                <div id="tab4-practice-section" class="hidden mt-6 pt-6 border-t border-amber-200/60 transition-all duration-500">
+                    <div class="bg-amber-50/90 rounded-2xl p-4 mb-4 border border-amber-200 shadow-sm flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-lg bg-amber-600 text-white flex items-center justify-center font-bold text-sm">4</span>
+                        <h3 class="font-bold text-base sm:text-lg text-amber-950">
+                            以藍色線為底邊，畫出平行四邊形的高。<span class="text-pink-600 text-sm font-normal ml-2">（畫法僅供參考）</span>
+                        </h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Problem (1) -->
+                        <div class="shinkai-card p-4 flex flex-col items-center bg-white/90 border border-amber-100 shadow-sm rounded-2xl">
+                            <div class="text-sm font-bold text-gray-700 w-full mb-2">(1)</div>
+                            <svg id="svg-tab4-p1" viewBox="0 0 220 200" class="w-full h-auto max-w-[200px]">
+                                <!-- Practice SVG 1 -->
+                            </svg>
+                            <button onclick="togglePracticeHeight(1)" id="btn-tab4-p1" class="mt-3 btn-shinkai px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-pen-ruler"></i> 畫出高
+                            </button>
+                        </div>
+
+                        <!-- Problem (2) -->
+                        <div class="shinkai-card p-4 flex flex-col items-center bg-white/90 border border-amber-100 shadow-sm rounded-2xl">
+                            <div class="text-sm font-bold text-gray-700 w-full mb-2">(2)</div>
+                            <svg id="svg-tab4-p2" viewBox="0 0 220 200" class="w-full h-auto max-w-[200px]">
+                                <!-- Practice SVG 2 -->
+                            </svg>
+                            <button onclick="togglePracticeHeight(2)" id="btn-tab4-p2" class="mt-3 btn-shinkai px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-pen-ruler"></i> 畫出高
+                            </button>
+                        </div>
+
+                        <!-- Problem (3) -->
+                        <div class="shinkai-card p-4 flex flex-col items-center bg-white/90 border border-amber-100 shadow-sm rounded-2xl">
+                            <div class="text-sm font-bold text-gray-700 w-full mb-2">(3)</div>
+                            <svg id="svg-tab4-p3" viewBox="0 0 220 200" class="w-full h-auto max-w-[200px]">
+                                <!-- Practice SVG 3 -->
+                            </svg>
+                            <button onclick="togglePracticeHeight(3)" id="btn-tab4-p3" class="mt-3 btn-shinkai px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-pen-ruler"></i> 畫出高
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: 隨堂大挑戰 -->
+        <section id="tab5" class="tab-content hidden">
+            <div class="shinkai-glass rounded-3xl p-6 mb-6">
+                <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-purple-500 text-white flex items-center justify-center font-bold text-lg">5</span>
+                        <h2 class="text-2xl font-bold text-gray-800">隨堂觀念與計算大挑戰</h2>
+                    </div>
+                    <div id="quiz-score-badge" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-5 py-2.5 rounded-2xl font-extrabold text-lg shadow-md flex items-center gap-2">
+                        <i class="fa-solid fa-trophy text-amber-300"></i> 得分：<span id="score-val">0</span> / 100
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Q1 -->
+                    <div class="shinkai-card p-5 border border-purple-100 shadow-sm space-y-3">
+                        <h3 class="font-bold text-gray-800 text-base sm:text-lg flex items-center gap-2">
+                            <span class="w-7 h-7 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-black">1</span>
+                            將一個平行四邊形沿著高剪開重組拼成長方形後，變形後長方形的「長」與「寬」，分別對應原本平行四邊形的什麼？
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                            <button onclick="selectOption(1, 'A', this)" class="q-btn-1 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">A. 底與斜邊</button>
+                            <button onclick="selectOption(1, 'B', this)" class="q-btn-1 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">B. 高與底</button>
+                            <button onclick="selectOption(1, 'C', this)" class="q-btn-1 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">C. 底與高</button>
+                            <button onclick="selectOption(1, 'D', this)" class="q-btn-1 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">D. 周長與面積</button>
+                        </div>
+                        <div id="q1-feedback" class="hidden p-3 rounded-xl text-sm font-bold mt-2"></div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="shinkai-card p-5 border border-purple-100 shadow-sm space-y-3">
+                        <h3 class="font-bold text-gray-800 text-base sm:text-lg flex items-center gap-2">
+                            <span class="w-7 h-7 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-black">2</span>
+                            關於平行四邊形的「高」，下列哪一個敘述是正確的？
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                            <button onclick="selectOption(2, 'A', this)" class="q-btn-2 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">A. 平行四邊形只有 1 條高</button>
+                            <button onclick="selectOption(2, 'B', this)" class="q-btn-2 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">B. 上下兩條平行線之間的垂直距離就是高，且長度處處相等</button>
+                            <button onclick="selectOption(2, 'C', this)" class="q-btn-2 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">C. 平行四邊形的高一定比斜邊還要長</button>
+                            <button onclick="selectOption(2, 'D', this)" class="q-btn-2 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">D. 高一定要畫在圖形內部，不能畫在圖形外部</button>
+                        </div>
+                        <div id="q2-feedback" class="hidden p-3 rounded-xl text-sm font-bold mt-2"></div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="shinkai-card p-5 border border-purple-100 shadow-sm space-y-3">
+                        <h3 class="font-bold text-gray-800 text-base sm:text-lg flex items-center gap-2">
+                            <span class="w-7 h-7 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-black">3</span>
+                            一個平行四邊形，底是 12 公分、高是 5 公分，斜邊長 7 公分。請問這個平行四邊形的面積是多少平方公分？
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                            <button onclick="selectOption(3, 'A', this)" class="q-btn-3 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">A. 35 平方公分</button>
+                            <button onclick="selectOption(3, 'B', this)" class="q-btn-3 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">B. 60 平方公分</button>
+                            <button onclick="selectOption(3, 'C', this)" class="q-btn-3 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">C. 84 平方公分</button>
+                            <button onclick="selectOption(3, 'D', this)" class="q-btn-3 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">D. 42 平方公分</button>
+                        </div>
+                        <div id="q3-feedback" class="hidden p-3 rounded-xl text-sm font-bold mt-2"></div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="shinkai-card p-5 border border-purple-100 shadow-sm space-y-3">
+                        <h3 class="font-bold text-gray-800 text-base sm:text-lg flex items-center gap-2">
+                            <span class="w-7 h-7 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-black">4</span>
+                            若一個平行四邊形的底邊變成原來的 2 倍，而高保持不變，請問它的面積會變成原來的幾倍？
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                            <button onclick="selectOption(4, 'A', this)" class="q-btn-4 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">A. 4 倍</button>
+                            <button onclick="selectOption(4, 'B', this)" class="q-btn-4 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">B. 2 倍</button>
+                            <button onclick="selectOption(4, 'C', this)" class="q-btn-4 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">C. 不變</button>
+                            <button onclick="selectOption(4, 'D', this)" class="q-btn-4 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">D. 0.5 倍</button>
+                        </div>
+                        <div id="q4-feedback" class="hidden p-3 rounded-xl text-sm font-bold mt-2"></div>
+                    </div>
+
+                    <!-- Q5 -->
+                    <div class="shinkai-card p-5 border border-purple-100 shadow-sm space-y-3">
+                        <h3 class="font-bold text-gray-800 text-base sm:text-lg flex items-center gap-2">
+                            <span class="w-7 h-7 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-black">5</span>
+                            已知一個平行四邊形看板的面積是 72 平方公分，高是 8 公分，請問這個平行四邊形的底邊長是多少公分？
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                            <button onclick="selectOption(5, 'A', this)" class="q-btn-5 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">A. 7 公分</button>
+                            <button onclick="selectOption(5, 'B', this)" class="q-btn-5 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">B. 9 公分</button>
+                            <button onclick="selectOption(5, 'C', this)" class="q-btn-5 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">C. 12 公分</button>
+                            <button onclick="selectOption(5, 'D', this)" class="q-btn-5 p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm">D. 64 公分</button>
+                        </div>
+                        <div id="q5-feedback" class="hidden p-3 rounded-xl text-sm font-bold mt-2"></div>
+                    </div>
+
+                    <!-- Action Buttons: Submit & Reset -->
+                    <div class="flex flex-wrap justify-center gap-4 pt-4">
+                        <button onclick="submitQuiz()" class="btn-shinkai px-8 py-3.5 rounded-2xl font-bold text-base shadow-lg flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-paper-plane"></i> 提交答案
+                        </button>
+                        <button onclick="resetQuiz()" class="bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 px-8 py-3.5 rounded-2xl font-bold text-base shadow-sm transition flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-rotate-left text-gray-500"></i> 重新測驗
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center text-white/80 text-xs py-4">
+        </footer>
+
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Generate Star Background
+        function createStars() {
+            const container = document.getElementById('stars-container');
+            for (let i = 0; i < 40; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 3 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.top = Math.random() * 100 + '%';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(star);
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if(activeBtn) activeBtn.classList.add('active');
+
+            // Render SVGs on tab switch
+            if(tabId === 'tab1') updateTab1();
+            if(tabId === 'tab2') renderTab2();
+            if(tabId === 'tab3') updateTab3();
+            if(tabId === 'tab4') updateTab4();
+        }
+
+        // TAB 1: Update with conditional display of findings at 100%
+        function updateTab1() {
+            const sliderVal = parseInt(document.getElementById('cutSlider').value);
+            const progress = sliderVal / 100;
+            const progressText = document.getElementById('cut-progress-text');
+            const findingsCard = document.getElementById('tab1-findings');
+
+            if(sliderVal === 0) {
+                progressText.innerText = "0% (原始平行四邊形)";
+                findingsCard.classList.add('hidden');
+            } else if(sliderVal === 100) {
+                progressText.innerText = "100% (已完全組合成長方形！)";
+                findingsCard.classList.remove('hidden'); // Show findings ONLY when slider is at 100%
+            } else {
+                progressText.innerText = sliderVal + "% (平移剪下的三角形中)";
+                findingsCard.classList.add('hidden');
+            }
+
+            const svg = document.getElementById('svg-tab1');
+            
+            // Base parameters for SVG drawing
+            const originX = 80;
+            const originY = 200;
+            const b = 240; // base width
+            const h = 130; // height
+            const cutX = 70; // width of cut triangle
+
+            // Moving triangle offset
+            const shiftX = (b) * progress;
+
+            svg.innerHTML = `
+                <defs>
+                    <linearGradient id="polyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#4facfe" stop-opacity="0.7"/>
+                        <stop offset="100%" stop-color="#00f2fe" stop-opacity="0.7"/>
+                    </linearGradient>
+                    <linearGradient id="cutGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#ff7675" stop-opacity="0.8"/>
+                        <stop offset="100%" stop-color="#e84393" stop-opacity="0.8"/>
+                    </linearGradient>
+                </defs>
+
+                <!-- Grid lines -->
+                <path d="M 50 200 L 450 200" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4"/>
+                <path d="M 50 70 L 450 70" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4"/>
+
+                <!-- Main Body (Trapezoid part remaining) -->
+                <polygon points="${originX + cutX},${originY} ${originX + b},${originY} ${originX + b + cutX},${originY - h} ${originX + cutX},${originY - h}" 
+                         fill="url(#polyGrad)" stroke="#0284c7" stroke-width="2.5"/>
+
+                <!-- Shifted Cut Triangle -->
+                <polygon points="${originX + shiftX},${originY} ${originX + cutX + shiftX},${originY} ${originX + cutX + shiftX},${originY - h}" 
+                         fill="url(#cutGrad)" stroke="#be123c" stroke-width="2.5"/>
+
+                <!-- Height Line (Cut line) - Changed to solid line -->
+                <line x1="${originX + cutX}" y1="${originY}" x2="${originX + cutX}" y2="${originY - h}" 
+                      stroke="#ef4444" stroke-width="3"/>
+                
+                <!-- Right angle marker -->
+                <path d="M ${originX + cutX} ${originY - 12} L ${originX + cutX + 12} ${originY - 12} L ${originX + cutX + 12} ${originY}" 
+                      fill="none" stroke="#ef4444" stroke-width="2"/>
+
+                <!-- Base Label -->
+                <line x1="${originX}" y1="${originY + 25}" x2="${originX + b}" y2="${originY + 25}" stroke="#1e293b" stroke-width="2"/>
+                <text x="${originX + b/2}" y="${originY + 45}" text-anchor="middle" font-weight="bold" fill="#0f172a">底 = 長方形的長</text>
+
+                <!-- Height Label - Moved to the right side of the red line -->
+                <text x="${originX + cutX + 15}" y="${originY - h/2}" text-anchor="start" font-weight="bold" fill="#ef4444">高</text>
+            `;
+        }
+
+        let currentTab2Mode = 'inside1';
+        function setTab2Mode(mode) {
+            currentTab2Mode = mode;
+            document.querySelectorAll('[id^="tab2-btn-"]').forEach(btn => {
+                btn.className = 'p-4 rounded-2xl border-2 border-gray-200 bg-white font-bold text-gray-700 flex items-center justify-center gap-2 hover:shadow-md transition';
+            });
+            document.getElementById('tab2-btn-' + mode).className = 'p-4 rounded-2xl border-2 border-indigo-500 bg-indigo-50 font-bold text-indigo-900 flex items-center justify-center gap-2 hover:shadow-md transition';
+            renderTab2();
+        }
+
+        function renderTab2() {
+            const svg = document.getElementById('svg-tab2');
+            const info = document.getElementById('tab2-info');
+
+            let hLineX = 190;
+            let showExtension = false;
+
+            if(currentTab2Mode === 'inside1') {
+                hLineX = 190;
+                info.innerHTML = "<b>高在內部（左邊）：</b>自左上頂點垂直於底邊，兩平行線之間的距離為 <span class='text-pink-600 text-xl font-extrabold'>6</span> cm。";
+            } else if(currentTab2Mode === 'inside2') {
+                hLineX = 280;
+                info.innerHTML = "<b>高在內部（中間）：</b>不論在內部哪裡畫垂直線，兩平行線距離皆相等（<span class='text-pink-600 text-xl font-extrabold'>6</span> cm）。";
+            } else {
+                hLineX = 400;
+                showExtension = true;
+                info.innerHTML = "<b>高在外部：</b>當底邊不夠長時，延長底邊畫垂線，高依然是 <span class='text-pink-600 text-xl font-extrabold'>6</span> cm！";
+            }
+
+            svg.innerHTML = `
+                <!-- Background parallel guide lines -->
+                <line x1="50" y1="60" x2="550" y2="60" stroke="#a5b4fc" stroke-width="2" stroke-dasharray="6"/>
+                <line x1="50" y1="200" x2="550" y2="200" stroke="#a5b4fc" stroke-width="2" stroke-dasharray="6"/>
+
+                <!-- Parallelogram -->
+                <polygon points="120,200 320,200 390,60 190,60" fill="rgba(99, 102, 241, 0.2)" stroke="#4338ca" stroke-width="3"/>
+
+                ${showExtension ? `<line x1="320" y1="200" x2="420" y2="200" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4"/>` : ''}
+
+                <!-- Height Line -->
+                <line x1="${hLineX}" y1="200" x2="${hLineX}" y2="60" stroke="#f43f5e" stroke-width="3"/>
+                <circle cx="${hLineX}" cy="200" r="4" fill="#f43f5e"/>
+                <circle cx="${hLineX}" cy="60" r="4" fill="#f43f5e"/>
+
+                <!-- Right angle marker -->
+                <path d="M ${hLineX} 185 L ${hLineX + 15} 185 L ${hLineX + 15} 200" fill="none" stroke="#f43f5e" stroke-width="2"/>
+
+                <!-- Base label -->
+                <text x="220" y="225" font-weight="bold" fill="#3730a3" font-size="16">底邊 (Base)</text>
+                
+                <!-- Height label -->
+                <text x="${hLineX + 10}" y="130" font-weight="bold" fill="#f43f5e" font-size="16">高 = 6 cm</text>
+            `;
+        }
+
+        // TAB 3: Dynamic formula & optional overlay rectangle (Styled as requested in Item 3)
+        function updateTab3() {
+            const b = parseInt(document.getElementById('slider-base').value);
+            const h = parseInt(document.getElementById('slider-height').value);
+            const s = parseInt(document.getElementById('slider-slant').value);
+            const showOverlay = document.getElementById('chk-overlay-rect').checked;
+
+            document.getElementById('val-base').innerText = b;
+            document.getElementById('val-height').innerText = h;
+            document.getElementById('val-slant').innerText = s;
+
+            document.getElementById('calc-base').innerText = b;
+            document.getElementById('calc-height').innerText = h;
+            document.getElementById('calc-area').innerText = b * h;
+
+            const svg = document.getElementById('svg-tab3');
+            const unit = 25; // pixels per cm unit (1 unit = 1 grid square)
+            const startX = 50; // Multiple of 25 to align perfectly with grid lines
+            const startY = 250; // Multiple of 25 to align perfectly with grid lines
+
+            const p1 = [startX, startY];
+            const p2 = [startX + b * unit, startY];
+            const p3 = [startX + (b + s) * unit, startY - h * unit];
+            const p4 = [startX + s * unit, startY - h * unit];
+
+            // Render exact SVG grid lines matching point coordinates
+            let gridLinesSvg = '<g id="svg-grid-group">';
+            for (let x = 0; x <= 550; x += unit) {
+                gridLinesSvg += `<line x1="${x}" y1="0" x2="${x}" y2="280" stroke="#cbd5e1" stroke-width="1" opacity="0.5"/>`;
+            }
+            for (let y = 0; y <= 280; y += unit) {
+                gridLinesSvg += `<line x1="0" y1="${y}" x2="550" y2="${y}" stroke="#cbd5e1" stroke-width="1" opacity="0.5"/>`;
+            }
+            gridLinesSvg += '</g>';
+
+            let overlayRectSvg = '';
+            if(showOverlay) {
+                // Light yellow fill with transparency and dashed border; text positioned outside above the rectangle
+                const rectTopY = startY - h * unit;
+                overlayRectSvg = `
+                    <g id="overlay-rectangle-group">
+                        <rect x="${startX}" y="${rectTopY}" width="${b * unit}" height="${h * unit}" 
+                              fill="rgba(254, 240, 138, 0.55)" stroke="#eab308" stroke-width="2.5" stroke-dasharray="6,4"/>
+                        <text x="${startX + (b*unit)/2}" y="${rectTopY - 10}" text-anchor="middle" font-weight="extrabold" fill="#d97706" font-size="14">
+                            等面積長方形 (${b} × ${h})
+                        </text>
+                    </g>
+                `;
+            }
+
+            svg.setAttribute('viewBox', '0 0 550 280');
+            svg.innerHTML = `
+                ${gridLinesSvg}
+
+                <!-- Parallelogram shape -->
+                <polygon points="${p1[0]},${p1[1]} ${p2[0]},${p2[1]} ${p3[0]},${p3[1]} ${p4[0]},${p4[1]}" 
+                         fill="rgba(16, 185, 129, 0.25)" stroke="#059669" stroke-width="3"/>
+
+                ${overlayRectSvg}
+
+                <!-- Height Line -->
+                <line x1="${p4[0]}" y1="${p4[1]}" x2="${p4[0]}" y2="${p1[1]}" stroke="#ef4444" stroke-width="3" stroke-dasharray="4,4"/>
+                <path d="M ${p4[0]} ${p1[1] - 10} L ${p4[0] + 10} ${p1[1] - 10} L ${p4[0] + 10} ${p1[1]}" fill="none" stroke="#ef4444" stroke-width="2"/>
+
+                <!-- Labels -->
+                <text x="${p1[0] + (b*unit)/2}" y="${p1[1] + 22}" text-anchor="middle" font-weight="bold" fill="#1d4ed8" font-size="14">底 = ${b} cm</text>
+                <text x="${p4[0] - 12}" y="${p4[1] + (h*unit)/2}" text-anchor="end" font-weight="bold" fill="#ef4444" font-size="14">高 = ${h} cm</text>
+            `;
+        }
+
+        // TAB 4: Set Square Ruler & Draw / Remove Height Toggle Logic (Item 5)
+        let isTab4HeightDrawn = false;
+        let practiceState = { 1: false, 2: false, 3: false };
+
+        function toggleDrawHeightTab4() {
+            isTab4HeightDrawn = !isTab4HeightDrawn;
+            updateTab4();
+        }
+
+        function togglePracticeHeight(pNum) {
+            practiceState[pNum] = !practiceState[pNum];
+            renderTab4Practice();
+        }
+
+        function renderTab4Practice() {
+            // Problem 1: Vertical left blue base
+            const p1Svg = document.getElementById('svg-tab4-p1');
+            if (p1Svg) {
+                const drawn = practiceState[1];
+                const btn1 = document.getElementById('btn-tab4-p1');
+                if (btn1) {
+                    btn1.className = drawn 
+                        ? 'mt-3 btn-danger px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1' 
+                        : 'mt-3 btn-shinkai px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1';
+                    btn1.innerHTML = drawn ? '<i class="fa-solid fa-trash-can"></i> 移除高' : '<i class="fa-solid fa-pen-ruler"></i> 畫出高';
+                }
+
+                p1Svg.innerHTML = `
+                    <!-- Left Blue Base (Vertical) -->
+                    <line x1="50" y1="60" x2="50" y2="160" stroke="#0284c7" stroke-width="4" stroke-linecap="round"/>
+                    <!-- Other 3 Orange Sides -->
+                    <line x1="50" y1="60" x2="160" y2="20" stroke="#f59e0b" stroke-width="2.5"/>
+                    <line x1="160" y1="20" x2="160" y2="120" stroke="#f59e0b" stroke-width="2.5"/>
+                    <line x1="160" y1="120" x2="50" y2="160" stroke="#f59e0b" stroke-width="2.5"/>
+
+                    ${drawn ? `
+                        <!-- Height Red Line -->
+                        <line x1="50" y1="100" x2="160" y2="100" stroke="#dc2626" stroke-width="2.5"/>
+                        <!-- Right angle marker -->
+                        <path d="M 50 90 L 60 90 L 60 100" fill="none" stroke="#dc2626" stroke-width="2"/>
+                    ` : ''}
+                `;
+            }
+
+            // Problem 2: Horizontal top blue base
+            const p2Svg = document.getElementById('svg-tab4-p2');
+            if (p2Svg) {
+                const drawn = practiceState[2];
+                const btn2 = document.getElementById('btn-tab4-p2');
+                if (btn2) {
+                    btn2.className = drawn 
+                        ? 'mt-3 btn-danger px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1' 
+                        : 'mt-3 btn-shinkai px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1';
+                    btn2.innerHTML = drawn ? '<i class="fa-solid fa-trash-can"></i> 移除高' : '<i class="fa-solid fa-pen-ruler"></i> 畫出高';
+                }
+
+                p2Svg.innerHTML = `
+                    <!-- Top Blue Base (Horizontal) -->
+                    <line x1="60" y1="40" x2="160" y2="40" stroke="#0284c7" stroke-width="4" stroke-linecap="round"/>
+                    <!-- Other 3 Orange Sides -->
+                    <line x1="160" y1="40" x2="140" y2="160" stroke="#f59e0b" stroke-width="2.5"/>
+                    <line x1="140" y1="160" x2="40" y2="160" stroke="#f59e0b" stroke-width="2.5"/>
+                    <line x1="40" y1="160" x2="60" y2="40" stroke="#f59e0b" stroke-width="2.5"/>
+
+                    ${drawn ? `
+                        <!-- Height Red Line -->
+                        <line x1="110" y1="40" x2="110" y2="160" stroke="#dc2626" stroke-width="2.5"/>
+                        <!-- Right angle marker -->
+                        <path d="M 110 50 L 100 50 L 100 40" fill="none" stroke="#dc2626" stroke-width="2"/>
+                    ` : ''}
+                `;
+            }
+
+            // Problem 3: Slanted top-left blue base
+            const p3Svg = document.getElementById('svg-tab4-p3');
+            if (p3Svg) {
+                const drawn = practiceState[3];
+                const btn3 = document.getElementById('btn-tab4-p3');
+                if (btn3) {
+                    btn3.className = drawn 
+                        ? 'mt-3 btn-danger px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1' 
+                        : 'mt-3 btn-shinkai px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1';
+                    btn3.innerHTML = drawn ? '<i class="fa-solid fa-trash-can"></i> 移除高' : '<i class="fa-solid fa-pen-ruler"></i> 畫出高';
+                }
+
+                p3Svg.innerHTML = `
+                    <!-- Slanted Top-Left Blue Base -->
+                    <line x1="40" y1="120" x2="110" y2="50" stroke="#0284c7" stroke-width="4" stroke-linecap="round"/>
+                    <!-- Other 3 Orange Sides -->
+                    <line x1="110" y1="50" x2="190" y2="100" stroke="#f59e0b" stroke-width="2.5"/>
+                    <line x1="190" y1="100" x2="120" y2="170" stroke="#f59e0b" stroke-width="2.5"/>
+                    <line x1="120" y1="170" x2="40" y2="120" stroke="#f59e0b" stroke-width="2.5"/>
+
+                    ${drawn ? `
+                        <!-- Height Red Line (Perpendicular from blue base to opposite side) -->
+                        <line x1="75" y1="85" x2="140" y2="150" stroke="#dc2626" stroke-width="2.5"/>
+                        <!-- Right angle marker -->
+                        <path d="M 81 79 L 87 85 L 81 91" fill="none" stroke="#dc2626" stroke-width="2"/>
+                    ` : ''}
+                `;
+            }
+        }
+
+        function updateTab4() {
+            const val = parseInt(document.getElementById('rulerSlider').value);
+            const svg = document.getElementById('svg-tab4');
+            const posText = document.getElementById('ruler-pos-text');
+            const btnContainer = document.getElementById('tab4-btn-container');
+
+            const startX = 100;
+            const b = 260;
+            const h = 120;
+            const slant = 80;
+
+            const currentX = startX + (b * (val / 100));
+
+            if(val < 20) posText.innerText = "三角板靠近左側頂點";
+            else if(val > 80) posText.innerText = "三角板靠近右側邊緣";
+            else posText.innerText = "三角板在底邊中間滑動";
+
+            // Toggle Draw vs Remove button UI state
+            if(isTab4HeightDrawn) {
+                btnContainer.innerHTML = `
+                    <button onclick="toggleDrawHeightTab4()" class="btn-danger px-5 py-2 rounded-xl text-sm font-bold flex items-center gap-1.5">
+                        <i class="fa-solid fa-trash-can"></i> 移除
+                    </button>
+                `;
+            } else {
+                btnContainer.innerHTML = `
+                    <button onclick="toggleDrawHeightTab4()" class="btn-shinkai px-5 py-2 rounded-xl text-sm font-bold flex items-center gap-1.5">
+                        <i class="fa-solid fa-pen-ruler"></i> 畫線
+                    </button>
+                `;
+            }
+
+            // Toggle Practice Section Visibility
+            const practiceSec = document.getElementById('tab4-practice-section');
+            if (practiceSec) {
+                if (isTab4HeightDrawn) {
+                    practiceSec.classList.remove('hidden');
+                    renderTab4Practice();
+                } else {
+                    practiceSec.classList.add('hidden');
+                }
+            }
+
+            const rulerSize = 90;
+
+            let heightLineSvg = '';
+            if(isTab4HeightDrawn) {
+                heightLineSvg = `
+                    <!-- Drawn Red Height Line -->
+                    <line x1="${currentX}" y1="210" x2="${currentX}" y2="${210-h}" stroke="#dc2626" stroke-width="3"/>
+                    
+                    <!-- Right Angle Symbol -->
+                    <path d="M ${currentX} ${210-12} L ${currentX+12} ${210-12} L ${currentX+12} 210" fill="none" stroke="#dc2626" stroke-width="2"/>
+                    
+                    <!-- Text "高" on left side of line -->
+                    <text x="${currentX - 12}" y="${210 - h/2}" font-weight="bold" fill="#dc2626" font-size="16" text-anchor="end">高</text>
+                `;
+            }
+
+            svg.innerHTML = `
+                <!-- Base line -->
+                <line x1="60" y1="210" x2="480" y2="210" stroke="#cbd5e1" stroke-width="2"/>
+
+                <!-- Parallelogram -->
+                <polygon points="${startX},210 ${startX+b},210 ${startX+b+slant},${210-h} ${startX+slant},${210-h}" 
+                         fill="rgba(245, 158, 11, 0.15)" stroke="#d97706" stroke-width="2.5"/>
+
+                ${heightLineSvg}
+
+                <!-- Sliding Set-Square -->
+                <polygon points="${currentX},210 ${currentX+rulerSize},210 ${currentX},${210-rulerSize}" 
+                         fill="rgba(59, 130, 246, 0.45)" stroke="#2563eb" stroke-width="2"/>
+
+                <!-- Base Label -->
+                <text x="${startX + b/2}" y="235" text-anchor="middle" font-weight="bold" fill="#b45309">底邊</text>
+            `;
+        }
+
+        // Quiz Logic
+        const answers = { 1: 'C', 2: 'B', 3: 'B', 4: 'B', 5: 'B' };
+        let selectedAnswers = { 1: null, 2: null, 3: null, 4: null, 5: null };
+
+        function selectOption(qNum, opt, btn) {
+            selectedAnswers[qNum] = opt;
+            
+            // Highlight selected option for current question
+            document.querySelectorAll(`.q-btn-${qNum}`).forEach(b => {
+                b.className = `q-btn-${qNum} p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm`;
+            });
+            btn.className = `q-btn-${qNum} p-3.5 rounded-xl border-2 border-indigo-500 bg-indigo-50 font-bold text-indigo-900 text-left transition text-sm shadow-sm`;
+        }
+
+        function submitQuiz() {
+            let totalScore = 0;
+
+            for (let qNum = 1; qNum <= 5; qNum++) {
+                const userChoice = selectedAnswers[qNum];
+                const correctChoice = answers[qNum];
+                const feedback = document.getElementById(`q${qNum}-feedback`);
+                
+                if (!userChoice) {
+                    // Blank / Unanswered state (Yellow theme, no correct answer revealed)
+                    feedback.className = 'p-3.5 rounded-xl text-sm font-bold mt-2 bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-2';
+                    feedback.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-amber-600"></i> 未作答。';
+                    feedback.classList.remove('hidden');
+                } else if (userChoice === correctChoice) {
+                    // Correct answer
+                    totalScore += 20;
+                    feedback.className = 'p-3.5 rounded-xl text-sm font-bold mt-2 bg-emerald-100 text-emerald-900 border border-emerald-300 flex items-center gap-2';
+                    feedback.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600"></i> <b>答對了！非常棒！</b>';
+                    feedback.classList.remove('hidden');
+
+                    document.querySelectorAll(`.q-btn-${qNum}`).forEach(b => {
+                        if (b.innerText.trim().startsWith(userChoice + '.')) {
+                            b.className = `q-btn-${qNum} p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-100 font-bold text-emerald-950 text-left transition text-sm`;
+                        }
+                    });
+                } else {
+                    // Wrong answer (Clear error message, no positive terms)
+                    feedback.className = 'p-3.5 rounded-xl text-sm font-bold mt-2 bg-rose-100 text-rose-900 border border-rose-300 flex items-center gap-2';
+                    feedback.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600"></i> <b>答錯了！</b> 正確答案是 (${correctChoice})`;
+                    feedback.classList.remove('hidden');
+
+                    document.querySelectorAll(`.q-btn-${qNum}`).forEach(b => {
+                        const btnText = b.innerText.trim();
+                        if (btnText.startsWith(userChoice + '.')) {
+                            b.className = `q-btn-${qNum} p-3.5 rounded-xl border-2 border-rose-500 bg-rose-100 font-bold text-rose-950 text-left transition text-sm`;
+                        } else if (btnText.startsWith(correctChoice + '.')) {
+                            b.className = `q-btn-${qNum} p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 font-bold text-emerald-900 text-left transition text-sm`;
+                        }
+                    });
+                }
+            }
+
+            // Update Total Score Display
+            const scoreVal = document.getElementById('score-val');
+            if (scoreVal) scoreVal.innerText = totalScore;
+        }
+
+        function resetQuiz() {
+            selectedAnswers = { 1: null, 2: null, 3: null, 4: null, 5: null };
+
+            for (let qNum = 1; qNum <= 5; qNum++) {
+                const feedback = document.getElementById(`q${qNum}-feedback`);
+                if (feedback) {
+                    feedback.classList.add('hidden');
+                    feedback.innerHTML = '';
+                }
+                document.querySelectorAll(`.q-btn-${qNum}`).forEach(b => {
+                    b.className = `q-btn-${qNum} p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-indigo-50 font-medium text-gray-700 text-left transition text-sm`;
+                });
+            }
+
+            const scoreVal = document.getElementById('score-val');
+            if (scoreVal) scoreVal.innerText = '0';
+        }
+
+        window.onload = function() {
+            createStars();
+            updateTab1();
+            renderTab2();
+            updateTab3();
+            updateTab4();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三角形邊長關係 - 動態互動探究工坊</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Noto Sans TC -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 25%, #311b92 50%, #4a148c 75%, #880e4f 100%);
+            background-attachment: fixed;
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism panel styling */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* Custom range slider styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            height: 8px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 22px;
+            width: 22px;
+            border-radius: 50%;
+            background: #38bdf8;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+            transition: transform 0.1s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Star twinkling background */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.9; }
+        }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration, 3s) infinite ease-in-out;
+        }
+
+        /* Shinkai Horizon Glow */
+        .horizon-glow {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 35vh;
+            background: linear-gradient(to top, rgba(244, 114, 182, 0.25), rgba(251, 146, 60, 0.15), transparent);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Active Tab Styling */
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            background: rgba(56, 189, 248, 0.25);
+            border-color: #38bdf8;
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+    </style>
+</head>
+<body class="relative pb-16 overflow-x-hidden">
+    <div id="stars-container" class="fixed inset-0 pointer-events-none z-0"></div>
+    <div class="horizon-glow"></div>
+
+    <div class="relative z-10 max-w-6xl mx-auto px-4 py-8">
+        <!-- 閒雲數學小棧 Logo 與標題 -->
+        <div class="w-full max-w-4xl flex items-center justify-start mb-4 px-2 fade-in">
+            <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+            <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+        </div>
+
+        <header class="text-center mb-8">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-card text-sky-300 text-sm font-medium mb-3 shadow-lg">
+                <i class="fa-solid fa-shapes text-amber-300"></i> 國小五上數學 3-1 互動學習網頁
+            </div>
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-sky-200 via-pink-200 to-amber-200 drop-shadow-md">
+                三角形邊長關係探究工坊
+            </h1>
+            <p class="mt-3 text-slate-300 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+                透過圖像觀察、動態滑桿操作與概念測驗，探索三角形邊長的核心法則！
+            </p>
+        </header>
+
+        <!-- Tab Navigation Navigation -->
+        <nav class="flex justify-center mb-8">
+            <div class="glass-panel p-1.5 rounded-2xl flex gap-2 flex-wrap justify-center border border-white/20">
+                <button id="tab-btn-1" onclick="switchTab(1)" class="tab-btn active px-5 py-3 rounded-xl font-bold text-sm md:text-base flex items-center gap-2 border border-transparent text-slate-300 hover:text-white">
+                    <i class="fa-solid fa-route text-sky-400"></i> 1. 兩點距離與黃金法則
+                </button>
+                <button id="tab-btn-2" onclick="switchTab(2)" class="tab-btn px-5 py-3 rounded-xl font-bold text-sm md:text-base flex items-center gap-2 border border-transparent text-slate-300 hover:text-white">
+                    <i class="fa-solid fa-compass-drafting text-amber-400"></i> 2. 動態幾何實驗室
+                </button>
+                <button id="tab-btn-3" onclick="switchTab(3)" class="tab-btn px-5 py-3 rounded-xl font-bold text-sm md:text-base flex items-center gap-2 border border-transparent text-slate-300 hover:text-white">
+                    <i class="fa-solid fa-graduation-cap text-pink-400"></i> 3. 觀念小試身手
+                </button>
+            </div>
+        </nav>
+
+        <!-- TAB 1: 觀念直覺探究 (兩點之間的距離 + 圖三內容) -->
+        <div id="tab-content-1" class="space-y-8">
+            <!-- Top Card: Interactive Route Comparison (Images 1 & 2) -->
+            <div class="glass-panel rounded-3xl p-6 md:p-8">
+                <div class="mb-4">
+                    <span class="inline-block px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 font-bold text-xs mb-2 border border-amber-400/30">
+                        觀念 1
+                    </span>
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-slate-100 flex items-center gap-2">
+                        兩點之間的距離：哪一條路線比較近？
+                    </h2>
+                    <p class="text-slate-300 text-sm md:text-base mt-2">
+                        美美要從<span class="text-sky-300 font-bold">籃球場</span>走到<span class="text-emerald-300 font-bold">公園</span>。走對角線道路，還是繞過轉角經過停車場呢？請點擊按鈕切換觀察！
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                    <!-- Interactive Visual Canvas (8 cols) -->
+                    <div class="lg:col-span-7 bg-slate-950/60 rounded-2xl p-4 border border-white/10 flex flex-col justify-between min-h-[320px]">
+                        <div class="relative w-full h-[250px] flex items-center justify-center">
+                            <svg id="route-svg" viewBox="0 0 400 240" class="w-full h-full">
+                                <!-- Background roads -->
+                                <line x1="100" y1="40" x2="320" y2="40" stroke="#334155" stroke-width="10" stroke-linecap="round"/>
+                                <line x1="100" y1="40" x2="100" y2="190" stroke="#334155" stroke-width="10" stroke-linecap="round"/>
+                                <line x1="320" y1="40" x2="100" y2="190" stroke="#334155" stroke-width="8" stroke-dasharray="4,4" stroke-linecap="round"/>
+
+                                <!-- Active Route Display -->
+                                <!-- Straight diagonal line -->
+                                <line id="path-straight" x1="320" y1="40" x2="100" y2="190" stroke="#f43f5e" stroke-width="8" stroke-linecap="round" class="transition-all duration-500 drop-shadow-[0_0_10px_rgba(244,63,94,0.8)]"/>
+                                
+                                <!-- Corner bent line -->
+                                <polyline id="path-corner" points="320,40 100,40 100,190" fill="none" stroke="#38bdf8" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" class="transition-all duration-500 hidden drop-shadow-[0_0_10px_rgba(56,189,248,0.8)]"/>
+
+                                <!-- Nodes -->
+                                <!-- Parking Lot Node -->
+                                <circle cx="100" cy="40" r="16" fill="#475569" stroke="#ffffff" stroke-width="3"/>
+                                <text x="100" y="44" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">P</text>
+                                <text x="100" y="18" fill="#cbd5e1" font-size="12" font-weight="bold" text-anchor="middle">停車場</text>
+
+                                <!-- Basketball Court Node -->
+                                <circle cx="320" cy="40" r="18" fill="#3b82f6" stroke="#ffffff" stroke-width="3"/>
+                                <text x="320" y="45" fill="#ffffff" font-size="14" text-anchor="middle">🏀</text>
+                                <text x="320" y="18" fill="#60a5fa" font-size="12" font-weight="bold" text-anchor="middle">籃球場</text>
+
+                                <!-- Park Node -->
+                                <circle cx="100" cy="190" r="18" fill="#10b981" stroke="#ffffff" stroke-width="3"/>
+                                <text x="100" y="195" fill="#ffffff" font-size="14" text-anchor="middle">🌳</text>
+                                <text x="100" y="218" fill="#34d399" font-size="12" font-weight="bold" text-anchor="middle">公園</text>
+                            </svg>
+                        </div>
+
+                        <!-- Route Selector Buttons -->
+                        <div class="flex justify-center gap-3 pt-2 border-t border-white/10">
+                            <button id="btn-route-straight" onclick="setRoute('straight')" class="px-5 py-2.5 rounded-xl bg-rose-500 text-white font-bold text-sm flex items-center gap-2 shadow-lg transition hover:scale-105">
+                                <i class="fa-solid fa-bolt"></i> 直線路線 (對角線)
+                            </button>
+                            <button id="btn-route-corner" onclick="setRoute('corner')" class="px-5 py-2.5 rounded-xl bg-white/10 text-slate-300 font-bold text-sm flex items-center gap-2 shadow transition hover:bg-white/20">
+                                <i class="fa-solid fa-turn-down"></i> 轉角路線 (折線)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Route Length Realtime Calculation (5 cols) -->
+                    <div class="lg:col-span-5 flex flex-col justify-between space-y-4">
+                        <div class="glass-card rounded-2xl p-5 space-y-4 border border-white/15">
+                            <h3 class="text-base font-bold text-sky-200 flex items-center gap-2">
+                                <i class="fa-solid fa-ruler-combined text-amber-400"></i> 路線長度即時計算
+                            </h3>
+                            
+                            <div id="card-straight" class="p-3.5 rounded-xl bg-rose-500/20 border border-rose-400/40 flex justify-between items-center transition">
+                                <span class="text-sm font-medium text-rose-100 flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span> 紅色直線 (籃球場 ➔ 公園)
+                                </span>
+                                <span class="text-xl font-black text-rose-300">100 公尺</span>
+                            </div>
+
+                            <div id="card-corner" class="p-3.5 rounded-xl bg-slate-800/40 border border-white/10 flex justify-between items-center transition opacity-60">
+                                <span class="text-sm font-medium text-slate-300 flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-sky-400 inline-block"></span> 藍色折線 (經過停車場)
+                                </span>
+                                <span class="text-xl font-black text-sky-300">140 公尺</span>
+                            </div>
+                        </div>
+
+                        <!-- Teaching Key Discovery Box -->
+                        <div class="bg-amber-500/15 border border-amber-400/30 rounded-2xl p-5">
+                            <h4 class="text-amber-300 font-bold text-sm mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-lightbulb"></i> 教學重點發現
+                            </h4>
+                            <p class="text-amber-100/90 text-xs md:text-sm leading-relaxed">
+                                在三角形中，<b>兩邊長的和會大於第三邊長</b>。因此直接從頂點走直線到達對角（100公尺），距離一定比繞過第三個頂點（80+60=140公尺）來得短！
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Cards: Image 3 content (Concepts 1 & 2) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Concept 1 Card -->
+                <div class="glass-panel rounded-2xl p-6 transition hover:border-sky-400/50 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-300 flex items-center justify-center font-bold text-lg border border-sky-400/30">
+                                1
+                            </span>
+                            <h2 class="text-xl font-bold text-sky-100">兩點之間的直線距離最短</h2>
+                        </div>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-4">
+                            從頂點 A 走到頂點 B，直接走直線（藍色路線）總是比繞過第三個點（紅色路線）還要短！
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-950/50 rounded-xl p-4 flex items-center justify-center border border-white/10 mt-2">
+                        <svg viewBox="0 0 300 130" class="w-full max-w-xs h-auto">
+                            <!-- Shortest distance line -->
+                            <line x1="40" y1="95" x2="260" y2="95" stroke="#38bdf8" stroke-width="4" stroke-dasharray="6,3" />
+                            <text x="150" y="118" fill="#38bdf8" text-anchor="middle" font-size="12" font-weight="bold">直線距離 (較短)</text>
+                            
+                            <!-- Two side path -->
+                            <polyline points="40,95 150,25 260,95" fill="none" stroke="#f43f5e" stroke-width="3" />
+                            <text x="150" y="18" fill="#f43f5e" text-anchor="middle" font-size="12" font-weight="bold">轉折兩邊和 (較長)</text>
+                            
+                            <!-- Points -->
+                            <circle cx="40" cy="95" r="6" fill="#fbbf24" />
+                            <circle cx="260" cy="95" r="6" fill="#fbbf24" />
+                            <circle cx="150" cy="25" r="6" fill="#fbbf24" />
+                            <text x="25" y="100" fill="#ffffff" font-size="12" text-anchor="end" font-weight="bold">A</text>
+                            <text x="275" y="100" fill="#ffffff" font-size="12" text-anchor="start" font-weight="bold">B</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Concept 2 Card -->
+                <div class="glass-panel rounded-2xl p-6 transition hover:border-amber-400/50 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center font-bold text-lg border border-amber-400/30">
+                                2
+                            </span>
+                            <h2 class="text-xl font-bold text-amber-100">三角形組成核心黃金法則</h2>
+                        </div>
+                        <div class="bg-gradient-to-r from-amber-500/20 to-pink-500/20 p-4 rounded-xl border border-amber-300/30 text-center mb-4">
+                            <p class="text-xl font-black text-amber-200 tracking-wider">
+                                「較短兩邊長之和 ＞ 最長邊」
+                            </p>
+                        </div>
+                        <ul class="space-y-3 text-slate-300 text-sm leading-relaxed">
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-circle-check text-emerald-400 text-base mt-0.5"></i>
+                                <span>只要較短的兩條鐵絲加起來<b>比最長邊長</b>，就能接合突起圍成三角形。</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-circle-xmark text-rose-400 text-base mt-0.5"></i>
+                                <span>若兩邊和<b>小於或等於</b>最長邊，兩端無法相碰或會貼平在直線上！</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: 動態實驗室 (課本範例 + 參數滑桿 + 數值分析 + 圖形視覺化) -->
+        <div id="tab-content-2" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Left Controls & Data (5 cols) -->
+            <div class="lg:col-span-5 space-y-6">
+                <!-- Preset Examples Box -->
+                <div class="glass-panel rounded-2xl p-6">
+                    <h3 class="text-lg font-bold text-sky-200 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-bookmark text-amber-400"></i> 教材課本典型範例
+                    </h3>
+                    <p class="text-xs text-slate-300 mb-3">點擊下方按鈕可快速帶入課本實例測試：</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="setLengths(7, 10, 12)" class="px-3 py-2 rounded-lg bg-white/10 hover:bg-sky-500/30 border border-white/10 text-xs text-left transition flex justify-between items-center">
+                            <span>邊長: 7, 10, 12</span> <span class="text-emerald-400 font-bold">可圍成</span>
+                        </button>
+                        <button onclick="setLengths(7, 10, 17)" class="px-3 py-2 rounded-lg bg-white/10 hover:bg-rose-500/30 border border-white/10 text-xs text-left transition flex justify-between items-center">
+                            <span>邊長: 7, 10, 17</span> <span class="text-rose-400 font-bold">等於(否)</span>
+                        </button>
+                        <button onclick="setLengths(5, 5, 17)" class="px-3 py-2 rounded-lg bg-white/10 hover:bg-rose-500/30 border border-white/10 text-xs text-left transition flex justify-between items-center">
+                            <span>邊長: 5, 5, 17</span> <span class="text-rose-400 font-bold">過短(否)</span>
+                        </button>
+                        <button onclick="setLengths(6, 6, 6)" class="px-3 py-2 rounded-lg bg-white/10 hover:bg-sky-500/30 border border-white/10 text-xs text-left transition flex justify-between items-center">
+                            <span>邊長: 6, 6, 6</span> <span class="text-amber-300 font-bold">正三角形</span>
+                        </button>
+                        <button onclick="setLengths(5, 5, 9)" class="px-3 py-2 rounded-lg bg-white/10 hover:bg-sky-500/30 border border-white/10 text-xs text-left transition flex justify-between items-center">
+                            <span>邊長: 5, 5, 9</span> <span class="text-amber-300 font-bold">等腰三角形</span>
+                        </button>
+                        <button onclick="setLengths(9, 18, 9)" class="px-3 py-2 rounded-lg bg-white/10 hover:bg-rose-500/30 border border-white/10 text-xs text-left transition flex justify-between items-center">
+                            <span>邊長: 9, 18, 9</span> <span class="text-rose-400 font-bold">無法圍成</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sliders Box -->
+                <div class="glass-panel rounded-2xl p-6 space-y-5">
+                    <h3 class="text-lg font-bold text-sky-200 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-sky-400"></i> 自訂三邊長度參數 (cm)
+                    </h3>
+
+                    <!-- Side A -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-rose-300 font-medium">第一條邊 (A):</span>
+                            <span id="val-a" class="font-extrabold text-rose-300 text-base">7 cm</span>
+                        </div>
+                        <input type="range" id="slider-a" min="1" max="25" value="7" class="w-full" oninput="updateValues()">
+                    </div>
+
+                    <!-- Side B -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-emerald-300 font-medium">第二條邊 (B):</span>
+                            <span id="val-b" class="font-extrabold text-emerald-300 text-base">10 cm</span>
+                        </div>
+                        <input type="range" id="slider-b" min="1" max="25" value="10" class="w-full" oninput="updateValues()">
+                    </div>
+
+                    <!-- Side C -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-amber-300 font-medium">第三條邊 (C):</span>
+                            <span id="val-c" class="font-extrabold text-amber-300 text-base">12 cm</span>
+                        </div>
+                        <input type="range" id="slider-c" min="1" max="25" value="12" class="w-full" oninput="updateValues()">
+                    </div>
+
+                    <!-- Animation Progress Controls -->
+                    <div class="pt-4 border-t border-white/10 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-slate-300">摺疊模擬動畫角度：</span>
+                            <button onclick="toggleAnimate()" id="btn-anim" class="px-3 py-1 rounded-full bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold transition shadow">
+                                <i class="fa-solid fa-play mr-1"></i> 自動摺疊演示
+                            </button>
+                        </div>
+                        <input type="range" id="slider-fold" min="0" max="100" value="100" class="w-full accent-pink-500" oninput="drawCanvas()">
+                    </div>
+                </div>
+
+                <!-- Mathematical Analysis Panel -->
+                <div id="analysis-card" class="glass-panel rounded-2xl p-6 transition-all duration-300 border-2">
+                    <h3 class="text-base font-bold mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-calculator"></i> 數值分析與結論
+                    </h3>
+                    <div id="analysis-content" class="text-sm space-y-2">
+                        <!-- Populated dynamically by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Visual Canvas (7 cols) -->
+            <div class="lg:col-span-7 flex flex-col">
+                <div class="glass-panel rounded-2xl p-6 flex-1 flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-sky-200 flex items-center gap-2">
+                            <i class="fa-solid fa-draw-polygon text-pink-400"></i> 動態幾何圖形視覺化
+                        </h3>
+                        <span id="badge-status" class="px-3 py-1 rounded-full text-xs font-bold shadow">
+                            計算中...
+                        </span>
+                    </div>
+
+                    <!-- SVG / Canvas Interactive Canvas Container -->
+                    <div class="relative w-full h-[360px] md:h-[420px] bg-slate-950/60 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center p-4">
+                        <canvas id="triangleCanvas" class="w-full h-full"></canvas>
+
+                        <!-- Visual legend overlay -->
+                        <div class="absolute bottom-3 left-3 bg-slate-900/80 px-3 py-2 rounded-lg border border-white/10 text-xs space-y-1 backdrop-blur">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-1 bg-rose-400 rounded"></span> <span>邊 A</span>
+                                <span class="w-3 h-1 bg-emerald-400 rounded ml-2"></span> <span>邊 B</span>
+                                <span class="w-3 h-1 bg-amber-400 rounded ml-2"></span> <span>邊 C (最長邊基礎)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Hint Footer -->
+                    <p id="canvas-hint" class="text-xs text-center text-slate-300 mt-4 italic">
+                        提示：拖動左側邊長滑桿或旋轉摺疊動畫，觀察頂點是否能交會！
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: 觀念小試身手 (測驗) -->
+        <div id="tab-content-3" class="hidden">
+            <section class="glass-panel rounded-2xl p-6 md:p-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-white/10">
+                    <div>
+                        <h2 class="text-2xl font-black text-amber-300 flex items-center gap-2">
+                            <i class="fa-solid fa-graduation-cap"></i> 觀念小試身手（歷程性評量）
+                        </h2>
+                        <p class="text-xs text-slate-300 mt-1">測驗你是否真正掌握「三角形邊長關係」的核心概念！請選擇答案後點擊下方「提交答案」。</p>
+                    </div>
+                    <div id="score-badge" class="px-4 py-2 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-200 font-bold text-sm">
+                        總得分：<span id="current-score" class="text-lg font-black text-amber-300">0</span> / 100 分
+                    </div>
+                </div>
+
+                <!-- Quiz Questions Grid -->
+                <div class="space-y-6" id="quiz-container">
+                    <!-- Q1 -->
+                    <div class="glass-card rounded-xl p-5" id="q1-box">
+                        <p class="font-bold text-slate-100 mb-3 text-sm md:text-base">
+                            1. 下列哪一組長度的彩色鐵絲，<span class="text-amber-300 underline">可以</span>圍成一個三角形？
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                            <button id="q1-opt-A" onclick="selectQuizOption(1, 'A')" class="q1-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition">
+                                (A) 3公分、4公分、8公分
+                            </button>
+                            <button id="q1-opt-B" onclick="selectQuizOption(1, 'B')" class="q1-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition">
+                                (B) 6公分、7公分、8公分
+                            </button>
+                            <button id="q1-opt-C" onclick="selectQuizOption(1, 'C')" class="q1-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition">
+                                (C) 5公分、5公分、10公分
+                            </button>
+                            <button id="q1-opt-D" onclick="selectQuizOption(1, 'D')" class="q1-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition">
+                                (D) 2公分、9公分、12公分
+                            </button>
+                        </div>
+                        <div id="q1-feedback" class="hidden mt-3 p-3 rounded-lg text-xs leading-relaxed"></div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="glass-card rounded-xl p-5" id="q2-box">
+                        <p class="font-bold text-slate-100 mb-3 text-sm md:text-base">
+                            2. 美美手上有兩根木條，長度分別為 <span class="text-sky-300 font-bold">6公分</span> 與 <span class="text-sky-300 font-bold">9公分</span>。如果第三根木條是<span class="text-amber-300 font-bold">最長邊</span>，那第三根木條的長度必須<span class="text-rose-300 font-bold">小於</span>多少公分才能圍成三角形？
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                            <button id="q2-opt-A" onclick="selectQuizOption(2, 'A')" class="q2-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition">
+                                (A) 9 公分
+                            </button>
+                            <button id="q2-opt-B" onclick="selectQuizOption(2, 'B')" class="q2-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition">
+                                (B) 12 公分
+                            </button>
+                            <button id="q2-opt-C" onclick="selectQuizOption(2, 'C')" class="q2-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition">
+                                (C) 15 公分
+                            </button>
+                            <button id="q2-opt-D" onclick="selectQuizOption(2, 'D')" class="q2-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition">
+                                (D) 18 公分
+                            </button>
+                        </div>
+                        <div id="q2-feedback" class="hidden mt-3 p-3 rounded-lg text-xs leading-relaxed"></div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="glass-card rounded-xl p-5" id="q3-box">
+                        <p class="font-bold text-slate-100 mb-3 text-sm md:text-base">
+                            3. 一個三角形的最長邊是 <span class="text-amber-300 font-bold">12公分</span>，另外兩邊長度可能是多少公分？
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                            <button id="q3-opt-A" onclick="selectQuizOption(3, 'A')" class="q3-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition">
+                                (A) 4公分、8公分
+                            </button>
+                            <button id="q3-opt-B" onclick="selectQuizOption(3, 'B')" class="q3-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition">
+                                (B) 7公分、10公分
+                            </button>
+                            <button id="q3-opt-C" onclick="selectQuizOption(3, 'C')" class="q3-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition">
+                                (C) 5公分、6公分
+                            </button>
+                            <button id="q3-opt-D" onclick="selectQuizOption(3, 'D')" class="q3-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition">
+                                (D) 2公分、9公分
+                            </button>
+                        </div>
+                        <div id="q3-feedback" class="hidden mt-3 p-3 rounded-lg text-xs leading-relaxed"></div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="glass-card rounded-xl p-5" id="q4-box">
+                        <p class="font-bold text-slate-100 mb-3 text-sm md:text-base">
+                            4. 哪一組邊長可以圍成一個「等腰三角形」？
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                            <button id="q4-opt-A" onclick="selectQuizOption(4, 'A')" class="q4-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition">
+                                (A) 9公分、18公分、9公分
+                            </button>
+                            <button id="q4-opt-B" onclick="selectQuizOption(4, 'B')" class="q4-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition">
+                                (B) 5公分、5公分、12公分
+                            </button>
+                            <button id="q4-opt-C" onclick="selectQuizOption(4, 'C')" class="q4-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition">
+                                (C) 7公分、7公分、10公分
+                            </button>
+                            <button id="q4-opt-D" onclick="selectQuizOption(4, 'D')" class="q4-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition">
+                                (D) 4公分、4公分、9公分
+                            </button>
+                        </div>
+                        <div id="q4-feedback" class="hidden mt-3 p-3 rounded-lg text-xs leading-relaxed"></div>
+                    </div>
+
+                    <!-- Q5 -->
+                    <div class="glass-card rounded-xl p-5" id="q5-box">
+                        <p class="font-bold text-slate-100 mb-3 text-sm md:text-base">
+                            5. 觀念判斷：若三條線段長度分別為 A、B、C，只要檢查「較短兩邊長之和 ＞ 最長邊」成立，就能確定它能圍成三角形嗎？
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                            <button id="q5-opt-A" onclick="selectQuizOption(5, 'A')" class="q5-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition">
+                                (A) 正確！因為較短兩邊和只要大於最長邊，另外兩種邊長組合的和也必定大於第三邊。
+                            </button>
+                            <button id="q5-opt-B" onclick="selectQuizOption(5, 'B')" class="q5-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition">
+                                (B) 錯誤！必須每一次都把三種組合全部算出來，不能簡化。
+                            </button>
+                        </div>
+                        <div id="q5-feedback" class="hidden mt-3 p-3 rounded-lg text-xs leading-relaxed"></div>
+                    </div>
+                </div>
+
+                <!-- Quiz Action Buttons -->
+                <div class="flex flex-wrap justify-center gap-4 pt-6 border-t border-white/10 mt-8">
+                    <button id="btn-submit-quiz" onclick="submitQuiz()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-base flex items-center gap-2 shadow-lg hover:scale-105 transition">
+                        <i class="fa-solid fa-paper-plane"></i> 提交答案
+                    </button>
+                    <button id="btn-reset-quiz" onclick="resetQuiz()" class="px-6 py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-base flex items-center gap-2 border border-white/10 shadow transition hover:scale-105">
+                        <i class="fa-solid fa-rotate-right"></i> 重新測驗
+                    </button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Tab Switching Logic
+        function switchTab(tabNum) {
+            for (let i = 1; i <= 3; i++) {
+                const btn = document.getElementById(`tab-btn-${i}`);
+                const content = document.getElementById(`tab-content-${i}`);
+                if (i === tabNum) {
+                    btn.classList.add('active');
+                    content.classList.remove('hidden');
+                } else {
+                    btn.classList.remove('active');
+                    content.classList.add('hidden');
+                }
+            }
+            if (tabNum === 2) {
+                setTimeout(resizeCanvas, 50);
+            }
+        }
+
+        // Tab 1 Route Interactive Logic
+        function setRoute(type) {
+            const pathStraight = document.getElementById('path-straight');
+            const pathCorner = document.getElementById('path-corner');
+            const btnStraight = document.getElementById('btn-route-straight');
+            const btnCorner = document.getElementById('btn-route-corner');
+            const cardStraight = document.getElementById('card-straight');
+            const cardCorner = document.getElementById('card-corner');
+
+            if (type === 'straight') {
+                pathStraight.classList.remove('hidden');
+                pathCorner.classList.add('hidden');
+                
+                btnStraight.className = "px-5 py-2.5 rounded-xl bg-rose-500 text-white font-bold text-sm flex items-center gap-2 shadow-lg transition hover:scale-105";
+                btnCorner.className = "px-5 py-2.5 rounded-xl bg-white/10 text-slate-300 font-bold text-sm flex items-center gap-2 shadow transition hover:bg-white/20";
+                
+                cardStraight.className = "p-3.5 rounded-xl bg-rose-500/20 border border-rose-400/40 flex justify-between items-center transition opacity-100 shadow-md";
+                cardCorner.className = "p-3.5 rounded-xl bg-slate-800/40 border border-white/10 flex justify-between items-center transition opacity-60";
+            } else {
+                pathStraight.classList.add('hidden');
+                pathCorner.classList.remove('hidden');
+
+                btnStraight.className = "px-5 py-2.5 rounded-xl bg-white/10 text-slate-300 font-bold text-sm flex items-center gap-2 shadow transition hover:bg-white/20";
+                btnCorner.className = "px-5 py-2.5 rounded-xl bg-sky-500 text-white font-bold text-sm flex items-center gap-2 shadow-lg transition hover:scale-105";
+
+                cardStraight.className = "p-3.5 rounded-xl bg-slate-800/40 border border-white/10 flex justify-between items-center transition opacity-60";
+                cardCorner.className = "p-3.5 rounded-xl bg-sky-500/20 border border-sky-400/40 flex justify-between items-center transition opacity-100 shadow-md";
+            }
+        }
+
+        // Background Star generator
+        function initStars() {
+            const container = document.getElementById('stars-container');
+            const count = 40;
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 3 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 80}%`;
+                star.style.setProperty('--duration', `${2 + Math.random() * 4}s`);
+                star.style.opacity = Math.random();
+                container.appendChild(star);
+            }
+        }
+
+        // Global State Variables for Tab 2
+        let sideA = 7;
+        let sideB = 10;
+        let sideC = 12;
+        let isAnimating = false;
+        let animInterval = null;
+        
+        // Quiz State Management
+        let userSelections = { 1: null, 2: null, 3: null, 4: null, 5: null };
+        let userScores = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        let quizSubmitted = false;
+
+        const quizAnswers = {
+            1: 'B',
+            2: 'C',
+            3: 'B',
+            4: 'C',
+            5: 'A'
+        };
+
+        const quizExplanations = {
+            1: "6 + 7 = 13 ＞ 8，較短兩邊長之和大於最長邊，所以可以圍成三角形。(A組 3+4=7 < 8，C組 5+5=10 等於最長邊，D組 2+9=11 < 12 均無法圍成)",
+            2: "因為最長邊是第三根木條，所以較短兩邊長為 6 與 9。6 + 9 = 15，因此最長邊必須「小於 15 公分」才能圍成三角形！",
+            3: "最長邊是 12 公分，(B) 選項的較短兩邊是 7 與 10，7 + 10 = 17 ＞ 12，符合三角形邊長法則！",
+            4: "(C) 選項的兩腰長度都是 7，7 + 7 = 14 ＞ 10，可以成功圍成等腰三角形！(A選項 9+9=18 等於 18 無法圍成；B選項 5+5=10 < 12 過短)",
+            5: "簡化運算技巧：我們只需要將「較短的兩邊長相加」，確認是否大於「最長邊」即可，不需要把三種組合全部算一遍喔！"
+        };
+
+        const quizWrongExplanations = {
+            1: "請計算看看每一組「較短兩邊加起來」是否有「大於」最長邊？",
+            2: "較短兩邊合起來是 6 + 9 = 15，所以最長邊長度一定要小於 15 公分！",
+            3: "請檢查選項中「兩邊合起來」有沒有「大於 12 公分」？",
+            4: "等腰三角形雖然有兩邊等長，但兩腰長度加起來還是必須「大於」最長邊才可以喔！",
+            5: "既然最長邊是最大的數，只要較短兩邊相加大於它，另外兩組較大的數相加必然更大，所以檢驗一次就足夠囉！"
+        };
+
+        const canvas = document.getElementById('triangleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            if (!canvas || !canvas.parentElement) return;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            drawCanvas();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        function setLengths(a, b, c) {
+            document.getElementById('slider-a').value = a;
+            document.getElementById('slider-b').value = b;
+            document.getElementById('slider-c').value = c;
+            updateValues();
+        }
+
+        function updateValues() {
+            sideA = parseFloat(document.getElementById('slider-a').value);
+            sideB = parseFloat(document.getElementById('slider-b').value);
+            sideC = parseFloat(document.getElementById('slider-c').value);
+
+            document.getElementById('val-a').textContent = `${sideA} cm`;
+            document.getElementById('val-b').textContent = `${sideB} cm`;
+            document.getElementById('val-c').textContent = `${sideC} cm`;
+
+            analyzeTriangle();
+            drawCanvas();
+        }
+
+        function analyzeTriangle() {
+            const sides = [
+                { name: 'A', val: sideA, color: '#f43f5e' },
+                { name: 'B', val: sideB, color: '#10b981' },
+                { name: 'C', val: sideC, color: '#fbbf24' }
+            ];
+
+            sides.sort((a, b) => a.val - b.val);
+
+            const s1 = sides[0];
+            const s2 = sides[1];
+            const longest = sides[2];
+
+            const sumShort = s1.val + s2.val;
+            const diff = sumShort - longest.val;
+
+            const card = document.getElementById('analysis-card');
+            const badge = document.getElementById('badge-status');
+            const content = document.getElementById('analysis-content');
+
+            let canForm = false;
+            let typeStr = "";
+
+            if (sumShort > longest.val) {
+                canForm = true;
+                if (sideA === sideB && sideB === sideC) {
+                    typeStr = "正三角形 (三邊等長)";
+                } else if (sideA === sideB || sideB === sideC || sideA === sideC) {
+                    typeStr = "等腰三角形 (兩邊等長)";
+                } else {
+                    typeStr = "一般不等邊三角形";
+                }
+            }
+
+            // 去除不必要的數點 (例如 5.0 轉為 5)
+            const formattedDiff = parseFloat(diff.toFixed(1));
+            const formattedAbsDiff = parseFloat(Math.abs(diff).toFixed(1));
+
+            if (canForm) {
+                card.className = "glass-panel rounded-2xl p-6 transition-all duration-300 border-2 border-emerald-400/50 bg-emerald-950/20";
+                badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 shadow-lg";
+                badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> 成功圍成三角形 (${typeStr})`;
+
+                content.innerHTML = `
+                    <div class="flex items-center justify-between text-emerald-200 font-bold border-b border-white/10 pb-2">
+                        <span>較短兩邊和 (${s1.val} + ${s2.val} = ${sumShort})</span>
+                        <span class="text-xl">＞</span>
+                        <span>最長邊 (${longest.val})</span>
+                    </div>
+                    <p class="text-xs text-emerald-100/80 pt-1">
+                        較短兩邊合起來長度比最長邊<b class="text-emerald-300">多了 ${formattedDiff} cm</b>，因此可以在上方交會形成頂點！
+                    </p>
+                `;
+            } else if (sumShort === longest.val) {
+                card.className = "glass-panel rounded-2xl p-6 transition-all duration-300 border-2 border-amber-400/50 bg-amber-950/20";
+                badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30 shadow-lg";
+                badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> 無法圍成（會重疊成一條直線）`;
+
+                content.innerHTML = `
+                    <div class="flex items-center justify-between text-amber-200 font-bold border-b border-white/10 pb-2">
+                        <span>較短兩邊和 (${s1.val} + ${s2.val} = ${sumShort})</span>
+                        <span class="text-xl">＝</span>
+                        <span>最長邊 (${longest.val})</span>
+                    </div>
+                    <p class="text-xs text-amber-100/80 pt-1">
+                        較短兩邊相加<b class="text-amber-300">剛好等於</b>最長邊！兩條鐵絲合攏後會完全平貼最長邊，無法突起形成頂點。
+                    </p>
+                `;
+            } else {
+                card.className = "glass-panel rounded-2xl p-6 transition-all duration-300 border-2 border-rose-400/50 bg-rose-950/20";
+                badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-400/30 shadow-lg";
+                badge.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> 無法圍成三角形（兩邊和過短）`;
+
+                content.innerHTML = `
+                    <div class="flex items-center justify-between text-rose-200 font-bold border-b border-white/10 pb-2">
+                        <span>較短兩邊和 (${s1.val} + ${s2.val} = ${sumShort})</span>
+                        <span class="text-xl">＜</span>
+                        <span>最長邊 (${longest.val})</span>
+                    </div>
+                    <p class="text-xs text-rose-100/80 pt-1">
+                        較短兩邊長度合起來<b class="text-rose-300">還差 ${formattedAbsDiff} cm</b> 才能碰在一起！中間會有缺口。
+                    </p>
+                `;
+            }
+        }
+
+        function drawCanvas() {
+            if (!ctx) return;
+            const width = canvas.width;
+            const height = canvas.height;
+
+            ctx.clearRect(0, 0, width, height);
+
+            const foldFactor = parseFloat(document.getElementById('slider-fold').value) / 100.0;
+
+            let base = sideC;
+            let left = sideA;
+            let right = sideB;
+            let leftColor = "#f43f5e";
+            let rightColor = "#10b981";
+            let baseColor = "#fbbf24";
+
+            const maxDimension = Math.max(base, left + right, 15);
+            const padding = 60;
+            const scale = Math.min((width - padding * 2) / maxDimension, (height - padding * 2) / maxDimension);
+
+            const baseX1 = (width - base * scale) / 2;
+            const baseY = height / 2 + 50;
+            const baseX2 = baseX1 + base * scale;
+
+            // Draw Base line (Side C)
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = baseColor;
+            ctx.beginPath();
+            ctx.moveTo(baseX1, baseY);
+            ctx.lineTo(baseX2, baseY);
+            ctx.stroke();
+
+            // Label Base
+            ctx.fillStyle = baseColor;
+            ctx.font = "bold 14px 'Noto Sans TC'";
+            ctx.textAlign = "center";
+            ctx.fillText(`C (${sideC} cm)`, (baseX1 + baseX2) / 2, baseY + 25);
+
+            let canForm = (left + right > base) && (left + base > right) && (right + base > left);
+
+            let targetLeftAngle = 0;
+            let targetRightAngle = 0;
+
+            if (canForm) {
+                let cosLeft = (left * left + base * base - right * right) / (2 * left * base);
+                targetLeftAngle = Math.acos(Math.max(-1, Math.min(1, cosLeft)));
+
+                let cosRight = (right * right + base * base - left * left) / (2 * right * base);
+                targetRightAngle = Math.acos(Math.max(-1, Math.min(1, cosRight)));
+            } else {
+                if (left + right <= base) {
+                    targetLeftAngle = 0;
+                    targetRightAngle = 0;
+                } else if (left - right >= base) {
+                    targetLeftAngle = 0;
+                    targetRightAngle = Math.PI;
+                } else if (right - left >= base) {
+                    targetLeftAngle = Math.PI;
+                    targetRightAngle = 0;
+                }
+            }
+
+            let currentLeftAngle = (Math.PI / 2) * (1 - foldFactor) + targetLeftAngle * foldFactor;
+            let currentRightAngle = (Math.PI / 2) * (1 - foldFactor) + targetRightAngle * foldFactor;
+
+            let leftEndX = baseX1 + (left * scale) * Math.cos(currentLeftAngle);
+            let leftEndY = baseY - (left * scale) * Math.sin(currentLeftAngle);
+
+            let rightEndX = baseX2 - (right * scale) * Math.cos(currentRightAngle);
+            let rightEndY = baseY - (right * scale) * Math.sin(currentRightAngle);
+
+            // Draw Side Left
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = leftColor;
+            ctx.beginPath();
+            ctx.moveTo(baseX1, baseY);
+            ctx.lineTo(leftEndX, leftEndY);
+            ctx.stroke();
+
+            // Label Left
+            ctx.fillStyle = leftColor;
+            ctx.font = "bold 13px 'Noto Sans TC'";
+            ctx.fillText(`A (${sideA} cm)`, (baseX1 + leftEndX) / 2 - 15, (baseY + leftEndY) / 2);
+
+            // Draw Side Right
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = rightColor;
+            ctx.beginPath();
+            ctx.moveTo(baseX2, baseY);
+            ctx.lineTo(rightEndX, rightEndY);
+            ctx.stroke();
+
+            // Label Right
+            ctx.fillStyle = rightColor;
+            ctx.font = "bold 13px 'Noto Sans TC'";
+            ctx.fillText(`B (${sideB} cm)`, (baseX2 + rightEndX) / 2 + 15, (baseY + rightEndY) / 2);
+
+            drawPoint(baseX1, baseY, baseColor);
+            drawPoint(baseX2, baseY, baseColor);
+            drawPoint(leftEndX, leftEndY, leftColor);
+            drawPoint(rightEndX, rightEndY, rightColor);
+
+            if (canForm && foldFactor > 0.95) {
+                ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+                ctx.beginPath();
+                ctx.moveTo(baseX1, baseY);
+                ctx.lineTo(leftEndX, leftEndY);
+                ctx.lineTo(baseX2, baseY);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(leftEndX, leftEndY, 12, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(56, 189, 248, 0.3)';
+                ctx.fill();
+            } else if (!canForm && foldFactor > 0.95) {
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 4]);
+                ctx.strokeStyle = '#f43f5e';
+                ctx.beginPath();
+                ctx.moveTo(leftEndX, leftEndY);
+                ctx.lineTo(rightEndX, rightEndY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                if (left + right < base) {
+                    ctx.fillStyle = '#f43f5e';
+                    ctx.font = "12px 'Noto Sans TC'";
+                    ctx.fillText(`缺口 ${(base - (left + right)).toFixed(1)} cm`, (leftEndX + rightEndX) / 2, baseY - 12);
+                }
+            }
+        }
+
+        function drawPoint(x, y, color) {
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function toggleAnimate() {
+            const btn = document.getElementById('btn-anim');
+            if (isAnimating) {
+                clearInterval(animInterval);
+                isAnimating = false;
+                btn.innerHTML = `<i class="fa-solid fa-play mr-1"></i> 自動摺疊演示`;
+                btn.className = "px-3 py-1 rounded-full bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold transition shadow";
+            } else {
+                isAnimating = true;
+                btn.innerHTML = `<i class="fa-solid fa-pause mr-1"></i> 暫停`;
+                btn.className = "px-3 py-1 rounded-full bg-amber-500 hover:bg-amber-400 text-white text-xs font-bold transition shadow";
+
+                let foldSlider = document.getElementById('slider-fold');
+                foldSlider.value = 0;
+
+                animInterval = setInterval(() => {
+                    let val = parseInt(foldSlider.value) + 2;
+                    if (val > 100) {
+                        val = 100;
+                        clearInterval(animInterval);
+                        isAnimating = false;
+                        btn.innerHTML = `<i class="fa-solid fa-play mr-1"></i> 自動摺疊演示`;
+                        btn.className = "px-3 py-1 rounded-full bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold transition shadow";
+                    }
+                    foldSlider.value = val;
+                    drawCanvas();
+                }, 30);
+            }
+        }
+
+        // Quiz option selection logic before submission
+        function selectQuizOption(qNum, option) {
+            if (quizSubmitted) return; // Prevent selection after submission
+
+            userSelections[qNum] = option;
+            const buttons = document.querySelectorAll(`.q${qNum}-opt`);
+            
+            buttons.forEach(btn => {
+                btn.className = "q" + qNum + "-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition";
+            });
+
+            const selectedBtn = document.getElementById(`q${qNum}-opt-${option}`);
+            if (selectedBtn) {
+                selectedBtn.className = "q" + qNum + "-opt text-left p-3 rounded-lg bg-sky-500/30 border-2 border-sky-400 font-bold text-sky-100 transition shadow-md";
+            }
+        }
+
+        // Submit Quiz and reveal answers and explanations
+        function submitQuiz() {
+            quizSubmitted = true;
+            let totalScore = 0;
+
+            for (let qNum = 1; qNum <= 5; qNum++) {
+                const selected = userSelections[qNum];
+                const correct = quizAnswers[qNum];
+                const feedback = document.getElementById(`q${qNum}-feedback`);
+                const buttons = document.querySelectorAll(`.q${qNum}-opt`);
+
+                // Disable options after submission
+                buttons.forEach(btn => btn.disabled = true);
+                feedback.classList.remove('hidden');
+
+                if (selected === correct) {
+                    userScores[qNum] = 20;
+                    totalScore += 20;
+
+                    const correctBtn = document.getElementById(`q${qNum}-opt-${correct}`);
+                    if (correctBtn) {
+                        correctBtn.className = "q" + qNum + "-opt text-left p-3 rounded-lg bg-emerald-500/20 border-2 border-emerald-400 text-emerald-200 font-bold transition";
+                    }
+
+                    feedback.className = "mt-3 p-3 rounded-lg text-xs leading-relaxed bg-emerald-500/20 text-emerald-200 border border-emerald-400/40";
+                    feedback.innerHTML = `<i class="fa-solid fa-circle-check text-base mr-1"></i> <b>回答正確 (${selected})！</b> ${quizExplanations[qNum]}`;
+                } else if (selected !== null) {
+                    userScores[qNum] = 0;
+
+                    const correctBtn = document.getElementById(`q${qNum}-opt-${correct}`);
+                    if (correctBtn) {
+                        correctBtn.className = "q" + qNum + "-opt text-left p-3 rounded-lg bg-emerald-500/20 border-2 border-emerald-400 text-emerald-200 font-bold transition";
+                    }
+
+                    const wrongBtn = document.getElementById(`q${qNum}-opt-${selected}`);
+                    if (wrongBtn && selected !== correct) {
+                        wrongBtn.className = "q" + qNum + "-opt text-left p-3 rounded-lg bg-rose-500/20 border-2 border-rose-400 text-rose-200 transition";
+                    }
+
+                    feedback.className = "mt-3 p-3 rounded-lg text-xs leading-relaxed bg-rose-500/20 text-rose-200 border border-rose-400/40";
+                    feedback.innerHTML = `<i class="fa-solid fa-circle-xmark text-base mr-1"></i> <b>答案不正確 (你選擇了 ${selected}，正確答案為 ${correct})。</b> ${quizWrongExplanations[qNum]}`;
+                } else {
+                    // Blank/unanswered question handler
+                    userScores[qNum] = 0;
+                    feedback.className = "mt-3 p-3 rounded-lg text-xs leading-relaxed bg-amber-500/20 text-amber-200 border border-amber-400/40";
+                    feedback.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-base mr-1"></i> <b>未作答。</b>`;
+                }
+            }
+
+            document.getElementById('current-score').textContent = totalScore;
+            
+            // Toggle submit button state
+            const submitBtn = document.getElementById('btn-submit-quiz');
+            submitBtn.disabled = true;
+            submitBtn.className = "px-6 py-3 rounded-xl bg-slate-600 text-slate-400 font-bold text-base flex items-center gap-2 cursor-not-allowed opacity-60";
+        }
+
+        // Reset Quiz to initial state
+        function resetQuiz() {
+            quizSubmitted = false;
+            userSelections = { 1: null, 2: null, 3: null, 4: null, 5: null };
+            userScores = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+            document.getElementById('current-score').textContent = "0";
+
+            for (let qNum = 1; qNum <= 5; qNum++) {
+                const feedback = document.getElementById(`q${qNum}-feedback`);
+                feedback.classList.add('hidden');
+                feedback.innerHTML = "";
+
+                const buttons = document.querySelectorAll(`.q${qNum}-opt`);
+                buttons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.className = "q" + qNum + "-opt text-left p-3 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 transition";
+                });
+            }
+
+            // Re-enable submit button
+            const submitBtn = document.getElementById('btn-submit-quiz');
+            submitBtn.disabled = false;
+            submitBtn.className = "px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-base flex items-center gap-2 shadow-lg hover:scale-105 transition";
+        }
+
+        window.onload = function () {
+            initStars();
+            resizeCanvas();
+            updateValues();
+        };
+    </script>
+</body>
+</html>

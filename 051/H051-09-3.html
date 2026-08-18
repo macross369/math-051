@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>乘以 1/n 與除以 n 的關係 - 新海誠風互動探索網頁</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 35%, #3b82f6 65%, #f472b6 90%, #fde047 100%);
+            background-size: 200% 200%;
+            animation: shinkaiSky 18s ease infinite;
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        @keyframes shinkaiSky {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Ambient floating light particles */
+        .sky-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            background: radial-gradient(circle at 70% 20%, rgba(255, 255, 255, 0.25) 0%, transparent 40%),
+                        radial-gradient(circle at 20% 80%, rgba(244, 114, 182, 0.2) 0%, transparent 35%);
+            z-index: 0;
+        }
+
+        /* Glassmorphism Panels */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 12px 32px 0 rgba(31, 38, 135, 0.18);
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        /* Standard Vertical Fraction Styling (國小標準直式分數) */
+        .v-frac {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            vertical-align: middle;
+            margin: 0 0.25rem;
+            line-height: 1;
+            font-weight: 700;
+        }
+
+        .v-frac .num {
+            border-bottom: 2px solid currentColor;
+            padding: 0 0.2rem 0.15rem 0.2rem;
+            text-align: center;
+            width: 100%;
+        }
+
+        .v-frac .den {
+            padding: 0.15rem 0.2rem 0 0.2rem;
+            text-align: center;
+            width: 100%;
+        }
+
+        .mixed-frac {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            font-weight: 700;
+        }
+
+        .mixed-frac .whole {
+            margin-right: 0.2rem;
+            font-size: 1.1em;
+        }
+
+        /* Tab Transition */
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Interactive Grid Styling */
+        .choc-grid-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .choc-grid-item.selected {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.8);
+            border-color: #eab308;
+            background-color: #fef08a;
+        }
+
+        /* Shinkai styled button */
+        .btn-shinkai {
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
+            color: white;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-shinkai:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+        }
+    </style>
+</head>
+<body class="relative min-h-screen pb-12 flex flex-col justify-between">
+    <!-- Ambient Background Layer -->
+    <div class="sky-glow"></div>
+
+    <div class="relative z-10">
+        <!-- Header -->
+        <header class="glass-nav sticky top-0 z-50 px-4 py-3 shadow-sm">
+            <div class="max-w-6xl mx-auto flex flex-col gap-2">
+                <!-- 閒雲數學小棧 Logo 與標題 -->
+                <div class="w-full max-w-4xl flex items-center justify-start mb-1 px-2 fade-in">
+                    <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+                    <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center justify-between gap-2">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-pink-400 flex items-center justify-center text-white text-xl shadow-md">
+                            <i class="fas fa-cloud-sun"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-indigo-700">
+                                乘以 
+                                <span class="v-frac text-blue-900"><span class="num">1</span><span class="den">n</span></span>
+                                與除以 n 的概念探索網頁
+                            </h1>
+                            <p class="text-xs text-blue-800/80 font-medium">國小五上數學 9-3 互動學習網頁</p>
+                        </div>
+                    </div>
+
+                    <!-- Tabs Navbar -->
+                    <nav class="flex flex-wrap gap-1 bg-slate-100/80 p-1.5 rounded-2xl border border-white/50 shadow-inner">
+                        <button onclick="switchTab('tab1')" id="btn-tab1" class="tab-btn active px-3 py-1.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-blue-600 text-white shadow-sm">
+                            <i class="fas fa-cookie-bite mr-1"></i> 主題一：離散量 (巧克力)
+                        </button>
+                        <button onclick="switchTab('tab2')" id="btn-tab2" class="tab-btn px-3 py-1.5 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-700 hover:bg-white/60">
+                            <i class="fas fa-wine-glass mr-1"></i> 主題二：連續量 (果汁)
+                        </button>
+                        <button onclick="switchTab('tab3')" id="btn-tab3" class="tab-btn px-3 py-1.5 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-700 hover:bg-white/60">
+                            <i class="fas fa-robot mr-1"></i> 主題三：思考帽
+                        </button>
+                        <button onclick="switchTab('tab4')" id="btn-tab4" class="tab-btn px-3 py-1.5 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-700 hover:bg-white/60">
+                            <i class="fas fa-pen-to-square mr-1"></i> 歷程評量
+                        </button>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="max-w-5xl mx-auto px-4 mt-6">
+
+            <!-- TAB 1: DISCRETE QUANTITIES -->
+            <section id="tab1" class="tab-content active">
+                <div class="glass-card rounded-3xl p-6 mb-6">
+                    <div class="flex items-center justify-between border-b border-slate-200/60 pb-3 mb-4">
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <span class="bg-amber-500 text-white w-7 h-7 rounded-lg inline-flex items-center justify-center text-sm mr-2 shadow">1</span>
+                            離散量情境：求盒數與顆數 (巧克力平分與倍數)
+                        </h2>
+                        <span class="text-xs bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full font-medium">看圖臆測與操作</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                        <!-- Control & Dynamic Explanation Panel -->
+                        <div class="md:col-cols-5 md:col-span-5 bg-white/70 p-5 rounded-2xl border border-white/80 shadow-sm space-y-4">
+                            <h3 class="font-bold text-slate-700 flex items-center">
+                                <i class="fas fa-sliders text-blue-500 mr-2"></i> 探索參數設定
+                            </h3>
+
+                            <div>
+                                <label class="block text-sm font-medium text-slate-600 mb-1">巧克力總顆數 (1 盒)：</label>
+                                <select id="choc-total" onchange="updateChocView()" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                    <option value="12" selected>12 顆 (課本例題)</option>
+                                    <option value="18">18 顆</option>
+                                    <option value="24">24 顆</option>
+                                    <option value="30">30 顆</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-slate-600 mb-1">分成幾等分 / 幾分之一盒：</label>
+                                <div id="choc-parts-container" class="grid grid-cols-4 gap-2">
+                                    <!-- Dynamic buttons rendered by JS based on selected factors -->
+                                </div>
+                            </div>
+
+                            <div class="p-3 bg-blue-50/80 rounded-xl border border-blue-100 text-sm text-blue-900 space-y-2">
+                                <p class="font-bold border-b border-blue-200 pb-1">
+                                    <i class="fas fa-lightbulb text-amber-500 mr-1"></i> 數學觀念對照：
+                                </p>
+                                <p class="flex items-center flex-wrap">
+                                    ① 美美想法 (倍數觀念)：
+                                    <span id="choc-exp-mult"></span>
+                                </p>
+                                <p class="flex items-center flex-wrap">
+                                    ② 皮皮想法 (平分觀念)：
+                                    <span id="choc-exp-div"></span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Visual Representation Canvas/Grid Area -->
+                        <div class="md:col-span-7 bg-amber-50/50 p-5 rounded-2xl border border-amber-100 flex flex-col items-center">
+                            <div class="w-full flex justify-between items-center mb-3">
+                                <span class="text-sm font-bold text-amber-900">
+                                    <i class="fas fa-box text-amber-700 mr-1"></i> 巧克力盒具象化圖示
+                                </span>
+                                <span class="text-xs bg-amber-200/70 text-amber-900 px-2.5 py-1 rounded-md font-medium">
+                                    黃色代表取得的 1 等分 (<span id="choc-frac-tag"></span> 盒)
+                                </span>
+                            </div>
+
+                            <!-- Chocolate Grid -->
+                            <div id="choc-box-container" class="grid gap-2 p-4 bg-amber-900/10 rounded-2xl border-2 border-amber-800/20 w-full max-w-md my-2">
+                                <!-- Generated by JS -->
+                            </div>
+
+                            <!-- Dynamic Summary Card -->
+                            <div class="mt-4 w-full bg-white/90 p-4 rounded-xl border border-amber-200 text-center shadow-sm">
+                                <div class="text-slate-700 text-sm md:text-base font-semibold space-y-2">
+                                    <div class="flex items-center justify-center flex-wrap gap-2 text-indigo-900">
+                                        <span>算式一：<span id="choc-math-1"></span></span>
+                                        <span class="text-slate-400">|</span>
+                                        <span>算式二：<span id="choc-math-2"></span></span>
+                                    </div>
+                                    <div class="text-emerald-600 font-extrabold text-lg mt-1">
+                                        答：<span id="choc-result-count">6</span> 顆
+                                    </div>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-2 bg-amber-50 p-2 rounded-lg">
+                                    <i class="fas fa-check-circle text-emerald-500 mr-1"></i> 歸納：乘以 
+                                    <span class="v-frac text-slate-700"><span class="num">1</span><span class="den" id="summary-den">2</span></span>
+                                    和除以 <span id="summary-num">2</span> 的結果是完全相同的！
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: CONTINUOUS QUANTITIES -->
+            <section id="tab2" class="tab-content">
+                <div class="glass-card rounded-3xl p-6 mb-6">
+                    <div class="flex items-center justify-between border-b border-slate-200/60 pb-3 mb-4">
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <span class="bg-blue-500 text-white w-7 h-7 rounded-lg inline-flex items-center justify-center text-sm mr-2 shadow">2</span>
+                            連續量情境：果汁平分與容量圖 (以分數表示除法結果)
+                        </h2>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full font-medium">動態圖形切分</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                        <!-- Controls -->
+                        <div class="md:col-span-5 bg-white/70 p-5 rounded-2xl border border-white/80 shadow-sm space-y-5">
+                            <h3 class="font-bold text-slate-700 flex items-center">
+                                <i class="fas fa-sliders text-blue-500 mr-2"></i> 果汁平分探索
+                            </h3>
+
+                            <div>
+                                <div class="flex justify-between text-sm font-medium text-slate-600 mb-1">
+                                    <span>原本果汁容量：</span>
+                                    <span id="juice-vol-val" class="font-bold text-blue-600">3 公升</span>
+                                </div>
+                                <input type="range" id="juice-vol" min="1" max="5" value="3" oninput="updateJuiceView()" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                                <div class="flex justify-between text-xs text-slate-400 mt-1">
+                                    <span>1L</span><span>2L</span><span>3L</span><span>4L</span><span>5L</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-sm font-medium text-slate-600 mb-1">
+                                    <span>平分成幾杯 / 幾等分：</span>
+                                    <span id="juice-parts-val" class="font-bold text-indigo-600">5 杯</span>
+                                </div>
+                                <input type="range" id="juice-parts" min="2" max="9" value="5" oninput="updateJuiceView()" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                                <div class="flex justify-between text-xs text-slate-400 mt-1">
+                                    <span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>
+                                </div>
+                            </div>
+
+                            <div class="p-3 bg-indigo-50/80 rounded-xl border border-indigo-100 text-sm space-y-2">
+                                <p class="font-bold text-indigo-900 border-b border-indigo-200 pb-1">
+                                    <i class="fas fa-diagram-project mr-1"></i> 解法觀念對照：
+                                </p>
+                                <p class="text-indigo-800 flex items-center flex-wrap">
+                                    • 除法表示：
+                                    <span id="juice-math-div" class="ml-1 font-bold"></span>
+                                </p>
+                                <p class="text-indigo-800 flex items-center flex-wrap">
+                                    • 乘以單位分數：
+                                    <span id="juice-math-mult" class="ml-1 font-bold"></span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Graphical Container SVG Display -->
+                        <div class="md:col-span-7 bg-blue-50/50 p-5 rounded-2xl border border-blue-100 flex flex-col items-center">
+                            <div class="w-full flex justify-between items-center mb-3">
+                                <span class="text-sm font-bold text-blue-900">
+                                    <i class="fas fa-flask text-blue-600 mr-1"></i> 動態容量分割與合成圖 (連續量)
+                                </span>
+                                <span class="text-xs bg-blue-200/70 text-blue-900 px-2.5 py-1 rounded-md font-medium">
+                                    左側為各公升切分，右側為 1 人喝到的總量
+                                </span>
+                            </div>
+
+                            <!-- Interactive Area: 2/3 for visual splits, 1/3 for total 1-person volume -->
+                            <div class="w-full min-h-[280px] bg-white rounded-xl border-2 border-slate-300 p-3 shadow-inner grid grid-cols-12 gap-3 items-center">
+                                <!-- Left 2/3: Splits -->
+                                <div class="col-span-8 h-full border-r border-dashed border-slate-300 pr-2 flex flex-col justify-center">
+                                    <div class="text-xs font-bold text-slate-500 mb-1 text-center">每公升分割圖 (平分成 <span class="juice-n-val font-bold text-blue-600">5</span> 杯)</div>
+                                    <svg id="juice-svg" class="w-full h-52" viewBox="0 0 240 200">
+                                        <!-- Dynamic SVG elements created by JS -->
+                                    </svg>
+                                </div>
+
+                                <!-- Right 1/3: 1-Person Total Juice Visual -->
+                                <div class="col-span-4 h-full flex flex-col items-center justify-center bg-blue-50/60 rounded-lg p-2 border border-blue-100">
+                                    <span class="text-xs font-bold text-blue-900 mb-2 text-center flex items-center">
+                                        <i class="fas fa-wine-glass-drop text-blue-500 mr-1"></i> 1人喝到的總量
+                                    </span>
+                                    
+                                    <svg id="juice-right-svg" class="w-full h-52" viewBox="0 0 120 200">
+                                        <!-- Dynamic SVG elements created by JS -->
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <!-- Result Card -->
+                            <div class="mt-4 w-full bg-white/90 p-4 rounded-xl border border-blue-200 text-center shadow-sm">
+                                <div class="text-slate-800 text-base font-bold flex items-center justify-center flex-wrap gap-2">
+                                    <span>答案：他喝了</span>
+                                    <span id="juice-final-ans" class="text-blue-600 text-xl font-extrabold"></span>
+                                    <span>公升果汁</span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-2">
+                                    <i class="fas fa-equals text-blue-500 mr-1"></i> 結論：除以 <span class="juice-n-val font-bold">5</span> 就等於乘以 
+                                    <span class="v-frac text-slate-800"><span class="num">1</span><span class="den juice-n-val">5</span></span>！
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: FUNCTION / MULTIPLIER MACHINE -->
+            <section id="tab3" class="tab-content">
+                <div class="glass-card rounded-3xl p-6 mb-6">
+                    <div class="flex items-center justify-between border-b border-slate-200/60 pb-3 mb-4">
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <span class="bg-purple-500 text-white w-7 h-7 rounded-lg inline-flex items-center justify-center text-sm mr-2 shadow">3</span>
+                            思考帽：神奇「倍數運算器」實驗室
+                        </h2>
+                        <span class="text-xs bg-purple-100 text-purple-800 px-2.5 py-1 rounded-full font-medium">規律觀察與臆測</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+                        <!-- Left Panel: Dark Purple Interactive Machine Simulation -->
+                        <div class="md:col-span-6 bg-[#33186b] text-white p-6 rounded-3xl shadow-xl flex flex-col justify-between items-center relative space-y-4">
+                            <!-- Input Value Control with Badge on Left -->
+                            <div class="flex items-center justify-center flex-wrap gap-1">
+                                <span class="bg-[#6b38c3]/60 text-purple-200 px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center gap-1 shadow-inner">
+                                    <i class="fas fa-bolt text-amber-300"></i> 運算機器人 Model-N
+                                </span>
+                                <span class="text-sm font-bold text-purple-200">　　輸入數值：</span>
+                                <input id="machine-input" type="number" value="20" min="1" max="1000" oninput="runMachine()" class="w-28 bg-white text-slate-900 font-extrabold text-xl text-center rounded-xl py-1.5 px-3 shadow focus:outline-none focus:ring-2 focus:ring-purple-400">
+                            </div>
+
+                            <!-- Down Arrow -->
+                            <i class="fas fa-arrow-down text-purple-300/80 text-xl"></i>
+
+                            <!-- Core Processor Box -->
+                            <div class="bg-[#1e1b2e] border-2 border-[#7c3aed] rounded-2xl px-4 py-2.5 w-full max-w-sm text-center shadow-lg relative">
+                                <div class="text-[11px] text-slate-400 font-medium mb-1">當前核心運算規則</div>
+                                <div class="text-xl md:text-2xl font-black text-amber-300 flex items-center justify-center flex-wrap gap-2 my-0.5">
+                                    <span>乘以 <span class="v-frac text-amber-300"><span class="num">1</span><span class="den" id="machine-core-den">2</span></span> 倍</span>
+                                    <span class="text-xs text-slate-300 font-normal">（等同於除以 <span id="machine-core-div-num">2</span>）</span>
+                                </div>
+                            </div>
+
+                            <!-- Down Arrow -->
+                            <i class="fas fa-arrow-down text-purple-300/80 text-xl"></i>
+
+                            <!-- Output Display Box -->
+                            <div class="bg-[#130d24] border border-purple-500/40 rounded-2xl p-4 w-full max-w-sm text-center shadow-inner">
+                                <div class="text-xs font-bold text-emerald-400 mb-1">螢幕顯示結果 (輸出)</div>
+                                <div id="machine-out-display" class="text-3xl md:text-4xl font-extrabold text-emerald-400 min-h-[48px] flex items-center justify-center">
+                                    10
+                                </div>
+                            </div>
+
+                            <!-- Bottom Rule Switcher Buttons -->
+                            <div class="bg-[#482393]/70 border border-purple-400/30 rounded-2xl p-4 w-full text-center space-y-2.5">
+                                <div class="text-xs font-bold text-purple-200">切換機器人設定 (乘以 1/n 倍) :</div>
+                                <div class="flex flex-wrap justify-center gap-2">
+                                    <button onclick="selectMachineRule(2)" data-rule="2" class="machine-rule-btn px-3 py-1.5 rounded-xl font-bold text-xs bg-amber-400 text-slate-900 shadow transition-all">
+                                        <span class="v-frac"><span class="num">1</span><span class="den">2</span></span> 倍
+                                    </button>
+                                    <button onclick="selectMachineRule(3)" data-rule="3" class="machine-rule-btn px-3 py-1.5 rounded-xl font-bold text-xs bg-[#5b2fb8]/80 text-purple-200 hover:bg-[#6e3ccf] transition-all">
+                                        <span class="v-frac"><span class="num">1</span><span class="den">3</span></span> 倍
+                                    </button>
+                                    <button onclick="selectMachineRule(4)" data-rule="4" class="machine-rule-btn px-3 py-1.5 rounded-xl font-bold text-xs bg-[#5b2fb8]/80 text-purple-200 hover:bg-[#6e3ccf] transition-all">
+                                        <span class="v-frac"><span class="num">1</span><span class="den">4</span></span> 倍
+                                    </button>
+                                    <button onclick="selectMachineRule(5)" data-rule="5" class="machine-rule-btn px-3 py-1.5 rounded-xl font-bold text-xs bg-[#5b2fb8]/80 text-purple-200 hover:bg-[#6e3ccf] transition-all">
+                                        <span class="v-frac"><span class="num">1</span><span class="den">5</span></span> 倍
+                                    </button>
+                                    <button onclick="selectMachineRule(7)" data-rule="7" class="machine-rule-btn px-3 py-1.5 rounded-xl font-bold text-xs bg-[#5b2fb8]/80 text-purple-200 hover:bg-[#6e3ccf] transition-all">
+                                        <span class="v-frac"><span class="num">1</span><span class="den">7</span></span> 倍
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Light Purple Challenge Interactive Card -->
+                        <div class="md:col-span-6 bg-purple-50/60 border border-purple-100 p-6 rounded-3xl shadow-sm flex flex-col justify-between space-y-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-purple-900 flex items-center gap-2 mb-2">
+                                    <i class="fas fa-graduation-cap text-purple-600 text-xl"></i>
+                                    思考帽思考挑戰
+                                </h3>
+                                <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                                    美美發現了另一臺乘法運算器，輸入數字與螢幕顯示結果如下表。請你想一想，這台運算器是乘以幾倍呢？
+                                </p>
+
+                                <!-- Table matching the textbook screenshot -->
+                                <div class="overflow-hidden rounded-xl border border-purple-200/80 shadow-sm mb-5">
+                                    <table class="w-full text-center text-xs">
+                                        <thead>
+                                            <tr class="bg-purple-100/80 text-purple-900 font-bold border-b border-purple-200">
+                                                <th class="py-2.5 px-3">輸入數值</th>
+                                                <th class="py-2.5 px-3">螢幕顯示</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-purple-100 bg-white">
+                                            <tr>
+                                                <td class="py-2 text-slate-700 font-bold">42</td>
+                                                <td class="py-2 text-slate-800 font-extrabold">6</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-2 text-slate-700 font-bold">56</td>
+                                                <td class="py-2 text-slate-800 font-extrabold">8</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-2 text-slate-700 font-bold">28</td>
+                                                <td class="py-2 text-slate-800 font-extrabold">4</td>
+                                            </tr>
+                                            <tr class="bg-amber-50/80">
+                                                <td class="py-2.5 text-amber-900 font-black">5</td>
+                                                <td class="py-2.5 text-rose-500 font-black text-sm">?</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Question Section -->
+                                <div class="space-y-3">
+                                    <p class="text-xs font-bold text-slate-800">請問這台機器是幾倍運算器？</p>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <button onclick="checkChallenge(7)" class="p-2.5 bg-white hover:bg-purple-50 border border-slate-200 hover:border-purple-300 rounded-xl font-bold text-slate-700 text-xs shadow-sm transition-all flex items-center justify-center">
+                                            <span class="v-frac"><span class="num">1</span><span class="den">7</span></span> 倍
+                                        </button>
+                                        <button onclick="checkChallenge(6)" class="p-2.5 bg-white hover:bg-purple-50 border border-slate-200 hover:border-purple-300 rounded-xl font-bold text-slate-700 text-xs shadow-sm transition-all flex items-center justify-center">
+                                            <span class="v-frac"><span class="num">1</span><span class="den">6</span></span> 倍
+                                        </button>
+                                        <button onclick="checkChallenge(8)" class="p-2.5 bg-white hover:bg-purple-50 border border-slate-200 hover:border-purple-300 rounded-xl font-bold text-slate-700 text-xs shadow-sm transition-all flex items-center justify-center">
+                                            <span class="v-frac"><span class="num">1</span><span class="den">8</span></span> 倍
+                                        </button>
+                                    </div>
+
+                                    <!-- Interactive Feedback Container moved right below options -->
+                                    <div id="challenge-feedback" class="hidden"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: FORMATIVE ASSESSMENT -->
+            <section id="tab4" class="tab-content">
+                <div class="glass-card rounded-3xl p-6 mb-6">
+                    <div class="flex items-center justify-between border-b border-slate-200/60 pb-3 mb-4">
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <span class="bg-emerald-500 text-white w-7 h-7 rounded-lg inline-flex items-center justify-center text-sm mr-2 shadow">4</span>
+                            歷程評量
+                        </h2>
+                        <span class="text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-medium">總分 100 分 (每題 20 分)</span>
+                    </div>
+
+                    <!-- Quiz Container -->
+                    <div id="quiz-container" class="space-y-6">
+                        <!-- Question 1 -->
+                        <div class="bg-white/80 p-5 rounded-2xl border border-slate-200 shadow-sm" id="q-block-1">
+                            <div class="font-bold text-slate-800 flex items-start gap-2 mb-3">
+                                <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-sm">第 1 題</span>
+                                <div>
+                                    一盒雞蛋有 10 顆，美美說「10 × 
+                                    <span class="v-frac text-slate-800"><span class="num">1</span><span class="den">2</span></span>」和「10 ÷ 2」的結果相同。請問這個敘述是否正確？
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+                                <button onclick="selectQ1(true)" id="q1-opt-true" class="q1-btn p-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 hover:bg-blue-50 text-left font-medium transition flex items-center justify-between">
+                                    <span><i class="far fa-circle-check text-blue-500 mr-2"></i> O 正確，兩者算出來都是 5 顆。</span>
+                                </button>
+                                <button onclick="selectQ1(false)" id="q1-opt-false" class="q1-btn p-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 hover:bg-blue-50 text-left font-medium transition flex items-center justify-between">
+                                    <span><i class="far fa-circle-xmark text-red-500 mr-2"></i> X 錯誤，乘法跟除法結果不可能一樣。</span>
+                                </button>
+                            </div>
+                            <div id="ans-feedback-1" class="hidden mt-3 p-3 rounded-xl text-sm font-bold"></div>
+                        </div>
+
+                        <!-- Question 2 -->
+                        <div class="bg-white/80 p-5 rounded-2xl border border-slate-200 shadow-sm" id="q-block-2">
+                            <div class="font-bold text-slate-800 flex items-start gap-2 mb-3">
+                                <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-sm">第 2 題</span>
+                                <div class="flex items-center flex-wrap">
+                                    請完成算式轉換：6 ÷ 7 = 6 × 
+                                    <span class="v-frac text-slate-800"><span class="num">1</span><span class="den">?</span></span>
+                                    ，分母「?」應該填入多少？
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <input type="number" id="q2-input" placeholder="請輸入數字" class="w-36 bg-white border border-slate-300 rounded-xl px-3 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                            </div>
+                            <div id="ans-feedback-2" class="hidden mt-3 p-3 rounded-xl text-sm font-bold"></div>
+                        </div>
+
+                        <!-- Question 3 -->
+                        <div class="bg-white/80 p-5 rounded-2xl border border-slate-200 shadow-sm" id="q-block-3">
+                            <div class="font-bold text-slate-800 flex items-start gap-2 mb-3">
+                                <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-sm">第 3 題</span>
+                                <div class="flex items-center flex-wrap">
+                                    1 袋麵包賣 96 元，爺爺買了 
+                                    <span class="v-frac text-slate-800"><span class="num">1</span><span class="den">3</span></span>
+                                    袋，要付多少元？
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <input type="number" id="q3-input" placeholder="輸入金額" class="w-36 bg-white border border-slate-300 rounded-xl px-3 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                <span class="font-bold text-slate-700">元</span>
+                            </div>
+                            <div id="ans-feedback-3" class="hidden mt-3 p-3 rounded-xl text-sm font-bold"></div>
+                        </div>
+
+                        <!-- Question 4 -->
+                        <div class="bg-white/80 p-5 rounded-2xl border border-slate-200 shadow-sm" id="q-block-4">
+                            <div class="font-bold text-slate-800 flex items-start gap-2 mb-3">
+                                <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-sm">第 4 題</span>
+                                <div class="flex items-center flex-wrap">
+                                    外婆有 1 塊 45 平方公尺的土地，其中的 
+                                    <span class="v-frac text-slate-800"><span class="num">1</span><span class="den">4</span></span>
+                                    種海芋，種海芋的面積是幾平方公尺？(以假分數或帶分數回答)
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <button onclick="selectQ4(1)" id="q4-opt-1" class="q4-btn p-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 hover:bg-blue-50 text-left font-semibold text-sm transition">
+                                    <span class="v-frac"><span class="num">45</span><span class="den">4</span></span> 平方公尺 (或 <span class="mixed-frac"><span class="whole">11</span><span class="v-frac"><span class="num">1</span><span class="den">4</span></span></span>)
+                                </button>
+                                <button onclick="selectQ4(2)" id="q4-opt-2" class="q4-btn p-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 hover:bg-blue-50 text-left font-semibold text-sm transition">
+                                    <span class="v-frac"><span class="num">4</span><span class="den">45</span></span> 平方公尺
+                                </button>
+                                <button onclick="selectQ4(3)" id="q4-opt-3" class="q4-btn p-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 hover:bg-blue-50 text-left font-semibold text-sm transition">
+                                    180 平方公尺
+                                </button>
+                            </div>
+                            <div id="ans-feedback-4" class="hidden mt-3 p-3 rounded-xl text-sm font-bold"></div>
+                        </div>
+
+                        <!-- Question 5 -->
+                        <div class="bg-white/80 p-5 rounded-2xl border border-slate-200 shadow-sm" id="q-block-5">
+                            <div class="font-bold text-slate-800 flex items-start gap-2 mb-3">
+                                <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-sm">第 5 題</span>
+                                <div>
+                                    關於「分數表示整數相除的結果」，有一臺運算器，輸入 35 時螢幕顯示 7；輸入 40 時顯示 8；輸入 15 時顯示 3。這是一臺「乘以多少」的運算器？
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <button onclick="selectQ5(2)" id="q5-opt-2" class="q5-btn p-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 hover:bg-blue-50 font-bold text-center transition">
+                                    乘以 <span class="v-frac"><span class="num">1</span><span class="den">2</span></span>
+                                </button>
+                                <button onclick="selectQ5(5)" id="q5-opt-5" class="q5-btn p-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 hover:bg-blue-50 font-bold text-center transition">
+                                    乘以 <span class="v-frac"><span class="num">1</span><span class="den">5</span></span>
+                                </button>
+                                <button onclick="selectQ5(7)" id="q5-opt-7" class="q5-btn p-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 hover:bg-blue-50 font-bold text-center transition">
+                                    乘以 <span class="v-frac"><span class="num">1</span><span class="den">7</span></span>
+                                </button>
+                                <button onclick="selectQ5(9)" id="q5-opt-9" class="q5-btn p-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 hover:bg-blue-50 font-bold text-center transition">
+                                    乘以 <span class="v-frac"><span class="num">1</span><span class="den">9</span></span>
+                                </button>
+                            </div>
+                            <div id="ans-feedback-5" class="hidden mt-3 p-3 rounded-xl text-sm font-bold"></div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 border-t border-slate-200/80 pt-6">
+                        <button onclick="submitQuiz()" class="btn-shinkai px-8 py-3 rounded-2xl text-base font-bold shadow-lg flex items-center gap-2 cursor-pointer">
+                            <i class="fas fa-paper-plane"></i> 提交答案
+                        </button>
+                        <button onclick="resetQuiz()" class="px-8 py-3 rounded-2xl text-base font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 transition flex items-center gap-2 cursor-pointer">
+                            <i class="fas fa-rotate-right"></i> 重新測驗
+                        </button>
+                    </div>
+
+                    <!-- Score Summary Card -->
+                    <div id="quiz-score-card" class="hidden mt-6 p-6 rounded-2xl text-center border-2 transition-all"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="relative z-10 text-center text-xs text-white/80 py-4 mt-8">
+    </footer>
+
+    <script>
+        // Tab Switch Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('text-slate-700');
+            });
+
+            document.getElementById(tabId).classList.add('active');
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.add('bg-blue-600', 'text-white');
+            activeBtn.classList.remove('text-slate-700');
+        }
+
+        // =====================================
+        // TAB 1: DISCRETE QUANTITIES LOGIC
+        // =====================================
+        let currentChocParts = 2;
+
+        const chocFactors = {
+            12: [2, 3, 4, 6],
+            18: [2, 3, 6, 9],
+            24: [2, 3, 4, 6],
+            30: [2, 3, 5, 6]
+        };
+
+        function renderPartButtons() {
+            const total = parseInt(document.getElementById('choc-total').value);
+            const factors = chocFactors[total] || [2, 3, 4, 6];
+            const container = document.getElementById('choc-parts-container');
+            container.innerHTML = '';
+
+            // If current selected parts is not in valid factors, default to first factor
+            if (!factors.includes(currentChocParts)) {
+                currentChocParts = factors[0];
+            }
+
+            factors.forEach(p => {
+                const btn = document.createElement('button');
+                btn.id = `btn-part-${p}`;
+                btn.onclick = () => setChocParts(p);
+                btn.className = `part-btn py-2 rounded-xl border text-sm font-bold transition-all ${
+                    p === currentChocParts 
+                        ? 'bg-blue-500 text-white border-blue-500 shadow-sm' 
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                }`;
+                btn.innerText = `${p} 等分`;
+                container.appendChild(btn);
+            });
+        }
+
+        function setChocParts(parts) {
+            currentChocParts = parts;
+            updateChocView();
+        }
+
+        function updateChocView() {
+            // 每次更新視圖時皆重新繪製對應總數的等分按鈕，確保按鈕選項隨時同步
+            renderPartButtons();
+
+            const total = parseInt(document.getElementById('choc-total').value);
+            const parts = currentChocParts;
+            const groupSize = Math.floor(total / parts);
+
+            // Fraction UI string
+            const fracHTML = `<span class="v-frac"><span class="num">1</span><span class="den">${parts}</span></span>`;
+
+            document.getElementById('choc-frac-tag').innerHTML = fracHTML;
+            document.getElementById('summary-den').innerText = parts;
+            document.getElementById('summary-num').innerText = parts;
+
+            // Explanations
+            document.getElementById('choc-exp-mult').innerHTML = `${total} × ${fracHTML} = ${groupSize} 顆 (算 ${total} 顆的 ${fracHTML} 倍)`;
+            document.getElementById('choc-exp-div').innerHTML = `${total} ÷ ${parts} = ${groupSize} 顆 (分成 ${parts} 等分，取 1 等分)`;
+
+            document.getElementById('choc-math-1').innerHTML = `${total} × ${fracHTML} = <span class="font-extrabold text-blue-600">${groupSize}</span>`;
+            document.getElementById('choc-math-2').innerHTML = `${total} ÷ ${parts} = <span class="font-extrabold text-blue-600">${groupSize}</span>`;
+            document.getElementById('choc-result-count').innerText = groupSize;
+
+            // Render Chocolate Grid
+            const container = document.getElementById('choc-box-container');
+            container.innerHTML = '';
+            
+            // Set grid columns dynamically based on parts
+            let cols = parts <= 3 ? parts : Math.min(parts, 5);
+            container.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+
+            for (let p = 0; p < parts; p++) {
+                const groupDiv = document.createElement('div');
+                const isSelected = p === 0; // First group selected as "1/n"
+                
+                groupDiv.className = `p-2 rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-1 ${
+                    isSelected ? 'bg-amber-200/80 border-amber-500 shadow-md scale-105' : 'bg-white/60 border-amber-200/50'
+                }`;
+
+                // Add header badge for group
+                const badge = document.createElement('span');
+                badge.className = `text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                    isSelected ? 'bg-amber-600 text-white' : 'bg-amber-200 text-amber-800'
+                }`;
+                badge.innerText = isSelected ? `第1等分 (${1}/${parts})` : `第${p+1}等分`;
+                groupDiv.appendChild(badge);
+
+                // Add chocolates inside group
+                const chocWrapper = document.createElement('div');
+                chocWrapper.className = 'flex flex-wrap items-center justify-center gap-1 mt-1';
+
+                for (let c = 0; c < groupSize; c++) {
+                    const choc = document.createElement('div');
+                    choc.className = `w-6 h-6 rounded-md flex items-center justify-center text-xs shadow-sm transition ${
+                        isSelected ? 'bg-amber-700 text-amber-100 font-bold scale-110' : 'bg-amber-900/40 text-amber-950'
+                    }`;
+                    choc.innerHTML = '<i class="fas fa-cookie"></i>';
+                    chocWrapper.appendChild(choc);
+                }
+                groupDiv.appendChild(chocWrapper);
+                container.appendChild(groupDiv);
+            }
+        }
+
+        // =====================================
+        // TAB 2: CONTINUOUS QUANTITIES LOGIC
+        // =====================================
+        function updateJuiceView() {
+            const vol = parseInt(document.getElementById('juice-vol').value);
+            const parts = parseInt(document.getElementById('juice-parts').value);
+
+            document.getElementById('juice-vol-val').innerText = `${vol} 公升`;
+            document.getElementById('juice-parts-val').innerText = `${parts} 杯 (等分)`;
+
+            document.querySelectorAll('.juice-n-val').forEach(el => el.innerText = parts);
+
+            const fracHTML = `<span class="v-frac"><span class="num">${vol}</span><span class="den">${parts}</span></span>`;
+            const unitFracHTML = `<span class="v-frac"><span class="num">1</span><span class="den">${parts}</span></span>`;
+
+            document.getElementById('juice-math-div').innerHTML = `${vol} ÷ ${parts} = ${fracHTML} 公升`;
+            document.getElementById('juice-math-mult').innerHTML = `${vol} × ${unitFracHTML} = ${fracHTML} 公升`;
+            document.getElementById('juice-final-ans').innerHTML = fracHTML;
+
+            // Standard identical container dimensions (Height: 140px, Width: 40px)
+            const boxHeight = 140;
+            const boxWidth = 40;
+            const startY = 30;
+
+            // 1. Render Left SVG Visual (Per Liter Split)
+            const svgLeft = document.getElementById('juice-svg');
+            svgLeft.innerHTML = '';
+
+            const leftTotalWidth = vol * boxWidth + (vol - 1) * 8;
+            const leftStartXOffset = Math.max(5, (240 - leftTotalWidth) / 2);
+
+            for (let v = 0; v < vol; v++) {
+                const startX = leftStartXOffset + v * (boxWidth + 8);
+
+                // Container outer border
+                const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                rect.setAttribute("x", startX);
+                rect.setAttribute("y", startY);
+                rect.setAttribute("width", boxWidth);
+                rect.setAttribute("height", boxHeight);
+                rect.setAttribute("fill", "#e0f2fe");
+                rect.setAttribute("stroke", "#0284c7");
+                rect.setAttribute("stroke-width", "2");
+                rect.setAttribute("rx", "5");
+                svgLeft.appendChild(rect);
+
+                const sliceHeight = boxHeight / parts;
+                
+                // Bottom slice highlighted (1/n Liter portion)
+                const sliceY = startY + (parts - 1) * sliceHeight;
+                const fillRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                fillRect.setAttribute("x", startX + 1);
+                fillRect.setAttribute("y", sliceY);
+                fillRect.setAttribute("width", boxWidth - 2);
+                fillRect.setAttribute("height", sliceHeight - 1);
+                fillRect.setAttribute("fill", "#3b82f6");
+                fillRect.setAttribute("rx", "2");
+                svgLeft.appendChild(fillRect);
+
+                // Dashed division lines
+                for (let p = 1; p < parts; p++) {
+                    const lineY = startY + p * sliceHeight;
+                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    line.setAttribute("x1", startX);
+                    line.setAttribute("y1", lineY);
+                    line.setAttribute("x2", startX + boxWidth);
+                    line.setAttribute("y2", lineY);
+                    line.setAttribute("stroke", lineY >= sliceY ? "#bfdbfe" : "#38bdf8");
+                    line.setAttribute("stroke-dasharray", "2,2");
+                    svgLeft.appendChild(line);
+                }
+
+                // Label above container
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", startX + (boxWidth / 2));
+                text.setAttribute("y", startY - 8);
+                text.setAttribute("text-anchor", "middle");
+                text.setAttribute("fill", "#0369a1");
+                text.setAttribute("font-size", "11");
+                text.setAttribute("font-weight", "bold");
+                text.textContent = `第${v+1}L`;
+                svgLeft.appendChild(text);
+            }
+
+            // 2. Render Right SVG Visual (Total 1-person volume using identical scale & splits)
+            const svgRight = document.getElementById('juice-right-svg');
+            svgRight.innerHTML = '';
+
+            const numContainersRight = Math.ceil(vol / parts);
+            const rightTotalWidth = numContainersRight * boxWidth + (numContainersRight - 1) * 8;
+            const rightViewWidth = Math.max(120, rightTotalWidth + 20);
+            svgRight.setAttribute("viewBox", `0 0 ${rightViewWidth} 200`);
+
+            const rightStartXOffset = (rightViewWidth - rightTotalWidth) / 2;
+            let remainingSlicesToFill = vol;
+
+            for (let c = 0; c < numContainersRight; c++) {
+                const startX = rightStartXOffset + c * (boxWidth + 8);
+
+                // Container outer border (Identical size and style as left)
+                const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                rect.setAttribute("x", startX);
+                rect.setAttribute("y", startY);
+                rect.setAttribute("width", boxWidth);
+                rect.setAttribute("height", boxHeight);
+                rect.setAttribute("fill", "#e0f2fe");
+                rect.setAttribute("stroke", "#0284c7");
+                rect.setAttribute("stroke-width", "2");
+                rect.setAttribute("rx", "5");
+                svgRight.appendChild(rect);
+
+                const sliceHeight = boxHeight / parts;
+                const slicesInThisContainer = Math.min(parts, remainingSlicesToFill);
+                remainingSlicesToFill -= slicesInThisContainer;
+
+                // Fill accumulated slices from bottom
+                if (slicesInThisContainer > 0) {
+                    const fillHeight = slicesInThisContainer * sliceHeight;
+                    const fillY = startY + boxHeight - fillHeight;
+
+                    const fillRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    fillRect.setAttribute("x", startX + 1);
+                    fillRect.setAttribute("y", fillY);
+                    fillRect.setAttribute("width", boxWidth - 2);
+                    fillRect.setAttribute("height", fillHeight - 1);
+                    fillRect.setAttribute("fill", "#3b82f6");
+                    fillRect.setAttribute("rx", "2");
+                    svgRight.appendChild(fillRect);
+                }
+
+                // Dashed division lines (Rendered over container to allow clear slice counting)
+                for (let p = 1; p < parts; p++) {
+                    const lineY = startY + p * sliceHeight;
+                    const isFilledArea = lineY >= (startY + boxHeight - slicesInThisContainer * sliceHeight);
+
+                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    line.setAttribute("x1", startX);
+                    line.setAttribute("y1", lineY);
+                    line.setAttribute("x2", startX + boxWidth);
+                    line.setAttribute("y2", lineY);
+                    line.setAttribute("stroke", isFilledArea ? "#bfdbfe" : "#38bdf8");
+                    line.setAttribute("stroke-dasharray", "2,2");
+                    svgRight.appendChild(line);
+                }
+
+                // Label above right container
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", startX + (boxWidth / 2));
+                text.setAttribute("y", startY - 8);
+                text.setAttribute("text-anchor", "middle");
+                text.setAttribute("fill", "#0369a1");
+                text.setAttribute("font-size", "11");
+                text.setAttribute("font-weight", "bold");
+                text.textContent = numContainersRight > 1 ? `第${c+1}瓶` : `總量`;
+                svgRight.appendChild(text);
+            }
+        }
+
+        // =====================================
+        // TAB 3: FUNCTION MACHINE LOGIC
+        // =====================================
+        let currentMachineN = 2;
+
+        function selectMachineRule(n) {
+            currentMachineN = n;
+            document.querySelectorAll('.machine-rule-btn').forEach(btn => {
+                if (parseInt(btn.dataset.rule) === n) {
+                    btn.className = 'machine-rule-btn px-3 py-1.5 rounded-xl font-bold text-xs bg-amber-400 text-slate-900 shadow transition-all';
+                } else {
+                    btn.className = 'machine-rule-btn px-3 py-1.5 rounded-xl font-bold text-xs bg-[#5b2fb8]/80 text-purple-200 hover:bg-[#6e3ccf] transition-all';
+                }
+            });
+
+            document.getElementById('machine-core-den').innerText = n;
+            document.getElementById('machine-core-div-num').innerText = n;
+            runMachine();
+        }
+
+        function runMachine() {
+            const inputVal = parseInt(document.getElementById('machine-input').value) || 0;
+            const n = currentMachineN;
+            const outDisplay = document.getElementById('machine-out-display');
+
+            if (inputVal === 0) {
+                outDisplay.innerText = '0';
+                return;
+            }
+
+            if (inputVal % n === 0) {
+                outDisplay.innerText = (inputVal / n);
+            } else {
+                outDisplay.innerHTML = `<span class="v-frac text-emerald-400"><span class="num">${inputVal}</span><span class="den">${n}</span></span>`;
+            }
+        }
+
+        function checkChallenge(selectedN) {
+            const fb = document.getElementById('challenge-feedback');
+            fb.classList.remove('hidden');
+
+            if (selectedN === 7) {
+                fb.className = "p-3 bg-emerald-100 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-semibold flex items-start gap-2 shadow-sm transition-all";
+                fb.innerHTML = `
+                    <i class="fas fa-circle-check text-emerald-600 text-base mt-0.5 shrink-0"></i>
+                    <div>
+                        答對了！運算規則是乘以 <span class="v-frac"><span class="num">1</span><span class="den">7</span></span> 倍（即除以 7）。當輸入 5 時，螢幕顯示 <span class="v-frac"><span class="num">5</span><span class="den">7</span></span> ！
+                    </div>
+                `;
+            } else {
+                fb.className = "p-3 bg-rose-100 border border-rose-200 text-rose-800 rounded-xl text-xs font-semibold flex items-start gap-2 shadow-sm transition-all";
+                fb.innerHTML = `
+                    <i class="fas fa-circle-xmark text-rose-600 text-base mt-0.5 shrink-0"></i>
+                    <div>
+                        不太對喔！觀察看看：42 變成 6，56 變成 8，28 變成 4，數字都是被除以 7（乘以 <span class="v-frac"><span class="num">1</span><span class="den">7</span></span> 倍）喔！
+                    </div>
+                `;
+            }
+        }
+
+        // =====================================
+        // TAB 4: FORMATIVE ASSESSMENT LOGIC
+        // =====================================
+        let userQuizAns = {
+            q1: null,
+            q4: null,
+            q5: null
+        };
+
+        function selectQ1(val) {
+            userQuizAns.q1 = val;
+            document.querySelectorAll('.q1-btn').forEach(b => {
+                b.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+                b.classList.add('bg-slate-50', 'text-slate-700', 'border-slate-300');
+            });
+            const selectedBtn = document.getElementById(val ? 'q1-opt-true' : 'q1-opt-false');
+            if (selectedBtn) {
+                selectedBtn.classList.remove('bg-slate-50', 'text-slate-700', 'border-slate-300');
+                selectedBtn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+            }
+        }
+
+        function selectQ4(val) {
+            userQuizAns.q4 = val;
+            document.querySelectorAll('.q4-btn').forEach(b => {
+                b.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+                b.classList.add('bg-slate-50', 'text-slate-700', 'border-slate-300');
+            });
+            const selectedBtn = document.getElementById(`q4-opt-${val}`);
+            if (selectedBtn) {
+                selectedBtn.classList.remove('bg-slate-50', 'text-slate-700', 'border-slate-300');
+                selectedBtn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+            }
+        }
+
+        function selectQ5(val) {
+            userQuizAns.q5 = val;
+            document.querySelectorAll('.q5-btn').forEach(b => {
+                b.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+                b.classList.add('bg-slate-50', 'text-slate-700', 'border-slate-300');
+            });
+            const selectedBtn = document.getElementById(`q5-opt-${val}`);
+            if (selectedBtn) {
+                selectedBtn.classList.remove('bg-slate-50', 'text-slate-700', 'border-slate-300');
+                selectedBtn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+            }
+        }
+
+        function submitQuiz() {
+            let totalScore = 0;
+
+            // Helper function to render un-answered block
+            const renderUnanswered = (id) => {
+                const fb = document.getElementById(`ans-feedback-${id}`);
+                fb.classList.remove('hidden');
+                fb.className = "mt-3 p-3 bg-amber-100 text-amber-800 border border-amber-300 rounded-xl text-sm font-bold flex items-center gap-2";
+                fb.innerHTML = '<i class="fas fa-exclamation-triangle text-amber-600 text-lg"></i> 未作答。';
+            };
+
+            // Q1 Evaluation
+            const fb1 = document.getElementById('ans-feedback-1');
+            fb1.classList.remove('hidden');
+            if (userQuizAns.q1 === null) {
+                renderUnanswered(1);
+            } else if (userQuizAns.q1 === true) {
+                totalScore += 20;
+                fb1.className = "mt-3 p-3 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-sm font-bold flex items-center gap-2";
+                fb1.innerHTML = '<i class="fas fa-circle-check text-emerald-600 text-lg"></i> 答對了！10 × <span class="v-frac"><span class="num">1</span><span class="den">2</span></span> = 5 顆，10 ÷ 2 = 5 顆，兩者結果完全相同。';
+            } else {
+                fb1.className = "mt-3 p-3 bg-rose-100 text-rose-800 border border-rose-300 rounded-xl text-sm font-bold flex items-center gap-2";
+                fb1.innerHTML = '<i class="fas fa-circle-xmark text-rose-600 text-lg"></i> 答錯了！10 × <span class="v-frac"><span class="num">1</span><span class="den">2</span></span> = 5，10 ÷ 2 也是 5，兩者結果是相同的喔！';
+            }
+
+            // Q2 Evaluation
+            const q2ValStr = document.getElementById('q2-input').value.trim();
+            const fb2 = document.getElementById('ans-feedback-2');
+            fb2.classList.remove('hidden');
+            if (q2ValStr === '') {
+                renderUnanswered(2);
+            } else {
+                const q2Val = parseInt(q2ValStr);
+                if (q2Val === 7) {
+                    totalScore += 20;
+                    fb2.className = "mt-3 p-3 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-sm font-bold flex items-center gap-2";
+                    fb2.innerHTML = '<i class="fas fa-circle-check text-emerald-600 text-lg"></i> 答對了！除以 7 就等於乘以 <span class="v-frac"><span class="num">1</span><span class="den">7</span></span>，分母應填入 7。';
+                } else {
+                    fb2.className = "mt-3 p-3 bg-rose-100 text-rose-800 border border-rose-300 rounded-xl text-sm font-bold flex items-center gap-2";
+                    fb2.innerHTML = '<i class="fas fa-circle-xmark text-rose-600 text-lg"></i> 答錯了！6 ÷ 7 代表把 6 平分成 7 份，也就是乘以 <span class="v-frac"><span class="num">1</span><span class="den">7</span></span> 喔！';
+                }
+            }
+
+            // Q3 Evaluation
+            const q3ValStr = document.getElementById('q3-input').value.trim();
+            const fb3 = document.getElementById('ans-feedback-3');
+            fb3.classList.remove('hidden');
+            if (q3ValStr === '') {
+                renderUnanswered(3);
+            } else {
+                const q3Val = parseInt(q3ValStr);
+                if (q3Val === 32) {
+                    totalScore += 20;
+                    fb3.className = "mt-3 p-3 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-sm font-bold flex items-center gap-2";
+                    fb3.innerHTML = '<i class="fas fa-circle-check text-emerald-600 text-lg"></i> 答對了！96 × <span class="v-frac"><span class="num">1</span><span class="den">3</span></span> = 32 元（也可以想成 96 ÷ 3 = 32 元）。';
+                } else {
+                    fb3.className = "mt-3 p-3 bg-rose-100 text-rose-800 border border-rose-300 rounded-xl text-sm font-bold flex items-center gap-2";
+                    fb3.innerHTML = '<i class="fas fa-circle-xmark text-rose-600 text-lg"></i> 答錯了！96 × <span class="v-frac"><span class="num">1</span><span class="den">3</span></span> = 96 ÷ 3 = 32 元喔！';
+                }
+            }
+
+            // Q4 Evaluation
+            const fb4 = document.getElementById('ans-feedback-4');
+            fb4.classList.remove('hidden');
+            if (userQuizAns.q4 === null) {
+                renderUnanswered(4);
+            } else if (userQuizAns.q4 === 1) {
+                totalScore += 20;
+                fb4.className = "mt-3 p-3 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-sm font-bold flex items-center gap-2";
+                fb4.innerHTML = '<i class="fas fa-circle-check text-emerald-600 text-lg"></i> 答對了！45 × <span class="v-frac"><span class="num">1</span><span class="den">4</span></span> = <span class="v-frac"><span class="num">45</span><span class="den">4</span></span> 平方公尺（寫成帶分數是 <span class="mixed-frac"><span class="whole">11</span><span class="v-frac"><span class="num">1</span><span class="den">4</span></span></span> 平方公尺）。';
+            } else {
+                fb4.className = "mt-3 p-3 bg-rose-100 text-rose-800 border border-rose-300 rounded-xl text-sm font-bold flex items-center gap-2";
+                fb4.innerHTML = '<i class="fas fa-circle-xmark text-rose-600 text-lg"></i> 答錯了！45 × <span class="v-frac"><span class="num">1</span><span class="den">4</span></span> = <span class="v-frac"><span class="num">45</span><span class="den">4</span></span>，也就是 45 ÷ 4 = <span class="mixed-frac"><span class="whole">11</span><span class="v-frac"><span class="num">1</span><span class="den">4</span></span></span> 平方公尺。';
+            }
+
+            // Q5 Evaluation
+            const fb5 = document.getElementById('ans-feedback-5');
+            fb5.classList.remove('hidden');
+            if (userQuizAns.q5 === null) {
+                renderUnanswered(5);
+            } else if (userQuizAns.q5 === 5) {
+                totalScore += 20;
+                fb5.className = "mt-3 p-3 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-sm font-bold flex items-center gap-2";
+                fb5.innerHTML = '<i class="fas fa-circle-check text-emerald-600 text-lg"></i> 答對了！因為 35 ÷ 7 = 5、40 ÷ 8 = 5、15 ÷ 3 = 5，所以這是一臺乘以 <span class="v-frac"><span class="num">1</span><span class="den">5</span></span> 倍（除以 5）的運算器。';
+            } else {
+                fb5.className = "mt-3 p-3 bg-rose-100 text-rose-800 border border-rose-300 rounded-xl text-sm font-bold flex items-center gap-2";
+                fb5.innerHTML = '<i class="fas fa-circle-xmark text-rose-600 text-lg"></i> 答錯了！觀察看看：35 變成 7、40 變成 8、15 變成 3，代表數字都被除以 5，也就是乘以 <span class="v-frac"><span class="num">1</span><span class="den">5</span></span> 倍喔！';
+            }
+
+            // Overall Score Card Display
+            const scoreCard = document.getElementById('quiz-score-card');
+            scoreCard.classList.remove('hidden');
+            if (totalScore === 100) {
+                scoreCard.className = "mt-6 p-6 rounded-2xl text-center border-2 border-emerald-300 bg-emerald-50/90 text-emerald-900 shadow-md";
+                scoreCard.innerHTML = `
+                    <div class="text-2xl font-black mb-1"><i class="fas fa-trophy text-amber-500 mr-2"></i>測驗得分：${totalScore} / 100 分</div>
+                    <p class="text-sm font-bold">太棒了！觀念非常清晰，完全掌握「乘以 1/n 與除以 n」的核心觀念！</p>
+                `;
+            } else if (totalScore >= 60) {
+                scoreCard.className = "mt-6 p-6 rounded-2xl text-center border-2 border-blue-300 bg-blue-50/90 text-blue-900 shadow-md";
+                scoreCard.innerHTML = `
+                    <div class="text-2xl font-black mb-1"><i class="fas fa-award text-blue-500 mr-2"></i>測驗得分：${totalScore} / 100 分</div>
+                    <p class="text-sm font-bold">表現不錯！請對照上方標示的詳細解析，訂正並補強觀念吧！</p>
+                `;
+            } else {
+                scoreCard.className = "mt-6 p-6 rounded-2xl text-center border-2 border-amber-300 bg-amber-50/90 text-amber-900 shadow-md";
+                scoreCard.innerHTML = `
+                    <div class="text-2xl font-black mb-1"><i class="fas fa-seedling text-amber-600 mr-2"></i>測驗得分：${totalScore} / 100 分</div>
+                    <p class="text-sm font-bold">再接再勵！建議可以回到主題一至主題三重新操作圖形，複習「乘以 1/n 與除以 n」的觀念喔！</p>
+                `;
+            }
+
+            scoreCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function resetQuiz() {
+            userQuizAns = { q1: null, q4: null, q5: null };
+
+            // Clear inputs
+            document.getElementById('q2-input').value = '';
+            document.getElementById('q3-input').value = '';
+
+            // Reset option button styles
+            document.querySelectorAll('.q1-btn, .q4-btn, .q5-btn').forEach(b => {
+                b.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+                b.classList.add('bg-slate-50', 'text-slate-700', 'border-slate-300');
+            });
+
+            // Hide feedbacks
+            for (let i = 1; i <= 5; i++) {
+                const fb = document.getElementById(`ans-feedback-${i}`);
+                if (fb) {
+                    fb.classList.add('hidden');
+                    fb.innerHTML = '';
+                }
+            }
+
+            // Hide score card
+            const scoreCard = document.getElementById('quiz-score-card');
+            scoreCard.classList.add('hidden');
+            scoreCard.innerHTML = '';
+        }
+
+        // Initialize Page Views on Load
+        window.onload = function() {
+            renderPartButtons();
+            updateChocView();
+            updateJuiceView();
+            selectMachineRule(2);
+        };
+    </script>
+</body>
+</html>

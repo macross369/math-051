@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>角錐與圓錐 - 3D 互動探索寶典</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 30%, #312e81 50%, #4c1d95 70%, #831843 100%);
+            background-attachment: fixed;
+            color: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .stars-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Shinkai style glassmorphism cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card-sm {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .glow-title {
+            text-shadow: 0 0 15px rgba(244, 114, 182, 0.6), 0 0 30px rgba(56, 189, 248, 0.4);
+        }
+
+        #canvas3d {
+            width: 100%;
+            height: 100%;
+            border-radius: 1rem;
+            cursor: grab;
+        }
+        #canvas3d:active {
+            cursor: grabbing;
+        }
+
+        input[type=range] {
+            accent-color: #f472b6;
+        }
+
+        .tab-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .tab-btn.active {
+            background: rgba(244, 114, 182, 0.3);
+            border-color: rgba(244, 114, 182, 0.6);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(244, 114, 182, 0.3);
+        }
+    </style>
+</head>
+<body class="relative pb-12">
+    <canvas id="starsCanvas" class="stars-bg"></canvas>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <!-- 閒雲數學小棧 Logo 區塊 -->
+        <div class="w-full max-w-4xl flex items-center justify-start mb-4 px-2 fade-in">
+            <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+            <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+        </div>
+
+        <header class="text-center mb-6">
+            <div class="inline-block px-4 py-1.5 rounded-full glass-card-sm text-sky-300 text-sm font-medium mb-3 border border-sky-400/30 shadow-lg">
+                ✨ 國小五上數學 5-3 互動學習網頁
+            </div>
+            <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-white glow-title mb-2">
+                角錐與圓錐 <span class="text-pink-300">3D動態探索寶典</span>
+            </h1>
+            <p class="text-slate-200 text-base sm:text-lg max-w-2xl mx-auto opacity-90">
+                旋轉 3D 形體、拉動展開圖滑桿，探索頂點、邊數與面數的幾何規律！
+            </p>
+
+            <!-- Navigation Tabs -->
+            <div class="flex justify-center gap-3 mt-6">
+                <button id="tabBtn1" onclick="switchTab('explore')" class="tab-btn active px-5 py-2.5 rounded-xl font-bold text-sm sm:text-base border border-white/20 glass-card text-slate-200 flex items-center gap-2">
+                    🧊 3D 形體探索與大比拼
+                </button>
+                <button id="tabBtn2" onclick="switchTab('quiz')" class="tab-btn px-5 py-2.5 rounded-xl font-bold text-sm sm:text-base border border-white/20 glass-card text-slate-200 flex items-center gap-2">
+                    📝 隨堂自我挑戰測驗
+                </button>
+            </div>
+        </header>
+
+        <!-- TAB 1: 3D Exploration & Comparison -->
+        <main id="tabExplore" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Column: 3D Interactive Canvas & Controls -->
+            <section class="lg:col-span-6 flex flex-col gap-4">
+                <div class="glass-card rounded-2xl p-4 sm:p-5 flex flex-col h-[480px] relative overflow-hidden">
+                    <!-- Top control bar on canvas -->
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3 z-10">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-3 py-1 rounded-lg bg-pink-500/30 text-pink-200 text-xs font-bold border border-pink-400/30" id="currentShapeBadge">
+                                三角錐
+                            </span>
+                            <span class="text-xs text-sky-200 opacity-80 hidden sm:inline">💡 按住滑鼠可 360 度自由旋轉視角</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button id="btnResetCamera" class="px-3 py-1 text-xs rounded-lg glass-card-sm text-sky-200 hover:bg-white/20 transition flex items-center gap-1 border border-white/20">
+                                🎯 重置視角
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 3D Canvas viewport -->
+                    <div class="relative flex-grow w-full rounded-xl overflow-hidden bg-slate-900/40 border border-white/10">
+                        <canvas id="canvas3d"></canvas>
+                        
+                        <!-- Overlay Legend -->
+                        <div class="absolute bottom-3 left-3 glass-card-sm p-2.5 rounded-lg text-xs space-y-1">
+                            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-cyan-400 inline-block"></span> 底面 (Base)</div>
+                            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-pink-400 inline-block"></span> 側面 (Side Face)</div>
+                            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-yellow-300 inline-block"></span> 頂點 (Vertex)</div>
+                            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-indigo-300 inline-block"></span> 邊 (Edge)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Control Panel Card -->
+                <div class="glass-card rounded-2xl p-5 space-y-4">
+                    <h3 class="text-lg font-bold text-sky-200 flex items-center gap-2">
+                        🎛️ 形體切換與參數控制
+                    </h3>
+
+                    <!-- Category Switcher -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <button onclick="setShapeType('pyramid')" id="btnCategoryPyramid" class="py-2 px-3 rounded-xl font-medium text-sm transition glass-card text-white bg-pink-600/50 border-pink-400">
+                            🔺 角錐類
+                        </button>
+                        <button onclick="setShapeType('prism')" id="btnCategoryPrism" class="py-2 px-3 rounded-xl font-medium text-sm transition glass-card-sm text-slate-300 hover:bg-white/10">
+                            🧊 角柱類
+                        </button>
+                        <button onclick="setShapeType('cone')" id="btnCategoryCone" class="py-2 px-3 rounded-xl font-medium text-sm transition glass-card-sm text-slate-300 hover:bg-white/10">
+                            🍦 圓錐
+                        </button>
+                        <button onclick="setShapeType('cylinder')" id="btnCategoryCylinder" class="py-2 px-3 rounded-xl font-medium text-sm transition glass-card-sm text-slate-300 hover:bg-white/10">
+                            🥫 圓柱
+                        </button>
+                    </div>
+
+                    <!-- Polygon Sides Slider (for Pyramids & Prisms) -->
+                    <div id="sidesSliderContainer" class="space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <label class="text-slate-200 font-medium">底面邊數 ($n$ 多邊形)：</label>
+                            <span id="sidesValueText" class="font-bold text-pink-300 text-base">3 邊 (三角錐)</span>
+                        </div>
+                        <input type="range" id="sidesSlider" min="3" max="10" value="3" step="1" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-xs text-slate-400 px-1">
+                            <span>三角形(3)</span>
+                            <span>四邊(4)</span>
+                            <span>五邊(5)</span>
+                            <span>六邊(6)</span>
+                            <span>十邊(10)</span>
+                        </div>
+                    </div>
+
+                    <!-- Net Unfold Slider (For Pyramids) -->
+                    <div id="unfoldSliderContainer" class="space-y-2 pt-2 border-t border-white/10">
+                        <div class="flex justify-between text-sm">
+                            <label class="text-slate-200 font-medium flex items-center gap-1">
+                                📐 角錐展開圖 (向外攤平)：
+                            </label>
+                            <span id="unfoldValueText" class="font-bold text-sky-300 text-base">0% (閉合立體)</span>
+                        </div>
+                        <input type="range" id="unfoldSlider" min="0" max="100" value="0" step="1" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-xs text-slate-400">
+                            <span>0% 閉合</span>
+                            <span>50% 向外開啟</span>
+                            <span>100% 完全共面攤平</span>
+                        </div>
+                    </div>
+
+                    <!-- Feature Highlight Toggles -->
+                    <div class="pt-2 border-t border-white/10">
+                        <label class="text-xs text-slate-300 font-medium block mb-2">點亮部位標示：</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="toggleHighlight('base')" id="hlBase" class="px-3 py-1.5 rounded-lg text-xs glass-card-sm border border-cyan-400/50 text-cyan-200 hover:bg-cyan-500/20">
+                                🟦 底面
+                            </button>
+                            <button onclick="toggleHighlight('side')" id="hlSide" class="px-3 py-1.5 rounded-lg text-xs glass-card-sm border border-pink-400/50 text-pink-200 hover:bg-pink-500/20">
+                                🔺 側面
+                            </button>
+                            <button onclick="toggleHighlight('vertex')" id="hlVertex" class="px-3 py-1.5 rounded-lg text-xs glass-card-sm border border-yellow-400/50 text-yellow-200 hover:bg-yellow-500/20">
+                                🟡 頂點
+                            </button>
+                            <button onclick="toggleHighlight('edge')" id="hlEdge" class="px-3 py-1.5 rounded-lg text-xs glass-card-sm border border-indigo-400/50 text-indigo-200 hover:bg-indigo-500/20">
+                                ➖ 邊
+                            </button>
+                            <button onclick="toggleHighlight('all')" id="hlAll" class="px-3 py-1.5 rounded-lg text-xs glass-card-sm border border-white/40 text-white hover:bg-white/20">
+                                ✨ 顯示全部
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Column: Mathematical Pattern Analysis & Pyramid vs Prism Comparison -->
+            <section class="lg:col-span-6 flex flex-col gap-4">
+                
+                <!-- Dynamic Feature Calculation Card -->
+                <div class="glass-card rounded-2xl p-5 space-y-3">
+                    <h3 class="text-lg font-bold text-pink-200 flex items-center gap-2">
+                        📊 當前形體要素實時計算表
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Cyan Card for Base -->
+                        <div class="glass-card-sm p-4 rounded-xl border-l-4 border-cyan-400 space-y-2.5">
+                            <div class="flex items-center text-sm font-medium text-slate-200">
+                                <span>底面形狀：</span>
+                                <span id="statBaseShape" class="font-bold text-cyan-300 text-base">正三角形</span>
+                            </div>
+                            <div class="flex items-center text-sm font-medium text-slate-200 border-t border-white/10 pt-2">
+                                <span>底面數量：</span>
+                                <span id="statBaseCount" class="font-bold text-cyan-300 text-base">1 個</span>
+                            </div>
+                        </div>
+
+                        <!-- Pink Card for Side -->
+                        <div class="glass-card-sm p-4 rounded-xl border-l-4 border-pink-400 space-y-2.5">
+                            <div class="flex items-center text-sm font-medium text-slate-200">
+                                <span>側面形狀：</span>
+                                <span id="statSideShape" class="font-bold text-pink-300 text-base">三角形</span>
+                            </div>
+                            <div class="flex items-center text-sm font-medium text-slate-200 border-t border-white/10 pt-2">
+                                <span>側面數量：</span>
+                                <span id="statSideCount" class="font-bold text-pink-300 text-base">3 個</span>
+                            </div>
+                        </div>
+
+                        <!-- Yellow Card for Vertices -->
+                        <div class="glass-card-sm p-4 rounded-xl border-l-4 border-yellow-400 flex items-center text-sm font-medium text-slate-200">
+                            <span>所有頂點數：</span>
+                            <span id="statVertices" class="font-bold text-yellow-300 text-base">4 個 (3 + 1)</span>
+                        </div>
+
+                        <!-- Indigo Card for Edges -->
+                        <div class="glass-card-sm p-4 rounded-xl border-l-4 border-indigo-400 flex items-center text-sm font-medium text-slate-200">
+                            <span>所有邊數：</span>
+                            <span id="statEdges" class="font-bold text-indigo-300 text-base">6 條 (3 × 2)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shape Comparison Card (角錐 vs 角柱 大比拼) -->
+                <div class="glass-card rounded-2xl p-5 space-y-4 flex-grow flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xl font-bold text-indigo-200 flex items-center gap-2" id="comparisonTitle">
+                                📊 角錐 vs 角柱 大比拼
+                            </h3>
+                        </div>
+                        <p id="comparisonSubtitle" class="text-sm text-slate-300 mb-4">
+                            觀察底面邊數為 <span class="text-pink-300 font-bold">n = 3</span> 時，角錐與角柱的幾何規律：
+                        </p>
+
+                        <!-- Comparison Table -->
+                        <div class="overflow-x-auto rounded-xl border border-white/10">
+                            <table class="w-full text-sm sm:text-base text-left text-slate-200">
+                                <thead class="bg-indigo-950/70 text-sky-200 border-b border-white/15">
+                                    <tr>
+                                        <th class="py-3.5 px-4 font-bold text-base">項目</th>
+                                        <th class="py-3.5 px-4 font-bold text-base text-pink-300" id="thShapeA">三角錐</th>
+                                        <th class="py-3.5 px-4 font-bold text-base text-indigo-300" id="thShapeB">三角柱</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/10 bg-slate-900/40">
+                                    <tr>
+                                        <td class="py-3.5 px-4 font-medium text-slate-300">底面個數</td>
+                                        <td class="py-3.5 px-4 text-pink-200 font-semibold" id="compBaseA">1 個</td>
+                                        <td class="py-3.5 px-4 text-indigo-200 font-semibold" id="compBaseB">2 個 (上下全等)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-3.5 px-4 font-medium text-slate-300">側面形狀</td>
+                                        <td class="py-3.5 px-4 text-pink-200 font-semibold" id="compSideShapeA">三角形</td>
+                                        <td class="py-3.5 px-4 text-indigo-200 font-semibold" id="compSideShapeB">長方形 / 平行四邊形</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-3.5 px-4 font-medium text-slate-300">頂點總數</td>
+                                        <td class="py-3.5 px-4 text-pink-200 font-bold" id="compVerticesA">4 個 (3+1)</td>
+                                        <td class="py-3.5 px-4 text-indigo-200 font-bold" id="compVerticesB">6 個 (2×3)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-3.5 px-4 font-medium text-slate-300">邊數總計</td>
+                                        <td class="py-3.5 px-4 text-pink-200 font-bold" id="compEdgesA">6 條 (2×3)</td>
+                                        <td class="py-3.5 px-4 text-indigo-200 font-bold" id="compEdgesB">9 條 (3×3)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-3.5 px-4 font-medium text-slate-300">面數總計</td>
+                                        <td class="py-3.5 px-4 text-pink-200 font-bold" id="compFacesA">4 個 (3+1)</td>
+                                        <td class="py-3.5 px-4 text-indigo-200 font-bold" id="compFacesB">5 個 (3+2)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Highlighted Key Summary Banner -->
+                    <div class="mt-4 p-4 rounded-xl bg-amber-400/15 border border-amber-300/40 text-sm sm:text-base leading-relaxed text-amber-100 flex items-start gap-3">
+                        <span class="text-2xl">💡</span>
+                        <div id="keySummaryText">
+                            <strong class="text-amber-300 font-bold">重點歸納：</strong>角錐側面共有 <span class="text-pink-300 font-bold">n</span> 個三角形，且全部會匯聚於最頂端的「尖端頂點」！角錐側面與底面<strong class="text-pink-300">不會垂直</strong>。
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+
+        <!-- TAB 2: Quiz Tab -->
+        <main id="tabQuiz" class="hidden max-w-3xl mx-auto">
+            <div class="glass-card rounded-2xl p-6 sm:p-8 space-y-6">
+                <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-yellow-200 flex items-center gap-2">
+                            📝 隨堂自我挑戰測驗
+                        </h2>
+                        <p class="text-xs text-slate-300 mt-1">一次完成 5 題測驗，點擊下方「提交答案」進行評分（滿分 100 分）</p>
+                    </div>
+                    <div id="quizScoreBadge" class="hidden text-sm px-4 py-1.5 rounded-full bg-yellow-500/20 text-yellow-300 border border-yellow-400/50 font-bold">
+                        總得分：0 / 100
+                    </div>
+                </div>
+
+                <!-- Quiz Score Summary Banner (Shown after submit) -->
+                <div id="quizSummaryBanner" class="hidden p-5 rounded-xl glass-card-sm border border-yellow-400/40 text-center space-y-2">
+                    <div class="text-4xl" id="summaryEmoji">🏆</div>
+                    <h3 class="text-xl font-bold text-yellow-300" id="summaryScoreText">得分：0 分</h3>
+                    <p class="text-sm text-slate-200 opacity-90" id="summaryComment">請查看下方各題解析以進行檢討與修正！</p>
+                </div>
+
+                <!-- All Questions List Container -->
+                <div id="quizQuestionsContainer" class="space-y-6">
+                    <!-- Rendered via JS -->
+                </div>
+
+                <!-- Bottom Action Buttons -->
+                <div class="flex flex-wrap sm:flex-nowrap justify-end items-center gap-4 pt-6 border-t border-white/10">
+                    <button id="btnResetQuiz" onclick="resetQuiz()" class="w-full sm:w-auto px-6 py-2.5 font-bold rounded-xl glass-card-sm hover:bg-white/20 text-slate-200 border border-white/20 transition text-sm flex items-center justify-center gap-2">
+                        🔄 重新測驗
+                    </button>
+                    <button id="btnSubmitQuiz" onclick="submitQuiz()" class="w-full sm:w-auto px-8 py-2.5 font-bold rounded-xl bg-gradient-to-r from-pink-500 to-indigo-600 hover:from-pink-400 hover:to-indigo-500 text-white shadow-lg transition text-sm flex items-center justify-center gap-2">
+                        📥 提交答案
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Star Background Animation
+        const starsCanvas = document.getElementById('starsCanvas');
+        const sCtx = starsCanvas.getContext('2d');
+        let stars = [];
+
+        function resizeStarsCanvas() {
+            starsCanvas.width = window.innerWidth;
+            starsCanvas.height = window.innerHeight;
+            initStars();
+        }
+
+        function initStars() {
+            stars = [];
+            const count = Math.floor((starsCanvas.width * starsCanvas.height) / 4000);
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x: Math.random() * starsCanvas.width,
+                    y: Math.random() * starsCanvas.height,
+                    radius: Math.random() * 1.5 + 0.5,
+                    alpha: Math.random(),
+                    speed: Math.random() * 0.01 + 0.005
+                });
+            }
+        }
+
+        function drawStars() {
+            sCtx.clearRect(0, 0, starsCanvas.width, starsCanvas.height);
+            stars.forEach(star => {
+                star.alpha += star.speed;
+                if (star.alpha > 1 || star.alpha < 0) star.speed = -star.speed;
+                sCtx.beginPath();
+                sCtx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                sCtx.fillStyle = `rgba(255, 255, 255, ${Math.abs(star.alpha)})`;
+                sCtx.fill();
+            });
+            requestAnimationFrame(drawStars);
+        }
+
+        window.addEventListener('resize', resizeStarsCanvas);
+        resizeStarsCanvas();
+        drawStars();
+
+        // Three.js Engine Variables
+        let scene, camera, renderer, controls;
+        let shapeGroup;
+        
+        // App State
+        let currentCategory = 'pyramid'; // 'pyramid', 'prism', 'cone', 'cylinder'
+        let currentSides = 3;
+        let unfoldProgress = 0; // 0 to 1
+        let activeHighlights = { base: true, side: true, vertex: true, edge: true };
+
+        const canvas3d = document.getElementById('canvas3d');
+
+        function init3D() {
+            scene = new THREE.Scene();
+            
+            // Camera
+            camera = new THREE.PerspectiveCamera(45, canvas3d.clientWidth / canvas3d.clientHeight, 0.1, 1000);
+            camera.position.set(0, 4.5, 8.5);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ canvas: canvas3d, antialias: true, alpha: true });
+            renderer.setSize(canvas3d.clientWidth, canvas3d.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            // Orbit Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+            scene.add(ambientLight);
+
+            const dirLight1 = new THREE.DirectionalLight(0xf472b6, 0.8);
+            dirLight1.position.set(5, 10, 7);
+            scene.add(dirLight1);
+
+            const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 0.6);
+            dirLight2.position.set(-5, -5, -5);
+            scene.add(dirLight2);
+
+            shapeGroup = new THREE.Group();
+            scene.add(shapeGroup);
+
+            buildShape();
+
+            window.addEventListener('resize', onWindowResize);
+            animate();
+        }
+
+        function onWindowResize() {
+            if (!canvas3d.parentElement) return;
+            const width = canvas3d.parentElement.clientWidth;
+            const height = canvas3d.parentElement.clientHeight;
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        }
+
+        function buildShape() {
+            // Clear previous meshes
+            while (shapeGroup.children.length > 0) {
+                const obj = shapeGroup.children[0];
+                shapeGroup.remove(obj);
+            }
+
+            const R = 2.0; // Base Radius
+            const H = 2.8; // Height
+            const n = currentSides;
+            const t = unfoldProgress; // 0 to 1
+
+            // Colors and Materials
+            const baseMat = new THREE.MeshPhongMaterial({
+                color: 0x22d3ee,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: activeHighlights.base ? 0.85 : 0.25,
+                shininess: 70
+            });
+
+            const sideMat = new THREE.MeshPhongMaterial({
+                color: 0xf472b6,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: activeHighlights.side ? 0.8 : 0.2,
+                shininess: 70
+            });
+
+            const vertexMat = new THREE.MeshBasicMaterial({ color: 0xfde047 });
+            const lineMat = new THREE.LineBasicMaterial({ color: 0xa5b4fc, linewidth: 2 });
+
+            if (currentCategory === 'pyramid') {
+                const baseVertices = [];
+                for (let i = 0; i < n; i++) {
+                    const angle = (i * 2 * Math.PI) / n;
+                    baseVertices.push(new THREE.Vector3(R * Math.sin(angle), -H / 2, R * Math.cos(angle)));
+                }
+
+                // Base Face Mesh
+                const baseShape = new THREE.Shape();
+                for (let i = 0; i < n; i++) {
+                    if (i === 0) baseShape.moveTo(baseVertices[i].x, baseVertices[i].z);
+                    else baseShape.lineTo(baseVertices[i].x, baseVertices[i].z);
+                }
+                baseShape.closePath();
+                const baseGeo = new THREE.ShapeGeometry(baseShape);
+                const baseMesh = new THREE.Mesh(baseGeo, baseMat);
+                baseMesh.rotation.x = Math.PI / 2;
+                baseMesh.position.y = -H / 2;
+                shapeGroup.add(baseMesh);
+
+                // Unfolding geometry math
+                const rIn = R * Math.cos(Math.PI / n); // Inradius
+                const slantH = Math.sqrt(rIn * rIn + H * H); // Slant height
+                const alpha = Math.atan2(H, rIn); // Angle inside closed pyramid with base plane
+                const beta = alpha + t * (Math.PI - alpha); // Unfolding angle: alpha at t=0, PI at t=1
+
+                const currentApexes = [];
+
+                // Side Triangles
+                for (let i = 0; i < n; i++) {
+                    const nextI = (i + 1) % n;
+                    const P1 = baseVertices[i];
+                    const P2 = baseVertices[nextI];
+
+                    // Midpoint of base edge
+                    const Mid = new THREE.Vector3().addVectors(P1, P2).multiplyScalar(0.5);
+
+                    // Outward direction unit vector
+                    const outDir = new THREE.Vector3(Mid.x, 0, Mid.z).normalize();
+
+                    // Apex position for current unfold step
+                    const apexPosition = new THREE.Vector3(
+                        Mid.x - outDir.x * slantH * Math.cos(beta),
+                        -H / 2 + slantH * Math.sin(beta),
+                        Mid.z - outDir.z * slantH * Math.cos(beta)
+                    );
+
+                    currentApexes.push(apexPosition);
+
+                    // Create triangle face
+                    const triGeo = new THREE.BufferGeometry();
+                    const verts = new Float32Array([
+                        P1.x, P1.y, P1.z,
+                        P2.x, P2.y, P2.z,
+                        apexPosition.x, apexPosition.y, apexPosition.z
+                    ]);
+                    triGeo.setAttribute('position', new THREE.BufferAttribute(verts, 3));
+                    triGeo.computeVertexNormals();
+
+                    const triMesh = new THREE.Mesh(triGeo, sideMat);
+                    shapeGroup.add(triMesh);
+
+                    // Wireframe Edges
+                    if (activeHighlights.edge) {
+                        const edgeGeo1 = new THREE.BufferGeometry().setFromPoints([P1, P2]);
+                        const edgeGeo2 = new THREE.BufferGeometry().setFromPoints([P1, apexPosition]);
+                        const edgeGeo3 = new THREE.BufferGeometry().setFromPoints([P2, apexPosition]);
+                        shapeGroup.add(new THREE.Line(edgeGeo1, lineMat));
+                        shapeGroup.add(new THREE.Line(edgeGeo2, lineMat));
+                        shapeGroup.add(new THREE.Line(edgeGeo3, lineMat));
+                    }
+                }
+
+                // Vertex Spheres
+                if (activeHighlights.vertex) {
+                    const sphereGeo = new THREE.SphereGeometry(0.12, 16, 16);
+                    
+                    // Base vertices
+                    baseVertices.forEach(v => {
+                        const m = new THREE.Mesh(sphereGeo, vertexMat);
+                        m.position.copy(v);
+                        shapeGroup.add(m);
+                    });
+
+                    // Apex vertex/vertices
+                    if (t < 0.05) {
+                        const apexM = new THREE.Mesh(sphereGeo, vertexMat);
+                        apexM.position.set(0, H / 2, 0);
+                        shapeGroup.add(apexM);
+                    } else {
+                        currentApexes.forEach(ap => {
+                            const apexM = new THREE.Mesh(sphereGeo, vertexMat);
+                            apexM.position.copy(ap);
+                            shapeGroup.add(apexM);
+                        });
+                    }
+                }
+
+            } else if (currentCategory === 'prism') {
+                const cylGeo = new THREE.CylinderGeometry(R, R, H, n, 1, true);
+                const prismMesh = new THREE.Mesh(cylGeo, sideMat);
+                shapeGroup.add(prismMesh);
+
+                // Caps for bases
+                const capGeo = new THREE.CylinderGeometry(R, R, 0.01, n);
+                const capTop = new THREE.Mesh(capGeo, baseMat);
+                capTop.position.y = H / 2;
+                const capBot = new THREE.Mesh(capGeo, baseMat);
+                capBot.position.y = -H / 2;
+                shapeGroup.add(capTop);
+                shapeGroup.add(capBot);
+
+                // Wireframe Edges
+                if (activeHighlights.edge) {
+                    const edgesGeo = new THREE.EdgesGeometry(cylGeo);
+                    const wireframe = new THREE.LineSegments(edgesGeo, lineMat);
+                    shapeGroup.add(wireframe);
+                }
+
+                // Vertices
+                if (activeHighlights.vertex) {
+                    const sphereGeo = new THREE.SphereGeometry(0.12, 16, 16);
+                    for (let i = 0; i < n; i++) {
+                        const angle = (i * 2 * Math.PI) / n;
+                        const x = R * Math.sin(angle);
+                        const z = R * Math.cos(angle);
+                        
+                        const vTop = new THREE.Mesh(sphereGeo, vertexMat);
+                        vTop.position.set(x, H / 2, z);
+                        shapeGroup.add(vTop);
+
+                        const vBot = new THREE.Mesh(sphereGeo, vertexMat);
+                        vBot.position.set(x, -H / 2, z);
+                        shapeGroup.add(vBot);
+                    }
+                }
+
+            } else if (currentCategory === 'cone') {
+                const coneGeo = new THREE.ConeGeometry(R, H, 32, 1, true);
+                const coneMesh = new THREE.Mesh(coneGeo, sideMat);
+                shapeGroup.add(coneMesh);
+
+                const circleGeo = new THREE.CircleGeometry(R, 32);
+                const circleMesh = new THREE.Mesh(circleGeo, baseMat);
+                circleMesh.rotation.x = -Math.PI / 2;
+                circleMesh.position.y = -H / 2;
+                shapeGroup.add(circleMesh);
+
+                if (activeHighlights.vertex) {
+                    const sphereGeo = new THREE.SphereGeometry(0.12, 16, 16);
+                    const apexM = new THREE.Mesh(sphereGeo, vertexMat);
+                    apexM.position.set(0, H / 2, 0);
+                    shapeGroup.add(apexM);
+                }
+
+            } else if (currentCategory === 'cylinder') {
+                const cylGeo = new THREE.CylinderGeometry(R, R, H, 32, 1, true);
+                const cylMesh = new THREE.Mesh(cylGeo, sideMat);
+                shapeGroup.add(cylMesh);
+
+                const circleGeo = new THREE.CircleGeometry(R, 32);
+                const topMesh = new THREE.Mesh(circleGeo, baseMat);
+                topMesh.rotation.x = -Math.PI / 2;
+                topMesh.position.y = H / 2;
+                const botMesh = new THREE.Mesh(circleGeo, baseMat);
+                botMesh.rotation.x = Math.PI / 2;
+                botMesh.position.y = -H / 2;
+                shapeGroup.add(topMesh);
+                shapeGroup.add(botMesh);
+            }
+
+            updateCalculationAndComparison();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Polygon naming maps
+        const polygonNames = {
+            3: '正三角形', 4: '正方形', 5: '正五邊形', 6: '正六邊形',
+            7: '正七邊形', 8: '正八邊形', 9: '正九邊形', 10: '正十邊形'
+        };
+
+        const shapePrefixes = {
+            3: '三', 4: '四', 5: '五', 6: '六',
+            7: '七', 8: '八', 9: '九', 10: '十'
+        };
+
+        function updateCalculationAndComparison() {
+            const n = currentSides;
+            const prefix = shapePrefixes[n];
+
+            const badge = document.getElementById('currentShapeBadge');
+            const statBaseShape = document.getElementById('statBaseShape');
+            const statBaseCount = document.getElementById('statBaseCount');
+            const statSideShape = document.getElementById('statSideShape');
+            const statSideCount = document.getElementById('statSideCount');
+            const statVertices = document.getElementById('statVertices');
+            const statEdges = document.getElementById('statEdges');
+
+            const comparisonTitle = document.getElementById('comparisonTitle');
+            const comparisonSubtitle = document.getElementById('comparisonSubtitle');
+            const thShapeA = document.getElementById('thShapeA');
+            const thShapeB = document.getElementById('thShapeB');
+            const compBaseA = document.getElementById('compBaseA');
+            const compBaseB = document.getElementById('compBaseB');
+            const compSideShapeA = document.getElementById('compSideShapeA');
+            const compSideShapeB = document.getElementById('compSideShapeB');
+            const compVerticesA = document.getElementById('compVerticesA');
+            const compVerticesB = document.getElementById('compVerticesB');
+            const compEdgesA = document.getElementById('compEdgesA');
+            const compEdgesB = document.getElementById('compEdgesB');
+            const compFacesA = document.getElementById('compFacesA');
+            const compFacesB = document.getElementById('compFacesB');
+            const keySummaryText = document.getElementById('keySummaryText');
+
+            if (currentCategory === 'pyramid' || currentCategory === 'prism') {
+                comparisonTitle.innerText = '📊 角錐 vs 角柱 大比拼';
+                comparisonSubtitle.innerHTML = `觀察底面邊數為 <span class="text-pink-300 font-bold">n = ${n}</span> 時，角錐與角柱的幾何規律：`;
+                
+                thShapeA.innerText = `${prefix}角錐`;
+                thShapeB.innerText = `${prefix}角柱`;
+
+                compBaseA.innerText = '1 個';
+                compBaseB.innerText = '2 個 (上下全等)';
+
+                compSideShapeA.innerText = '三角形';
+                compSideShapeB.innerText = '長方形 / 平行四邊形';
+
+                compVerticesA.innerHTML = `${n + 1} 個 <span class="text-xs text-slate-400 font-normal">(${n}+1)</span>`;
+                compVerticesB.innerHTML = `${n * 2} 個 <span class="text-xs text-slate-400 font-normal">(2×${n})</span>`;
+
+                compEdgesA.innerHTML = `${n * 2} 條 <span class="text-xs text-slate-400 font-normal">(2×${n})</span>`;
+                compEdgesB.innerHTML = `${n * 3} 條 <span class="text-xs text-slate-400 font-normal">(3×${n})</span>`;
+
+                compFacesA.innerHTML = `${n + 1} 個 <span class="text-xs text-slate-400 font-normal">(${n}+1)</span>`;
+                compFacesB.innerHTML = `${n + 2} 個 <span class="text-xs text-slate-400 font-normal">(${n}+2)</span>`;
+
+                keySummaryText.innerHTML = `<strong class="text-amber-300 font-bold">重點歸納：</strong>角錐側面共有 <span class="text-pink-300 font-bold">${n}</span> 個三角形，且全部會匯聚於最頂端的「尖端頂點」！角錐側面與底面<strong class="text-pink-300">不會垂直</strong>。`;
+
+                if (currentCategory === 'pyramid') {
+                    badge.innerText = `${prefix}角錐`;
+                    statBaseShape.innerText = polygonNames[n];
+                    statBaseCount.innerText = '1 個';
+                    statSideShape.innerText = '三角形';
+                    statSideCount.innerText = `${n} 個`;
+                    statVertices.innerText = `${n + 1} 個 (${n} + 1)`;
+                    statEdges.innerText = `${n * 2} 條 (${n} × 2)`;
+                } else {
+                    badge.innerText = `${prefix}角柱`;
+                    statBaseShape.innerText = polygonNames[n];
+                    statBaseCount.innerText = '2 個 (全等)';
+                    statSideShape.innerText = '長方形';
+                    statSideCount.innerText = `${n} 個`;
+                    statVertices.innerText = `${n * 2} 個 (${n} × 2)`;
+                    statEdges.innerText = `${n * 3} 條 (${n} × 3)`;
+                }
+
+            } else if (currentCategory === 'cone' || currentCategory === 'cylinder') {
+                comparisonTitle.innerText = '📊 圓錐 vs 圓柱 大比拼';
+                comparisonSubtitle.innerHTML = `觀察底面皆為<span class="text-cyan-300 font-bold">圓形</span>時，圓錐與圓柱的幾何規律：`;
+
+                thShapeA.innerText = '圓錐';
+                thShapeB.innerText = '圓柱';
+
+                compBaseA.innerText = '1 個 (圓形)';
+                compBaseB.innerText = '2 個 (上下全等圓)';
+
+                compSideShapeA.innerText = '曲面 (展開為扇形)';
+                compSideShapeB.innerText = '曲面 (展開為長方形)';
+
+                compVerticesA.innerText = '1 個 (頂端尖點)';
+                compVerticesB.innerText = '0 個 (無尖銳頂點)';
+
+                compEdgesA.innerText = '1 條 (底圓周)';
+                compEdgesB.innerText = '2 條 (上下底圓周)';
+
+                compFacesA.innerText = '2 個 (1底面+1側面)';
+                compFacesB.innerText = '3 個 (2底面+1側面)';
+
+                keySummaryText.innerHTML = `<strong class="text-amber-300 font-bold">重點歸納：</strong>圓錐與圓柱的底面皆為圓形；圓錐頂端有 1 個頂點，圓柱兩底面互相平行且全等。`;
+
+                if (currentCategory === 'cone') {
+                    badge.innerText = '圓錐';
+                    statBaseShape.innerText = '圓形';
+                    statBaseCount.innerText = '1 個';
+                    statSideShape.innerText = '曲面 (扇形)';
+                    statSideCount.innerText = '1 個';
+                    statVertices.innerText = '1 個 (頂端頂點)';
+                    statEdges.innerText = '1 條 (底圓周)';
+                } else {
+                    badge.innerText = '圓柱';
+                    statBaseShape.innerText = '圓形';
+                    statBaseCount.innerText = '2 個 (全等)';
+                    statSideShape.innerText = '曲面 (長方形)';
+                    statSideCount.innerText = '1 個';
+                    statVertices.innerText = '0 個 (無尖銳頂點)';
+                    statEdges.innerText = '2 條 (上下底圓周)';
+                }
+            }
+        }
+
+        // Category Switcher
+        function setShapeType(cat) {
+            currentCategory = cat;
+            
+            ['Pyramid', 'Prism', 'Cone', 'Cylinder'].forEach(c => {
+                const btn = document.getElementById(`btnCategory${c}`);
+                if (c.toLowerCase() === cat) {
+                    btn.className = "py-2 px-3 rounded-xl font-medium text-sm transition glass-card text-white bg-pink-600/50 border-pink-400";
+                } else {
+                    btn.className = "py-2 px-3 rounded-xl font-medium text-sm transition glass-card-sm text-slate-300 hover:bg-white/10";
+                }
+            });
+
+            const sidesContainer = document.getElementById('sidesSliderContainer');
+            const unfoldContainer = document.getElementById('unfoldSliderContainer');
+            
+            if (cat === 'pyramid' || cat === 'prism') {
+                sidesContainer.style.display = 'block';
+                unfoldContainer.style.display = cat === 'pyramid' ? 'block' : 'none';
+            } else {
+                sidesContainer.style.display = 'none';
+                unfoldContainer.style.display = 'none';
+            }
+
+            buildShape();
+        }
+
+        // Slider listeners
+        const sidesSlider = document.getElementById('sidesSlider');
+        const sidesValueText = document.getElementById('sidesValueText');
+        sidesSlider.addEventListener('input', (e) => {
+            currentSides = parseInt(e.target.value);
+            const prefix = shapePrefixes[currentSides];
+            const typeName = currentCategory === 'prism' ? '角柱' : '角錐';
+            sidesValueText.innerText = `${currentSides} 邊 (${prefix}${typeName})`;
+            buildShape();
+        });
+
+        const unfoldSlider = document.getElementById('unfoldSlider');
+        const unfoldValueText = document.getElementById('unfoldValueText');
+        unfoldSlider.addEventListener('input', (e) => {
+            unfoldProgress = parseInt(e.target.value) / 100;
+            unfoldValueText.innerText = `${e.target.value}% ${unfoldProgress === 1 ? '(完全攤平)' : unfoldProgress === 0 ? '(閉合立體)' : '(向外開啟中)'}`;
+            buildShape();
+        });
+
+        // Reset Camera Button
+        document.getElementById('btnResetCamera').addEventListener('click', function() {
+            camera.position.set(0, 4.5, 8.5);
+            controls.target.set(0, 0, 0);
+            shapeGroup.rotation.set(0, 0, 0);
+        });
+
+        // Highlight toggles
+        function toggleHighlight(type) {
+            if (type === 'all') {
+                activeHighlights = { base: true, side: true, vertex: true, edge: true };
+            } else {
+                activeHighlights[type] = !activeHighlights[type];
+            }
+            buildShape();
+        }
+
+        // Tab Switcher
+        function switchTab(tab) {
+            const tab1 = document.getElementById('tabExplore');
+            const tab2 = document.getElementById('tabQuiz');
+            const btn1 = document.getElementById('tabBtn1');
+            const btn2 = document.getElementById('tabBtn2');
+
+            if (tab === 'explore') {
+                tab1.classList.remove('hidden');
+                tab2.classList.add('hidden');
+                btn1.classList.add('active');
+                btn2.classList.remove('active');
+                onWindowResize();
+            } else {
+                tab1.classList.add('hidden');
+                tab2.classList.remove('hidden');
+                btn1.classList.remove('active');
+                btn2.classList.add('active');
+            }
+        }
+
+        const quizData = [
+            {
+                question: "1. 觀察「五角錐」的構造，請問它有幾個底面？側面是什麼形狀？",
+                options: [
+                    "1 個底面，側面是三角形",
+                    "2 個底面，側面是長方形",
+                    "1 個底面，側面是圓形",
+                    "2 個底面，側面是三角形"
+                ],
+                answer: 0,
+                explanation: "角錐只有 1 個底面，且側面全都是三角形。"
+            },
+            {
+                question: "2. 如果一個角錐的底面是六邊形（六角錐），請問它總共有幾個頂點和幾條邊？",
+                options: [
+                    "頂點 6 個，邊 12 條",
+                    "頂點 7 個，邊 12 條",
+                    "頂點 7 個，邊 18 條",
+                    "頂點 12 個，邊 6 條"
+                ],
+                answer: 1,
+                explanation: "六角錐頂點數 = 底面邊數 6 + 1 = 7 個；所有邊數 = 底面邊數 6 × 2 = 12 條。"
+            },
+            {
+                question: "3. 關於「角錐」與「圓錐」的共同特點與差異，下列哪一項敘述是正確的？",
+                options: [
+                    "角錐和圓錐都有兩個底面",
+                    "角錐和圓錐的側面都是長方形",
+                    "角錐和圓錐頂端都有一個尖尖的頂點",
+                    "角錐的底面是圓形，圓錐的底面是多邊形"
+                ],
+                answer: 2,
+                explanation: "角錐與圓錐頂端都有一個尖尖的頂點，且都只有 1 個底面。"
+            },
+            {
+                question: "4. 將一個「四角錐」沿著邊剪開並攤平變成展開圖，請問會看到幾個側面三角形？",
+                options: [
+                    "3 個",
+                    "4 個",
+                    "5 個",
+                    "8 個"
+                ],
+                answer: 1,
+                explanation: "四角錐底面有 4 條邊，因此展開後會有 4 個側面三角形圍繞著底面。"
+            },
+            {
+                question: "5. 比較「五角錐」與「五角柱」的面數，下列何者正確？",
+                options: [
+                    "五角錐有 6 個面，五角柱有 7 個面",
+                    "五角錐有 5 個面，五角柱有 10 個面",
+                    "兩者的面數一樣多，都是 6 個面",
+                    "五角錐有 7 個面，五角柱有 6 個面"
+                ],
+                answer: 0,
+                explanation: "五角錐面數 = 5+1 = 6 個；五角柱面數 = 5+2 = 7 個。"
+            }
+        ];
+
+        let userAnswers = [null, null, null, null, null];
+        let isSubmitted = false;
+
+        function renderAllQuestions() {
+            const container = document.getElementById('quizQuestionsContainer');
+            container.innerHTML = '';
+
+            quizData.forEach((q, qIndex) => {
+                const qCard = document.createElement('div');
+                qCard.className = "glass-card-sm p-5 rounded-xl border border-white/10 space-y-4";
+
+                // Question Title
+                const titleEl = document.createElement('h3');
+                titleEl.className = "text-base font-bold text-white flex items-start gap-2";
+                titleEl.innerText = q.question;
+                qCard.appendChild(titleEl);
+
+                // Options Container
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = "space-y-2.5";
+
+                const selectedOpt = userAnswers[qIndex];
+
+                q.options.forEach((optText, optIndex) => {
+                    const btn = document.createElement('button');
+                    btn.type = "button";
+
+                    let btnClass = "w-full text-left p-3 rounded-xl text-sm transition flex items-center justify-between border ";
+
+                    if (isSubmitted) {
+                        btn.disabled = true;
+                        if (selectedOpt === null) {
+                            // Unanswered: do NOT show correct answer
+                            btnClass += "glass-card-sm text-slate-300 border-white/10 opacity-70";
+                        } else if (optIndex === q.answer) {
+                            // Highlight correct answer
+                            btnClass += "bg-emerald-600/40 border-emerald-400 text-emerald-100 font-semibold";
+                        } else if (optIndex === selectedOpt && selectedOpt !== q.answer) {
+                            // User selected wrong option
+                            btnClass += "bg-rose-600/40 border-rose-400 text-rose-100 font-semibold";
+                        } else {
+                            btnClass += "glass-card-sm text-slate-400 border-white/10 opacity-60";
+                        }
+                    } else {
+                        // Not submitted yet
+                        if (selectedOpt === optIndex) {
+                            btnClass += "bg-pink-600/40 border-pink-400 text-white font-semibold shadow-md";
+                        } else {
+                            btnClass += "glass-card-sm text-slate-200 hover:bg-white/15 border-white/10";
+                        }
+                    }
+
+                    btn.className = btnClass;
+
+                    // Radio indicator
+                    let radioIcon = `<span class="w-4 h-4 rounded-full border border-white/40 flex items-center justify-center text-xs">`;
+                    if (selectedOpt === optIndex) {
+                        radioIcon += `<span class="w-2 h-2 rounded-full bg-pink-300 inline-block"></span>`;
+                    }
+                    radioIcon += `</span>`;
+
+                    btn.innerHTML = `<span>${optText}</span>${radioIcon}`;
+
+                    if (!isSubmitted) {
+                        btn.onclick = () => {
+                            userAnswers[qIndex] = optIndex;
+                            renderAllQuestions();
+                        };
+                    }
+
+                    optionsDiv.appendChild(btn);
+                });
+
+                qCard.appendChild(optionsDiv);
+
+                // Feedback Box after submission
+                if (isSubmitted) {
+                    const feedbackBox = document.createElement('div');
+                    
+                    if (selectedOpt === null) {
+                        // Unanswered: Yellow warning box, ONLY says "未作答。", NO correct answer shown!
+                        feedbackBox.className = "p-3.5 rounded-xl text-sm font-medium border bg-amber-900/60 border-amber-400/50 text-amber-200";
+                        feedbackBox.innerText = "未作答。";
+                    } else if (selectedOpt === q.answer) {
+                        // Correct answer
+                        feedbackBox.className = "p-3.5 rounded-xl text-sm font-medium border bg-emerald-900/60 border-emerald-400/50 text-emerald-200";
+                        feedbackBox.innerText = `✨ 正確！ ${q.explanation}`;
+                    } else {
+                        // Incorrect answer
+                        feedbackBox.className = "p-3.5 rounded-xl text-sm font-medium border bg-rose-900/60 border-rose-400/50 text-rose-200";
+                        feedbackBox.innerText = `❌ 答錯了！正確答案是「${q.options[q.answer]}」。解析：${q.explanation}`;
+                    }
+
+                    qCard.appendChild(feedbackBox);
+                }
+
+                container.appendChild(qCard);
+            });
+        }
+
+        function submitQuiz() {
+            if (isSubmitted) return;
+
+            isSubmitted = true;
+            let score = 0;
+
+            userAnswers.forEach((ans, idx) => {
+                if (ans === quizData[idx].answer) {
+                    score += 20;
+                }
+            });
+
+            // Display Score Banner & Badge
+            const badge = document.getElementById('quizScoreBadge');
+            badge.classList.remove('hidden');
+            badge.innerText = `總得分：${score} / 100`;
+
+            const banner = document.getElementById('quizSummaryBanner');
+            const summaryScoreText = document.getElementById('summaryScoreText');
+            const summaryEmoji = document.getElementById('summaryEmoji');
+            const summaryComment = document.getElementById('summaryComment');
+
+            banner.classList.remove('hidden');
+            summaryScoreText.innerText = `測驗總得分：${score} 分 (滿分 100 分)`;
+
+            if (score === 100) {
+                summaryEmoji.innerText = "🌟";
+                summaryComment.innerText = "太優秀了！您已完全精通角錐與圓錐的所有觀念！";
+            } else if (score >= 60) {
+                summaryEmoji.innerText = "👏";
+                summaryComment.innerText = "表現得很好！請檢視下方未答對或未作答題目的解析。";
+            } else {
+                summaryEmoji.innerText = "💪";
+                summaryComment.innerText = "再接再厲！建議回到「3D 形體探索」頁面進行操作複習！";
+            }
+
+            renderAllQuestions();
+        }
+
+        function resetQuiz() {
+            userAnswers = [null, null, null, null, null];
+            isSubmitted = false;
+
+            document.getElementById('quizScoreBadge').classList.add('hidden');
+            document.getElementById('quizSummaryBanner').classList.add('hidden');
+
+            renderAllQuestions();
+        }
+
+        // Window load initialization
+        window.onload = function() {
+            init3D();
+            renderAllQuestions();
+        };
+    </script>
+</body>
+</html>

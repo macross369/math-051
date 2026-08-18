@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>探究數學天空：認識多邊形與正多邊形</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Noto Sans TC -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      /* 新海誠夢幻天空漸層背景：微光湛藍、夕陽粉紫與雲彩柔光 */
+      background: linear-gradient(135deg, #1d2b64 0%, #f8cdda 40%, #89f7fe 70%, #66a6ff 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: #2d3748;
+    }
+
+    /* 雲朵微光星空飄浮效果 */
+    .shinkai-bg-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.25) 0%, transparent 40%),
+                  radial-gradient(circle at 80% 80%, rgba(255, 200, 220, 0.2) 0%, transparent 50%);
+      z-index: 0;
+    }
+
+    /* 毛玻璃透光卡片 */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 12px 32px 0 rgba(31, 38, 135, 0.15);
+    }
+
+    /* 漸層高亮文字 */
+    .shinkai-title {
+      background: linear-gradient(45deg, #0284c7, #7c3aed, #db2777);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* 自訂滑桿造型 */
+    input[type=range] {
+      -webkit-appearance: none;
+      height: 10px;
+      border-radius: 5px;
+      background: #e2e8f0;
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #0284c7;
+      border: 3px solid #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+      background: #0369a1;
+    }
+
+    /* 拖曳物件區塊樣式 */
+    .draggable-card {
+      cursor: grab;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+    .draggable-card:active {
+      cursor: grabbing;
+      transform: scale(1.05);
+    }
+    .draggable-card.selected-touch {
+      ring: 4px;
+      border-color: #0284c7;
+      background-color: #e0f2fe;
+    }
+
+    /* 拖放目標放置區 */
+    .drop-zone {
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .drop-zone.drag-over {
+      border-color: #0284c7;
+      background-color: rgba(224, 242, 254, 0.7);
+    }
+  </style>
+</head>
+<body class="relative pb-16">
+  <div class="shinkai-bg-overlay"></div>
+
+  <div class="relative z-10 max-w-6xl mx-auto px-4 pt-6">
+    <!-- 修改：使用轉換後的 Google Drive 直接連結 -->
+    <div class="w-full max-w-4xl flex items-center justify-start mb-4 px-2 fade-in">
+        <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+        <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+    </div>
+
+    <!-- 頂部標題區 -->
+    <header class="glass-card rounded-3xl p-6 mb-8 text-center relative overflow-hidden">
+      <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-pink-300 rounded-full blur-3xl opacity-50"></div>
+      <div class="absolute -left-10 -top-10 w-40 h-40 bg-sky-300 rounded-full blur-3xl opacity-50"></div>
+      
+      <div class="inline-block bg-sky-100 text-sky-800 text-xs md:text-sm font-bold px-4 py-1.5 rounded-full mb-3 shadow-sm">
+        <i class="fa-solid fa-shapes mr-1.5"></i> 國小五上數學 3-4 互動學習網頁
+      </div>
+      <h1 class="text-3xl md:text-4xl font-extrabold shinkai-title tracking-wide mb-2">
+        認識多邊形與正多邊形
+      </h1>
+      <p class="text-gray-600 text-sm md:text-base max-w-2xl mx-auto">
+        透過動態拉桿與分類實驗，探索多邊形的「邊、角、頂點」規律，親自發現正多邊形的神秘條件！
+      </p>
+
+      <!-- 頁籤切換按鈕 -->
+      <nav class="flex flex-wrap justify-center gap-3 mt-6">
+        <button onclick="switchTab('visualizer')" id="btn-visualizer" class="tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm transition shadow-md bg-sky-600 text-white hover:bg-sky-700 flex items-center gap-2">
+          <i class="fa-solid fa-sliders"></i> 模組一：多邊形動態變幻儀
+        </button>
+        <button onclick="switchTab('thinking-cap')" id="btn-thinking-cap" class="tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm transition shadow-md bg-white text-gray-700 hover:bg-sky-50 flex items-center gap-2">
+          <i class="fa-solid fa-graduation-cap"></i> 思考帽：極限祕密
+        </button>
+        <button onclick="switchTab('classifier')" id="btn-classifier" class="tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm transition shadow-md bg-white text-gray-700 hover:bg-sky-50 flex items-center gap-2">
+          <i class="fa-solid fa-hand-pointer"></i> 模組二：多邊形連連看配對
+        </button>
+        <button onclick="switchTab('quiz')" id="btn-quiz" class="tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm transition shadow-md bg-white text-gray-700 hover:bg-sky-50 flex items-center gap-2">
+          <i class="fa-solid fa-clipboard-question"></i> 模組三：自我挑戰
+        </button>
+      </nav>
+    </header>
+
+    <!-- 模組一：多邊形動態變幻儀 -->
+    <main id="tab-visualizer" class="tab-content block">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- 左側控制面板 -->
+        <div class="lg:col-span-4 glass-card rounded-3xl p-6 flex flex-col gap-5">
+          <h2 class="text-xl font-bold text-gray-800 border-b pb-3 flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-sky-600"></i> 控制與參數調控
+          </h2>
+
+          <!-- 滑桿：邊數 -->
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <label for="side-slider" class="font-bold text-gray-700">多邊形邊數 (n)：</label>
+              <span id="side-count-display" class="text-2xl font-black text-sky-600 bg-sky-50 px-3 py-1 rounded-xl border border-sky-200">3 邊</span>
+            </div>
+            <input type="range" id="side-slider" min="3" max="12" value="3" class="w-full">
+            <div class="flex justify-between text-xs text-gray-400 mt-1 px-1">
+              <span>3 (三角形)</span>
+              <span>7 (七邊形)</span>
+              <span>12 (十二邊形)</span>
+            </div>
+          </div>
+
+          <!-- 切換模式：正多邊形 vs 不規則多邊形 -->
+          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+            <span class="font-bold text-gray-700 block mb-2">圖形形態設定：</span>
+            <div class="grid grid-cols-2 gap-2">
+              <button id="mode-regular" onclick="setPolygonMode(true)" class="py-2 px-3 rounded-xl font-bold text-sm border-2 border-sky-600 bg-sky-600 text-white transition shadow-sm">
+                <i class="fa-solid fa-gem mr-1"></i> 正多邊形
+              </button>
+              <button id="mode-irregular" onclick="setPolygonMode(false)" class="py-2 px-3 rounded-xl font-bold text-sm border-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition shadow-sm">
+                <i class="fa-solid fa-draw-polygon mr-1"></i> 不規則多邊形
+              </button>
+            </div>
+          </div>
+
+          <!-- 輔助開關 -->
+          <div class="space-y-3">
+            <span class="font-bold text-gray-700 block">特徵視覺化切換：</span>
+            <label class="flex items-center justify-between cursor-pointer bg-white p-3 rounded-xl border border-gray-200 hover:bg-slate-50">
+              <span class="text-sm font-medium"><i class="fa-solid fa-circle text-sky-500 mr-2"></i>標示「頂點」與數量</span>
+              <input type="checkbox" id="toggle-vertices" checked onchange="drawPolygon()" class="w-5 h-5 accent-sky-600 rounded">
+            </label>
+            <label class="flex items-center justify-between cursor-pointer bg-white p-3 rounded-xl border border-gray-200 hover:bg-slate-50">
+              <span class="text-sm font-medium"><i class="fa-solid fa-ruler-horizontal text-emerald-500 mr-2"></i>顯示「邊長」數據</span>
+              <input type="checkbox" id="toggle-lengths" checked onchange="drawPolygon()" class="w-5 h-5 accent-sky-600 rounded">
+            </label>
+            <label class="flex items-center justify-between cursor-pointer bg-white p-3 rounded-xl border border-gray-200 hover:bg-slate-50">
+              <span class="text-sm font-medium"><i class="fa-solid fa-vector-square text-amber-500 mr-2"></i>標記「內角」弧線</span>
+              <input type="checkbox" id="toggle-angles" checked onchange="drawPolygon()" class="w-5 h-5 accent-sky-600 rounded">
+            </label>
+          </div>
+
+          <!-- 探究引導語 -->
+          <div class="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-2xl text-xs text-amber-900 leading-relaxed">
+            <p class="font-bold mb-1"><i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> 探究小提示：</p>
+            請試著拖動滑桿，觀察看看：邊數變多時，<strong>頂點數</strong>與<strong>角數</strong>會如何變化？它們之間有什麼關係？
+          </div>
+        </div>
+
+        <!-- 右側畫布與實時分析數據 -->
+        <div class="lg:col-span-8 flex flex-col gap-6">
+          <!-- 畫布卡片 -->
+          <div class="glass-card rounded-3xl p-6 flex flex-col items-center justify-center relative min-h-[380px]">
+            <div class="absolute top-4 left-4 bg-white/80 px-3 py-1 rounded-full text-xs font-bold text-gray-500 shadow-sm">
+              即時幾何畫布 (可拉動圖形頂點)
+            </div>
+
+            <!-- SVG 幾何渲染區 -->
+            <svg id="polygon-svg" class="w-full max-w-[460px] h-[320px] overflow-visible" viewBox="-180 -180 360 360">
+              <!-- JS 動態繪製內容 -->
+            </svg>
+          </div>
+
+          <!-- 實時特徵歸納卡片 -->
+          <div class="glass-card rounded-3xl p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center justify-between">
+              <span><i class="fa-solid fa-magnifying-glass-chart text-sky-600 mr-2"></i>即時屬性分析</span>
+            </h3>
+
+            <!-- 頂部三個數量統計卡片 (圖1風格) -->
+            <div class="grid grid-cols-3 gap-3 md:gap-4 text-center mb-4">
+              <div class="bg-sky-50/80 p-3 rounded-2xl border border-sky-100">
+                <div class="text-xs text-slate-500 font-medium mb-1">條邊</div>
+                <div id="stat-sides" class="text-2xl md:text-3xl font-black text-sky-600">3</div>
+              </div>
+              <div class="bg-indigo-50/80 p-3 rounded-2xl border border-indigo-100">
+                <div class="text-xs text-slate-500 font-medium mb-1">個頂點</div>
+                <div id="stat-vertices" class="text-2xl md:text-3xl font-black text-indigo-600">3</div>
+              </div>
+              <div class="bg-pink-50/80 p-3 rounded-2xl border border-pink-100">
+                <div class="text-xs text-slate-500 font-medium mb-1">個角</div>
+                <div id="stat-angles" class="text-2xl md:text-3xl font-black text-pink-600">3</div>
+              </div>
+            </div>
+
+            <!-- 細項屬性檢測 -->
+            <div class="border-t border-slate-200/80 pt-3 space-y-2.5 text-sm font-bold text-slate-700 mb-4">
+              <div class="flex justify-between items-center">
+                <span>每條邊是否一樣長：</span>
+                <span id="badge-side-equal" class="px-2.5 py-0.5 rounded-md text-xs font-black bg-emerald-100 text-emerald-700">是</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span>每個角是否一樣大：</span>
+                <span id="badge-angle-equal" class="px-2.5 py-0.5 rounded-md text-xs font-black bg-emerald-100 text-emerald-700">是</span>
+              </div>
+              <div class="flex justify-between items-center pt-1">
+                <span>圖形名稱判定：</span>
+                <span id="shape-name-badge" class="px-3 py-1 rounded-xl text-sm font-black bg-sky-100 text-sky-700">正三角形</span>
+              </div>
+            </div>
+
+            <!-- 正多邊形判定報告 -->
+            <div id="regularity-check-box" class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 flex items-start gap-3">
+              <i id="regularity-icon" class="fa-solid fa-circle-check text-2xl text-emerald-600 mt-0.5"></i>
+              <div>
+                <h4 id="regularity-title" class="font-bold text-sm">✅ 符合「正三角形」條件！</h4>
+                <p id="regularity-desc" class="text-xs mt-0.5 text-emerald-700">
+                  此圖形共有 3 條一樣長的邊，以及 3 個一樣大的角，因此稱為「正三角形」。
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- 新增標籤頁：思考帽：邊數與圓形的極限祕密 -->
+    <main id="tab-thinking-cap" class="tab-content hidden">
+      <div class="glass-card rounded-3xl p-6 md:p-8">
+        <!-- 標題區 -->
+        <div class="flex items-center gap-3 mb-6">
+          <span class="bg-indigo-600 text-white font-black text-xl w-10 h-10 rounded-2xl flex items-center justify-center shadow-md">2</span>
+          <div>
+            <h2 class="text-2xl font-extrabold text-indigo-950">思考帽：邊數與圓形的極限祕密</h2>
+            <p class="text-sm text-gray-500 font-medium mt-0.5">試著拉大邊數，觀察正多邊形會變得越來越像什麼圖形？</p>
+          </div>
+        </div>
+
+        <!-- 內容雙欄區 -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <!-- 左欄：動態極限畫布與滑桿 -->
+          <div class="lg:col-span-7 bg-indigo-50/50 p-6 rounded-3xl border border-indigo-100/80 flex flex-col items-center justify-between gap-6">
+            <!-- 畫布區 (帶背景圓形虛線對照) -->
+            <div class="relative w-full max-w-[340px] h-[280px] flex items-center justify-center">
+              <svg id="limit-svg" class="w-full h-full overflow-visible" viewBox="-150 -150 300 300">
+                <!-- JS 動態繪製內嵌虛線圓與正N邊形 -->
+              </svg>
+            </div>
+
+            <!-- 控制滑桿與刻度 -->
+            <div class="w-full max-w-md px-2">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-extrabold text-indigo-700">邊數調整：</span>
+                <span id="limit-count-display" class="text-xl font-black text-indigo-600 bg-white px-3 py-1 rounded-xl shadow-sm border border-indigo-200">正 6 邊形</span>
+              </div>
+              <input type="range" id="limit-slider" min="3" max="50" value="6" class="w-full accent-indigo-600">
+              <div class="flex justify-between text-xs font-bold text-indigo-400 mt-2 px-1">
+                <span>正3邊形</span>
+                <span>正 6 邊形</span>
+                <span>正50邊形</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 右欄：觀念小小結 -->
+          <div class="lg:col-span-5 bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-center gap-5">
+            <h3 class="text-lg font-bold text-amber-600 flex items-center gap-2 border-b pb-3">
+              <i class="fa-solid fa-lightbulb text-amber-500 text-xl"></i> 觀念小小結
+            </h3>
+            
+            <!-- 鎖定狀態提示 -->
+            <div id="concept-lock-msg" class="flex flex-col items-center justify-center text-slate-400 py-8 text-center gap-3">
+              <i class="fa-solid fa-lock text-4xl text-slate-200 mb-1"></i>
+              <p class="text-sm font-bold">請將左側邊數滑桿拉至「<span class="text-indigo-500">正 50 邊形</span>」<br>解鎖極限祕密的觀念！</p>
+            </div>
+
+            <!-- 解鎖後的觀念內容 -->
+            <ul id="concept-content" class="hidden opacity-0 transition-opacity duration-500 space-y-4 text-sm font-medium text-slate-700 leading-relaxed">
+              <li class="flex items-start gap-2.5">
+                <i class="fa-solid fa-check text-emerald-500 text-base mt-0.5 shrink-0"></i>
+                <span><strong>多邊形 (Polygon)</strong>：由 3 條以上（含 3 條）直線邊所圍成的平面圖形。</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <i class="fa-solid fa-check text-emerald-500 text-base mt-0.5 shrink-0"></i>
+                <span><strong>正多邊形 (Regular Polygon)</strong>：必須同時滿足「<strong>每條邊都一樣長</strong>」且「<strong>每個角都一樣大</strong>」。</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <i class="fa-solid fa-check text-emerald-500 text-base mt-0.5 shrink-0"></i>
+                <span><strong>極限思考</strong>：當正多邊形的邊數越來越多時，圖形會越來越接近<strong>圓形</strong>！</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 模組二：多邊形連連看配對大挑戰 -->
+    <main id="tab-classifier" class="tab-content hidden">
+      <div class="glass-card rounded-3xl p-6 md:p-8 relative">
+        <!-- 標題與說明區 -->
+        <div class="text-center mb-8">
+          <h2 class="text-2xl md:text-3xl font-extrabold text-indigo-950 flex items-center justify-center gap-2 mb-2">
+            <i class="fa-solid fa-hand-pointer text-sky-600"></i> 多邊形連連看配對大挑戰
+          </h2>
+          <p class="text-sm md:text-base text-gray-500 font-medium">
+            點選上方的「圖形」，再點選下方對應的「名稱」進行連線配對！
+          </p>
+        </div>
+
+        <!-- 連連看配對畫布與容器區塊 -->
+        <div id="matching-container" class="relative p-4 md:p-6 bg-slate-50/60 rounded-3xl border border-slate-200/80">
+          <!-- 動態繪製連線 SVG 層 -->
+          <svg id="matching-svg-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10" style="overflow: visible;">
+            <!-- JS 動態繪製連線 -->
+          </svg>
+
+          <!-- 上方：圖形卡片列 -->
+          <div id="shape-card-row" class="grid grid-cols-2 sm:grid-cols-5 gap-3 md:gap-4 mb-8 relative z-20">
+            <!-- JS 動態生成圖形卡片 -->
+          </div>
+
+          <!-- 中間：配對分隔線與圖示 -->
+          <div class="flex items-center justify-center my-6 relative z-20">
+            <span class="bg-indigo-50 text-indigo-600 font-bold text-xs md:text-sm px-4 py-1.5 rounded-full border border-indigo-100 flex items-center gap-1.5 shadow-sm">
+              <i class="fa-solid fa-arrow-down-up-across-line text-indigo-500"></i> 配對對應名稱
+            </span>
+          </div>
+
+          <!-- 下方：名稱按鈕列 -->
+          <div id="name-btn-row" class="grid grid-cols-2 sm:grid-cols-5 gap-3 md:gap-4 mb-8 relative z-20">
+            <!-- JS 動態生成名稱按鈕 -->
+          </div>
+
+          <!-- 底部資訊與重置工具列 -->
+          <div class="bg-slate-100/90 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-center gap-3 border border-slate-200/60 relative z-20">
+            <div id="matching-status-msg" class="text-sm font-extrabold text-slate-700 flex items-center gap-2">
+              <span>請開始點選圖形進行配對（剩餘 5 組）</span>
+            </div>
+            <button onclick="resetClassifier()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-bold text-sm rounded-xl transition shadow flex items-center gap-2 cursor-pointer">
+              <i class="fa-solid fa-rotate-right"></i> 重置題目
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- 模組三：歷程性評量 -->
+    <main id="tab-quiz" class="tab-content hidden">
+      <div class="glass-card rounded-3xl p-6 md:p-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b pb-4 gap-2">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+              <i class="fa-solid fa-clipboard-question text-sky-600"></i> 模組三：自我挑戰
+            </h2>
+            <p class="text-sm text-gray-600 mt-1">
+              完成下列 5 題觀念挑戰題，檢視自己是否掌握了多邊形的關鍵特徵！
+            </p>
+          </div>
+          <div class="bg-sky-50 px-4 py-2 rounded-2xl border border-sky-200 flex items-center gap-2">
+            <span class="text-xs font-bold text-sky-600">目前得分：</span>
+            <span id="quiz-score" class="text-2xl font-black text-sky-700">0 / 100</span>
+          </div>
+        </div>
+
+        <!-- 題目列表容器 -->
+        <div id="quiz-container" class="space-y-6">
+          <!-- 題目1 -->
+          <div class="quiz-item bg-white/90 rounded-2xl p-5 border border-slate-200 shadow-sm">
+            <h3 class="font-bold text-base text-gray-800 mb-3 flex items-center gap-2">
+              <span class="bg-sky-600 text-white text-xs px-2.5 py-1 rounded-full">第 1 題</span>
+              一個「七邊形」總共有幾個頂點和幾個角？
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+              <button id="q1-A" onclick="selectOption(1, 'A')" class="q-btn-1 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">A) 6 個頂點、7 個角</button>
+              <button id="q1-B" onclick="selectOption(1, 'B')" class="q-btn-1 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">B) 7 個頂點、7 個角</button>
+              <button id="q1-C" onclick="selectOption(1, 'C')" class="q-btn-1 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">C) 7 個頂點、8 個角</button>
+              <button id="q1-D" onclick="selectOption(1, 'D')" class="q-btn-1 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">D) 14 個頂點、7 個角</button>
+            </div>
+            <div id="feedback-1" class="hidden mt-3 text-xs p-3 rounded-xl font-bold"></div>
+          </div>
+
+          <!-- 題目2 -->
+          <div class="quiz-item bg-white/90 rounded-2xl p-5 border border-slate-200 shadow-sm">
+            <h3 class="font-bold text-base text-gray-800 mb-3 flex items-center gap-2">
+              <span class="bg-sky-600 text-white text-xs px-2.5 py-1 rounded-full">第 2 題</span>
+              要稱一個圖形為「正五邊形」，必須同時滿足哪兩個條件？
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+              <button id="q2-A" onclick="selectOption(2, 'A')" class="q-btn-2 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">A) 5 條邊一樣長，且 5 個角一樣大</button>
+              <button id="q2-B" onclick="selectOption(2, 'B')" class="q-btn-2 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">B) 只要 5 條邊一樣長就可以</button>
+              <button id="q2-C" onclick="selectOption(2, 'C')" class="q-btn-2 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">C) 只要 5 個角一樣大就可以</button>
+              <button id="q2-D" onclick="selectOption(2, 'D')" class="q-btn-2 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">D) 必須擺放得平平正正的才行</button>
+            </div>
+            <div id="feedback-2" class="hidden mt-3 text-xs p-3 rounded-xl font-bold"></div>
+          </div>
+
+          <!-- 題目3 -->
+          <div class="quiz-item bg-white/90 rounded-2xl p-5 border border-slate-200 shadow-sm">
+            <h3 class="font-bold text-base text-gray-800 mb-3 flex items-center gap-2">
+              <span class="bg-sky-600 text-white text-xs px-2.5 py-1 rounded-full">第 3 題</span>
+              英國的 1 英鎊硬幣描繪出來有 12 條一樣長的邊與 12 個一樣大的角，它是什麼圖形？
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+              <button id="q3-A" onclick="selectOption(3, 'A')" class="q-btn-3 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">A) 十二邊形</button>
+              <button id="q3-B" onclick="selectOption(3, 'B')" class="q-btn-3 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">B) 正十邊形</button>
+              <button id="q3-C" onclick="selectOption(3, 'C')" class="q-btn-3 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">C) 正十二邊形</button>
+              <button id="q3-D" onclick="selectOption(3, 'D')" class="q-btn-3 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">D) 圓形</button>
+            </div>
+            <div id="feedback-3" class="hidden mt-3 text-xs p-3 rounded-xl font-bold"></div>
+          </div>
+
+          <!-- 題目4 -->
+          <div class="quiz-item bg-white/90 rounded-2xl p-5 border border-slate-200 shadow-sm">
+            <h3 class="font-bold text-base text-gray-800 mb-3 flex items-center gap-2">
+              <span class="bg-sky-600 text-white text-xs px-2.5 py-1 rounded-full">第 4 題</span>
+              一個長方形（四個角都是直角，長與寬不相等）是正多邊形嗎？為什麼？
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+              <button id="q4-A" onclick="selectOption(4, 'A')" class="q-btn-4 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">A) 是，因為它的 4 個角都一樣大</button>
+              <button id="q4-B" onclick="selectOption(4, 'B')" class="q-btn-4 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">B) 不是，因為它的 4 條邊沒有全部一樣長</button>
+              <button id="q4-C" onclick="selectOption(4, 'C')" class="q-btn-4 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">C) 是，因為它有 4 條邊和 4 個頂點</button>
+              <button id="q4-D" onclick="selectOption(4, 'D')" class="q-btn-4 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">D) 不是，因為它不是三角形</button>
+            </div>
+            <div id="feedback-4" class="hidden mt-3 text-xs p-3 rounded-xl font-bold"></div>
+          </div>
+
+          <!-- 題目5 -->
+          <div class="quiz-item bg-white/90 rounded-2xl p-5 border border-slate-200 shadow-sm">
+            <h3 class="font-bold text-base text-gray-800 mb-3 flex items-center gap-2">
+              <span class="bg-sky-600 text-white text-xs px-2.5 py-1 rounded-full">第 5 題</span>
+              觀察「多邊形」的命名規則，幾邊形名稱的決定關鍵是？
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+              <button id="q5-A" onclick="selectOption(5, 'A')" class="q-btn-5 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">A) 圖形塗上的顏色</button>
+              <button id="q5-B" onclick="selectOption(5, 'B')" class="q-btn-5 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">B) 直線段圍成的「邊數」（或頂點數、角數）</button>
+              <button id="q5-C" onclick="selectOption(5, 'C')" class="q-btn-5 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">C) 圖形擺放的方向是正的還是斜的</button>
+              <button id="q5-D" onclick="selectOption(5, 'D')" class="q-btn-5 border p-3 rounded-xl text-left hover:bg-sky-50 transition font-medium">D) 圖形的大小面積</button>
+            </div>
+            <div id="feedback-5" class="hidden mt-3 text-xs p-3 rounded-xl font-bold"></div>
+          </div>
+        </div>
+
+        <div class="mt-8 text-center flex flex-col sm:flex-row justify-center gap-4">
+          <button id="submit-btn" onclick="submitQuiz()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-md transition inline-flex items-center justify-center gap-2">
+            <i class="fa-solid fa-paper-plane"></i> 提交答案
+          </button>
+          <button id="reset-btn" onclick="resetQuiz()" class="px-6 py-3 bg-slate-500 hover:bg-slate-600 text-white font-bold rounded-2xl shadow-md transition inline-flex items-center justify-center gap-2">
+            <i class="fa-solid fa-rotate-right"></i> 重新測驗
+          </button>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <script>
+    /* ========================================================
+       1. 全域變數與初始化
+       ======================================================== */
+    let currentSideCount = 3;
+    let isRegularMode = true;
+    let polygonVertices = [];
+    let draggedVertexIndex = -1;
+
+    // 中文數字名稱對照
+    const numberNameMap = {
+      3: '三', 4: '四', 5: '五', 6: '六', 7: '七', 8: '八', 9: '九', 10: '十', 11: '十一', 12: '十二'
+    };
+
+    window.onload = function() {
+      initVisualizer();
+      initThinkingCap();
+      initClassifier();
+      window.addEventListener('resize', redrawMatchingLines);
+    };
+
+    /* ========================================================
+       2. 頁籤切換邏輯
+       ======================================================== */
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+      // 更新頁籤按鈕樣式
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-sky-600', 'text-white');
+        btn.classList.add('bg-white', 'text-gray-700');
+      });
+      const activeBtn = document.getElementById(`btn-${tabId}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('bg-white', 'text-gray-700');
+        activeBtn.classList.add('bg-sky-600', 'text-white');
+      }
+
+      if (tabId === 'visualizer') {
+        drawPolygon();
+      } else if (tabId === 'thinking-cap') {
+        drawLimitPolygon(parseInt(document.getElementById('limit-slider').value));
+      } else if (tabId === 'classifier') {
+        setTimeout(redrawMatchingLines, 50);
+      }
+    }
+
+    /* ========================================================
+       3. 模組一：動態多邊形畫布與計算 Engine
+       ======================================================== */
+    function initVisualizer() {
+      const slider = document.getElementById('side-slider');
+      slider.addEventListener('input', function(e) {
+        currentSideCount = parseInt(e.target.value);
+        document.getElementById('side-count-display').innerText = `${currentSideCount} 邊`;
+        generateVertices();
+        drawPolygon();
+      });
+
+      // SVG 滑鼠與觸控拖曳頂點事件
+      const svg = document.getElementById('polygon-svg');
+      svg.addEventListener('mousedown', startDrag);
+      svg.addEventListener('mousemove', drag);
+      window.addEventListener('mouseup', endDrag);
+
+      svg.addEventListener('touchstart', startDrag, {passive: false});
+      svg.addEventListener('touchmove', drag, {passive: false});
+      window.addEventListener('touchend', endDrag);
+
+      generateVertices();
+      drawPolygon();
+    }
+
+    function setPolygonMode(isRegular) {
+      isRegularMode = isRegular;
+      const btnReg = document.getElementById('mode-regular');
+      const btnIrreg = document.getElementById('mode-irregular');
+
+      if (isRegular) {
+        btnReg.className = "py-2 px-3 rounded-xl font-bold text-sm border-2 border-sky-600 bg-sky-600 text-white transition shadow-sm";
+        btnIrreg.className = "py-2 px-3 rounded-xl font-bold text-sm border-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition shadow-sm";
+      } else {
+        btnIrreg.className = "py-2 px-3 rounded-xl font-bold text-sm border-2 border-sky-600 bg-sky-600 text-white transition shadow-sm";
+        btnReg.className = "py-2 px-3 rounded-xl font-bold text-sm border-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition shadow-sm";
+      }
+
+      generateVertices();
+      drawPolygon();
+    }
+
+    // 計算正多邊形或不規則多邊形頂點
+    function generateVertices() {
+      polygonVertices = [];
+      const radius = 130;
+      const n = currentSideCount;
+
+      for (let i = 0; i < n; i++) {
+        // 從頂部逆時針/順時針分佈
+        let angle = (i * 2 * Math.PI / n) - (Math.PI / 2);
+        
+        let r = radius;
+        if (!isRegularMode) {
+          // 不規則模式：給予頂點微小的隨機擺幅
+          const offset = ((i % 3) - 1) * 25 + (i % 2 === 0 ? 15 : -15);
+          r = radius + offset;
+        }
+
+        polygonVertices.push({
+          x: r * Math.cos(angle),
+          y: r * Math.sin(angle)
+        });
+      }
+    }
+
+    // 繪製多邊形至 SVG
+    function drawPolygon() {
+      const svg = document.getElementById('polygon-svg');
+      svg.innerHTML = ''; // 清空舊內容
+
+      const showVertices = document.getElementById('toggle-vertices').checked;
+      const showLengths = document.getElementById('toggle-lengths').checked;
+      const showAngles = document.getElementById('toggle-angles').checked;
+
+      const n = polygonVertices.length;
+      if (n === 0) return;
+
+      // 1. 繪製多邊形填充與邊緣
+      let pointStr = polygonVertices.map(v => `${v.x},${v.y}`).join(' ');
+      const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      polygon.setAttribute('points', pointStr);
+      polygon.setAttribute('fill', 'rgba(14, 165, 233, 0.25)');
+      polygon.setAttribute('stroke', '#0284c7');
+      polygon.setAttribute('stroke-width', '4');
+      polygon.setAttribute('stroke-linejoin', 'round');
+      svg.appendChild(polygon);
+
+      // 邊長與內角計算變數
+      let sideLengths = [];
+
+      // 2. 繪製邊長數據標籤
+      for (let i = 0; i < n; i++) {
+        let p1 = polygonVertices[i];
+        let p2 = polygonVertices[(i + 1) % n];
+
+        let len = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+        sideLengths.push(len);
+
+        if (showLengths) {
+          let midX = (p1.x + p2.x) / 2;
+          let midY = (p1.y + p2.y) / 2;
+
+          // 標籤背景
+          const textBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          textBg.setAttribute('x', midX - 16);
+          textBg.setAttribute('y', midY - 10);
+          textBg.setAttribute('width', '32');
+          textBg.setAttribute('height', '18');
+          textBg.setAttribute('rx', '5');
+          textBg.setAttribute('fill', 'white');
+          textBg.setAttribute('opacity', '0.85');
+          svg.appendChild(textBg);
+
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('x', midX);
+          text.setAttribute('y', midY + 3);
+          text.setAttribute('text-anchor', 'middle');
+          text.setAttribute('font-size', '10');
+          text.setAttribute('font-weight', 'bold');
+          text.setAttribute('fill', '#0369a1');
+          text.textContent = (len / 10).toFixed(1);
+          svg.appendChild(text);
+        }
+      }
+
+      // 3. 繪製頂點與角度弧線
+      for (let i = 0; i < n; i++) {
+        let p = polygonVertices[i];
+
+        // 畫內角弧線標記
+        if (showAngles) {
+          let prev = polygonVertices[(i - 1 + n) % n];
+          let next = polygonVertices[(i + 1) % n];
+          let a1 = Math.atan2(prev.y - p.y, prev.x - p.x);
+          let a2 = Math.atan2(next.y - p.y, next.x - p.x);
+
+          // 計算夾角與 SVG 弧線繪製參數（確保圓弧完全落在多邊形內部）
+          let diff = a2 - a1;
+          while (diff < 0) diff += 2 * Math.PI;
+          while (diff >= 2 * Math.PI) diff -= 2 * Math.PI;
+
+          let interiorAngle = 2 * Math.PI - diff;
+          let largeArcFlag = interiorAngle > Math.PI ? 1 : 0;
+          let sweepFlag = 0; // 0 代表逆時針掃描，精準繪製於圖形內部
+
+          const arcRadius = 22;
+          const arcPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          let startX = p.x + arcRadius * Math.cos(a1);
+          let startY = p.y + arcRadius * Math.sin(a1);
+          let endX = p.x + arcRadius * Math.cos(a2);
+          let endY = p.y + arcRadius * Math.sin(a2);
+
+          let d = `M ${startX} ${startY} A ${arcRadius} ${arcRadius} 0 ${largeArcFlag} ${sweepFlag} ${endX} ${endY}`;
+          arcPath.setAttribute('d', d);
+          arcPath.setAttribute('fill', 'none');
+          arcPath.setAttribute('stroke', '#f59e0b');
+          arcPath.setAttribute('stroke-width', '2.5');
+          svg.appendChild(arcPath);
+        }
+
+        // 畫頂點圓球
+        if (showVertices) {
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('cx', p.x);
+          circle.setAttribute('cy', p.y);
+          circle.setAttribute('r', '8');
+          circle.setAttribute('fill', '#38bdf8');
+          circle.setAttribute('stroke', '#ffffff');
+          circle.setAttribute('stroke-width', '2.5');
+          circle.setAttribute('cursor', 'pointer');
+          circle.dataset.index = i;
+          svg.appendChild(circle);
+        }
+      }
+
+      // 4. 更新統計卡片數據
+      const chineseName = numberNameMap[n] || n;
+      document.getElementById('stat-sides').innerText = n;
+      document.getElementById('stat-vertices').innerText = n;
+      document.getElementById('stat-angles').innerText = n;
+
+      // 檢查邊長是否均相等 (誤差 5% 內)
+      const avgLen = sideLengths.reduce((a, b) => a + b, 0) / n;
+      const isLengthsEqual = sideLengths.every(l => Math.abs(l - avgLen) < avgLen * 0.05);
+      const isAnglesEqual = isRegularMode;
+
+      const badgeSide = document.getElementById('badge-side-equal');
+      const badgeAngle = document.getElementById('badge-angle-equal');
+      const nameBadge = document.getElementById('shape-name-badge');
+      const regBox = document.getElementById('regularity-check-box');
+      const regIcon = document.getElementById('regularity-icon');
+      const regTitle = document.getElementById('regularity-title');
+      const regDesc = document.getElementById('regularity-desc');
+
+      // 更新「每條邊是否一樣長」標籤
+      if (isLengthsEqual) {
+        badgeSide.innerText = "是";
+        badgeSide.className = "px-2.5 py-0.5 rounded-md text-xs font-black bg-emerald-100 text-emerald-700";
+      } else {
+        badgeSide.innerText = "否";
+        badgeSide.className = "px-2.5 py-0.5 rounded-md text-xs font-black bg-rose-100 text-rose-700";
+      }
+
+      // 更新「每個角是否一樣大」標籤
+      if (isAnglesEqual) {
+        badgeAngle.innerText = "是";
+        badgeAngle.className = "px-2.5 py-0.5 rounded-md text-xs font-black bg-emerald-100 text-emerald-700";
+      } else {
+        badgeAngle.innerText = "否";
+        badgeAngle.className = "px-2.5 py-0.5 rounded-md text-xs font-black bg-rose-100 text-rose-700";
+      }
+
+      // 正多邊形綜合判定（修正 3 邊形為「三角形」）
+      if (isRegularMode && isLengthsEqual) {
+        const shapeName = (n === 3) ? "正三角形" : `正${chineseName}邊形`;
+        nameBadge.innerText = shapeName;
+        nameBadge.className = "px-3 py-1 rounded-xl text-sm font-black bg-sky-100 text-sky-700";
+        
+        regBox.className = "p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 flex items-start gap-3";
+        if (regIcon) regIcon.className = "fa-solid fa-circle-check text-2xl text-emerald-600 mt-0.5";
+        regTitle.innerText = `✅ 符合「${shapeName}」條件！`;
+        regDesc.innerText = `此圖形共有 ${n} 條一樣長的邊，以及 ${n} 個一樣大的角，因此稱為「${shapeName}」。`;
+      } else {
+        const generalName = (n === 3) ? "三角形" : `${chineseName}邊形`;
+        nameBadge.innerText = `（一般）${generalName}`;
+        nameBadge.className = "px-3 py-1 rounded-xl text-sm font-black bg-amber-100 text-amber-800";
+
+        regBox.className = "p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-start gap-3";
+        if (regIcon) regIcon.className = "fa-solid fa-triangle-exclamation text-2xl text-amber-600 mt-0.5";
+        regTitle.innerText = `⚠️ 屬於不規則的「${generalName}」`;
+        regDesc.innerText = `雖然它有 ${n} 條邊、${n} 個頂點與 ${n} 個角，但邊長或角度沒有全部相等，所以不是正多邊形喔！`;
+      }
+    }
+
+    /* ========================================================
+       3.5 思考帽：邊數與圓形的極限祕密 Engine
+       ======================================================== */
+    function initThinkingCap() {
+      const slider = document.getElementById('limit-slider');
+      if (!slider) return;
+
+      slider.addEventListener('input', function(e) {
+        const val = parseInt(e.target.value);
+        drawLimitPolygon(val);
+        checkConceptUnlock(val);
+      });
+
+      drawLimitPolygon(6);
+      checkConceptUnlock(6);
+    }
+
+    function checkConceptUnlock(val) {
+      const lockMsg = document.getElementById('concept-lock-msg');
+      const content = document.getElementById('concept-content');
+      if (!lockMsg || !content) return;
+
+      if (val === 50) {
+        lockMsg.classList.add('hidden');
+        content.classList.remove('hidden');
+        // 給予一點延遲以觸發 CSS 漸顯動畫
+        setTimeout(() => content.classList.remove('opacity-0'), 50);
+      } else {
+        lockMsg.classList.remove('hidden');
+        content.classList.add('hidden', 'opacity-0');
+      }
+    }
+
+    function drawLimitPolygon(n) {
+      const svg = document.getElementById('limit-svg');
+      const display = document.getElementById('limit-count-display');
+      if (!svg || !display) return;
+
+      display.innerText = (n === 3) ? "正三角形" : `正 ${n} 邊形`;
+
+      svg.innerHTML = '';
+      const radius = 110;
+
+      // 1. 繪製外接虛線圓點作為對照背景
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', '0');
+      circle.setAttribute('cy', '0');
+      circle.setAttribute('r', radius.toString());
+      circle.setAttribute('fill', 'none');
+      circle.setAttribute('stroke', '#cbd5e1');
+      circle.setAttribute('stroke-width', '1.5');
+      circle.setAttribute('stroke-dasharray', '4 4');
+      svg.appendChild(circle);
+
+      // 2. 計算正 N 邊形頂點
+      let points = [];
+      for (let i = 0; i < n; i++) {
+        let angle = (i * 2 * Math.PI / n) - (Math.PI / 2);
+        let x = radius * Math.cos(angle);
+        let y = radius * Math.sin(angle);
+        points.push(`${x},${y}`);
+      }
+
+      // 3. 繪製正 N 邊形
+      const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      polygon.setAttribute('points', points.join(' '));
+      polygon.setAttribute('fill', 'rgba(99, 102, 241, 0.25)');
+      polygon.setAttribute('stroke', '#6366f1');
+      polygon.setAttribute('stroke-width', '3');
+      polygon.setAttribute('stroke-linejoin', 'round');
+      svg.appendChild(polygon);
+    }
+
+    // 頂點拖拽控制邏輯
+    function getEventPos(e) {
+      const svg = document.getElementById('polygon-svg');
+      const rect = svg.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      
+      // 轉換畫布中心 ViewBox 座標 (-180 到 +180)
+      const scaleX = 360 / rect.width;
+      const scaleY = 360 / rect.height;
+
+      return {
+        x: (clientX - rect.left) * scaleX - 180,
+        y: (clientY - rect.top) * scaleY - 180
+      };
+    }
+
+    function startDrag(e) {
+      if (e.target.tagName === 'circle') {
+        draggedVertexIndex = parseInt(e.target.dataset.index);
+        isRegularMode = false; // 動拖頂點後自動轉為不規則模式
+        document.getElementById('mode-irregular').click();
+        if (e.cancelable) e.preventDefault();
+      }
+    }
+
+    function drag(e) {
+      if (draggedVertexIndex !== -1) {
+        const pos = getEventPos(e);
+        polygonVertices[draggedVertexIndex] = { x: pos.x, y: pos.y };
+        drawPolygon();
+        if (e.cancelable) e.preventDefault();
+      }
+    }
+
+    function endDrag() {
+      draggedVertexIndex = -1;
+    }
+
+    /* ========================================================
+       4. 模組二：多邊形連連看配對大挑戰 Engine
+       ======================================================== */
+    const matchingData = [
+      { id: 's4', name: '四邊形', sides: 4, svgPath: 'M 10,18 L 42,12 L 36,42 L 8,38 Z' },
+      { id: 's5', name: '五邊形', sides: 5, svgPath: 'M 25,6 L 44,18 L 38,44 L 12,44 L 6,18 Z' },
+      { id: 's6', name: '六邊形', sides: 6, svgPath: 'M 25,6 L 43,15 L 43,35 L 25,44 L 7,35 L 7,15 Z' },
+      { id: 's7', name: '七邊形', sides: 7, svgPath: 'M 25,6 L 40,13 L 45,28 L 34,43 L 16,43 L 5,28 L 10,13 Z' },
+      { id: 's8', name: '八邊形', sides: 8, svgPath: 'M 17,6 L 33,6 L 44,17 L 44,33 L 33,44 L 17,44 L 6,33 L 6,17 Z' }
+    ];
+
+    let selectedShapeId = null;
+    let matchedPairs = []; // 紀錄正確連線對 [{"shapeId", "nameId", "sides"}]
+
+    function initClassifier() {
+      selectedShapeId = null;
+      matchedPairs = [];
+
+      const shapeRow = document.getElementById('shape-card-row');
+      const nameRow = document.getElementById('name-btn-row');
+      const svgCanvas = document.getElementById('matching-svg-canvas');
+
+      shapeRow.innerHTML = '';
+      nameRow.innerHTML = '';
+      svgCanvas.innerHTML = '';
+
+      // 打亂名稱順序（固定四五六七八隨機排序）
+      let shuffledNames = [...matchingData].sort(() => Math.random() - 0.5);
+
+      // 生成頂部圖形卡片
+      matchingData.forEach(item => {
+        const card = document.createElement('div');
+        card.id = `shape-${item.id}`;
+        card.dataset.sides = item.sides;
+        card.className = "shape-card bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col items-center justify-center cursor-pointer hover:border-indigo-400 hover:shadow-md transition min-h-[110px]";
+        card.innerHTML = `
+          <svg width="60" height="52" viewBox="0 0 50 50" class="pointer-events-none">
+            <path d="${item.svgPath}" fill="#e0e7ff" stroke="#4f46e5" stroke-width="2.5" stroke-linejoin="round"/>
+          </svg>
+        `;
+        card.onclick = () => selectShapeCard(`shape-${item.id}`);
+        shapeRow.appendChild(card);
+      });
+
+      // 生成名稱按鈕
+      shuffledNames.forEach(item => {
+        const btn = document.createElement('button');
+        btn.id = `name-${item.sides}`;
+        btn.dataset.sides = item.sides;
+        btn.className = "name-btn bg-white py-3 px-4 rounded-2xl border-2 border-slate-200 font-extrabold text-slate-700 hover:border-indigo-400 hover:bg-indigo-50 transition shadow-sm text-base text-center cursor-pointer";
+        btn.innerText = item.name;
+        btn.onclick = () => selectNameBtn(`name-${item.sides}`);
+        nameRow.appendChild(btn);
+      });
+
+      updateMatchingStatus();
+    }
+
+    function selectShapeCard(cardId) {
+      // 若該圖形已配對成功則忽略
+      if (matchedPairs.some(p => p.shapeId === cardId)) return;
+
+      // 清除舊選擇樣式
+      document.querySelectorAll('.shape-card').forEach(c => {
+        if (!matchedPairs.some(p => p.shapeId === c.id)) {
+          c.className = "shape-card bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col items-center justify-center cursor-pointer hover:border-indigo-400 hover:shadow-md transition min-h-[110px]";
+        }
+      });
+
+      selectedShapeId = cardId;
+      const card = document.getElementById(cardId);
+      card.className = "shape-card bg-indigo-50 p-4 rounded-2xl border-2 border-indigo-600 ring-4 ring-indigo-100 shadow-md flex flex-col items-center justify-center cursor-pointer transition min-h-[110px]";
+    }
+
+    function selectNameBtn(btnId) {
+      // 若該名稱已配對成功則忽略
+      if (matchedPairs.some(p => p.nameId === btnId)) return;
+
+      if (!selectedShapeId) {
+        // 未選擇圖形時提醒
+        const statusMsg = document.getElementById('matching-status-msg');
+        statusMsg.innerHTML = `<span class="text-amber-600"><i class="fa-solid fa-circle-exclamation mr-1"></i>請先點選上方的「圖形」，再選擇名稱喔！</span>`;
+        return;
+      }
+
+      const shapeEl = document.getElementById(selectedShapeId);
+      const nameEl = document.getElementById(btnId);
+
+      const shapeSides = shapeEl.dataset.sides;
+      const nameSides = nameEl.dataset.sides;
+
+      if (shapeSides === nameSides) {
+        // 配對成功！
+        matchedPairs.push({
+          shapeId: selectedShapeId,
+          nameId: btnId,
+          sides: shapeSides
+        });
+
+        // 標記為成功狀態
+        shapeEl.className = "shape-card bg-emerald-50 p-4 rounded-2xl border-2 border-emerald-500 shadow-sm flex flex-col items-center justify-center cursor-default transition min-h-[110px]";
+        nameEl.className = "name-btn bg-emerald-50 py-3 px-4 rounded-2xl border-2 border-emerald-500 font-extrabold text-emerald-800 transition shadow-sm text-base text-center cursor-default";
+
+        selectedShapeId = null;
+        redrawMatchingLines();
+        updateMatchingStatus();
+      } else {
+        // 配對失敗動畫提示
+        nameEl.classList.add('animate-bounce', 'border-rose-400', 'bg-rose-50');
+        setTimeout(() => {
+          nameEl.classList.remove('animate-bounce', 'border-rose-400', 'bg-rose-50');
+        }, 800);
+
+        const statusMsg = document.getElementById('matching-status-msg');
+        statusMsg.innerHTML = `<span class="text-rose-600"><i class="fa-solid fa-circle-xmark mr-1"></i>配對不正確，再試一次看看！</span>`;
+      }
+    }
+
+    // 動態繪製配對正確連線
+    function redrawMatchingLines() {
+      const svg = document.getElementById('matching-svg-canvas');
+      const container = document.getElementById('matching-container');
+      if (!svg || !container) return;
+
+      svg.innerHTML = '';
+      const containerRect = container.getBoundingClientRect();
+
+      matchedPairs.forEach(pair => {
+        const shapeEl = document.getElementById(pair.shapeId);
+        const nameEl = document.getElementById(pair.nameId);
+
+        if (!shapeEl || !nameEl) return;
+
+        const sRect = shapeEl.getBoundingClientRect();
+        const nRect = nameEl.getBoundingClientRect();
+
+        // 頂部卡片底部中心點
+        const x1 = sRect.left + sRect.width / 2 - containerRect.left;
+        const y1 = sRect.bottom - containerRect.top;
+
+        // 下方按鈕頂部中心點
+        const x2 = nRect.left + nRect.width / 2 - containerRect.left;
+        const y2 = nRect.top - containerRect.top;
+
+        // 繪製順滑弧線或直條線
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const controlY1 = y1 + 30;
+        const controlY2 = y2 - 30;
+        const d = `M ${x1} ${y1} C ${x1} ${controlY1}, ${x2} ${controlY2}, ${x2} ${y2}`;
+
+        path.setAttribute('d', d);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', '#10b981');
+        path.setAttribute('stroke-width', '4');
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('stroke-dasharray', '8 4');
+        path.setAttribute('class', 'transition-all duration-300');
+
+        svg.appendChild(path);
+      });
+    }
+
+    function updateMatchingStatus() {
+      const remaining = 5 - matchedPairs.length;
+      const statusMsg = document.getElementById('matching-status-msg');
+
+      if (remaining === 0) {
+        statusMsg.innerHTML = `<span class="text-emerald-600 font-extrabold text-base flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-xl"></i> 🎉 太棒了！您已成功完成所有多邊形連線配對！</span>`;
+      } else {
+        statusMsg.innerHTML = `<span class="text-slate-700">請開始點選圖形進行配對（剩餘 <strong>${remaining}</strong> 組）</span>`;
+      }
+    }
+
+    function resetClassifier() {
+      initClassifier();
+    }
+
+    /* ========================================================
+       5. 模組三：歷程評量與解答核對
+       ======================================================== */
+    const correctAnswers = {
+      1: { ans: 'B', exp: '幾邊形就有幾條邊、幾個頂點與幾個角，所以七邊形有 7 個頂點與 7 個角。' },
+      2: { ans: 'A', exp: '正多邊形必須同時具備「每條邊都一樣長」並且「每個角都一樣大」這兩個核心條件。' },
+      3: { ans: 'C', exp: '12 條等長的邊與 12 個等大的角，完全符合「正十二邊形」的定義。' },
+      4: { ans: 'B', exp: '長方形雖然 4 個角都是 90 度，但鄰邊長度不相等，不符合「邊長全部相等」的條件，所以不是正多邊形。' },
+      5: { ans: 'B', exp: '多邊形的命名取決於它是由幾條直線段所圍成的邊數（邊數＝頂點數＝角數）。' }
+    };
+
+    let userAnswers = { 1: null, 2: null, 3: null, 4: null, 5: null };
+    let quizSubmitted = false;
+
+    function selectOption(qNum, option) {
+      if (quizSubmitted) return; // 送出後不可修改
+      userAnswers[qNum] = option;
+      
+      // 重置該題所有選項的樣式
+      document.querySelectorAll(`.q-btn-${qNum}`).forEach(btn => {
+        btn.classList.remove('bg-sky-100', 'border-sky-500', 'ring-2', 'ring-sky-200');
+        btn.classList.add('hover:bg-sky-50');
+      });
+      
+      // 標註被點選的選項
+      const selectedBtn = document.getElementById(`q${qNum}-${option}`);
+      if (selectedBtn) {
+        selectedBtn.classList.remove('hover:bg-sky-50');
+        selectedBtn.classList.add('bg-sky-100', 'border-sky-500', 'ring-2', 'ring-sky-200');
+      }
+    }
+
+    function submitQuiz() {
+      if (quizSubmitted) return;
+      quizSubmitted = true;
+      let score = 0;
+
+      for (let i = 1; i <= 5; i++) {
+        const feedbackEl = document.getElementById(`feedback-${i}`);
+        const selected = userAnswers[i];
+        const itemData = correctAnswers[i];
+        
+        // 重置可能的樣式類別
+        feedbackEl.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-rose-50', 'text-rose-800', 'border-rose-200', 'bg-amber-50', 'text-amber-800', 'border-amber-200');
+
+        if (!selected) {
+          // 未作答 (黃色系)
+          feedbackEl.className = "mt-3 text-sm p-4 rounded-xl font-bold bg-amber-50 text-amber-800 border border-amber-200 transition-all";
+          feedbackEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-500 mr-1.5"></i> 未作答。`;
+        } else if (selected === itemData.ans) {
+          // 答對 (每題20分)
+          score += 20;
+          feedbackEl.className = "mt-3 text-sm p-4 rounded-xl font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 transition-all";
+          feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 mr-1.5"></i> 答對了！<br><span class="font-normal text-emerald-700 mt-1 block">${itemData.exp}</span>`;
+        } else {
+          // 答錯
+          feedbackEl.className = "mt-3 text-sm p-4 rounded-xl font-bold bg-rose-50 text-rose-800 border border-rose-200 transition-all";
+          feedbackEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-500 mr-1.5"></i> 答錯囉！正確答案是 (${itemData.ans})。<br><span class="font-normal text-rose-700 mt-1 block">${itemData.exp}</span>`;
+        }
+        
+        // 禁用按鈕，防止二次修改
+        document.querySelectorAll(`.q-btn-${i}`).forEach(btn => {
+           btn.classList.add('cursor-not-allowed', 'opacity-70');
+        });
+      }
+
+      // 更新分數 (滿分100)
+      document.getElementById('quiz-score').innerText = `${score} / 100`;
+      
+      // 隱藏提交按鈕
+      document.getElementById('submit-btn').classList.add('hidden');
+    }
+
+    function resetQuiz() {
+      userAnswers = { 1: null, 2: null, 3: null, 4: null, 5: null };
+      quizSubmitted = false;
+      document.getElementById('quiz-score').innerText = `0 / 100`;
+      document.getElementById('submit-btn').classList.remove('hidden');
+
+      for (let i = 1; i <= 5; i++) {
+        const feedbackEl = document.getElementById(`feedback-${i}`);
+        feedbackEl.className = "hidden mt-3 text-xs p-3 rounded-xl font-bold";
+        feedbackEl.innerHTML = "";
+
+        document.querySelectorAll(`.q-btn-${i}`).forEach(btn => {
+          btn.classList.remove('bg-sky-100', 'border-sky-500', 'ring-2', 'ring-sky-200', 'cursor-not-allowed', 'opacity-70');
+          btn.classList.add('hover:bg-sky-50');
+        });
+      }
+    }
+  </script>
+</body>
+</html>

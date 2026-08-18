@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>國小五上數學 6-3：連除與除法性質探究館</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 35%, #e0c3fc 70%, #8ec5fc 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        /* 新海誠風格天空與光束背景效果 */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 10px 30px rgba(31, 38, 135, 0.12);
+        }
+
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-btn:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.25);
+        }
+
+        /* 脈動 glow 動畫 */
+        @keyframes softGlow {
+            0%, 100% { filter: drop-shadow(0 0 8px rgba(167, 139, 250, 0.6)); }
+            50% { filter: drop-shadow(0 0 18px rgba(236, 72, 153, 0.8)); }
+        }
+
+        .glow-effect {
+            animation: softGlow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="p-2 sm:p-4 md:p-8">
+    <!-- 主容器 (加寬至 max-w-7xl 提供更寬敞的對照視野) -->
+    <div class="max-w-7xl mx-auto">
+        <!-- 閒雲數學小棧 Logo 與標題 -->
+        <div class="w-full max-w-4xl flex items-center justify-start mb-4 px-2 fade-in">
+            <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+            <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+        </div>
+
+        <!-- 標題區 (新海誠天空風格) -->
+        <header class="glass-card rounded-3xl p-6 mb-6 text-center relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-40 h-40 bg-pink-300 rounded-full blur-3xl opacity-50"></div>
+            <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-blue-300 rounded-full blur-3xl opacity-50"></div>
+            
+            <span class="inline-block px-4 py-1.5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-sm mb-2 shadow-sm">
+                <i class="fa-solid fa-graduation-cap mr-1"></i> 國小五上數學 6-3 互動學習網頁
+            </span>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 via-purple-600 to-pink-600 mb-2">
+                連除的計算與簡化性質
+            </h1>
+            <p class="text-gray-600 text-sm sm:text-base max-w-2xl mx-auto">
+                透過動態彩虹珠子切分、裝箱觀察與雙向算式對比，輕鬆掌握「連除順序可交換」與「連除等於除以兩數之積」！
+            </p>
+
+            <!-- 頁籤導覽區 -->
+            <nav class="flex flex-wrap justify-center gap-2 mt-6">
+                <button onclick="switchTab('tab1')" id="btn-tab1" class="tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm glass-btn text-indigo-800 flex items-center gap-2 border-2 border-indigo-400 shadow-md">
+                    <i class="fa-solid fa-boxes-packing text-indigo-500"></i> 觀念一：連除順序交換
+                </button>
+                <button onclick="switchTab('tab2')" id="btn-tab2" class="tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm glass-btn text-gray-700 flex items-center gap-2 border border-transparent">
+                    <i class="fa-solid fa-cube text-pink-500"></i> 觀念二：連除與除以積
+                </button>
+                <button onclick="switchTab('tab3')" id="btn-tab3" class="tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm glass-btn text-gray-700 flex items-center gap-2 border border-transparent">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i> 觀念三：巧算大解密
+                </button>
+                <button onclick="switchTab('tab4')" id="btn-tab4" class="tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm glass-btn text-gray-700 flex items-center gap-2 border border-transparent">
+                    <i class="fa-solid fa-clipboard-question text-emerald-500"></i> 歷程評量
+                </button>
+            </nav>
+        </header>
+
+        <!-- 頁籤一：連除順序交換 (彩虹珠子切分體驗) -->
+        <section id="tab1" class="tab-content block">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- 左側控制與觀察面板 -->
+                <div class="lg:col-span-5 glass-card rounded-3xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="w-3 h-8 bg-indigo-500 rounded-full"></span>
+                            <h2 class="text-xl font-bold text-gray-800">情境探究：箱子裡的彩球</h2>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4 leading-relaxed">
+                            箱子裡裝了 <span id="t1-total-balls" class="font-bold text-indigo-600 text-lg">84</span> 顆球，球依照最上面一層的方式排列整齊。這個箱子裡的球共裝了幾層？
+                        </p>
+
+                        <!-- 控制項 -->
+                        <div class="bg-white/90 rounded-2xl p-4 mb-4 border border-indigo-100 space-y-4 shadow-sm">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">球的總數量 (A)</label>
+                                <div class="flex items-center gap-3">
+                                    <input type="range" id="slider-A" min="24" max="180" step="12" value="84" class="w-full accent-indigo-600 cursor-pointer" oninput="updateTab1()">
+                                    <span id="val-A" class="font-bold text-indigo-700 min-w-[3.5rem] text-right">84 顆</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">橫切份數 (B)</label>
+                                <div class="flex items-center gap-3">
+                                    <input type="range" id="slider-B" min="2" max="6" value="4" class="w-full accent-indigo-600 cursor-pointer" oninput="updateTab1()">
+                                    <span id="val-B" class="font-bold text-indigo-700 min-w-[3.5rem] text-right">4 份</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">直切份數 (C)</label>
+                                <div class="flex items-center gap-3">
+                                    <input type="range" id="slider-C" min="2" max="10" value="7" class="w-full accent-indigo-600 cursor-pointer" oninput="updateTab1()">
+                                    <span id="val-C" class="font-bold text-indigo-700 min-w-[3.5rem] text-right">7 份</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 三個想法與比較按鈕群 -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">
+                            <button id="btn-t1-m1" onclick="setTab1Mode('A')" class="py-2.5 px-2 rounded-xl font-bold text-xs glass-btn border-2 border-indigo-500 text-indigo-700 flex items-center justify-center gap-1 shadow-sm">
+                                <i class="fa-solid fa-arrow-turn-down"></i> <span id="label-t1-m1">想法一：先除以 4 再除以 7</span>
+                            </button>
+                            <button id="btn-t1-m2" onclick="setTab1Mode('B')" class="py-2.5 px-2 rounded-xl font-bold text-xs glass-btn border border-gray-300 text-gray-600 flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-arrow-turn-down"></i> <span id="label-t1-m2">想法二：先除以 7 再除以 4</span>
+                            </button>
+                            <button id="btn-t1-compare" onclick="setTab1Mode('compare')" class="py-2.5 px-2 rounded-xl font-bold text-xs glass-btn border border-gray-300 text-gray-600 flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-scale-balanced text-amber-500"></i> 比較算式
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 計算算式對半呈現區 -->
+                    <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-4 border border-indigo-200">
+                        <h3 class="text-xs font-bold text-indigo-800 uppercase tracking-wider mb-2 flex items-center justify-between">
+                            <span><i class="fa-solid fa-calculator mr-1"></i> 算式與步驟比較：</span>
+                            <span id="slice-tag" class="text-[11px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-bold">橫向剖分模式</span>
+                        </h3>
+                        
+                        <div class="grid grid-cols-2 gap-3 min-h-[140px]">
+                            <!-- 左半邊：想法一 -->
+                            <div id="t1-left-step" class="bg-white/80 rounded-xl p-3 border border-indigo-200 transition-all flex flex-col justify-between">
+                                <div>
+                                    <div class="text-xs font-bold text-indigo-700 border-b pb-1 mb-1 border-indigo-100">想法一 (先除以 B 再除以 C)</div>
+                                    <div id="t1-eq-left" class="font-mono text-sm sm:text-base font-bold text-indigo-900 space-y-1"></div>
+                                </div>
+                            </div>
+
+                            <!-- 右半邊：想法二 -->
+                            <div id="t1-right-step" class="bg-white/80 rounded-xl p-3 border border-purple-200 opacity-40 transition-all flex flex-col justify-between">
+                                <div>
+                                    <div class="text-xs font-bold text-purple-700 border-b pb-1 mb-1 border-purple-100">想法二 (先除以 C 再除以 B)</div>
+                                    <div id="t1-eq-right" class="font-mono text-sm sm:text-base font-bold text-purple-900 space-y-1"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 pt-2 border-t border-indigo-200 text-xs text-gray-600 flex items-center justify-between">
+                            <span>觀察結果：</span>
+                            <span class="font-bold text-pink-600 bg-pink-100 px-2.5 py-1 rounded-md">除數順序交換，答案不變！</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側動態視覺繪圖區 (加寬) -->
+                <div class="lg:col-span-7 glass-card rounded-3xl p-6 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-bold text-gray-700"><i class="fa-solid fa-palette text-pink-500 mr-1"></i> 彩虹珠子立體箱子剖面視覺化</span>
+                        <span class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-bold">同一直行同顏色</span>
+                    </div>
+
+                    <div class="relative w-full h-[360px] bg-sky-900/10 rounded-2xl flex items-center justify-center overflow-hidden border border-white/60 shadow-inner">
+                        <canvas id="canvas-tab1" class="w-full h-full"></canvas>
+                    </div>
+
+                    <!-- 知識點小卡 -->
+                    <div class="mt-4 p-4 bg-white/95 rounded-2xl border-l-4 border-indigo-500 text-sm text-gray-700 flex items-start gap-3 shadow-sm">
+                        <i class="fa-solid fa-lightbulb text-amber-500 text-xl mt-0.5"></i>
+                        <div>
+                            <span class="font-bold text-indigo-900">核心發現：</span>
+                            連除以兩數時，無論是先橫著算還是先直著算，答案都是一樣的。
+                            <div class="font-mono font-bold text-indigo-600 mt-1 text-base">
+                                A ÷ B ÷ C = A ÷ C ÷ B
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 頁籤二：連除與除以兩數之積 (布丁裝箱) -->
+        <section id="tab2" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- 左側控制面板與想法對比 -->
+                <div class="lg:col-span-5 glass-card rounded-3xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="w-3 h-8 bg-pink-500 rounded-full"></span>
+                            <h2 class="text-xl font-bold text-gray-800">情境探究：布丁裝箱問題</h2>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-4 leading-relaxed">
+                            工廠有 <span id="t2-pudding-count" class="font-bold text-pink-600 text-lg">120</span> 個布丁，每 <span id="t2-box-size" class="font-bold text-indigo-600">3</span> 個裝成一盒，每 <span id="t2-carton-size" class="font-bold text-indigo-600">4</span> 盒裝成一箱，共可以裝成幾箱？
+                        </p>
+
+                        <!-- 控制項 slider -->
+                        <div class="bg-white/90 rounded-2xl p-4 mb-4 border border-pink-100 space-y-4 shadow-sm">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">布丁總數 (N)</label>
+                                <div class="flex items-center gap-3">
+                                    <input type="range" id="slider-pudding" min="60" max="360" step="12" value="120" class="w-full accent-pink-500 cursor-pointer" oninput="updateTab2()">
+                                    <span id="val-pudding" class="font-bold text-pink-700 min-w-[3.5rem] text-right">120 個</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 mb-1">每盒個數 (b)</label>
+                                    <input type="number" id="num-b" value="3" min="2" max="6" class="w-full p-2 border border-pink-200 rounded-xl text-center font-bold text-gray-700 bg-white" onchange="updateTab2()">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 mb-1">每箱盒數 (c)</label>
+                                    <input type="number" id="num-c" value="4" min="2" max="8" class="w-full p-2 border border-pink-200 rounded-xl text-center font-bold text-gray-700 bg-white" onchange="updateTab2()">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 想法一與想法二並排各佔一半 + 比較算式按鈕 -->
+                        <div class="space-y-2 mb-4">
+                            <div class="grid grid-cols-2 gap-2">
+                                <div onclick="setTab2Mode('step')" id="t2-mode-step" class="p-3 rounded-2xl border-2 border-pink-500 bg-pink-50/70 cursor-pointer transition-all flex flex-col justify-between">
+                                    <div>
+                                        <span class="font-bold text-xs text-pink-700 block mb-1"><i class="fa-solid fa-diagram-next"></i> 想法一：逐層分裝 (連除)</span>
+                                        <p class="text-[11px] text-gray-600 leading-tight">先算盒數，再算箱數。</p>
+                                    </div>
+                                    <span id="t2-tag-1" class="text-[11px] bg-pink-200 text-pink-800 px-2 py-0.5 rounded-md font-bold mt-2 self-start">120 ÷ 3 ÷ 4</span>
+                                </div>
+
+                                <div onclick="setTab2Mode('bracket')" id="t2-mode-bracket" class="p-3 rounded-2xl border border-gray-200 bg-white/60 cursor-pointer transition-all flex flex-col justify-between opacity-60">
+                                    <div>
+                                        <span class="font-bold text-xs text-purple-700 block mb-1"><i class="fa-solid fa-box-open"></i> 想法二：每箱總數 (除以積)</span>
+                                        <p class="text-[11px] text-gray-600 leading-tight">先算一箱個數，再算箱數。</p>
+                                    </div>
+                                    <span id="t2-tag-2" class="text-[11px] bg-purple-200 text-purple-800 px-2 py-0.5 rounded-md font-bold mt-2 self-start">120 ÷ (3 × 4)</span>
+                                </div>
+                            </div>
+
+                            <button id="btn-t2-compare" onclick="setTab2Mode('compare')" class="w-full py-2 px-3 rounded-xl font-bold text-xs glass-btn border border-gray-300 text-gray-700 flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-scale-balanced text-amber-500"></i> 比較算式 (同時對比兩種解法)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 計算步驟對半呈現區 -->
+                    <div class="bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-4 border border-pink-200">
+                        <h3 class="text-xs font-bold text-purple-800 uppercase tracking-wider mb-2"><i class="fa-solid fa-calculator mr-1"></i> 計算過程對比：</h3>
+                        <div class="grid grid-cols-2 gap-3 min-h-[130px]">
+                            <!-- 左側：想法一連除 -->
+                            <div id="t2-left-step" class="bg-white/80 rounded-xl p-3 border border-pink-200 transition-all flex flex-col justify-between">
+                                <div class="text-xs font-bold text-pink-700 border-b pb-1 mb-1 border-pink-100">想法一 (連除計算)</div>
+                                <div id="t2-eq-left" class="font-mono text-sm sm:text-base font-bold text-pink-900"></div>
+                            </div>
+
+                            <!-- 右側：想法二除以積 -->
+                            <div id="t2-right-step" class="bg-white/80 rounded-xl p-3 border border-purple-200 opacity-40 transition-all flex flex-col justify-between">
+                                <div class="text-xs font-bold text-purple-700 border-b pb-1 mb-1 border-purple-100">想法二 (除以兩數之積)</div>
+                                <div id="t2-eq-right" class="font-mono text-sm sm:text-base font-bold text-purple-900"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側動態分裝模擬視窗 (加寬) -->
+                <div class="lg:col-span-7 glass-card rounded-3xl p-6 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-bold text-gray-700"><i class="fa-solid fa-boxes-stacked text-pink-500 mr-1"></i> 布丁裝箱圖像化模擬</span>
+                        <span id="t2-visual-status" class="text-xs bg-pink-100 text-pink-700 px-3 py-1 rounded-full font-bold">分步計算模式</span>
+                    </div>
+
+                    <div class="relative w-full h-[360px] bg-white/70 rounded-2xl p-4 border border-pink-100 flex flex-wrap gap-3 items-center justify-center overflow-y-auto shadow-inner" id="pudding-container">
+                        <!-- JS 動態產生容器與布丁圖示 -->
+                    </div>
+
+                    <!-- 觀念重點與公式 (已移除根號，改用明亮燈泡圖示) -->
+                    <div class="mt-4 p-4 bg-white/95 rounded-2xl border-l-4 border-pink-500 text-sm text-gray-700 flex items-start gap-3 shadow-sm">
+                        <i class="fa-solid fa-lightbulb text-amber-500 text-2xl mt-0.5"></i>
+                        <div>
+                            <span class="font-bold text-pink-900">公式結論：</span>
+                            一個數連除以兩個數，等於這個數除以「這兩個數的乘積」。
+                            <div class="font-mono font-bold text-pink-600 mt-1 text-base">
+                                a ÷ b ÷ c = a ÷ (b × c)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 頁籤三：巧算與簡化計算大解密 -->
+        <section id="tab3" class="tab-content hidden">
+            <div class="glass-card rounded-3xl p-6 mb-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="w-3 h-8 bg-amber-500 rounded-full"></span>
+                    <h2 class="text-xl font-bold text-gray-800">簡便計算與巧算實驗室</h2>
+                </div>
+                <p class="text-gray-600 text-sm mb-6">
+                    點選下方課本典型範例，觀察如何透過「括號法」或「拆解法」讓原本複雜的數字心算變得超級簡單！
+                </p>
+
+                <!-- 課本經典題目按鈕群 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                    <button onclick="loadTrickExample(1)" class="trick-btn p-4 rounded-2xl glass-btn text-left border-2 border-amber-400 bg-amber-50/50 shadow-sm">
+                        <div class="text-xs font-bold text-amber-700">範例 1 (課本 97 頁)</div>
+                        <div class="font-mono font-bold text-gray-800 text-base mt-1">600 ÷ 25 ÷ 4</div>
+                    </button>
+                    <button onclick="loadTrickExample(2)" class="trick-btn p-4 rounded-2xl glass-btn text-left border border-gray-200">
+                        <div class="text-xs font-bold text-gray-500">範例 2 (課本 97 頁)</div>
+                        <div class="font-mono font-bold text-gray-800 text-base mt-1">700 ÷ (7 × 5)</div>
+                    </button>
+                    <button onclick="loadTrickExample(3)" class="trick-btn p-4 rounded-2xl glass-btn text-left border border-gray-200">
+                        <div class="text-xs font-bold text-gray-500">範例 3 (課本練習)</div>
+                        <div class="font-mono font-bold text-gray-800 text-base mt-1">9000 ÷ 125 ÷ 8</div>
+                    </button>
+                    <button onclick="loadTrickExample(4)" class="trick-btn p-4 rounded-2xl glass-btn text-left border border-gray-200">
+                        <div class="text-xs font-bold text-gray-500">範例 4 (課本類題)</div>
+                        <div class="font-mono font-bold text-gray-800 text-base mt-1">4700 ÷ (47 × 5)</div>
+                    </button>
+                </div>
+
+                <!-- 巧算PK比較看板 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 一般硬算法 -->
+                    <div class="bg-red-50/80 rounded-2xl p-5 border border-red-200 relative overflow-hidden">
+                        <span class="absolute right-3 top-3 bg-red-200 text-red-800 text-xs px-2.5 py-1 rounded-full font-bold"><i class="fa-solid fa-turtle mr-1"></i> 按順序硬算 (較耗時)</span>
+                        <h3 class="font-bold text-red-900 mb-3 text-base">方法 A：一般按順序算</h3>
+                        <div id="trick-methodA" class="font-mono text-base space-y-2 text-gray-700"></div>
+                    </div>
+
+                    <!-- 巧妙簡化法 -->
+                    <div class="bg-emerald-50/80 rounded-2xl p-5 border border-emerald-200 relative overflow-hidden shadow-md">
+                        <span class="absolute right-3 top-3 bg-emerald-200 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-bold glow-effect"><i class="fa-solid fa-bolt mr-1"></i> 運用性質巧算 (超快！)</span>
+                        <h3 class="font-bold text-emerald-900 mb-3 text-base">方法 B：運用連除性質簡化</h3>
+                        <div id="trick-methodB" class="font-mono text-base space-y-2 text-emerald-900 font-bold"></div>
+                    </div>
+                </div>
+
+                <div id="trick-explanation" class="mt-6 p-4 bg-amber-50/90 rounded-2xl border border-amber-200 text-gray-700 text-sm flex items-center gap-3">
+                    <i class="fa-solid fa-wand-magic text-amber-600 text-2xl"></i>
+                    <span id="trick-exp-text">載入中...</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 頁籤四：歷程評量與即時測驗 (5題) -->
+        <section id="tab4" class="tab-content hidden">
+            <div class="glass-card rounded-3xl p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-8 bg-emerald-500 rounded-full"></span>
+                        <h2 class="text-xl font-bold text-gray-800">歷程評量</h2>
+                    </div>
+                    <div class="bg-emerald-100 text-emerald-800 px-4 py-1.5 rounded-full font-bold text-sm">
+                        得分：<span id="quiz-score" class="text-lg text-emerald-700">0</span> / 100
+                    </div>
+                </div>
+
+                <!-- 測驗題目列表 -->
+                <div id="quiz-container" class="space-y-6">
+                    <!-- Q1 -->
+                    <div class="bg-white/90 rounded-2xl p-5 border border-gray-200 shadow-sm" id="q1-card">
+                        <div class="font-bold text-gray-800 mb-2 flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs">1</span>
+                            算式 84 ÷ 4 ÷ 7 與 84 ÷ 7 ÷ 4 的計算結果是否相同？
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+                            <button onclick="selectOption(1, 'A', this)" class="q-opt-1 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">A. 相同，答案都是 3</button>
+                            <button onclick="selectOption(1, 'B', this)" class="q-opt-1 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">B. 不相同，答案不同</button>
+                            <button onclick="selectOption(1, 'C', this)" class="q-opt-1 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">C. 相同，答案都是 21</button>
+                            <button onclick="selectOption(1, 'D', this)" class="q-opt-1 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">D. 無法比較</button>
+                        </div>
+                        <div id="q1-feedback" class="mt-3 text-xs p-3 rounded-xl hidden font-bold"></div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="bg-white/90 rounded-2xl p-5 border border-gray-200 shadow-sm" id="q2-card">
+                        <div class="font-bold text-gray-800 mb-2 flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs">2</span>
+                            有 120 個布丁，每 3 個裝成一盒，每 4 盒裝成一箱，共可以裝成幾箱？下列哪一個算式無法求出答案？
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+                            <button onclick="selectOption(2, 'A', this)" class="q-opt-2 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">A. 120 ÷ 3 ÷ 4</button>
+                            <button onclick="selectOption(2, 'B', this)" class="q-opt-2 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">B. 120 ÷ (3 × 4)</button>
+                            <button onclick="selectOption(2, 'C', this)" class="q-opt-2 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">C. 120 ÷ 4 ÷ 3</button>
+                            <button onclick="selectOption(2, 'D', this)" class="q-opt-2 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">D. 120 ÷ 3 × 4</button>
+                        </div>
+                        <div id="q2-feedback" class="mt-3 text-xs p-3 rounded-xl hidden font-bold"></div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="bg-white/90 rounded-2xl p-5 border border-gray-200 shadow-sm" id="q3-card">
+                        <div class="font-bold text-gray-800 mb-2 flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs">3</span>
+                            計算 600 ÷ 25 ÷ 4 時，運用哪一種改寫方式最能幫助「快速心算」？
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+                            <button onclick="selectOption(3, 'A', this)" class="q-opt-3 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">A. 改寫為 600 ÷ (25 × 4) 先算括號裡的 100</button>
+                            <button onclick="selectOption(3, 'B', this)" class="q-opt-3 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">B. 改寫為 (600 ÷ 25) × 4</button>
+                            <button onclick="selectOption(3, 'C', this)" class="q-opt-3 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">C. 改寫為 600 × 25 ÷ 4</button>
+                            <button onclick="selectOption(3, 'D', this)" class="q-opt-3 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">D. 照順序先用直式計算 600 ÷ 25</button>
+                        </div>
+                        <div id="q3-feedback" class="mt-3 text-xs p-3 rounded-xl hidden font-bold"></div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="bg-white/90 rounded-2xl p-5 border border-gray-200 shadow-sm" id="q4-card">
+                        <div class="font-bold text-gray-800 mb-2 flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs">4</span>
+                            根據連除性質，算式 700 ÷ (7 × 5) 去除括號後，應該等於哪一個算式？
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+                            <button onclick="selectOption(4, 'A', this)" class="q-opt-4 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">A. 700 ÷ 7 × 5</button>
+                            <button onclick="selectOption(4, 'B', this)" class="q-opt-4 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">B. 700 ÷ 7 ÷ 5</button>
+                            <button onclick="selectOption(4, 'C', this)" class="q-opt-4 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">C. 700 × 7 ÷ 5</button>
+                            <button onclick="selectOption(4, 'D', this)" class="q-opt-4 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">D. 700 ÷ 5 × 7</button>
+                        </div>
+                        <div id="q4-feedback" class="mt-3 text-xs p-3 rounded-xl hidden font-bold"></div>
+                    </div>
+
+                    <!-- Q5 -->
+                    <div class="bg-white/90 rounded-2xl p-5 border border-gray-200 shadow-sm" id="q5-card">
+                        <div class="font-bold text-gray-800 mb-2 flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs">5</span>
+                            水果店進貨 180 公斤櫻桃，平分給 3 間分店，每間分店再分成 20 箱，請問每箱有幾公斤櫻桃？
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+                            <button onclick="selectOption(5, 'A', this)" class="q-opt-5 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">A. 6 公斤</button>
+                            <button onclick="selectOption(5, 'B', this)" class="q-opt-5 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">B. 3 公斤</button>
+                            <button onclick="selectOption(5, 'C', this)" class="q-opt-5 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">C. 9 公斤</button>
+                            <button onclick="selectOption(5, 'D', this)" class="q-opt-5 p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors">D. 12 公斤</button>
+                        </div>
+                        <div id="q5-feedback" class="mt-3 text-xs p-3 rounded-xl hidden font-bold"></div>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-center gap-3">
+                    <button onclick="submitQuiz()" class="px-6 py-2.5 rounded-2xl glass-btn font-bold text-sm text-white bg-indigo-600 hover:bg-indigo-700 border border-indigo-700 shadow-md transition-all">
+                        <i class="fa-solid fa-paper-plane mr-1"></i> 提交答案
+                    </button>
+                    <button onclick="resetQuiz()" class="px-6 py-2.5 rounded-2xl glass-btn font-bold text-sm text-gray-700 border border-gray-300 transition-all hover:bg-gray-50">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> 重新測驗
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        /* ---------------- Global State & Setup ---------------- */
+        let currentTab = 'tab1';
+        let tab1Mode = 'A'; // 'A', 'B', or 'compare'
+        let tab2Mode = 'step'; // 'step', 'bracket', or 'compare'
+        let quizAnswers = { 1: false, 2: false, 3: false, 4: false, 5: false };
+        let userSelections = { 1: null, 2: null, 3: null, 4: null, 5: null };
+
+        // 彩虹七色序列（同一直行顏色相同）
+        const rainbowColors = [
+            { main: '#ef4444', top: '#fca5a5', bottom: '#991b1b' }, // 紅
+            { main: '#f97316', top: '#fdba74', bottom: '#9a3412' }, // 橙
+            { main: '#eab308', top: '#fde047', bottom: '#854d0e' }, // 黃
+            { main: '#22c55e', top: '#86efac', bottom: '#166534' }, // 綠
+            { main: '#06b6d4', top: '#67e8f9', bottom: '#155e75' }, // 藍/靛
+            { main: '#3b82f6', top: '#93c5fd', bottom: '#1e40af' }, // 藍
+            { main: '#a855f7', top: '#d8b4fe', bottom: '#6b21a8' }  // 紫
+        ];
+
+        window.onload = function() {
+            initTab1Canvas();
+            updateTab1();
+            updateTab2();
+            loadTrickExample(1);
+        };
+
+        // 頁籤切換
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-indigo-400', 'shadow-md', 'text-indigo-800');
+                btn.classList.add('border-transparent', 'text-gray-700');
+            });
+
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.remove('border-transparent', 'text-gray-700');
+            activeBtn.classList.add('border-indigo-400', 'shadow-md', 'text-indigo-800');
+
+            if (tabId === 'tab1') {
+                setTimeout(drawTab1Box, 50);
+            }
+        }
+
+        /* ---------------- Tab 1 Logic & Canvas Rainbow Beads ---------------- */
+        function setTab1Mode(mode) {
+            tab1Mode = mode;
+            const btn1 = document.getElementById('btn-t1-m1');
+            const btn2 = document.getElementById('btn-t1-m2');
+            const btnC = document.getElementById('btn-t1-compare');
+
+            // 按鈕外觀重置
+            [btn1, btn2, btnC].forEach(b => {
+                b.className = "py-2.5 px-2 rounded-xl font-bold text-xs glass-btn border border-gray-300 text-gray-600 flex items-center justify-center gap-1";
+            });
+
+            if (mode === 'A') {
+                btn1.className = "py-2.5 px-2 rounded-xl font-bold text-xs glass-btn border-2 border-indigo-500 text-indigo-700 flex items-center justify-center gap-1 shadow-sm";
+                document.getElementById('slice-tag').innerText = "橫向剖分模式";
+            } else if (mode === 'B') {
+                btn2.className = "py-2.5 px-2 rounded-xl font-bold text-xs glass-btn border-2 border-purple-500 text-purple-700 flex items-center justify-center gap-1 shadow-sm";
+                document.getElementById('slice-tag').innerText = "直向剖分模式";
+            } else {
+                btnC.className = "py-2.5 px-2 rounded-xl font-bold text-xs glass-btn border-2 border-amber-500 text-amber-800 flex items-center justify-center gap-1 shadow-sm";
+                document.getElementById('slice-tag').innerText = "雙向比對模式";
+            }
+
+            updateTab1();
+        }
+
+        function updateTab1() {
+            const valA = parseInt(document.getElementById('slider-A').value);
+            const valB = parseInt(document.getElementById('slider-B').value);
+            const valC = parseInt(document.getElementById('slider-C').value);
+
+            document.getElementById('val-A').innerText = valA + " 顆";
+            document.getElementById('val-B').innerText = valB + " 份";
+            document.getElementById('val-C').innerText = valC + " 份";
+            document.getElementById('t1-total-balls').innerText = valA;
+
+            // 動態更新按鈕文字標題
+            document.getElementById('label-t1-m1').innerText = `想法一：先除以 ${valB} 再除以 ${valC}`;
+            document.getElementById('label-t1-m2').innerText = `想法二：先除以 ${valC} 再除以 ${valB}`;
+
+            // 計算步驟一與步驟二
+            const step1_A = (valA / valB).toFixed(0);
+            const resA = (step1_A / valC).toFixed(1).replace('.0', '');
+
+            const step1_B = (valA / valC).toFixed(0);
+            const resB = (step1_B / valB).toFixed(1).replace('.0', '');
+
+            const eqLeft = document.getElementById('t1-eq-left');
+            const eqRight = document.getElementById('t1-eq-right');
+
+            eqLeft.innerHTML = `
+                <div>${valA} ÷ ${valB} ÷ ${valC}</div>
+                <div class="text-[11px] text-gray-500 font-sans my-0.5">↓ 先分成 ${valB} 份 (每份 ${step1_A} 顆)</div>
+                <div>= ${step1_A} ÷ ${valC}</div>
+                <div class="text-[11px] text-gray-500 font-sans my-0.5">↓ 再除以 ${valC} 份</div>
+                <div class="text-indigo-600 font-extrabold text-lg">= ${resA} (層)</div>
+            `;
+
+            eqRight.innerHTML = `
+                <div>${valA} ÷ ${valC} ÷ ${valB}</div>
+                <div class="text-[11px] text-gray-500 font-sans my-0.5">↓ 先分成 ${valC} 份 (每份 ${step1_B} 顆)</div>
+                <div>= ${step1_B} ÷ ${valB}</div>
+                <div class="text-[11px] text-gray-500 font-sans my-0.5">↓ 再除以 ${valB} 份</div>
+                <div class="text-purple-600 font-extrabold text-lg">= ${resB} (層)</div>
+            `;
+
+            const leftBox = document.getElementById('t1-left-step');
+            const rightBox = document.getElementById('t1-right-step');
+
+            if (tab1Mode === 'A') {
+                leftBox.classList.remove('opacity-40');
+                rightBox.classList.add('opacity-40');
+            } else if (tab1Mode === 'B') {
+                rightBox.classList.remove('opacity-40');
+                leftBox.classList.add('opacity-40');
+            } else { // compare
+                leftBox.classList.remove('opacity-40');
+                rightBox.classList.remove('opacity-40');
+            }
+
+            drawTab1Box();
+        }
+
+        let canvas1, ctx1;
+        function initTab1Canvas() {
+            canvas1 = document.getElementById('canvas-tab1');
+            canvas1.width = canvas1.parentElement.clientWidth;
+            canvas1.height = canvas1.parentElement.clientHeight;
+            ctx1 = canvas1.getContext('2d');
+            window.addEventListener('resize', () => {
+                if (canvas1) {
+                    canvas1.width = canvas1.parentElement.clientWidth;
+                    canvas1.height = canvas1.parentElement.clientHeight;
+                    drawTab1Box();
+                }
+            });
+        }
+
+        function drawTab1Box() {
+            if (!ctx1) return;
+            const w = canvas1.width;
+            const h = canvas1.height;
+            ctx1.clearRect(0, 0, w, h);
+
+            const valA = parseInt(document.getElementById('slider-A').value);
+            const valB = parseInt(document.getElementById('slider-B').value); // 橫排/列
+            const valC = parseInt(document.getElementById('slider-C').value); // 直行/欄
+
+            // 立體透視箱子維度
+            const boxX = w * 0.2;
+            const boxY = h * 0.28;
+            const boxW = w * 0.6;
+            const boxH = h * 0.45;
+            const depth = 45;
+
+            // 繪製箱子外框
+            ctx1.strokeStyle = "#4f46e5";
+            ctx1.lineWidth = 3;
+            ctx1.fillStyle = "rgba(224, 231, 255, 0.4)";
+
+            // 前正面
+            ctx1.beginPath();
+            ctx1.rect(boxX, boxY, boxW, boxH);
+            ctx1.fill();
+            ctx1.stroke();
+
+            // 頂面
+            ctx1.beginPath();
+            ctx1.moveTo(boxX, boxY);
+            ctx1.lineTo(boxX + depth, boxY - depth / 2);
+            ctx1.lineTo(boxX + boxW + depth, boxY - depth / 2);
+            ctx1.lineTo(boxX + boxW, boxY);
+            ctx1.closePath();
+            ctx1.fillStyle = "rgba(199, 210, 254, 0.5)";
+            ctx1.fill();
+            ctx1.stroke();
+
+            // 右側面
+            ctx1.beginPath();
+            ctx1.moveTo(boxX + boxW, boxY);
+            ctx1.lineTo(boxX + boxW + depth, boxY - depth / 2);
+            ctx1.lineTo(boxX + boxW + depth, boxY + boxH - depth / 2);
+            ctx1.lineTo(boxX + boxW, boxY + boxH);
+            ctx1.closePath();
+            ctx1.fillStyle = "rgba(165, 180, 252, 0.4)";
+            ctx1.fill();
+            ctx1.stroke();
+
+            // 根據 Mode 繪製剖分虛線
+            ctx1.lineWidth = 2.5;
+            ctx1.setLineDash([6, 6]);
+
+            if (tab1Mode === 'A' || tab1Mode === 'compare') {
+                ctx1.strokeStyle = "#4f46e5";
+                const sliceH = boxH / valB;
+                for (let i = 1; i < valB; i++) {
+                    let y = boxY + i * sliceH;
+                    ctx1.beginPath();
+                    ctx1.moveTo(boxX, y);
+                    ctx1.lineTo(boxX + boxW, y);
+                    ctx1.lineTo(boxX + boxW + depth, y - depth / 2);
+                    ctx1.stroke();
+                }
+            }
+
+            if (tab1Mode === 'B' || tab1Mode === 'compare') {
+                ctx1.strokeStyle = "#a855f7";
+                const sliceW = boxW / valC;
+                for (let i = 1; i < valC; i++) {
+                    let x = boxX + i * sliceW;
+                    ctx1.beginPath();
+                    ctx1.moveTo(x, boxY);
+                    ctx1.lineTo(x, boxY + boxH);
+                    ctx1.lineTo(x + depth, boxY + boxH - depth / 2);
+                    ctx1.stroke();
+                }
+            }
+            ctx1.setLineDash([]);
+
+            // 繪製彩虹珠子（由左至右按彩虹順序，同一直行顏色相同）
+            const cols = valC;
+            const rows = valB;
+            const radius = Math.min(boxW / cols, boxH / rows) * 0.36;
+
+            for (let c = 0; c < cols; c++) {
+                // 每行色彩挑選 (依據彩虹7色陣列輪播)
+                const colorTheme = rainbowColors[c % rainbowColors.length];
+
+                for (let r = 0; r < rows; r++) {
+                    let cx = boxX + (c + 0.5) * (boxW / cols);
+                    let cy = boxY + (r + 0.5) * (boxH / rows);
+
+                    ctx1.beginPath();
+                    ctx1.arc(cx, cy, radius, 0, Math.PI * 2);
+                    
+                    // 夢幻立體球體漸層
+                    let grad = ctx1.createRadialGradient(cx - radius/3, cy - radius/3, radius * 0.1, cx, cy, radius);
+                    grad.addColorStop(0, '#ffffff');
+                    grad.addColorStop(0.4, colorTheme.top);
+                    grad.addColorStop(0.85, colorTheme.main);
+                    grad.addColorStop(1, colorTheme.bottom);
+
+                    ctx1.fillStyle = grad;
+                    ctx1.fill();
+                    ctx1.strokeStyle = "rgba(255, 255, 255, 0.6)";
+                    ctx1.lineWidth = 1;
+                    ctx1.stroke();
+                }
+            }
+        }
+
+        /* ---------------- Tab 2 Logic - Pudding Visualizer & Split Comparison ---------------- */
+        function setTab2Mode(mode) {
+            tab2Mode = mode;
+            const btnStep = document.getElementById('t2-mode-step');
+            const btnBracket = document.getElementById('t2-mode-bracket');
+            const btnCompare = document.getElementById('btn-t2-compare');
+
+            btnStep.className = "p-3 rounded-2xl border border-gray-200 bg-white/60 cursor-pointer transition-all opacity-60";
+            btnBracket.className = "p-3 rounded-2xl border border-gray-200 bg-white/60 cursor-pointer transition-all opacity-60";
+            btnCompare.className = "w-full py-2 px-3 rounded-xl font-bold text-xs glass-btn border border-gray-300 text-gray-700 flex items-center justify-center gap-1";
+
+            if (mode === 'step') {
+                btnStep.className = "p-3 rounded-2xl border-2 border-pink-500 bg-pink-50/80 cursor-pointer transition-all shadow-sm";
+                document.getElementById('t2-visual-status').innerText = "想法一：逐層分裝 (連除模式)";
+            } else if (mode === 'bracket') {
+                btnBracket.className = "p-3 rounded-2xl border-2 border-purple-500 bg-purple-50/80 cursor-pointer transition-all shadow-sm";
+                document.getElementById('t2-visual-status').innerText = "想法二：除以兩數之積模式";
+            } else { // compare
+                btnCompare.className = "w-full py-2 px-3 rounded-xl font-bold text-xs glass-btn border-2 border-amber-500 text-amber-800 flex items-center justify-center gap-1 shadow-sm";
+                btnStep.className = "p-3 rounded-2xl border border-pink-300 bg-pink-50/50 cursor-pointer transition-all";
+                btnBracket.className = "p-3 rounded-2xl border border-purple-300 bg-purple-50/50 cursor-pointer transition-all";
+                document.getElementById('t2-visual-status').innerText = "雙向解法對比模式";
+            }
+
+            updateTab2();
+        }
+
+        function updateTab2() {
+            const puddingTotal = parseInt(document.getElementById('slider-pudding').value);
+            const b = parseInt(document.getElementById('num-b').value) || 3;
+            const c = parseInt(document.getElementById('num-c').value) || 4;
+
+            document.getElementById('val-pudding').innerText = puddingTotal + " 個";
+            document.getElementById('t2-pudding-count').innerText = puddingTotal;
+            document.getElementById('t2-box-size').innerText = b;
+            document.getElementById('t2-carton-size').innerText = c;
+
+            document.getElementById('t2-tag-1').innerText = `${puddingTotal} ÷ ${b} ÷ ${c}`;
+            document.getElementById('t2-tag-2').innerText = `${puddingTotal} ÷ (${b} × ${c})`;
+
+            const perCarton = b * c;
+            const totalCartons = (puddingTotal / perCarton).toFixed(1).replace('.0', '');
+            const boxes = (puddingTotal / b).toFixed(0);
+
+            const eqLeft = document.getElementById('t2-eq-left');
+            const eqRight = document.getElementById('t2-eq-right');
+
+            eqLeft.innerHTML = `
+                <div>${puddingTotal} ÷ ${b} ÷ ${c}</div>
+                <div class="text-[11px] text-pink-600 mt-1">= ${boxes} (盒) ÷ ${c}</div>
+                <div class="text-lg font-extrabold text-pink-700 mt-1">= ${totalCartons} (箱)</div>
+            `;
+
+            eqRight.innerHTML = `
+                <div>${puddingTotal} ÷ (${b} × ${c})</div>
+                <div class="text-[11px] text-purple-600 mt-1">= ${puddingTotal} ÷ ${perCarton} (每箱${perCarton}個)</div>
+                <div class="text-lg font-extrabold text-purple-700 mt-1">= ${totalCartons} (箱)</div>
+            `;
+
+            const leftBox = document.getElementById('t2-left-step');
+            const rightBox = document.getElementById('t2-right-step');
+
+            if (tab2Mode === 'step') {
+                leftBox.classList.remove('opacity-40');
+                rightBox.classList.add('opacity-40');
+            } else if (tab2Mode === 'bracket') {
+                rightBox.classList.remove('opacity-40');
+                leftBox.classList.add('opacity-40');
+            } else { // compare
+                leftBox.classList.remove('opacity-40');
+                rightBox.classList.remove('opacity-40');
+            }
+
+            renderPuddingDOM(puddingTotal, b, c);
+        }
+
+        function renderPuddingDOM(total, b, c) {
+            const container = document.getElementById('pudding-container');
+            container.innerHTML = "";
+
+            const cartonCount = Math.min(Math.floor(total / (b * c)), 12); // 最多展示 12 箱視覺代表
+
+            for (let i = 0; i < cartonCount; i++) {
+                const cartonDiv = document.createElement('div');
+                cartonDiv.className = "bg-purple-100/90 border-2 border-purple-300 rounded-2xl p-2.5 flex flex-col items-center gap-1.5 shadow-sm hover:scale-105 transition-transform";
+
+                const label = document.createElement('span');
+                label.className = "text-[11px] font-bold text-purple-800 bg-purple-200 px-2.5 py-0.5 rounded-full";
+                label.innerText = `箱 ${i + 1} (共 ${b * c} 個)`;
+                cartonDiv.appendChild(label);
+
+                const boxesGrid = document.createElement('div');
+                boxesGrid.className = "grid grid-cols-2 gap-1.5";
+
+                for (let j = 0; j < Math.min(c, 4); j++) {
+                    const boxDiv = document.createElement('div');
+                    boxDiv.className = "bg-white rounded-xl p-1.5 border border-pink-300 flex items-center justify-center gap-1 shadow-inner";
+
+                    for (let k = 0; k < Math.min(b, 4); k++) {
+                        const puddingIcon = document.createElement('i');
+                        puddingIcon.className = "fa-solid fa-cookie text-amber-500 text-xs";
+                        boxDiv.appendChild(puddingIcon);
+                    }
+                    boxesGrid.appendChild(boxDiv);
+                }
+                cartonDiv.appendChild(boxesGrid);
+                container.appendChild(cartonDiv);
+            }
+        }
+
+        /* ---------------- Tab 3 Logic - Trick Calculations ---------------- */
+        const trickData = {
+            1: {
+                title: "600 ÷ 25 ÷ 4",
+                methodA: [
+                    "600 ÷ 25 ÷ 4",
+                    "= 24 ÷ 4",
+                    "= 6"
+                ],
+                methodB: [
+                    "600 ÷ (25 × 4)",
+                    "= 600 ÷ 100",
+                    "= 6"
+                ],
+                exp: "因為 25 × 4 可以湊成整百 100！把後面兩數加上括號先乘起來，用 600 ÷ 100 心算一下子就出答案了！"
+            },
+            2: {
+                title: "700 ÷ (7 × 5)",
+                methodA: [
+                    "700 ÷ (7 × 5)",
+                    "= 700 ÷ 35",
+                    "= 20"
+                ],
+                methodB: [
+                    "700 ÷ 7 ÷ 5",
+                    "= 100 ÷ 5",
+                    "= 20"
+                ],
+                exp: "去括號變連除！700 先除以 7 得到整百 100，接著 100 ÷ 5 就能秒算解答！"
+            },
+            3: {
+                title: "9000 ÷ 125 ÷ 8",
+                methodA: [
+                    "9000 ÷ 125 ÷ 8",
+                    "= 72 ÷ 8",
+                    "= 9"
+                ],
+                methodB: [
+                    "9000 ÷ (125 × 8)",
+                    "= 9000 ÷ 1000",
+                    "= 9"
+                ],
+                exp: "看到 125 就想到 8！因為 125 × 8 = 1000。加上括號後 9000 ÷ 1000 劃掉三個 0 直接得到 9！"
+            },
+            4: {
+                title: "4700 ÷ (47 × 5)",
+                methodA: [
+                    "4700 ÷ (47 × 5)",
+                    "= 4700 ÷ 235",
+                    "= 20"
+                ],
+                methodB: [
+                    "4700 ÷ 47 ÷ 5",
+                    "= 100 ÷ 5",
+                    "= 20"
+                ],
+                exp: "把括號展開變成連除！4700 ÷ 47 剛好是 100，100 再除以 5 得到 20，完全不用列複雜直式！"
+            }
+        };
+
+        function loadTrickExample(id) {
+            const data = trickData[id];
+
+            document.querySelectorAll('.trick-btn').forEach((btn, idx) => {
+                if (idx + 1 === id) {
+                    btn.className = "trick-btn p-4 rounded-2xl glass-btn text-left border-2 border-amber-400 bg-amber-50/60 shadow-sm";
+                } else {
+                    btn.className = "trick-btn p-4 rounded-2xl glass-btn text-left border border-gray-200";
+                }
+            });
+
+            document.getElementById('trick-methodA').innerHTML = data.methodA.map(line => `<div>${line}</div>`).join('');
+            document.getElementById('trick-methodB').innerHTML = data.methodB.map(line => `<div>${line}</div>`).join('');
+            document.getElementById('trick-exp-text').innerText = data.exp;
+        }
+
+        /* ---------------- Tab 4 Logic - Quiz Formative Assessment ---------------- */
+        const quizKey = {
+            1: { ans: 'A', exp: '除數順序交換不影響結果，84 ÷ 4 ÷ 7 = 84 ÷ 7 ÷ 4 = 3。' },
+            2: { ans: 'D', exp: '120 ÷ 3 × 4 意思變成先算盒數再乘4，運算性質錯誤無法求得箱數。' },
+            3: { ans: 'A', exp: '25 × 4 = 100，改寫為除以積 600 ÷ 100 最容易心算。' },
+            4: { ans: 'B', exp: '去括號時，括號內的乘號要變成除號，因此等於 700 ÷ 7 ÷ 5。' },
+            5: { ans: 'B', exp: '180 ÷ 3 ÷ 20 = 60 ÷ 20 = 3 公斤。' }
+        };
+
+        function selectOption(qNum, selectedOpt, btnEl) {
+            // 記錄使用者選擇
+            userSelections[qNum] = selectedOpt;
+            
+            // 重置該題所有選項樣式
+            const opts = document.querySelectorAll(`.q-opt-${qNum}`);
+            opts.forEach(b => {
+                b.className = `q-opt-${qNum} p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors`;
+            });
+            
+            // 亮起被選擇的選項
+            btnEl.className = `q-opt-${qNum} p-3 rounded-xl border-2 border-indigo-500 bg-indigo-50 text-indigo-900 text-left text-sm font-bold shadow-sm`;
+        }
+
+        function submitQuiz() {
+            let correctCount = 0;
+            
+            for (let i = 1; i <= 5; i++) {
+                const feedbackEl = document.getElementById(`q${i}-feedback`);
+                const qInfo = quizKey[i];
+                const selectedOpt = userSelections[i];
+                
+                // 鎖定所有按鈕，禁止修改
+                const opts = document.querySelectorAll(`.q-opt-${i}`);
+                opts.forEach(b => {
+                    b.disabled = true;
+                });
+
+                feedbackEl.classList.remove('hidden');
+
+                if (selectedOpt === null) {
+                    // 狀況一：未作答
+                    quizAnswers[i] = false;
+                    feedbackEl.className = "mt-3 text-xs p-3 rounded-xl font-bold bg-amber-100 text-amber-800 border border-amber-300 block";
+                    feedbackEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1 text-amber-600"></i> 未作答。`;
+                } else if (selectedOpt === qInfo.ans) {
+                    // 狀況二：答對
+                    correctCount++;
+                    quizAnswers[i] = true;
+                    // 將選中的正確答案標示為綠色
+                    const selectedBtn = document.querySelector(`.q-opt-${i}.border-indigo-500`);
+                    if (selectedBtn) {
+                        selectedBtn.className = `q-opt-${i} p-3 rounded-xl border-2 border-emerald-500 bg-emerald-100 text-emerald-900 font-bold text-left text-sm opacity-100`;
+                    }
+                    
+                    feedbackEl.className = "mt-3 text-xs p-3 rounded-xl font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 block";
+                    feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check mr-1 text-emerald-600"></i> 答對了！${qInfo.exp}`;
+                } else {
+                    // 狀況三：答錯
+                    quizAnswers[i] = false;
+                    // 將選中的錯誤答案標示為紅色
+                    const selectedBtn = document.querySelector(`.q-opt-${i}.border-indigo-500`);
+                    if (selectedBtn) {
+                        selectedBtn.className = `q-opt-${i} p-3 rounded-xl border-2 border-red-500 bg-red-100 text-red-900 font-bold text-left text-sm opacity-100`;
+                    }
+                    
+                    feedbackEl.className = "mt-3 text-xs p-3 rounded-xl font-bold bg-red-100 text-red-800 border border-red-300 block";
+                    feedbackEl.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1 text-red-600"></i> 答錯囉！${qInfo.exp}`;
+                }
+            }
+            
+            // 更新計分
+            document.getElementById('quiz-score').innerText = correctCount * 20;
+        }
+
+        function resetQuiz() {
+            quizAnswers = { 1: false, 2: false, 3: false, 4: false, 5: false };
+            userSelections = { 1: null, 2: null, 3: null, 4: null, 5: null };
+            document.getElementById('quiz-score').innerText = '0';
+
+            for (let i = 1; i <= 5; i++) {
+                const feedbackEl = document.getElementById(`q${i}-feedback`);
+                feedbackEl.classList.add('hidden');
+
+                const opts = document.querySelectorAll(`.q-opt-${i}`);
+                opts.forEach(b => {
+                    b.disabled = false;
+                    b.className = `q-opt-${i} p-3 rounded-xl border border-gray-200 hover:bg-indigo-50 text-left text-sm font-medium transition-colors opacity-100`;
+                });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公因數與最大公因數 - 動態探索實驗室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 35%, #e0c3fc 70%, #8ec5fc 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        /* 新海誠風格雲朵與微光效果 */
+        .shinkai-glass {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.12);
+        }
+
+        .shinkai-card-glow {
+            transition: all 0.3s ease;
+        }
+        .shinkai-card-glow:hover {
+            box-shadow: 0 12px 28px rgba(120, 119, 198, 0.25);
+            transform: translateY(-2px);
+        }
+
+        /* 條狀物動畫與剪切刻度 */
+        .strip-segment {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .strip-perfect {
+            background: linear-gradient(180deg, #38ef7d 0%, #11998e 100%);
+            box-shadow: 0 0 12px rgba(56, 239, 125, 0.4);
+        }
+
+        .strip-imperfect {
+            background: linear-gradient(180deg, #ff9966 0%, #ff5e62 100%);
+        }
+
+        .strip-remainder {
+            background: repeating-linear-gradient(
+                45deg,
+                #cbd5e1,
+                #cbd5e1 8px,
+                #94a3b8 8px,
+                #94a3b8 16px
+            );
+        }
+
+        /* 脈衝金光效果 */
+        @keyframes pulse-gold {
+            0%, 100% { box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.9); }
+        }
+        .gcf-highlight {
+            animation: pulse-gold 2s infinite;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+            font-weight: bold;
+        }
+
+        /* 自訂 Slider 樣式 */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            border: 2px solid white;
+        }
+
+        /* 韋恩圖內建小捲軸 */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(16, 185, 129, 0.4);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="text-slate-800 pb-12">
+
+    <header class="shinkai-glass sticky top-0 z-50 py-4 px-6 mb-8 border-b border-white/40">
+        <div class="max-w-6xl mx-auto">
+            
+            <!-- 修改：使用轉換後的 Google Drive 直接連結 -->
+            <div class="w-full max-w-4xl flex items-center justify-start mb-4 px-2 fade-in">
+                <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+                <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+            </div>
+
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-400 to-indigo-500 flex items-center justify-center text-white text-xl shadow-md">
+                        <i class="fa-solid fa-scissors"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-black bg-gradient-to-r from-sky-700 via-indigo-700 to-purple-700 bg-clip-text text-transparent">
+                            公因數與最大公因數．探索實驗室
+                        </h1>
+                        <p class="text-xs text-slate-500 font-medium">國小五上數學 4-2 互動學習網頁</p>
+                    </div>
+                </div>
+                
+                <!-- 分頁導覽切換 -->
+                <nav class="flex bg-slate-200/60 p-1 rounded-xl text-sm font-bold">
+                    <button onclick="switchTab('lab')" id="tab-lab" class="px-4 py-2 rounded-lg bg-white text-sky-600 shadow-sm transition">
+                        <i class="fa-solid fa-vial mr-1.5"></i>動態剪紙實驗
+                    </button>
+                    <button onclick="switchTab('venn')" id="tab-venn" class="px-4 py-2 rounded-lg text-slate-600 hover:text-sky-600 transition">
+                        <i class="fa-solid fa-circle-nodes mr-1.5"></i>因數與韋恩圖
+                    </button>
+                    <button onclick="switchTab('quiz')" id="tab-quiz" class="px-4 py-2 rounded-lg text-slate-600 hover:text-sky-600 transition">
+                        <i class="fa-solid fa-pen-to-square mr-1.5"></i>自我評量
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 space-y-8">
+
+        <section id="sec-lab" class="space-y-6">
+            <!-- 觀念說明卡片 -->
+            <div class="shinkai-glass rounded-2xl p-6 shadow-sm border border-white/60">
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl text-amber-500"><i class="fa-solid fa-lightbulb"></i></span>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">活動目標：剪紙條找出共同因數</h2>
+                        <p class="text-sm text-slate-600 leading-relaxed mt-1">
+                            假設我們要將兩條不同長度的紙條，剪成「每段都一樣長」且「長度為整數公分」的小紙片。<br>
+                            調整下方滑桿改變<b>每段剪下的長度</b>，觀察兩條紙條是否都能<b>剛好剪完（沒有剩下）</b>！
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 控制與操作區 -->
+            <div class="shinkai-glass rounded-2xl p-6 space-y-6">
+                <!-- Preset 選擇與自訂數值 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pb-4 border-b border-slate-200/60">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">快速選擇課本範例</label>
+                        <select id="presetSelect" onchange="applyPreset()" class="w-full bg-white/80 border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-400">
+                            <option value="10,15">課本例題：10公分 與 15公分</option>
+                            <option value="12,18">例題 2：12公分 與 18公分</option>
+                            <option value="16,24">例題 3：16公分 與 24公分</option>
+                            <option value="18,24">例題 4：18公分 與 24公分</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">紙條 A 長度 (1~24 公分)</label>
+                        <input type="number" id="lenA" value="10" min="1" max="24" onchange="updateStrips()" class="w-full bg-white/80 border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-400">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">紙條 B 長度 (1~24 公分)</label>
+                        <input type="number" id="lenB" value="15" min="1" max="24" onchange="updateStrips()" class="w-full bg-white/80 border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-400">
+                    </div>
+                </div>
+
+                <!-- 剪裁長度滑桿 -->
+                <div class="space-y-2 bg-sky-50/50 p-4 rounded-xl border border-sky-100">
+                    <div class="flex justify-between items-center">
+                        <label for="cutSlider" class="font-bold text-slate-700 flex items-center gap-2">
+                            <i class="fa-solid fa-ruler-horizontal text-sky-500"></i>
+                            嘗試剪出的每段長度：
+                            <span id="cutVal" class="text-2xl font-black text-sky-600 bg-white px-3 py-0.5 rounded-lg border border-sky-200">1</span>
+                            公分
+                        </label>
+                        <span id="cutStatusBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">測試中</span>
+                    </div>
+                    
+                    <div class="bg-white/80 rounded-xl p-2 border border-sky-200 mt-2">
+                        <div class="relative w-full text-[10px] font-mono text-slate-400 flex justify-between px-1 mb-1">
+                            <span>0</span><span>6</span><span>12</span><span>18</span><span>24</span>
+                        </div>
+                        <div id="sliderWrapper" class="transition-all duration-300 origin-left" style="width: 100%;">
+                            <input type="range" id="cutSlider" min="1" max="24" value="1" oninput="updateStrips()" class="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-500 border border-slate-300 shadow-inner">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 畫布/動態展示區域 -->
+                <div class="space-y-6 pt-2">
+                    <!-- 24cm 基準參考刻度尺 -->
+                    <div class="bg-slate-100/80 rounded-xl p-2 border border-slate-200">
+                        <div class="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
+                            <i class="fa-solid fa-ruler text-slate-400"></i> 全畫面長度基準標尺 (0 ~ 24 公分)
+                        </div>
+                        <div class="relative w-full h-5 bg-white rounded border border-slate-300 flex items-center justify-between px-2 text-[10px] font-mono text-slate-600">
+                            <span>0cm</span>
+                            <span>6cm</span>
+                            <span>12cm</span>
+                            <span>18cm</span>
+                            <span>24cm</span>
+                        </div>
+                    </div>
+
+                    <!-- 紙條 A 展示 -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-sm font-bold">
+                            <span class="text-rose-700 flex items-center gap-1.5">
+                                <span class="w-3 h-3 rounded-full bg-rose-500 inline-block shadow-sm"></span>
+                                紙條 A (<span id="nameA">10</span> 公分)
+                            </span>
+                            <span id="resultA" class="text-slate-600">計算中...</span>
+                        </div>
+                        <div class="w-full bg-slate-100/50 rounded-xl p-1 border border-slate-200/60">
+                            <!-- 外框長度按 24cm 比例縮放 -->
+                            <div id="containerA" class="h-12 bg-rose-50/90 rounded-xl p-1 flex gap-0.5 overflow-hidden relative border-2 border-rose-300 shadow-sm transition-all duration-300">
+                                <!-- 剪切區塊會動態生成 -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 紙條 B 展示 -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-sm font-bold">
+                            <span class="text-teal-700 flex items-center gap-1.5">
+                                <span class="w-3 h-3 rounded-full bg-teal-500 inline-block shadow-sm"></span>
+                                紙條 B (<span id="nameB">15</span> 公分)
+                            </span>
+                            <span id="resultB" class="text-slate-600">計算中...</span>
+                        </div>
+                        <div class="w-full bg-slate-100/50 rounded-xl p-1 border border-slate-200/60">
+                            <!-- 外框長度按 24cm 比例縮放 -->
+                            <div id="containerB" class="h-12 bg-teal-50/90 rounded-xl p-1 flex gap-0.5 overflow-hidden relative border-2 border-teal-300 shadow-sm transition-all duration-300">
+                                <!-- 剪切區塊會動態生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 實驗結果說明診斷區 -->
+                <div id="summaryBox" class="p-4 rounded-xl transition duration-300 flex items-center gap-4">
+                    <!-- 經由 JS 呈現動態訊息 -->
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-venn" class="space-y-6 hidden">
+            <div class="shinkai-glass rounded-2xl p-6 border border-white/60">
+                <h2 class="text-xl font-bold text-slate-800 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-diagram-project text-indigo-500"></i> 因數列舉與韋恩圖分析
+                </h2>
+                <p class="text-sm text-slate-600 mb-4">
+                    找出兩數各自的所有因數，同時是 A 的因數也是 B 的因數，就稱為<b>「公因數」</b>；其中最大的那個就是<b>「最大公因數 (GCF)」</b>。
+                </p>
+
+                <!-- 韋恩圖專用自主輸入控制區 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-200/60 bg-white/50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">快速套用範例</label>
+                        <select id="presetSelectVenn" onchange="applyPresetVenn()" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-400">
+                            <option value="10,15">課本例題：10 與 15</option>
+                            <option value="12,18">例題 2：12 與 18</option>
+                            <option value="24,28">例題 3：24 與 28</option>
+                            <option value="48,72">進階 1：48 與 72</option>
+                            <option value="60,90">進階 2：60 與 90</option>
+                            <option value="120,180">大數驗證：120 與 180</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-rose-600 uppercase tracking-wider mb-1">數字 A (1~200)</label>
+                        <input type="number" id="lenAVenn" value="10" min="1" max="200" onchange="updateFromVennInputs()" class="w-full bg-white border border-rose-300 rounded-xl px-3 py-1.5 text-sm font-bold text-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-400">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-sky-600 uppercase tracking-wider mb-1">數字 B (1~200)</label>
+                        <input type="number" id="lenBVenn" value="15" min="1" max="200" onchange="updateFromVennInputs()" class="w-full bg-white border border-sky-300 rounded-xl px-3 py-1.5 text-sm font-bold text-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-400">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 因數拆解面板 A -->
+                <div class="shinkai-glass rounded-2xl p-6 space-y-4 border-t-4 border-rose-400">
+                    <h3 class="text-lg font-black text-rose-600 flex items-center gap-2">
+                        <i class="fa-solid fa-cube"></i> <span id="numTitleA">10</span> 的乘法拆解與因數
+                    </h3>
+                    <div id="multiplicationA" class="space-y-1.5 font-mono text-sm text-slate-700 bg-white/60 p-3 rounded-xl">
+                        <!-- 動態生成乘法算式 -->
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-slate-500">所有因數：</span>
+                        <div id="factorsA" class="flex flex-wrap gap-2 mt-2">
+                            <!-- 因數徽章 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 因數拆解面板 B -->
+                <div class="shinkai-glass rounded-2xl p-6 space-y-4 border-t-4 border-sky-400">
+                    <h3 class="text-lg font-black text-sky-600 flex items-center gap-2">
+                        <i class="fa-solid fa-cube"></i> <span id="numTitleB">15</span> 的乘法拆解與因數
+                    </h3>
+                    <div id="multiplicationB" class="space-y-1.5 font-mono text-sm text-slate-700 bg-white/60 p-3 rounded-xl">
+                        <!-- 動態生成乘法算式 -->
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-slate-500">所有因數：</span>
+                        <div id="factorsB" class="flex flex-wrap gap-2 mt-2">
+                            <!-- 因數徽章 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 韋恩圖互動區 -->
+            <div class="shinkai-glass rounded-2xl p-6 text-center space-y-6 overflow-hidden">
+                <h3 class="text-lg font-bold text-slate-800">共同因數重疊視覺化</h3>
+
+                <!-- 新版：精準 1/3 重疊韋恩圖 -->
+                <div class="relative w-full max-w-3xl mx-auto h-72 md:h-80 flex items-center justify-center my-4">
+                    
+                    <!-- 左圓 (A)：縮小水平平移距離以加大重疊 -->
+                    <div class="absolute w-60 h-60 md:w-72 md:h-72 rounded-full bg-rose-400/60 mix-blend-multiply border border-rose-400/50 -translate-x-[56px] md:-translate-x-[64px] shadow-sm transition-all duration-300"></div>
+
+                    <!-- 右圓 (B)：縮小水平平移距離以加大重疊 -->
+                    <div class="absolute w-60 h-60 md:w-72 md:h-72 rounded-full bg-sky-400/60 mix-blend-multiply border border-sky-400/50 translate-x-[56px] md:translate-x-[64px] shadow-sm transition-all duration-300"></div>
+
+                    <!-- 獨立文字容器：僅為 A 的因數 (配合剩餘寬度微調容器尺寸) -->
+                    <div class="absolute z-20 flex flex-col items-center justify-center w-[90px] md:w-[110px] -translate-x-[120px] md:-translate-x-[144px]">
+                        <span class="font-bold text-rose-900 text-xs md:text-sm mb-2 text-center w-full">僅為 A 的因數</span>
+                        <div id="vennAOnly" class="flex flex-wrap justify-center gap-1.5 w-full"></div>
+                    </div>
+
+                    <!-- 獨立文字容器：僅為 B 的因數 (配合剩餘寬度微調容器尺寸) -->
+                    <div class="absolute z-20 flex flex-col items-center justify-center w-[90px] md:w-[110px] translate-x-[120px] md:translate-x-[144px]">
+                        <span class="font-bold text-sky-900 text-xs md:text-sm mb-2 text-center w-full">僅為 B 的因數</span>
+                        <div id="vennBOnly" class="flex flex-wrap justify-center gap-1.5 w-full"></div>
+                    </div>
+
+                    <!-- 獨立文字容器：共同因數 (重疊變大，因此擴充容器寬度) -->
+                    <div class="absolute z-20 flex flex-col items-center justify-center w-[100px] md:w-[140px]">
+                        <span class="font-bold text-purple-900 text-[11px] md:text-xs mb-1 md:mb-2 text-center leading-tight drop-shadow-sm">共同因數<br>(公因數)</span>
+                        <div id="vennCommon" class="flex flex-wrap justify-center gap-1 overflow-y-auto max-h-[140px] md:max-h-[180px] w-full custom-scrollbar"></div>
+                    </div>
+                </div>
+
+                <div class="bg-white/80 rounded-xl p-4 border border-slate-200 inline-block text-left max-w-md w-full shadow-sm relative z-20">
+                    <p class="text-sm font-bold text-slate-700">
+                        <i class="fa-solid fa-star text-amber-500 mr-1"></i>
+                        <span id="strA">10</span> 與 <span id="strB">15</span> 的公因數有：
+                        <span id="commonList" class="font-black text-emerald-600 text-base">1, 5</span>
+                    </p>
+                    <p class="text-sm font-bold text-slate-700 mt-2">
+                        <i class="fa-solid fa-crown text-amber-500 mr-1"></i>
+                        其中最大的公因數（最大公因數）是：
+                        <span id="gcfVal" class="font-black text-xl text-amber-600 underline decoration-wavy decoration-amber-400">5</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-quiz" class="space-y-6 hidden">
+            <div class="shinkai-glass rounded-2xl p-6 border border-white/60 flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800">自我評量 (共 5 題，滿分 100 分)</h2>
+                    <p class="text-xs text-slate-500 mt-1">作答完成後請點擊「提交答案」進行自動批改與檢視解析！</p>
+                </div>
+                <div id="quizScoreBadge" class="bg-sky-500 text-white font-black px-4 py-2 rounded-xl text-lg shadow">
+                    得分：0 / 100
+                </div>
+            </div>
+
+            <div id="quizContainer" class="space-y-6">
+                <!-- 題目將透過 JavaScript 動態渲染 -->
+            </div>
+
+            <!-- 操作按鈕區 -->
+            <div class="flex items-center justify-center gap-4 pt-4">
+                <button onclick="submitQuiz()" id="btnSubmitQuiz" class="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-base shadow-md transition flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-paper-plane"></i> 提交答案
+                </button>
+                <button onclick="resetQuiz()" id="btnResetQuiz" class="px-6 py-3 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-base shadow-md transition flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-rotate-left"></i> 重新測驗
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // 全域狀態
+        let state = {
+            numA: 10,
+            numB: 15,
+            cutLen: 1,
+            quizAnswers: {},
+            quizSubmitted: false,
+            score: 0
+        };
+
+        // 5 題測驗題目資料庫
+        const quizData = [
+            {
+                id: 1,
+                question: "根據課本例題，長 10 公分與長 15 公分的紙條，如果要剪成整數公分且兩條都『剛好剪完』，每段可以是多少公分？",
+                options: ["1公分 或 2公分", "1公分 或 5公分", "2公分 或 5公分", "3公分 或 5公分"],
+                answer: 1,
+                explanation: "10 的因數有 1, 2, 5, 10；15 的因數有 1, 3, 5, 15。兩者的共同因數（公因數）為 1 與 5。"
+            },
+            {
+                id: 2,
+                question: "12 與 18 的『最大公因數』是多少？",
+                options: ["2", "3", "6", "12"],
+                answer: 2,
+                explanation: "12 的因數為 1, 2, 3, 4, 6, 12；18 的因數為 1, 2, 3, 6, 9, 18。共同因數為 1, 2, 3, 6，其中最大的是 6。"
+            },
+            {
+                id: 3,
+                question: "有一塊長 24 公分、寬 28 公分的紙板，要剪成邊長為整數公分且大小相同的小正方形（無剩餘），小正方形的最大邊長是多少公分？",
+                options: ["2 公分", "4 公分", "6 公分", "8 公分"],
+                answer: 1,
+                explanation: "求 24 與 28 的最大公因數。24 與 28 的公因數有 1, 2, 4，最大公因數是 4 公分。"
+            },
+            {
+                id: 4,
+                question: "關於『1』這個數字，下列敘述何者正確？",
+                options: [
+                    "1 不是任何數的因數",
+                    "1 只有在質數時才是公因數",
+                    "1 是任意兩個非零自然數的公因數",
+                    "1 永遠是最大的公因數"
+                ],
+                answer: 2,
+                explanation: "數字 1 可以整除任何非零整數，因此 1 是任意兩個非零自然數的共同因數（公因數）。"
+            },
+            {
+                id: 5,
+                question: "9 和 36 的最大公因數是多少？",
+                options: ["3", "6", "9", "36"],
+                answer: 2,
+                explanation: "因為 36 可以被 9 整除 (36 = 9 × 4)，所以 9 本身就是 9 和 36 的最大公因數。"
+            }
+        ];
+
+        // 頁面初始化
+        window.onload = function() {
+            updateStrips();
+            renderQuiz();
+        };
+
+        // 分頁切換
+        function switchTab(tab) {
+            document.getElementById('sec-lab').classList.add('hidden');
+            document.getElementById('sec-venn').classList.add('hidden');
+            document.getElementById('sec-quiz').classList.add('hidden');
+
+            document.getElementById('tab-lab').className = "px-4 py-2 rounded-lg text-slate-600 hover:text-sky-600 transition";
+            document.getElementById('tab-venn').className = "px-4 py-2 rounded-lg text-slate-600 hover:text-sky-600 transition";
+            document.getElementById('tab-quiz').className = "px-4 py-2 rounded-lg text-slate-600 hover:text-sky-600 transition";
+
+            if (tab === 'lab') {
+                document.getElementById('sec-lab').classList.remove('hidden');
+                document.getElementById('tab-lab').className = "px-4 py-2 rounded-lg bg-white text-sky-600 shadow-sm font-bold transition";
+            } else if (tab === 'venn') {
+                document.getElementById('sec-venn').classList.remove('hidden');
+                document.getElementById('tab-venn').className = "px-4 py-2 rounded-lg bg-white text-sky-600 shadow-sm font-bold transition";
+                updateVennSection();
+            } else if (tab === 'quiz') {
+                document.getElementById('sec-quiz').classList.remove('hidden');
+                document.getElementById('tab-quiz').className = "px-4 py-2 rounded-lg bg-white text-sky-600 shadow-sm font-bold transition";
+            }
+        }
+
+        // 預設選單套用
+        function applyPreset() {
+            const val = document.getElementById('presetSelect').value.split(',');
+            document.getElementById('lenA').value = val[0];
+            document.getElementById('lenB').value = val[1];
+            syncInputsToVenn(val[0], val[1]);
+            updateStrips();
+        }
+
+        // 韋恩圖頁面預設選單套用
+        function applyPresetVenn() {
+            const val = document.getElementById('presetSelectVenn').value.split(',');
+            document.getElementById('lenAVenn').value = val[0];
+            document.getElementById('lenBVenn').value = val[1];
+            updateFromVennInputs();
+        }
+
+        // 當在韋恩圖輸入數字時同步更新
+        function updateFromVennInputs() {
+            let valA = parseInt(document.getElementById('lenAVenn').value) || 1;
+            let valB = parseInt(document.getElementById('lenBVenn').value) || 1;
+
+            valA = Math.min(Math.max(valA, 1), 200);
+            valB = Math.min(Math.max(valB, 1), 200);
+
+            document.getElementById('lenAVenn').value = valA;
+            document.getElementById('lenBVenn').value = valB;
+
+            // 僅更新狀態與韋恩圖，解除對剪紙實驗的強制回寫，釋放 200 上限限制
+            state.numA = valA;
+            state.numB = valB;
+
+            updateVennSection();
+        }
+
+        function syncInputsToVenn(valA, valB) {
+            if (document.getElementById('lenAVenn')) {
+                document.getElementById('lenAVenn').value = valA;
+            }
+            if (document.getElementById('lenBVenn')) {
+                document.getElementById('lenBVenn').value = valB;
+            }
+        }
+
+        // 求公因數邏輯輔助函式
+        function getFactors(num) {
+            let factors = [];
+            for (let i = 1; i <= num; i++) {
+                if (num % i === 0) factors.push(i);
+            }
+            return factors;
+        }
+
+        // 更新剪紙條模擬器狀態
+        function updateStrips() {
+            let numA = parseInt(document.getElementById('lenA').value) || 10;
+            let numB = parseInt(document.getElementById('lenB').value) || 15;
+
+            // 限制最大長度為 24cm
+            numA = Math.min(Math.max(numA, 1), 24);
+            numB = Math.min(Math.max(numB, 1), 24);
+            document.getElementById('lenA').value = numA;
+            document.getElementById('lenB').value = numB;
+
+            const maxLen = Math.max(numA, numB);
+            const cutSlider = document.getElementById('cutSlider');
+            const sliderWrapper = document.getElementById('sliderWrapper');
+            
+            cutSlider.max = maxLen;
+            // 依據紙條最大值，將滑桿總寬度按 24cm 比例縮放，讓滑塊的移動完全吻合真實長度比例
+            if (sliderWrapper) {
+                sliderWrapper.style.width = `${(maxLen / 24) * 100}%`;
+            }
+
+            let cut = parseInt(cutSlider.value) || 1;
+            if (cut > maxLen) {
+                cut = maxLen;
+                cutSlider.value = cut;
+            }
+
+            state.numA = numA;
+            state.numB = numB;
+            state.cutLen = cut;
+
+            syncInputsToVenn(numA, numB);
+
+            document.getElementById('nameA').innerText = numA;
+            document.getElementById('nameB').innerText = numB;
+            document.getElementById('cutVal').innerText = cut;
+
+            // 動態縮放外框容器長度 (以 24cm 為 100% 基底)
+            const containerA = document.getElementById('containerA');
+            const containerB = document.getElementById('containerB');
+            containerA.style.width = `${(numA / 24) * 100}%`;
+            containerB.style.width = `${(numB / 24) * 100}%`;
+
+            // 計算整除性
+            const isAFactor = (numA % cut === 0);
+            const isBFactor = (numB % cut === 0);
+
+            // 渲染 紙條 A 與 紙條 B 內容
+            renderSingleStrip('containerA', numA, cut, isAFactor);
+            document.getElementById('resultA').innerHTML = isAFactor 
+                ? `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-check-circle"></i> 剪成 ${numA / cut} 段，剛好剪完</span>`
+                : `<span class="text-rose-500 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> 剪成 ${Math.floor(numA / cut)} 段，剩下 ${numA % cut} 公分</span>`;
+
+            renderSingleStrip('containerB', numB, cut, isBFactor);
+            document.getElementById('resultB').innerHTML = isBFactor 
+                ? `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-check-circle"></i> 剪成 ${numB / cut} 段，剛好剪完</span>`
+                : `<span class="text-rose-500 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> 剪成 ${Math.floor(numB / cut)} 段，剩下 ${numB % cut} 公分</span>`;
+
+            // 診斷說明卡片
+            const summaryBox = document.getElementById('summaryBox');
+            const statusBadge = document.getElementById('cutStatusBadge');
+
+            if (isAFactor && isBFactor) {
+                statusBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 animate-bounce";
+                statusBadge.innerText = "成功！這是公因數";
+
+                summaryBox.className = "p-4 rounded-xl transition duration-300 flex items-center gap-4 bg-emerald-50 border-2 border-emerald-300 text-emerald-800";
+                summaryBox.innerHTML = `
+                    <div class="text-3xl text-emerald-500"><i class="fa-solid fa-circle-check"></i></div>
+                    <div>
+                        <h4 class="font-bold text-lg">${cut} 是 ${numA} 與 ${numB} 的【公因數】！</h4>
+                        <p class="text-sm">因為 ${numA} ÷ ${cut} = ${numA/cut}，且 ${numB} ÷ ${cut} = ${numB/cut}，兩條紙條都沒有任何剩下。</p>
+                    </div>
+                `;
+            } else {
+                statusBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600";
+                statusBadge.innerText = "未整除";
+
+                summaryBox.className = "p-4 rounded-xl transition duration-300 flex items-center gap-4 bg-amber-50 border border-amber-200 text-amber-900";
+                summaryBox.innerHTML = `
+                    <div class="text-3xl text-amber-500"><i class="fa-solid fa-circle-info"></i></div>
+                    <div>
+                        <h4 class="font-bold text-base">${cut} 不是 ${numA} 與 ${numB} 的公因數</h4>
+                        <p class="text-sm">
+                            ${!isAFactor ? `紙條 A 剩下 ${numA % cut} 公分；` : ''} 
+                            ${!isBFactor ? `紙條 B 剩下 ${numB % cut} 公分；` : ''} 
+                            請試試調整其他長度數字！
+                        </p>
+                    </div>
+                `;
+            }
+
+            // 同步更新韋恩圖頁面
+            updateVennSection();
+        }
+
+        // 繪製單條紙條的段落 DOM
+        function renderSingleStrip(containerId, totalLen, cutLen, isPerfect) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            const count = Math.floor(totalLen / cutLen);
+            const remainder = totalLen % cutLen;
+
+            // 每一公分佔據該容器內部的百分比寬度
+            const unitPercent = 100 / totalLen;
+
+            for (let i = 0; i < count; i++) {
+                const seg = document.createElement('div');
+                seg.className = `strip-segment ${isPerfect ? 'strip-perfect' : 'strip-imperfect'} h-full rounded-md flex items-center justify-center text-white text-xs font-bold border border-white/40 shadow-sm`;
+                seg.style.width = `${unitPercent * cutLen}%`;
+                seg.innerText = `${cutLen}cm`;
+                container.appendChild(seg);
+            }
+
+            if (remainder > 0) {
+                const rem = document.createElement('div');
+                rem.className = `strip-segment strip-remainder h-full rounded-md flex items-center justify-center text-slate-700 text-xs font-bold border border-slate-300`;
+                rem.style.width = `${unitPercent * remainder}%`;
+                rem.innerText = `${remainder}cm`;
+                container.appendChild(rem);
+            }
+        }
+
+        // 更新韋恩圖與拆解頁面
+        function updateVennSection() {
+            const a = parseInt(document.getElementById('lenAVenn')?.value) || state.numA;
+            const b = parseInt(document.getElementById('lenBVenn')?.value) || state.numB;
+
+            document.getElementById('numTitleA').innerText = a;
+            document.getElementById('numTitleB').innerText = b;
+            document.getElementById('strA').innerText = a;
+            document.getElementById('strB').innerText = b;
+
+            const factorsA = getFactors(a);
+            const factorsB = getFactors(b);
+            const common = factorsA.filter(x => factorsB.includes(x));
+            const gcf = Math.max(...common);
+
+            // 乘法拆解展示
+            renderMultiplications('multiplicationA', a, factorsA);
+            renderMultiplications('multiplicationB', b, factorsB);
+
+            // 因數徽章展示 (調整為粉紅與湖水藍)
+            renderFactorBadges('factorsA', factorsA, common, gcf, 'rose');
+            renderFactorBadges('factorsB', factorsB, common, gcf, 'sky');
+
+            // 韋恩圖內數字 (共同區改為白底紫字以配合混色後的紫羅蘭背景)
+            const aOnly = factorsA.filter(x => !common.includes(x));
+            const bOnly = factorsB.filter(x => !common.includes(x));
+
+            renderVennCircle('vennAOnly', aOnly, 'bg-rose-100 text-rose-800');
+            renderVennCircle('vennBOnly', bOnly, 'bg-sky-100 text-sky-800');
+            renderVennCircle('vennCommon', common, 'bg-white/95 text-purple-900 border border-purple-200 shadow-sm', gcf);
+
+            // 底部文字總結
+            document.getElementById('commonList').innerText = common.join(', ');
+            document.getElementById('gcfVal').innerText = gcf;
+        }
+
+        function renderMultiplications(elementId, num, factors) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+            let pairs = [];
+            for (let i = 0; i < factors.length; i++) {
+                let f = factors[i];
+                let partner = num / f;
+                if (f <= partner) {
+                    pairs.push(`${num} = ${f} × ${partner}`);
+                }
+            }
+            container.innerHTML = pairs.map(p => `<div>${p}</div>`).join('');
+        }
+
+        function renderFactorBadges(elementId, factors, common, gcf, color) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+
+            factors.forEach(f => {
+                const badge = document.createElement('span');
+                if (f === gcf) {
+                    badge.className = "px-2.5 py-1 rounded-lg text-xs gcf-highlight shadow";
+                    badge.title = "最大公因數 (GCF)";
+                    badge.innerHTML = `<i class="fa-solid fa-crown mr-1"></i>${f}`;
+                } else if (common.includes(f)) {
+                    badge.className = "px-2.5 py-1 rounded-lg text-xs bg-emerald-500 text-white font-bold shadow-sm";
+                    badge.title = "公因數";
+                    badge.innerText = f;
+                } else {
+                    badge.className = `px-2.5 py-1 rounded-lg text-xs bg-${color}-100 text-${color}-800 font-bold border border-${color}-200`;
+                    badge.innerText = f;
+                }
+                container.appendChild(badge);
+            });
+        }
+
+        function renderVennCircle(elementId, list, classes, gcf = null) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+            if (list.length === 0) {
+                container.innerHTML = `<span class="text-xs text-slate-400 font-normal">無</span>`;
+                return;
+            }
+            list.forEach(item => {
+                const span = document.createElement('span');
+                if (item === gcf) {
+                    span.className = "px-2 py-0.5 rounded-full text-xs gcf-highlight shadow";
+                    span.innerHTML = `<i class="fa-solid fa-crown mr-0.5"></i>${item}`;
+                } else {
+                    span.className = `px-2 py-0.5 rounded-full text-xs font-bold ${classes}`;
+                    span.innerText = item;
+                }
+                container.appendChild(span);
+            });
+        }
+
+        // 渲染 5 題歷程測驗
+        function renderQuiz() {
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = '';
+
+            quizData.forEach((q, idx) => {
+                const qCard = document.createElement('div');
+                qCard.className = "shinkai-glass rounded-2xl p-6 space-y-4 border border-white/60 shinkai-card-glow";
+                
+                const selectedOpt = state.quizAnswers[q.id];
+
+                let optionsHTML = q.options.map((opt, optIdx) => {
+                    let btnClass = "w-full text-left p-3 rounded-xl bg-white/70 hover:bg-sky-50 border border-slate-200 text-sm font-medium text-slate-700 transition flex items-center justify-between group cursor-pointer";
+                    let iconHTML = `<i class="fa-regular fa-circle text-slate-300 group-hover:text-sky-400"></i>`;
+
+                    if (state.quizSubmitted) {
+                        // 提交後狀態：若題目「未作答」，不公開顯示正確答案選項
+                        if (selectedOpt === undefined || selectedOpt === null) {
+                            btnClass = "w-full text-left p-3 rounded-xl bg-slate-100 text-slate-400 text-sm flex items-center justify-between opacity-60";
+                            iconHTML = `<i class="fa-regular fa-circle text-slate-300"></i>`;
+                        } else {
+                            // 已作答題目：正常呈現正確與錯誤選項標示
+                            if (optIdx === q.answer) {
+                                btnClass = "w-full text-left p-3 rounded-xl bg-emerald-100 border-2 border-emerald-500 text-emerald-900 text-sm font-bold flex items-center justify-between";
+                                iconHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i>`;
+                            } else if (selectedOpt === optIdx && selectedOpt !== q.answer) {
+                                btnClass = "w-full text-left p-3 rounded-xl bg-rose-100 border-2 border-rose-400 text-rose-900 text-sm font-medium flex items-center justify-between";
+                                iconHTML = `<i class="fa-solid fa-circle-xmark text-rose-500"></i>`;
+                            } else {
+                                btnClass = "w-full text-left p-3 rounded-xl bg-slate-100 text-slate-400 text-sm flex items-center justify-between opacity-60";
+                                iconHTML = `<i class="fa-regular fa-circle text-slate-300"></i>`;
+                            }
+                        }
+                    } else {
+                        // 未提交選取狀態
+                        if (selectedOpt === optIdx) {
+                            btnClass = "w-full text-left p-3 rounded-xl bg-sky-100 border-2 border-sky-500 text-sky-900 text-sm font-bold flex items-center justify-between";
+                            iconHTML = `<i class="fa-solid fa-circle-dot text-sky-600"></i>`;
+                        }
+                    }
+
+                    return `
+                        <button onclick="selectOption(${q.id}, ${optIdx})" 
+                                ${state.quizSubmitted ? 'disabled' : ''}
+                                id="q${q.id}-opt${optIdx}" 
+                                class="${btnClass}">
+                            <span><strong class="text-sky-600 mr-2">${String.fromCharCode(65 + optIdx)}.</strong> ${opt}</span>
+                            ${iconHTML}
+                        </button>
+                    `;
+                }).join('');
+
+                // 解析與回饋區塊
+                let feedbackHTML = `<div id="feedback-${q.id}" class="hidden p-4 rounded-xl text-sm font-medium transition"></div>`;
+                if (state.quizSubmitted) {
+                    if (selectedOpt === undefined || selectedOpt === null) {
+                        // 未作答僅顯示黃色系「未作答。」，不透露任何解析與答案
+                        feedbackHTML = `
+                            <div id="feedback-${q.id}" class="p-4 rounded-xl text-sm font-bold bg-amber-50 text-amber-800 border border-amber-300 flex items-center gap-2">
+                                <i class="fa-solid fa-triangle-exclamation text-amber-500 text-lg"></i>
+                                <span>未作答。</span>
+                            </div>
+                        `;
+                    } else if (selectedOpt === q.answer) {
+                        feedbackHTML = `
+                            <div id="feedback-${q.id}" class="p-4 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-900 border border-emerald-200 flex items-start gap-3">
+                                <i class="fa-solid fa-circle-check text-emerald-500 text-xl mt-0.5"></i>
+                                <div>
+                                    <div class="font-bold text-emerald-800">回答正確！（+20分）</div>
+                                    <div class="text-xs text-emerald-700 mt-1">${q.explanation}</div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        feedbackHTML = `
+                            <div id="feedback-${q.id}" class="p-4 rounded-xl text-sm font-medium bg-rose-50 text-rose-900 border border-rose-200 flex items-start gap-3">
+                                <i class="fa-solid fa-circle-xmark text-rose-500 text-xl mt-0.5"></i>
+                                <div>
+                                    <div class="font-bold text-rose-800">回答錯誤。（正確答案為：${String.fromCharCode(65 + q.answer)}）</div>
+                                    <div class="text-xs text-rose-700 mt-1">${q.explanation}</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+
+                qCard.innerHTML = `
+                    <div class="flex items-start justify-between gap-2">
+                        <h3 class="font-bold text-slate-800 text-base leading-relaxed">
+                            <span class="bg-sky-500 text-white px-2 py-0.5 rounded-md text-xs mr-2">第 ${idx + 1} 題</span>
+                            ${q.question}
+                        </h3>
+                    </div>
+                    <div class="space-y-2">
+                        ${optionsHTML}
+                    </div>
+                    ${feedbackHTML}
+                `;
+                container.appendChild(qCard);
+            });
+        }
+
+        // 選擇選項（尚未提交）
+        function selectOption(qId, selectedIdx) {
+            if (state.quizSubmitted) return;
+            state.quizAnswers[qId] = selectedIdx;
+            renderQuiz();
+        }
+
+        // 提交答案
+        function submitQuiz() {
+            if (state.quizSubmitted) return;
+            state.quizSubmitted = true;
+
+            let correctCount = 0;
+            quizData.forEach(q => {
+                if (state.quizAnswers[q.id] === q.answer) {
+                    correctCount++;
+                }
+            });
+
+            state.score = correctCount * 20;
+            document.getElementById('quizScoreBadge').innerText = `得分：${state.score} / 100`;
+            renderQuiz();
+        }
+
+        // 重新測驗
+        function resetQuiz() {
+            state.quizAnswers = {};
+            state.quizSubmitted = false;
+            state.score = 0;
+            document.getElementById('quizScoreBadge').innerText = `得分：0 / 100`;
+            renderQuiz();
+        }
+    </script>
+</body>
+</html>

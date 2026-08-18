@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生活中的統計圖：探究與臆測學習實驗室</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome 圖示 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Noto Sans TC -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #1a2a6c 0%, #b21f1f 50%, #fdbb2d 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        /* 新海誠夢幻雲彩背景層 */
+        .shinkai-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(255, 182, 193, 0.3) 0%, transparent 40%),
+                radial-gradient(circle at 80% 30%, rgba(135, 206, 250, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(255, 223, 186, 0.3) 0%, transparent 40%);
+            filter: blur(40px);
+        }
+
+        /* 磨砂玻璃卡片效果 (Glassmorphism) */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+            border-radius: 1.25rem;
+        }
+
+        /* 光暈與按鈕效果 */
+        .btn-shinkai {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-shinkai:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.6);
+        }
+
+        .btn-sunset {
+            background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(255, 8, 68, 0.3);
+        }
+
+        .btn-sunset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 8, 68, 0.5);
+        }
+
+        /* 頁籤選取指示 */
+        .tab-active {
+            background: rgba(255, 255, 255, 0.95);
+            color: #1a2a6c;
+            font-weight: 700;
+            border-bottom: 4px solid #4facfe;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        /* 自訂滑桿造型 */
+        input[type=range] {
+            accent-color: #ff6b6b;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen p-3 md:p-6 overflow-x-hidden">
+
+    <!-- 新海誠氛圍光影背景 -->
+    <div class="shinkai-bg"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto space-y-6">
+
+        <!-- 閒雲數學小棧 Header Logo -->
+        <div class="w-full max-w-4xl flex items-center justify-start mb-4 px-2 fade-in">
+            <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+            <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+        </div>
+
+        <!-- 頂部標題區 -->
+        <header class="glass-card p-6 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-400 to-indigo-600 flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-wide">
+                        長條圖與折線圖的觀察、分析與應用
+                    </h1>
+                    <p class="text-sm md:text-base text-slate-600 font-medium">
+                        國小五上數學 1-1 互動學習網頁
+                    </p>
+                </div>
+            </div>
+            <div class="bg-sky-100/80 border border-sky-300/50 px-4 py-2 rounded-xl text-sky-800 text-xs md:text-sm font-semibold flex items-center gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i> 動態探索 × 即時統計 × 互動評量
+            </div>
+        </header>
+
+        <nav class="flex flex-wrap gap-2 p-1.5 glass-card rounded-2xl">
+            <button onclick="switchTab('tab1')" id="nav-tab1" class="tab-btn flex-1 py-3 px-4 rounded-xl text-sm md:text-base font-semibold text-slate-600 hover:text-slate-900 transition flex items-center justify-center gap-2 tab-active">
+                <i class="fa-solid fa-cloud-showers-heavy text-sky-500"></i> 1. 雨量分析 (長條圖 vs 折線圖)
+            </button>
+            <button onclick="switchTab('tab2')" id="nav-tab2" class="tab-btn flex-1 py-3 px-4 rounded-xl text-sm md:text-base font-semibold text-slate-600 hover:text-slate-900 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-users text-indigo-500"></i> 2. 人口變化 (省略符號探究)
+            </button>
+            <button onclick="switchTab('tab3')" id="nav-tab3" class="tab-btn flex-1 py-3 px-4 rounded-xl text-sm md:text-base font-semibold text-slate-600 hover:text-slate-900 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-store text-emerald-500"></i> 3. 酪梨市場 (雙圖疊加分析)
+            </button>
+            <button onclick="switchTab('tab4')" id="nav-tab4" class="tab-btn flex-1 py-3 px-4 rounded-xl text-sm md:text-base font-semibold text-slate-600 hover:text-slate-900 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-pen-to-square text-rose-500"></i> 4. 隨堂觀念挑戰評量
+            </button>
+        </nav>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="space-y-6">
+
+            <section id="tab1" class="tab-content space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- 左側控制與教學說明卡片 -->
+                    <div class="glass-card p-6 space-y-5 lg:col-span-1">
+                        <div class="border-b border-slate-200 pb-3">
+                            <span class="bg-sky-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">主題 1</span>
+                            <h2 class="text-xl font-bold text-slate-800 mt-2">臺東與基隆雨量探究</h2>
+                            <p class="text-xs text-slate-500 mt-1">觀察相同有序數據在不同圖形下的呈現重點</p>
+                        </div>
+
+                        <!-- 互動模式切換 -->
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-slate-700 flex items-center gap-2">
+                                <i class="fa-solid fa-sliders text-sky-500"></i> 選擇圖表呈現方式：
+                            </label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="setRainfallType('bar')" id="btn-rain-bar" class="py-2 px-3 rounded-lg border text-xs md:text-sm font-semibold bg-sky-500 text-white shadow-sm border-sky-500 transition">
+                                    <i class="fa-solid fa-chart-column mr-1"></i> 長條圖 (看數量差距)
+                                </button>
+                                <button onclick="setRainfallType('line')" id="btn-rain-line" class="py-2 px-3 rounded-lg border text-xs md:text-sm font-semibold bg-white text-slate-700 border-slate-300 hover:bg-slate-50 transition">
+                                    <i class="fa-solid fa-chart-line mr-1"></i> 折線圖 (看趨勢變化)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 月份數值滑桿探究 -->
+                        <div class="space-y-3 bg-sky-50/70 p-4 rounded-xl border border-sky-100">
+                            <div class="flex justify-between items-center">
+                                <label for="monthSlider" class="text-xs font-bold text-slate-700">選擇月份觀察數據：</label>
+                                <span id="monthVal" class="text-sm font-black text-sky-600 bg-white px-2 py-0.5 rounded shadow-sm">1月</span>
+                            </div>
+                            <input type="range" id="monthSlider" min="1" max="12" value="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer" oninput="updateRainfallMonth(this.value)">
+                            
+                            <!-- 動態數據讀數展示區 -->
+                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-sky-200/60 text-center">
+                                <div class="bg-amber-50 p-2 rounded-lg border border-amber-200">
+                                    <div class="text-xs text-amber-700 font-semibold">基隆降水量</div>
+                                    <div id="keelungVal" class="text-base font-extrabold text-amber-600">200 mm</div>
+                                </div>
+                                <div class="bg-blue-50 p-2 rounded-lg border border-blue-200">
+                                    <div class="text-xs text-blue-700 font-semibold">臺東降水量</div>
+                                    <div id="taitungVal" class="text-base font-extrabold text-blue-600">80 mm</div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-slate-600 bg-white/80 p-2 rounded text-center">
+                                兩地雨量差距：<span id="diffVal" class="font-extrabold text-rose-500">120 mm</span>
+                            </div>
+                        </div>
+
+                        <!-- 教學提示卡片 -->
+                        <div class="bg-amber-50/80 border-l-4 border-amber-400 p-3 rounded-r-xl text-xs text-amber-900 leading-relaxed">
+                            <span class="font-bold block mb-1">💡 教學觀念總結：</span>
+                            - <b>長條圖</b>：容易比較「基隆與臺東」在同一月份的數量**差距**。<br>
+                            - <b>折線圖</b>：容易觀察兩地從 1 月到 12 月降水量的**連續變化趨勢**。
+                        </div>
+                    </div>
+
+                    <!-- 右側圖表展示區 -->
+                    <div class="glass-card p-6 lg:col-span-2 flex flex-col justify-between">
+                        <div class="flex justify-end items-center mb-2">
+                            <span class="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-medium">縱軸 1 小格 = 40 毫米</span>
+                        </div>
+                        <div class="relative w-full h-[320px] md:h-[400px]">
+                            <canvas id="rainfallChart"></canvas>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <h3 class="font-bold text-slate-800 text-base md:text-lg inline-flex items-center gap-2">
+                                <i class="fa-solid fa-chart-simple text-sky-500"></i> 臺東、基隆兩地各月分降水統計圖
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab2" class="tab-content space-y-6 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- 左側控制 -->
+                    <div class="glass-card p-6 space-y-5 lg:col-span-1">
+                        <div class="border-b border-slate-200 pb-3">
+                            <span class="bg-indigo-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">主題 2</span>
+                            <h2 class="text-xl font-bold text-slate-800 mt-2">臺灣出生與死亡人數</h2>
+                            <p class="text-xs text-slate-500 mt-1">民國 99 年至 110 年複線圖與省略符號應用</p>
+                        </div>
+
+                        <!-- 省略符號開關切換 -->
+                        <div class="bg-indigo-50/80 p-4 rounded-xl border border-indigo-100 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-bold text-indigo-900">使用縱軸「省略符號」：</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="toggleOmission" class="sr-only peer" checked onchange="updatePopChartScale()">
+                                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                </label>
+                            </div>
+                            <p class="text-xs text-indigo-700 leading-relaxed">
+                                <b>體驗效果：</b> 當資料數值都很大（例如均超過 140 千人）且變化細微時，使用省略符號（<span class="font-bold text-indigo-900">~~~</span>）省略 0~140，能放大折線起伏，更清楚觀察趨勢！
+                            </p>
+                        </div>
+
+                        <!-- 重要交叉點引導提示 -->
+                        <div class="space-y-2">
+                            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">數據重點探究：</h4>
+                            <div class="bg-rose-50 border border-rose-200 p-3 rounded-xl space-y-1">
+                                <div class="text-xs font-bold text-rose-800 flex items-center gap-1">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> 死亡人數超越出生人數（生不如死）
+                                </div>
+                                <p class="text-xs text-rose-700">
+                                    觀察點：<b>民國 108 年起</b>，死亡人數（176千人）首次高於出生人數（175千人），兩條折線發生黃金交叉！
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-amber-50/80 border-l-4 border-amber-400 p-3 rounded-r-xl text-xs text-amber-900 leading-relaxed">
+                            <b>提示：</b> 數據單位為「千人」，縱軸標示 200 代表 200,000 人。
+                        </div>
+                    </div>
+
+                    <!-- 右側圖表 -->
+                    <div class="glass-card p-6 lg:col-span-2 flex flex-col justify-between">
+                        <div class="flex justify-end items-center mb-2">
+                            <span id="scaleLabel" class="text-xs bg-indigo-100 text-indigo-800 font-bold px-3 py-1 rounded-full">縱軸：0 ~ 250 (啟用省略符號 ~~~)</span>
+                        </div>
+                        <div class="relative w-full h-[320px] md:h-[400px]">
+                            <canvas id="popChart"></canvas>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <h3 class="font-bold text-slate-800 text-base md:text-lg inline-flex items-center gap-2">
+                                <i class="fa-solid fa-chart-line text-indigo-500"></i> 民國99年至110年臺灣出生人數與死亡人數折線圖
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab3" class="tab-content space-y-6 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- 左側控制區 -->
+                    <div class="glass-card p-6 space-y-5 lg:col-span-1">
+                        <div class="border-b border-slate-200 pb-3">
+                            <span class="bg-emerald-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">主題 3</span>
+                            <h2 class="text-xl font-bold text-slate-800 mt-2">酪梨成交量與售價關聯</h2>
+                            <p class="text-xs text-slate-500 mt-1">民國 112 年果菜市場酪梨數據雙圖對比與重疊分析</p>
+                        </div>
+
+                        <!-- 雙圖重疊控制按鈕 -->
+                        <div class="space-y-3">
+                            <label class="text-sm font-bold text-slate-700 block">模式選擇：</label>
+                            <button onclick="toggleAvocadoOverlay()" id="btn-avocado-toggle" class="w-full py-3 px-4 rounded-xl btn-shinkai text-white text-sm font-bold flex items-center justify-center gap-2 shadow-md">
+                                <i class="fa-solid fa-layer-group"></i> 點擊將「成交量」與「售價」圖表重疊
+                            </button>
+                            <p class="text-xs text-slate-500 leading-relaxed text-center">
+                                將長條圖轉為折線並疊加在同一坐標軸，可直觀驗證量價關係。
+                            </p>
+                        </div>
+
+                        <!-- 關係發現發現區 -->
+                        <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl space-y-2">
+                            <h4 class="text-sm font-bold text-emerald-900 flex items-center gap-2">
+                                <i class="fa-solid fa-lightbulb text-amber-500"></i> 學生探究發現（以量制價）：
+                            </h4>
+                            <p class="text-xs text-emerald-800 leading-relaxed">
+                                - 當<b>成交數量增加</b>時（如 6~8月），市場供過於求，每公斤售價會<b>逐漸減少</b>（8月跌至最低 35.1 元）。<br>
+                                - 當<b>成交數量減少</b>時（如 3~4月），物以稀為貴，每公斤售價會<b>高漲</b>（4月高達 167.8 元）。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 右側雙圖表或重疊圖表 -->
+                    <div class="glass-card p-6 lg:col-span-2 space-y-4 flex flex-col justify-between">
+                        <div class="flex justify-end items-center">
+                            <span id="overlayStatus" class="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full">分開顯示模式</span>
+                        </div>
+
+                        <!-- 圖表繪製區 -->
+                        <div id="separatedCharts" class="space-y-4">
+                            <div class="h-[180px] w-full">
+                                <canvas id="avocadoVolChart"></canvas>
+                            </div>
+                            <div class="h-[180px] w-full">
+                                <canvas id="avocadoPriceChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div id="combinedChartContainer" class="hidden h-[380px] w-full">
+                            <canvas id="avocadoComboChart"></canvas>
+                        </div>
+
+                        <div class="mt-2 text-center">
+                            <h3 class="font-bold text-slate-800 text-base md:text-lg inline-flex items-center gap-2">
+                                <i class="fa-solid fa-scale-balanced text-emerald-500"></i> 民國112年各月分果菜市場酪梨成交量與售價
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab4" class="tab-content space-y-6 hidden">
+                <div class="glass-card p-6 space-y-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-4">
+                        <div>
+                            <span class="bg-rose-500 text-white text-xs px-2.5 py-1 rounded-full font-bold">主題 4</span>
+                            <h2 class="text-2xl font-bold text-slate-800 mt-1">生活中的統計圖：觀念隨堂測驗</h2>
+                            <p class="text-xs text-slate-500 mt-1">根據前面探究內容回答問題，測試你的統計圖解讀能力！</p>
+                        </div>
+                        <div class="bg-rose-50 border border-rose-200 px-4 py-2 rounded-xl text-center">
+                            <span class="text-xs text-rose-600 font-bold block">目前得分</span>
+                            <span id="quizScore" class="text-2xl font-black text-rose-600">0 / 100</span>
+                        </div>
+                    </div>
+
+                    <!-- 測驗題目列表 -->
+                    <div id="quizContainer" class="space-y-6">
+                        <!-- 題目 1 -->
+                        <div class="bg-white/80 p-5 rounded-xl border border-slate-200/80 space-y-3" id="q1-card">
+                            <div class="font-bold text-slate-800 text-base flex items-start gap-2">
+                                <span class="bg-sky-500 text-white text-xs px-2 py-0.5 rounded mt-0.5">Q1</span>
+                                <div>想要明確知道基隆和臺東兩地「各月份降水量差距」是多少，看哪一種統計圖比較容易觀察？</div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pl-7">
+                                <button onclick="selectOption(1, 'bar', this)" class="q1-opt text-left p-3 rounded-lg border border-slate-200 hover:bg-sky-50 transition text-sm">A. 長條圖</button>
+                                <button onclick="selectOption(1, 'line', this)" class="q1-opt text-left p-3 rounded-lg border border-slate-200 hover:bg-sky-50 transition text-sm">B. 折線圖</button>
+                            </div>
+                            <div id="q1-feedback" class="hidden text-xs p-3 rounded-lg ml-7 font-semibold"></div>
+                        </div>
+
+                        <!-- 題目 2 -->
+                        <div class="bg-white/80 p-5 rounded-xl border border-slate-200/80 space-y-3" id="q2-card">
+                            <div class="font-bold text-slate-800 text-base flex items-start gap-2">
+                                <span class="bg-sky-500 text-white text-xs px-2 py-0.5 rounded mt-0.5">Q2</span>
+                                <div>若想了解基隆從 1 月到 12 月這一年間降水量的「連續變化趨勢」，從哪一種統計圖比較容易觀察？</div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pl-7">
+                                <button onclick="selectOption(2, 'bar', this)" class="q2-opt text-left p-3 rounded-lg border border-slate-200 hover:bg-sky-50 transition text-sm">A. 長條圖</button>
+                                <button onclick="selectOption(2, 'line', this)" class="q2-opt text-left p-3 rounded-lg border border-slate-200 hover:bg-sky-50 transition text-sm">B. 折線圖</button>
+                            </div>
+                            <div id="q2-feedback" class="hidden text-xs p-3 rounded-lg ml-7 font-semibold"></div>
+                        </div>
+
+                        <!-- 題目 3 -->
+                        <div class="bg-white/80 p-5 rounded-xl border border-slate-200/80 space-y-3" id="q3-card">
+                            <div class="font-bold text-slate-800 text-base flex items-start gap-2">
+                                <span class="bg-sky-500 text-white text-xs px-2 py-0.5 rounded mt-0.5">Q3</span>
+                                <div>觀察臺灣人口折線圖，從「哪一年開始」，死亡人數首次超過了出生人數？</div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 pl-7">
+                                <button onclick="selectOption(3, '101', this)" class="q3-opt text-left p-3 rounded-lg border border-slate-200 hover:bg-sky-50 transition text-sm">A. 民國 101 年</button>
+                                <button onclick="selectOption(3, '108', this)" class="q3-opt text-left p-3 rounded-lg border border-slate-200 hover:bg-sky-50 transition text-sm">B. 民國 108 年</button>
+                                <button onclick="selectOption(3, '110', this)" class="q3-opt text-left p-3 rounded-lg border border-slate-200 hover:bg-sky-50 transition text-sm">C. 民國 110 年</button>
+                            </div>
+                            <div id="q3-feedback" class="hidden text-xs p-3 rounded-lg ml-7 font-semibold"></div>
+                        </div>
+
+                        <!-- 題目 4 -->
+                        <div class="bg-white/80 p-5 rounded-xl border border-slate-200/80 space-y-3" id="q4-card">
+                            <div class="font-bold text-slate-800 text-base flex items-start gap-2">
+                                <span class="bg-sky-500 text-white text-xs px-2 py-0.5 rounded mt-0.5">Q4</span>
+                                <div>觀察酪梨市場統計圖，當 4 月到 8 月酪梨成交數量逐漸增加時，每公斤售價呈現什麼變化？</div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pl-7">
+                                <button onclick="selectOption(4, 'increase', this)" class="q4-opt text-left p-3 rounded-lg border border-slate-200 hover:bg-sky-50 transition text-sm">A. 逐漸增加</button>
+                                <button onclick="selectOption(4, 'decrease', this)" class="q4-opt text-left p-3 rounded-lg border border-slate-200 hover:bg-sky-50 transition text-sm">B. 逐漸減少</button>
+                            </div>
+                            <div id="q4-feedback" class="hidden text-xs p-3 rounded-lg ml-7 font-semibold"></div>
+                        </div>
+
+                        <!-- 題目 5 (思考帽生活應用) -->
+                        <div class="bg-white/80 p-5 rounded-xl border border-slate-200/80 space-y-3" id="q5-card">
+                            <div class="font-bold text-slate-800 text-base flex items-start gap-2">
+                                <span class="bg-sky-500 text-white text-xs px-2 py-0.5 rounded mt-0.5">Q5</span>
+                                <div>【思考帽應用】珍鮮果汁店老闆要僱用工讀生「連續 4 個月」，根據歷年賣出杯數最高的旺季折線圖，老闆應該選擇哪幾個月？</div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 pl-7">
+                                <button onclick="selectOption(5, '1-4', this)" class="q5-opt text-left p-3 rounded-lg border border-slate-200 hover:bg-sky-50 transition text-sm">A. 1月 到 4月</button>
+                                <button onclick="selectOption(5, '7-10', this)" class="q5-opt text-left p-3 rounded-lg border border-slate-200 hover:bg-sky-50 transition text-sm">B. 7月 到 10月</button>
+                                <button onclick="selectOption(5, '9-12', this)" class="q5-opt text-left p-3 rounded-lg border border-slate-200 hover:bg-sky-50 transition text-sm">C. 9月 到 12月</button>
+                            </div>
+                            <div id="q5-feedback" class="hidden text-xs p-3 rounded-lg ml-7 font-semibold"></div>
+                        </div>
+                    </div>
+
+                    <!-- 操作按鈕區域 -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 border-t border-slate-200">
+                        <button onclick="submitQuiz()" id="btn-submit" class="w-full sm:w-auto px-8 py-3 rounded-xl btn-shinkai text-white font-bold text-base flex items-center justify-center gap-2 shadow-lg hover:scale-105 transition">
+                            <i class="fa-solid fa-paper-plane"></i> 提交答案
+                        </button>
+                        <button onclick="resetQuiz()" id="btn-reset" class="w-full sm:w-auto px-8 py-3 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-base flex items-center justify-center gap-2 transition shadow hover:scale-105">
+                            <i class="fa-solid fa-rotate-right"></i> 重新測驗
+                        </button>
+                    </div>
+
+                    <!-- 測驗總評結果提示區 -->
+                    <div id="quizResultBanner" class="hidden p-4 rounded-xl text-center space-y-1 transition border">
+                        <div id="quizResultTitle" class="text-lg font-extrabold"></div>
+                        <div id="quizResultDetail" class="text-sm font-medium"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 頁尾宣告 -->
+        <footer class="text-center text-xs text-white/80 py-4">
+        </footer>
+    </div>
+
+    <script>
+        // --- 數據庫定義 ---
+        const rainfallData = {
+            months: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+            keelung: [200, 160, 200, 240, 480, 120, 160, 240, 480, 520, 280, 760],
+            taitung: [80, 40, 40, 80, 280, 80, 120, 200, 120, 80, 120, 40]
+        };
+
+        const populationData = {
+            years: ['99年', '100年', '101年', '102年', '103年', '104年', '105年', '106年', '107年', '108年', '109年', '110年'],
+            births: [166, 198, 235, 195, 211, 213, 208, 195, 181, 175, 161, 157],
+            deaths: [146, 153, 155, 156, 163, 164, 173, 172, 173, 176, 173, 184]
+        };
+
+        const avocadoData = {
+            months: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+            volume: [259, 95, 38, 25, 124, 654, 1453, 2087, 1172, 877, 618, 307],
+            price: [53.3, 92.3, 159.1, 167.8, 92.1, 61.7, 42.1, 35.1, 57.7, 62.2, 65.2, 72.0]
+        };
+
+        // 自訂 Chart.js 外掛：繪製橫跨整張圖表的紅色粗體波浪省略線
+        const wavyLinePlugin = {
+            id: 'wavyLinePlugin',
+            afterDraw(chart) {
+                const isOmit = document.getElementById('toggleOmission')?.checked;
+                if (!isOmit || chart.canvas.id !== 'popChart') return;
+
+                const { ctx, chartArea: { left, right }, scales: { y } } = chart;
+                const yPos = y.getPixelForValue(130);
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.strokeStyle = '#dc2626'; // 紅色粗體
+                ctx.lineWidth = 3.5;
+                
+                // 起始點向左延伸至縱軸位置 (left)
+                const startX = left; 
+                const endX = right;
+                const wavelength = 12;
+                const amplitude = 4;
+
+                ctx.moveTo(startX, yPos);
+                for (let px = startX; px <= endX; px += 1) {
+                    const dy = Math.sin((px - startX) * (Math.PI * 2 / wavelength)) * amplitude;
+                    ctx.lineTo(px, yPos + dy);
+                }
+                ctx.stroke();
+                ctx.restore();
+            }
+        };
+
+        // 註冊外掛
+        if (typeof Chart !== 'undefined') {
+            Chart.register(wavyLinePlugin);
+        }
+
+        // --- 全域圖表變數 ---
+        let rainfallChartObj = null;
+        let popChartObj = null;
+        let avocadoVolChartObj = null;
+        let avocadoPriceChartObj = null;
+        let avocadoComboChartObj = null;
+
+        let currentRainType = 'bar';
+        let isAvocadoOverlay = false;
+        let quizScores = { 1: false, 2: false, 3: false, 4: false, 5: false };
+
+        window.onload = function() {
+            initRainfallChart();
+            initPopChart();
+            initAvocadoCharts();
+        };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('tab-active'));
+
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById('nav-' + tabId).classList.add('tab-active');
+        }
+
+        function initRainfallChart() {
+            const ctx = document.getElementById('rainfallChart').getContext('2d');
+            const isLine = currentRainType === 'line';
+
+            // 折線圖模式時，橫軸起始值往右移一格
+            const labels = isLine ? ['', ...rainfallData.months] : rainfallData.months;
+            const keelung = isLine ? [null, ...rainfallData.keelung] : rainfallData.keelung;
+            const taitung = isLine ? [null, ...rainfallData.taitung] : rainfallData.taitung;
+
+            rainfallChartObj = new Chart(ctx, {
+                type: currentRainType,
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '基隆降水量 (mm)',
+                            data: keelung,
+                            backgroundColor: 'rgba(245, 158, 11, 0.7)',
+                            borderColor: 'rgb(245, 158, 11)',
+                            borderWidth: 2,
+                            tension: 0.1
+                        },
+                        {
+                            label: '臺東降水量 (mm)',
+                            data: taitung,
+                            backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                            borderColor: 'rgb(59, 130, 246)',
+                            borderWidth: 2,
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 800,
+                            grid: { drawTicks: false },
+                            ticks: { stepSize: 100 },
+                            title: { display: true, text: '降水量 (毫米)' }
+                        },
+                        x: {
+                            grid: { drawTicks: false },
+                            title: { display: true, text: '月分' }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'top' }
+                    }
+                }
+            });
+        }
+
+        function setRainfallType(type) {
+            currentRainType = type;
+            const btnBar = document.getElementById('btn-rain-bar');
+            const btnLine = document.getElementById('btn-rain-line');
+
+            if (type === 'bar') {
+                btnBar.className = "py-2 px-3 rounded-lg border text-xs md:text-sm font-semibold bg-sky-500 text-white shadow-sm border-sky-500 transition";
+                btnLine.className = "py-2 px-3 rounded-lg border text-xs md:text-sm font-semibold bg-white text-slate-700 border-slate-300 hover:bg-slate-50 transition";
+            } else {
+                btnLine.className = "py-2 px-3 rounded-lg border text-xs md:text-sm font-semibold bg-sky-500 text-white shadow-sm border-sky-500 transition";
+                btnBar.className = "py-2 px-3 rounded-lg border text-xs md:text-sm font-semibold bg-white text-slate-700 border-slate-300 hover:bg-slate-50 transition";
+            }
+
+            rainfallChartObj.destroy();
+            initRainfallChart();
+        }
+
+        function updateRainfallMonth(monthIdx) {
+            const idx = monthIdx - 1;
+            document.getElementById('monthVal').innerText = rainfallData.months[idx];
+            const kVal = rainfallData.keelung[idx];
+            const tVal = rainfallData.taitung[idx];
+            document.getElementById('keelungVal').innerText = kVal + ' mm';
+            document.getElementById('taitungVal').innerText = tVal + ' mm';
+            document.getElementById('diffVal').innerText = Math.abs(kVal - tVal) + ' mm';
+        }
+
+        function initPopChart() {
+            const ctx = document.getElementById('popChart').getContext('2d');
+            const isOmit = document.getElementById('toggleOmission').checked;
+
+            popChartObj = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    // 橫軸起始值往右移一格
+                    labels: ['', ...populationData.years],
+                    datasets: [
+                        {
+                            label: '出生人數 (千人)',
+                            data: [null, ...populationData.births],
+                            borderColor: 'rgb(249, 115, 22)',
+                            backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            fill: false
+                        },
+                        {
+                            label: '死亡人數 (千人)',
+                            data: [null, ...populationData.deaths],
+                            borderColor: 'rgb(14, 165, 233)',
+                            backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            min: isOmit ? 120 : 0,
+                            max: 250,
+                            grid: {
+                                drawTicks: false // 移除縱軸左側突出的刻度線段
+                            },
+                            ticks: {
+                                stepSize: isOmit ? 10 : 50,
+                                callback: function(value) {
+                                    const omitChecked = document.getElementById('toggleOmission')?.checked;
+                                    if (!omitChecked) return value;
+                                    if (value === 120) return '0';
+                                    if (value === 130) return ''; // 此位置繪製紅色波浪線
+                                    if (value >= 140) return value;
+                                    return null;
+                                }
+                            },
+                            title: { display: true, text: '人數 (千人)' }
+                        },
+                        x: {
+                            grid: {
+                                drawTicks: false // 移除橫軸下方突出的線段
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'top' }
+                    }
+                }
+            });
+        }
+
+        function updatePopChartScale() {
+            const isOmit = document.getElementById('toggleOmission').checked;
+            const label = document.getElementById('scaleLabel');
+            if (isOmit) {
+                label.innerText = "縱軸：0 ~ 250 (啟用省略符號 ~~~)";
+                label.className = "text-xs bg-indigo-100 text-indigo-800 font-bold px-3 py-1 rounded-full";
+            } else {
+                label.innerText = "縱軸：0 ~ 250 (從 0 開始完整繪製)";
+                label.className = "text-xs bg-slate-100 text-slate-700 font-bold px-3 py-1 rounded-full";
+            }
+
+            popChartObj.options.scales.y.min = isOmit ? 120 : 0;
+            popChartObj.options.scales.y.ticks.stepSize = isOmit ? 10 : 50;
+            popChartObj.update();
+        }
+
+        function initAvocadoCharts() {
+            // 成交量獨立圖
+            const ctxVol = document.getElementById('avocadoVolChart').getContext('2d');
+            avocadoVolChartObj = new Chart(ctxVol, {
+                type: 'bar',
+                data: {
+                    labels: avocadoData.months,
+                    datasets: [{
+                        label: '成交數量 (千公斤)',
+                        data: avocadoData.volume,
+                        backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                        borderColor: 'rgb(16, 185, 129)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { 
+                        y: { beginAtZero: true, grid: { drawTicks: false } },
+                        x: { grid: { drawTicks: false } }
+                    },
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+
+            // 售價獨立圖（折線圖：起始點右移一格）
+            const ctxPrice = document.getElementById('avocadoPriceChart').getContext('2d');
+            avocadoPriceChartObj = new Chart(ctxPrice, {
+                type: 'line',
+                data: {
+                    labels: ['', ...avocadoData.months],
+                    datasets: [{
+                        label: '每公斤售價 (元)',
+                        data: [null, ...avocadoData.price],
+                        borderColor: 'rgb(239, 68, 68)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { 
+                        y: { beginAtZero: true, grid: { drawTicks: false } },
+                        x: { grid: { drawTicks: false } }
+                    },
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+
+            // 組合圖（雙圖重疊，1月前不留多餘空白欄位）
+            const ctxCombo = document.getElementById('avocadoComboChart').getContext('2d');
+            avocadoComboChartObj = new Chart(ctxCombo, {
+                type: 'bar',
+                data: {
+                    labels: avocadoData.months,
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: '成交數量 (千公斤)',
+                            data: avocadoData.volume,
+                            backgroundColor: 'rgba(16, 185, 129, 0.5)',
+                            yAxisID: 'yVol'
+                        },
+                        {
+                            type: 'line',
+                            label: '每公斤售價 (元)',
+                            data: avocadoData.price,
+                            borderColor: 'rgb(239, 68, 68)',
+                            borderWidth: 3,
+                            yAxisID: 'yPrice'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: { drawTicks: false }
+                        },
+                        yVol: {
+                            type: 'linear',
+                            position: 'left',
+                            title: { display: true, text: '成交數量 (千公斤)' },
+                            beginAtZero: true,
+                            grid: { drawTicks: false }
+                        },
+                        yPrice: {
+                            type: 'linear',
+                            position: 'right',
+                            title: { display: true, text: '每公斤售價 (元)' },
+                            beginAtZero: true,
+                            grid: { drawOnChartArea: false, drawTicks: false }
+                        }
+                    },
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+        }
+
+        function toggleAvocadoOverlay() {
+            isAvocadoOverlay = !isAvocadoOverlay;
+            const sep = document.getElementById('separatedCharts');
+            const combo = document.getElementById('combinedChartContainer');
+            const btn = document.getElementById('btn-avocado-toggle');
+            const status = document.getElementById('overlayStatus');
+
+            if (isAvocadoOverlay) {
+                sep.classList.add('hidden');
+                combo.classList.remove('hidden');
+                btn.innerHTML = `<i class="fa-solid fa-table-columns"></i> 點擊分開顯示獨立圖表`;
+                status.innerText = "雙圖重疊分析模式";
+                status.className = "text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full";
+            } else {
+                sep.classList.remove('hidden');
+                combo.classList.add('hidden');
+                btn.innerHTML = `<i class="fa-solid fa-layer-group"></i> 點擊將「成交量」與「售價」圖表重疊`;
+                status.innerText = "分開顯示模式";
+                status.className = "text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full";
+            }
+        }
+
+        const quizAnswers = {
+            1: { ans: 'bar', exp: '長條圖高度明確，最容易直接比較同一月份基隆與臺東的數量差距！' },
+            2: { ans: 'line', exp: '折線圖的點與線具有連續性，最適合用來觀察隨時間產生的變化趨勢！' },
+            3: { ans: '108', exp: '民國 108 年出生人數下降至 175 千人，死亡人數上升至 176 千人，開始出現交叉！' },
+            4: { ans: 'decrease', exp: '成交量大幅增加代表盛產，市場供給多，價格就會逐漸減少下降。' },
+            5: { ans: '7-10', exp: '觀察兩年果汁銷售折線圖，最高峰的連續 4 個月皆落在 7月 到 10月！' }
+        };
+
+        let userAnswers = {};
+        let isSubmitted = false;
+
+        function selectOption(qNum, selectedOption, btnElem) {
+            if (isSubmitted) return; // 已提交時鎖定選擇
+
+            userAnswers[qNum] = { option: selectedOption, elem: btnElem };
+
+            // 清除該題其他選項的高亮外框
+            const opts = document.querySelectorAll(`.q${qNum}-opt`);
+            opts.forEach(btn => {
+                btn.classList.remove('bg-sky-100', 'border-sky-500', 'ring-2', 'ring-sky-400', 'font-bold');
+                btn.classList.add('border-slate-200');
+            });
+
+            // 套用目前選擇的高亮外框
+            btnElem.classList.remove('border-slate-200');
+            btnElem.classList.add('bg-sky-100', 'border-sky-500', 'ring-2', 'ring-sky-400', 'font-bold');
+        }
+
+        function submitQuiz() {
+            if (isSubmitted) return;
+
+            isSubmitted = true;
+            let correctCount = 0;
+
+            for (let qNum = 1; qNum <= 5; qNum++) {
+                const feedbackEl = document.getElementById(`q${qNum}-feedback`);
+                const opts = document.querySelectorAll(`.q${qNum}-opt`);
+                const correctObj = quizAnswers[qNum];
+                const userAns = userAnswers[qNum];
+
+                // 停用按鈕修改
+                opts.forEach(btn => {
+                    btn.disabled = true;
+                    btn.classList.add('cursor-not-allowed');
+                });
+
+                feedbackEl.classList.remove('hidden');
+
+                if (userAns && userAns.option === correctObj.ans) {
+                    correctCount++;
+                    userAns.elem.classList.remove('bg-sky-100', 'border-sky-500', 'ring-2', 'ring-sky-400');
+                    userAns.elem.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-900', 'font-bold');
+                    feedbackEl.className = "text-xs p-3 rounded-lg ml-7 font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300";
+                    feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> 答對了！${correctObj.exp}`;
+                } else if (userAns) {
+                    userAns.elem.classList.remove('bg-sky-100', 'border-sky-500', 'ring-2', 'ring-sky-400');
+                    userAns.elem.classList.add('bg-rose-100', 'border-rose-500', 'text-rose-900', 'font-bold');
+                    feedbackEl.className = "text-xs p-3 rounded-lg ml-7 font-semibold bg-rose-100 text-rose-800 border border-rose-300";
+                    feedbackEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600 mr-1"></i> 答錯囉！${correctObj.exp}`;
+                } else {
+                    feedbackEl.className = "text-xs p-3 rounded-lg ml-7 font-semibold bg-amber-100 text-amber-800 border border-amber-300";
+                    feedbackEl.innerHTML = `<i class="fa-solid fa-circle-exclamation text-amber-600 mr-1"></i> 未作答。`;
+                }
+            }
+
+            // 每題20分，共5題，滿分100分
+            const finalScore = correctCount * 20;
+            document.getElementById('quizScore').innerText = `${finalScore} / 100`;
+
+            // 顯示總評結果 Banner
+            const banner = document.getElementById('quizResultBanner');
+            const titleEl = document.getElementById('quizResultTitle');
+            const detailEl = document.getElementById('quizResultDetail');
+
+            banner.classList.remove('hidden');
+            if (finalScore === 100) {
+                banner.className = "p-4 rounded-xl text-center space-y-1 bg-emerald-50 border border-emerald-300 text-emerald-900";
+                titleEl.innerHTML = `<i class="fa-solid fa-trophy text-amber-500 mr-2"></i> 太棒了！獲得滿分 100 分！`;
+                detailEl.innerText = "你完全掌握了長條圖與折線圖的觀察與分析能力！";
+            } else if (finalScore >= 60) {
+                banner.className = "p-4 rounded-xl text-center space-y-1 bg-sky-50 border border-sky-300 text-sky-900";
+                titleEl.innerHTML = `<i class="fa-solid fa-star text-amber-500 mr-2"></i> 表現優異！獲得 ${finalScore} 分！`;
+                detailEl.innerText = "請參考各題詳細解析進行複習，再接再勵挑戰 100 分！";
+            } else {
+                banner.className = "p-4 rounded-xl text-center space-y-1 bg-amber-50 border border-amber-300 text-amber-900";
+                titleEl.innerHTML = `<i class="fa-solid fa-seedling text-emerald-500 mr-2"></i> 再接再勵！獲得 ${finalScore} 分`;
+                detailEl.innerText = "建議回到前面主題觀察圖表動態，點擊「重新測驗」再試一次！";
+            }
+        }
+
+        function resetQuiz() {
+            userAnswers = {};
+            isSubmitted = false;
+
+            // 重置得分
+            document.getElementById('quizScore').innerText = "0 / 100";
+
+            // 隱藏總評 Banner
+            document.getElementById('quizResultBanner').classList.add('hidden');
+
+            // 恢復所有題目的選項與解析狀態
+            for (let qNum = 1; qNum <= 5; qNum++) {
+                const feedbackEl = document.getElementById(`q${qNum}-feedback`);
+                feedbackEl.classList.add('hidden');
+                feedbackEl.innerHTML = "";
+
+                const opts = document.querySelectorAll(`.q${qNum}-opt`);
+                opts.forEach(btn => {
+                    btn.disabled = false;
+                    btn.className = `q${qNum}-opt text-left p-3 rounded-lg border border-slate-200 hover:bg-sky-50 transition text-sm cursor-pointer`;
+                });
+            }
+        }
+    </script>
+</body>
+</html>

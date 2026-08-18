@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>乘法分配律與簡化計算 - 互動探究學習網</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(165deg, #1a2a6c 0%, #2a5298 35%, #b21f1f 75%, #fdbb2d 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        .shinkai-header {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.85), rgba(124, 58, 237, 0.75), rgba(236, 72, 153, 0.65));
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 12px 32px 0 rgba(31, 38, 135, 0.18);
+        }
+
+        .tab-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .item-dot {
+            transition: all 0.2s ease;
+        }
+        .item-dot:hover {
+            transform: scale(1.25);
+        }
+
+        input[type=range] {
+            accent-color: #8b5cf6;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.9; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
+
+        .highlight-glow {
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+
+        .shortcut-step {
+            transition: all 0.4s ease-out;
+        }
+    </style>
+</head>
+<body class="pb-12">
+
+    <header class="shinkai-header text-white sticky top-0 z-50 shadow-lg mb-6">
+        <div class="max-w-6xl mx-auto px-4 py-3">
+            
+            <!-- 閒雲數學小棧 Logo 區塊 -->
+            <div class="w-full max-w-4xl flex items-center justify-start mb-2 px-2 fade-in">
+                <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+                <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 border-t border-white/20 pt-3">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-300 to-pink-500 flex items-center justify-center text-2xl shadow-md">
+                        ✨
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-extrabold tracking-wide drop-shadow">乘法對加減法的分配律</h1>
+                        <p class="text-xs text-blue-100 font-medium">國小五上數學 6-2 互動學習網頁</p>
+                    </div>
+                </div>
+
+                <!-- Tab Navigation -->
+                <nav class="flex flex-wrap gap-2 bg-white/20 p-1.5 rounded-2xl backdrop-blur-md">
+                    <button onclick="switchTab('explore')" id="tab-explore" class="tab-btn active px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-shapes"></i> 1. 圖像視覺探究
+                    </button>
+                    <button onclick="switchTab('mental')" id="tab-mental" class="tab-btn px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 text-white/90 hover:text-white">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> 2. 巧算拆解魔法
+                    </button>
+                    <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 text-white/90 hover:text-white">
+                        <i class="fa-solid fa-trophy"></i> 3. 闖關評量
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 space-y-6">
+
+        <!-- TAB 1: VISUAL EXPLORER -->
+        <section id="sec-explore" class="space-y-6">
+            <!-- Learning Goal Card -->
+            <div class="glass-card rounded-3xl p-6 border-l-8 border-indigo-500">
+                <div class="flex items-start gap-4">
+                    <span class="text-3xl">💡</span>
+                    <div>
+                        <h2 class="text-lg font-bold text-indigo-900">探究目標：發現乘法分配律的規律</h2>
+                        <p class="text-sm text-slate-600 mt-1">
+                            移動下方滑桿改變數量，觀察"「各自算出結果再相加減」"與"「先將組數合起來再乘」"的結果是否完全一樣！
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control & Visualization Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Controls Panel -->
+                <div class="lg:col-span-4 glass-card rounded-3xl p-6 space-y-6">
+                    <h3 class="text-md font-bold text-slate-800 flex items-center gap-2 border-b pb-3">
+                        <i class="fa-solid fa-sliders text-indigo-600"></i> 設定情境參數
+                    </h3>
+
+                    <!-- Operation Mode Selector -->
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">運算類型</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setOp('add')" id="op-add" class="py-2.5 px-3 rounded-xl border-2 border-indigo-500 bg-indigo-50 font-bold text-indigo-700 text-sm flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-plus-circle"></i> 加法分配律
+                            </button>
+                            <button onclick="setOp('sub')" id="op-sub" class="py-2.5 px-3 rounded-xl border-2 border-slate-200 text-slate-600 font-bold text-sm flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-minus-circle"></i> 減法分配律
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sliders -->
+                    <div class="space-y-4">
+                        <!-- Group A -->
+                        <div class="bg-blue-50/80 p-3.5 rounded-2xl border border-blue-100">
+                            <div class="flex justify-between items-center text-sm font-bold text-blue-900 mb-1">
+                                <span id="label-a">🔵 藍隊/金屬扣 (包數 A)</span>
+                                <span id="val-a" class="bg-blue-600 text-white px-2.5 py-0.5 rounded-full text-xs">5 包</span>
+                            </div>
+                            <input type="range" id="slider-a" min="1" max="8" value="5" class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer" oninput="handleSliderChange()">
+                        </div>
+
+                        <!-- Group B -->
+                        <div class="bg-amber-50/80 p-3.5 rounded-2xl border border-amber-100">
+                            <div class="flex justify-between items-center text-sm font-bold text-amber-900 mb-1">
+                                <span id="label-b">🟠 橘隊/木頭扣 (包數 B)</span>
+                                <span id="val-b" class="bg-amber-600 text-white px-2.5 py-0.5 rounded-full text-xs">3 包</span>
+                            </div>
+                            <input type="range" id="slider-b" min="1" max="8" value="3" class="w-full h-2 bg-amber-200 rounded-lg appearance-none cursor-pointer" oninput="handleSliderChange()">
+                            <p id="sub-warning" class="text-[11px] text-rose-600 font-bold mt-1 hidden">⚠️ 減法模式下，包數 B 不能大於包數 A 喔！</p>
+                        </div>
+
+                        <!-- Items per group C -->
+                        <div class="bg-purple-50/80 p-3.5 rounded-2xl border border-purple-100">
+                            <div class="flex justify-between items-center text-sm font-bold text-purple-900 mb-1">
+                                <span>📦 每包/每排數量 (C)</span>
+                                <span id="val-c" class="bg-purple-600 text-white px-2.5 py-0.5 rounded-full text-xs">6 顆</span>
+                            </div>
+                            <input type="range" id="slider-c" min="1" max="10" value="6" class="w-full h-2 bg-purple-200 rounded-lg appearance-none cursor-pointer" oninput="handleSliderChange()">
+                        </div>
+                    </div>
+
+                    <!-- Preset Buttons -->
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">課本例題一鍵載入</label>
+                        <div class="space-y-2">
+                            <button onclick="loadPreset(6, 4, 5, 'add')" class="w-full text-left px-3 py-2 text-xs font-medium bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition flex justify-between items-center">
+                                <span>📍 例1: 金屬扣6顆/包(5包) + 木頭扣4顆/包(5包)</span>
+                                <i class="fa-solid fa-angle-right text-slate-400"></i>
+                            </button>
+                            <button onclick="loadPreset(6, 4, 5, 'sub')" class="w-full text-left px-3 py-2 text-xs font-medium bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition flex justify-between items-center">
+                                <span>📍 例2: 金屬扣比木頭扣多幾顆？ (6包減4包)</span>
+                                <i class="fa-solid fa-angle-right text-slate-400"></i>
+                            </button>
+                            <button onclick="loadPreset(5, 3, 4, 'add')" class="w-full text-left px-3 py-2 text-xs font-medium bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition flex justify-between items-center">
+                                <span>📍 例3: 男生5排 + 女生3排 (每排皆4人)</span>
+                                <i class="fa-solid fa-angle-right text-slate-400"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Display Visualizer Panel -->
+                <div class="lg:col-span-8 glass-card rounded-3xl p-6 space-y-6 flex flex-col justify-between">
+                    <div>
+                        <!-- Method Thought Switcher Buttons -->
+                        <div class="mb-4 space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block">請選擇解題對照思維：</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <button onclick="setVisMethod(1)" id="vis-m1-btn" class="py-3 px-4 rounded-2xl font-bold text-sm transition flex flex-col items-center justify-center bg-blue-600 text-white shadow-md">
+                                    <span>方法一：分開算出再<span id="vis-m1-lbl">相加</span></span>
+                                    <span class="text-xs font-mono font-normal opacity-90">(A × C <span id="vis-m1-sym">+</span> B × C)</span>
+                                </button>
+                                <button onclick="setVisMethod(2)" id="vis-m2-btn" class="py-3 px-4 rounded-2xl font-bold text-sm transition flex flex-col items-center justify-center bg-slate-200 text-slate-700 hover:bg-slate-300">
+                                    <span>方法二：<span id="vis-m2-lbl">合起來包再算</span></span>
+                                    <span class="text-xs font-mono font-normal opacity-90">((A <span id="vis-m2-sym">+</span> B) × C)</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center border-b pb-2 mb-3">
+                            <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-eye text-pink-500"></i> 實時點陣視覺化 (Dots Array)
+                            </h3>
+                            <span class="text-[11px] bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full font-bold">即時渲染中</span>
+                        </div>
+
+                        <!-- Graphics Container -->
+                        <div id="visual-container" class="bg-slate-900 rounded-2xl p-5 min-h-[220px] flex flex-col items-center justify-center border border-slate-700 overflow-x-auto text-white relative">
+                            <!-- Dynamic dots will render here -->
+                        </div>
+                    </div>
+
+                    <!-- Pink Condition Banner -->
+                    <div class="bg-pink-100/90 border-2 border-pink-300 rounded-2xl py-3 px-6 text-center shadow-sm text-pink-900 font-black text-base flex items-center justify-center gap-2">
+                        <span>✨ 當每包/每排數量相同時</span>
+                    </div>
+
+                    <!-- Dual Method Math Formulas Comparison -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Method 1: Separate -->
+                        <div class="bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border-2 border-indigo-200 p-4 rounded-2xl text-center">
+                            <span class="inline-block px-3 py-1 bg-indigo-600 text-white text-xs font-bold rounded-full mb-2">解法一：分開計算再<span id="m1-op-text">相加</span></span>
+                            <div id="m1-formula" class="text-lg md:text-xl font-extrabold text-indigo-950 font-mono my-2">
+                                6 × 5 + 4 × 5
+                            </div>
+                            <div id="m1-step" class="text-sm text-indigo-700 font-bold">
+                                = 30 + 20 = <span class="text-xl text-indigo-900 font-black">50</span>
+                            </div>
+                        </div>
+
+                        <!-- Method 2: Combine -->
+                        <div class="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-2 border-emerald-200 p-4 rounded-2xl text-center">
+                            <span class="inline-block px-3 py-1 bg-emerald-600 text-white text-xs font-bold rounded-full mb-2">解法二：先<span id="m2-op-text">合起來</span>再相乘</span>
+                            <div id="m2-formula" class="text-lg md:text-xl font-extrabold text-emerald-950 font-mono my-2">
+                                ( 6 + 4 ) × 5
+                            </div>
+                            <div id="m2-step" class="text-sm text-emerald-700 font-bold">
+                                = 10 × 5 = <span class="text-xl text-emerald-900 font-black">50</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conclusion Box -->
+                    <div class="bg-amber-400/20 border border-amber-300 rounded-2xl p-3.5 text-center highlight-glow">
+                        <p class="text-amber-950 font-extrabold text-md md:text-lg" id="equality-statement">
+                            ✨ 由此可知： 6×5 + 4×5 = (6+4)×5 = 50
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: MENTAL MATH / SPLIT COMPARISON EXPLORER -->
+        <section id="sec-mental" class="hidden space-y-6">
+            <div class="glass-card rounded-3xl p-6 border-l-8 border-pink-500">
+                <div class="flex items-start gap-4">
+                    <span class="text-3xl">🪄</span>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">運用分配律進行「簡化速算」── 對照體驗</h2>
+                        <p class="text-sm text-slate-600 mt-1">
+                            點選題目後，先看左邊"一般按部就班算法"，再按下"「拆解數字」"按鈕，體驗右邊"巧算魔法"的驚人速度！
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-3xl p-6 space-y-6">
+                <!-- Preset Topic Selector -->
+                <div class="flex flex-wrap gap-2 pb-4 border-b">
+                    <button onclick="loadMentalTopic(1)" id="mental-btn-1" class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow">
+                        💡 1001 × 36 (拆解加法)
+                    </button>
+                    <button onclick="loadMentalTopic(2)" id="mental-btn-2" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300">
+                        💡 99 × 480 (拆解減法)
+                    </button>
+                    <button onclick="loadMentalTopic(3)" id="mental-btn-3" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300">
+                        💡 50 × 99 + 50 (提公因數)
+                    </button>
+                    <button onclick="loadMentalTopic(4)" id="mental-btn-4" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300">
+                        💡 250 × 24 + 250 × 26 (湊整百)
+                    </button>
+                </div>
+
+                <!-- Problem Statement Banner -->
+                <div class="text-center py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl shadow-md">
+                    <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full uppercase tracking-widest">當前探究題目</span>
+                    <div id="mental-title" class="text-2xl md:text-3xl font-black font-mono mt-1">1001 × 36</div>
+                    <p id="mental-desc" class="text-xs text-blue-100 mt-1">將 1001 看成 (1000 + 1) 再分別相乘</p>
+                </div>
+
+                <!-- Trigger Action Button -->
+                <div class="text-center py-2">
+                    <button onclick="triggerDecompose()" id="btn-decompose" class="px-8 py-3.5 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-600 text-white rounded-2xl font-black text-base shadow-lg hover:shadow-indigo-500/30 transform hover:-translate-y-1 active:translate-y-0 transition duration-200 flex items-center justify-center gap-2 mx-auto">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-300 text-xl"></i> 點我啟動：拆解數字魔法！
+                    </button>
+                </div>
+
+                <!-- Split Left vs Right Aligned Steps Grid -->
+                <div class="space-y-4">
+                    <!-- Column Titles Header -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-center font-bold text-sm">
+                        <div class="bg-slate-200 text-slate-700 py-2.5 rounded-xl border border-slate-300 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-pen-paper-straight text-slate-500"></i> 🐢 一般按部就班計算 (直式與硬算)
+                        </div>
+                        <div class="bg-indigo-100 text-indigo-900 py-2.5 rounded-xl border border-indigo-300 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-bolt text-amber-500"></i> 🚀 運用分配律巧算魔法 (心算速算)
+                        </div>
+                    </div>
+
+                    <!-- Row 1: Step 1 (Horizontal Alignment) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+                        <!-- Standard Step 1 -->
+                        <div class="bg-white rounded-2xl p-5 border-2 border-slate-200 shadow-sm relative flex flex-col justify-center">
+                            <span class="absolute -top-3 left-4 bg-slate-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">步驟 1：直接列式</span>
+                            <div id="std-step1-content" class="text-lg font-bold text-slate-800 text-center mt-2 font-mono">
+                                1001 × 36
+                            </div>
+                            <p id="std-step1-explain" class="text-xs text-slate-500 mt-2 text-center">準備進行四位數乘雙位數大數乘法</p>
+                        </div>
+
+                        <!-- Shortcut Step 1 -->
+                        <div id="sc-card-1" class="shortcut-step opacity-30 blur-[1px] bg-indigo-50/50 rounded-2xl p-5 border-2 border-dashed border-indigo-200 shadow-sm relative flex flex-col justify-center">
+                            <span class="absolute -top-3 left-4 bg-indigo-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">步驟 1：拆解數字</span>
+                            <div id="sc-step1-content" class="text-lg font-bold text-indigo-900 text-center mt-2 font-mono">
+                                = (1000 + 1) × 36
+                            </div>
+                            <p id="sc-step1-explain" class="text-xs text-indigo-700 mt-2 text-center">把不好算的 1001 變成 (1000 + 1)</p>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Step 2 (Horizontal Alignment) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+                        <!-- Standard Step 2 -->
+                        <div class="bg-white rounded-2xl p-5 border-2 border-slate-200 shadow-sm relative flex flex-col justify-center">
+                            <span class="absolute -top-3 left-4 bg-slate-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">步驟 2：直式計算</span>
+                            <div id="std-step2-content" class="text-lg font-bold text-slate-800 text-center mt-2 font-mono">
+                                1001 × 36 = ...
+                            </div>
+                            <p id="std-step2-explain" class="text-xs text-slate-500 mt-2 text-center">需在計算紙上辛苦列直式、進位與加總</p>
+                        </div>
+
+                        <!-- Shortcut Step 2 -->
+                        <div id="sc-card-2" class="shortcut-step opacity-30 blur-[1px] bg-indigo-50/50 rounded-2xl p-5 border-2 border-dashed border-indigo-200 shadow-sm relative flex flex-col justify-center">
+                            <span class="absolute -top-3 left-4 bg-indigo-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">步驟 2：展開分配</span>
+                            <div id="sc-step2-content" class="text-lg font-bold text-indigo-900 text-center mt-2 font-mono">
+                                = 1000 × 36 + 1 × 36
+                            </div>
+                            <p id="sc-step2-explain" class="text-xs text-indigo-700 mt-2 text-center">將 36 分別乘給 1000 與 1</p>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Step 3 (Horizontal Alignment) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+                        <!-- Standard Step 3 -->
+                        <div class="bg-slate-50 rounded-2xl p-5 border-2 border-slate-300 shadow-sm relative flex flex-col justify-center">
+                            <span class="absolute -top-3 left-4 bg-slate-700 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">步驟 3：算出答案</span>
+                            <div id="std-step3-content" class="text-lg font-extrabold text-slate-700 text-center mt-2 font-mono">
+                                = 36036
+                            </div>
+                            <p id="std-step3-explain" class="text-xs text-slate-500 mt-2 text-center">耗時較久，且容易有計算錯誤風險</p>
+                        </div>
+
+                        <!-- Shortcut Step 3 -->
+                        <div id="sc-card-3" class="shortcut-step opacity-30 blur-[1px] bg-emerald-50/50 rounded-2xl p-5 border-2 border-dashed border-emerald-200 shadow-sm relative flex flex-col justify-center">
+                            <span class="absolute -top-3 left-4 bg-emerald-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">步驟 3：輕鬆心算</span>
+                            <div id="sc-step3-content" class="text-xl font-black text-emerald-700 text-center mt-2 font-mono">
+                                = 36000 + 36 = 36036
+                            </div>
+                            <p id="sc-step3-explain" class="text-xs text-emerald-800 mt-2 text-center font-bold">無需直式！一眼看出解答！</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Interactive Calculator -->
+                <div class="bg-indigo-50/70 p-6 rounded-2xl border border-indigo-100 text-center space-y-4 mt-6">
+                    <h4 class="font-bold text-indigo-900">✍️ 換你動動手：動態數字測試</h4>
+                    <div class="flex flex-wrap items-center justify-center gap-3 text-lg font-bold font-mono">
+                        <span>( 1000 + 1 ) × </span>
+                        <input type="number" id="custom-multiplier" value="45" min="1" max="999" class="w-20 px-3 py-1 border-2 border-indigo-300 rounded-xl text-center focus:outline-none focus:border-indigo-600" oninput="calcCustomMental()">
+                        <span>= </span>
+                        <span id="custom-res" class="text-indigo-600 text-xl font-black">45045</span>
+                    </div>
+                    <p id="custom-detail" class="text-xs text-slate-500">解析：1000×45 + 1×45 = 45000 + 45 = 45045</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: 5 QUIZ QUESTIONS WITH IMMEDIATE FEEDBACK -->
+        <section id="sec-quiz" class="hidden space-y-6">
+            <div class="glass-card rounded-3xl p-6 border-l-8 border-amber-500 flex justify-between items-center">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">闖關評量</h2>
+                    <p class="text-sm text-slate-600">答題後點擊「提交答案」即可獲得專業即時回饋，檢視自己的學習效果！</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs font-bold text-slate-400 block uppercase">當前得分</span>
+                    <span id="quiz-score" class="text-3xl font-black text-amber-600 font-mono">0 / 100 分</span>
+                </div>
+            </div>
+
+            <!-- Quiz Questions Block -->
+            <div class="space-y-6">
+
+                <!-- Q1 -->
+                <div class="glass-card rounded-3xl p-6 space-y-4 border border-slate-200" id="q1-box">
+                    <div class="flex items-start gap-3">
+                        <span class="bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full mt-0.5">第 1 題</span>
+                        <p class="font-bold text-slate-800 text-base">
+                            一包金屬鈕扣有 6 顆，一包木頭鈕扣有 4 顆，妮妮兩種扣子各有 5 包。要求「一共有幾顆扣子」，下列哪一個算式"無法"算出正確答案？
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-8">
+                        <button onclick="selectQ1(1)" id="q1-opt-1" class="q1-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                            (A) 6 × 5 + 4 × 5
+                        </button>
+                        <button onclick="selectQ1(2)" id="q1-opt-2" class="q1-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                            (B) ( 6 + 4 ) × 5
+                        </button>
+                        <button onclick="selectQ1(3)" id="q1-opt-3" class="q1-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                            (C) ( 6 × 4 ) + 5
+                        </button>
+                        <button onclick="selectQ1(4)" id="q1-opt-4" class="q1-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                            (D) 6 + 4 的 5 倍
+                        </button>
+                    </div>
+                    <div id="q1-feedback" class="hidden p-4 rounded-2xl text-sm font-bold pl-8"></div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="glass-card rounded-3xl p-6 space-y-4 border border-slate-200" id="q2-box">
+                    <div class="flex items-start gap-3">
+                        <span class="bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full mt-0.5">第 2 題</span>
+                        <p class="font-bold text-slate-800 text-base">
+                            計算 <span class="font-mono text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">101 × 23 + 99 × 23</span> 時，運用分配律簡化後可以寫成 ( <span id="q2-blank1" class="border-b-2 border-indigo-500 font-mono px-2 text-indigo-600">?</span> ) × 23，最終答案是多少？
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3 pl-8">
+                        <input type="number" id="q2-input" placeholder="請輸入最終答案" class="px-4 py-2 border-2 border-slate-300 rounded-xl focus:border-indigo-500 outline-none text-sm font-bold font-mono">
+                    </div>
+                    <div id="q2-feedback" class="hidden p-4 rounded-2xl text-sm font-bold pl-8"></div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="glass-card rounded-3xl p-6 space-y-4 border border-slate-200" id="q3-box">
+                    <div class="flex items-start gap-3">
+                        <span class="bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full mt-0.5">第 3 題</span>
+                        <p class="font-bold text-slate-800 text-base">
+                            排隊做體操，男生一排有 5 人，有 4 排；女生一排有 5 人，有 3 排。男生比女生多幾人？（請選出簡化算式）
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-8">
+                        <button onclick="selectQ3(1)" id="q3-opt-1" class="q3-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                            (A) 5 × ( 4 - 3 ) = 5 人
+                        </button>
+                        <button onclick="selectQ3(2)" id="q3-opt-2" class="q3-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                            (B) ( 5 - 4 ) × 3 = 3 人
+                        </button>
+                        <button onclick="selectQ3(3)" id="q3-opt-3" class="q3-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                            (C) 5 × 4 + 5 × 3 = 35 人
+                        </button>
+                    </div>
+                    <div id="q3-feedback" class="hidden p-4 rounded-2xl text-sm font-bold pl-8"></div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="glass-card rounded-3xl p-6 space-y-4 border border-slate-200" id="q4-box">
+                    <div class="flex items-start gap-3">
+                        <span class="bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full mt-0.5">第 4 題</span>
+                        <p class="font-bold text-slate-800 text-base">
+                            丹丹每天將 1 個 50 元硬幣存進存錢筒，已經存了 99 天，今天又存進 1 個 50 元。請問丹丹共存了多少元？
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3 pl-8">
+                        <input type="number" id="q4-input" placeholder="請輸入金額 (元)" class="px-4 py-2 border-2 border-slate-300 rounded-xl focus:border-indigo-500 outline-none text-sm font-bold font-mono">
+                    </div>
+                    <div id="q4-feedback" class="hidden p-4 rounded-2xl text-sm font-bold pl-8"></div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="glass-card rounded-3xl p-6 space-y-4 border border-slate-200" id="q5-box">
+                    <div class="flex items-start gap-3">
+                        <span class="bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full mt-0.5">第 5 題</span>
+                        <p class="font-bold text-slate-800 text-base">
+                            電影票一張 250 元，小智全班 24 人和小晴全班 26 人一起去看電影，一共要付多少元？
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-8">
+                        <button onclick="selectQ5(1)" id="q5-opt-1" class="q5-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                            (A) 250 × 24 + 26 = 6026 元
+                        </button>
+                        <button onclick="selectQ5(2)" id="q5-opt-2" class="q5-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                            (B) 250 × ( 24 + 26 ) = 12500 元
+                        </button>
+                        <button onclick="selectQ5(3)" id="q5-opt-3" class="q5-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                            (C) ( 250 + 24 ) × 26 = 7124 元
+                        </button>
+                    </div>
+                    <div id="q5-feedback" class="hidden p-4 rounded-2xl text-sm font-bold pl-8"></div>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-center gap-4 py-4">
+                    <button onclick="submitQuiz()" class="px-8 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl font-black text-base shadow-lg hover:shadow-emerald-500/30 transform hover:-translate-y-0.5 active:translate-y-0 transition duration-200 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane text-xl"></i> 提交答案
+                    </button>
+                    <button onclick="resetQuiz()" class="px-8 py-3.5 bg-gradient-to-r from-slate-500 to-slate-700 text-white rounded-2xl font-black text-base shadow-lg hover:shadow-slate-500/30 transform hover:-translate-y-0.5 active:translate-y-0 transition duration-200 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-right text-xl"></i> 重新測驗
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        let currentOp = 'add';
+        let visMethod = 1; // 1: Separate, 2: Combined / Difference
+        let currentMentalTopic = 1;
+        let isDecomposed = false;
+        let userSelections = { q1: null, q3: null, q5: null };
+
+        // Data Store for Mental Math Topics
+        const mentalTopicsData = {
+            1: {
+                title: "1001 × 36",
+                desc: "將 1001 看成 (1000 + 1) 再分別相乘",
+                std: {
+                    s1: "1001 × 36",
+                    s1_exp: "準備進行四位數乘以兩位數的大數乘法",
+                    s2: "1001 × 36 = ...",
+                    s2_exp: "需在計算紙上辛苦列直式、進位與加總",
+                    s3: "= 36036",
+                    s3_exp: "耗時較久，且容易有計算錯誤風險"
+                },
+                shortcut: {
+                    s1: "= (1000 + 1) × 36",
+                    s1_exp: "把不好算的 1001 拆解成 (1000 + 1)",
+                    s2: "= 1000 × 36 + 1 × 36",
+                    s2_exp: "展開成整千乘法與個位數乘法",
+                    s3: "= 36000 + 36 = 36036",
+                    s3_exp: "輕鬆心算！秒答得出正確答案！"
+                }
+            },
+            2: {
+                title: "99 × 480",
+                desc: "將 99 看成 (100 - 1) 進行減法分配律",
+                std: {
+                    s1: "99 × 480",
+                    s1_exp: "準備進行三位數乘以兩位數直式計算",
+                    s2: "480 × 99 = ...",
+                    s2_exp: "需重複計算 9 的乘法並進行多位數相加",
+                    s3: "= 47520",
+                    s3_exp: "步驟較多，過程繁瑣容易出錯"
+                },
+                shortcut: {
+                    s1: "= (100 - 1) × 480",
+                    s1_exp: "把接近整百的 99 看成 100 - 1",
+                    s2: "= 100 × 480 - 1 × 480",
+                    s2_exp: "展開成整百乘法減去 1 倍的數量",
+                    s3: "= 48000 - 480 = 47520",
+                    s3_exp: "轉化成好算整百減法，快速得解！"
+                }
+            },
+            3: {
+                title: "50 × 99 + 50",
+                desc: "把單獨的 50 看成 50 × 1，提出公因數 50",
+                std: {
+                    s1: "先算 50 × 99 再加 50",
+                    s1_exp: "按照先乘除後加減的常規順序算",
+                    s2: "= 4950 + 50",
+                    s2_exp: "先算直式 50 × 99 得出 4950",
+                    s3: "= 5000",
+                    s3_exp: "算式較繁瑣，需要算直式"
+                },
+                shortcut: {
+                    s1: "= 50 × 99 + 50 × 1",
+                    s1_exp: "關鍵難點：將最後單獨的 50 看成 50 × 1",
+                    s2: "= 50 × (99 + 1)",
+                    s2_exp: "提出共同的 50，括號內湊成整百 100",
+                    s3: "= 50 × 100 = 5000",
+                    s3_exp: "湊成整百 100，心算即可得出 5000！"
+                }
+            },
+            4: {
+                title: "250 × 24 + 250 × 26",
+                desc: "提出共同的 250，將 24 與 26 合併湊成 50",
+                std: {
+                    s1: "分別算 250×24 與 250×26 再相加",
+                    s1_exp: "分別計算兩組大的三位數乘法",
+                    s2: "= 6000 + 6500",
+                    s2_exp: "算兩次繁瑣乘法：6000 與 6500",
+                    s3: "= 12500",
+                    s3_exp: "計算量大，相當耗費時間"
+                },
+                shortcut: {
+                    s1: "= 250 × ( 24 + 26 )",
+                    s1_exp: "觀察到兩項都有 250，先提出來",
+                    s2: "= 250 × 50",
+                    s2_exp: "先計算括號內：24 + 26 = 50",
+                    s3: "= 12500",
+                    s3_exp: "只算一次 250×50，計算量大幅縮減！"
+                }
+            }
+        };
+
+        window.onload = function() {
+            updateExplorer();
+            loadMentalTopic(1);
+            calcCustomMental();
+        };
+
+        // Tab Switcher
+        function switchTab(tab) {
+            document.getElementById('sec-explore').classList.add('hidden');
+            document.getElementById('sec-mental').classList.add('hidden');
+            document.getElementById('sec-quiz').classList.add('hidden');
+
+            document.getElementById('tab-explore').classList.remove('active');
+            document.getElementById('tab-mental').classList.remove('active');
+            document.getElementById('tab-quiz').classList.remove('active');
+
+            document.getElementById('sec-' + tab).classList.remove('hidden');
+            document.getElementById('tab-' + tab).classList.add('active');
+        }
+
+        // Operation Switcher (Add / Sub)
+        function setOp(op) {
+            currentOp = op;
+            const addBtn = document.getElementById('op-add');
+            const subBtn = document.getElementById('op-sub');
+
+            if (op === 'add') {
+                addBtn.className = "py-2.5 px-3 rounded-xl border-2 border-indigo-500 bg-indigo-50 font-bold text-indigo-700 text-sm flex items-center justify-center gap-2";
+                subBtn.className = "py-2.5 px-3 rounded-xl border-2 border-slate-200 text-slate-600 font-bold text-sm flex items-center justify-center gap-2";
+                document.getElementById('label-a').innerText = "🔵 藍隊/金屬扣 (包數 A)";
+                document.getElementById('label-b').innerText = "🟠 橘隊/木頭扣 (包數 B)";
+                document.getElementById('sub-warning').classList.add('hidden');
+                
+                document.getElementById('vis-m1-lbl').innerText = "相加";
+                document.getElementById('vis-m1-sym').innerText = "+";
+                document.getElementById('vis-m2-lbl').innerText = "合起來包再算";
+                document.getElementById('vis-m2-sym').innerText = "+";
+            } else {
+                subBtn.className = "py-2.5 px-3 rounded-xl border-2 border-indigo-500 bg-indigo-50 font-bold text-indigo-700 text-sm flex items-center justify-center gap-2";
+                addBtn.className = "py-2.5 px-3 rounded-xl border-2 border-slate-200 text-slate-600 font-bold text-sm flex items-center justify-center gap-2";
+                document.getElementById('label-a').innerText = "🔵 藍隊/較多量 (包數 A)";
+                document.getElementById('label-b').innerText = "🟠 橘隊/較少量 (包數 B)";
+
+                document.getElementById('vis-m1-lbl').innerText = "相減";
+                document.getElementById('vis-m1-sym').innerText = "-";
+                document.getElementById('vis-m2-lbl').innerText = "先求相差包數再算";
+                document.getElementById('vis-m2-sym').innerText = "-";
+            }
+            handleSliderChange();
+        }
+
+        // Set Method Switcher (1: Separate, 2: Combine/Difference)
+        function setVisMethod(m) {
+            visMethod = m;
+            const btn1 = document.getElementById('vis-m1-btn');
+            const btn2 = document.getElementById('vis-m2-btn');
+
+            if (m === 1) {
+                btn1.className = "py-3 px-4 rounded-2xl font-bold text-sm transition flex flex-col items-center justify-center bg-blue-600 text-white shadow-md";
+                btn2.className = "py-3 px-4 rounded-2xl font-bold text-sm transition flex flex-col items-center justify-center bg-slate-200 text-slate-700 hover:bg-slate-300";
+            } else {
+                btn2.className = "py-3 px-4 rounded-2xl font-bold text-sm transition flex flex-col items-center justify-center bg-emerald-600 text-white shadow-md";
+                btn1.className = "py-3 px-4 rounded-2xl font-bold text-sm transition flex flex-col items-center justify-center bg-slate-200 text-slate-700 hover:bg-slate-300";
+            }
+            updateExplorer();
+        }
+
+        // Handle Slider Change & Subtraction Constraint (A >= B)
+        function handleSliderChange() {
+            let a = parseInt(document.getElementById('slider-a').value);
+            let b = parseInt(document.getElementById('slider-b').value);
+
+            if (currentOp === 'sub') {
+                if (b > a) {
+                    b = a;
+                    document.getElementById('slider-b').value = a;
+                    document.getElementById('sub-warning').classList.remove('hidden');
+                } else {
+                    document.getElementById('sub-warning').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('sub-warning').classList.add('hidden');
+            }
+
+            updateExplorer();
+        }
+
+        function loadPreset(a, b, c, op) {
+            document.getElementById('slider-a').value = a;
+            document.getElementById('slider-b').value = b;
+            document.getElementById('slider-c').value = c;
+            setOp(op);
+        }
+
+        function updateExplorer() {
+            const a = parseInt(document.getElementById('slider-a').value);
+            const b = parseInt(document.getElementById('slider-b').value);
+            const c = parseInt(document.getElementById('slider-c').value);
+
+            document.getElementById('val-a').innerText = a + (currentOp === 'add' ? ' 包' : ' 排');
+            document.getElementById('val-b').innerText = b + (currentOp === 'add' ? ' 包' : ' 排');
+            document.getElementById('val-c').innerText = c + (currentOp === 'add' ? ' 顆/包' : ' 人/排');
+
+            const container = document.getElementById('visual-container');
+            container.innerHTML = '';
+
+            if (currentOp === 'add') {
+                // ADDITION MODE: Compact Pill Capsules
+                const wrapper = document.createElement('div');
+                wrapper.className = "flex flex-wrap items-center justify-center gap-2 p-3 transition-all";
+
+                if (visMethod === 2) {
+                    // Method 2: Outer dashed border box with label at bottom
+                    wrapper.className = "border-2 border-dashed border-amber-400 bg-amber-400/10 rounded-2xl p-4 flex flex-col items-center gap-3 relative";
+
+                    const pkgsGroup = document.createElement('div');
+                    pkgsGroup.className = "flex flex-wrap items-center justify-center gap-2.5";
+                    
+                    for (let i = 0; i < a; i++) {
+                        pkgsGroup.appendChild(createCapsule(c, 'blue'));
+                    }
+                    for (let j = 0; j < b; j++) {
+                        pkgsGroup.appendChild(createCapsule(c, 'emerald'));
+                    }
+
+                    const banner = document.createElement('div');
+                    banner.className = "text-amber-300 text-xs font-bold tracking-wide mt-1";
+                    banner.innerText = `✨ 合起來共 (${a} + ${b}) = ${a + b} 包，每包 ${c} 顆`;
+
+                    wrapper.appendChild(pkgsGroup);
+                    wrapper.appendChild(banner);
+                } else {
+                    // Method 1: Separated packages
+                    const groupA = document.createElement('div');
+                    groupA.className = "flex flex-wrap items-center justify-center gap-2";
+                    for (let i = 0; i < a; i++) {
+                        groupA.appendChild(createCapsule(c, 'blue'));
+                    }
+                    wrapper.appendChild(groupA);
+
+                    const plusSign = document.createElement('div');
+                    plusSign.className = "text-xl font-black text-indigo-300 px-1";
+                    plusSign.innerText = "＋";
+                    wrapper.appendChild(plusSign);
+
+                    const groupB = document.createElement('div');
+                    groupB.className = "flex flex-wrap items-center justify-center gap-2";
+                    for (let j = 0; j < b; j++) {
+                        groupB.appendChild(createCapsule(c, 'emerald'));
+                    }
+                    wrapper.appendChild(groupB);
+                }
+                container.appendChild(wrapper);
+
+            } else {
+                // SUBTRACTION MODE:
+                // All A Blue capsules aligned in row 1
+                // First B Green capsules aligned in row 2 below blue 1..B
+                const subWrapper = document.createElement('div');
+                subWrapper.className = "flex flex-col items-center justify-center gap-4 p-3 w-full";
+
+                const diff = a - b;
+                const unitName = '排';
+                const itemUnit = '人';
+
+                const columnsContainer = document.createElement('div');
+                columnsContainer.className = "flex flex-wrap items-start justify-center gap-3";
+
+                // Matched columns (1 to b) with Blue on top & Emerald on bottom
+                const matchedGroup = document.createElement('div');
+                matchedGroup.className = "flex flex-wrap items-center justify-center gap-3";
+
+                for (let i = 0; i < b; i++) {
+                    const col = document.createElement('div');
+                    col.className = "flex flex-col items-center gap-2";
+                    col.appendChild(createCapsule(c, 'blue'));
+                    col.appendChild(createCapsule(c, 'emerald'));
+                    matchedGroup.appendChild(col);
+                }
+                columnsContainer.appendChild(matchedGroup);
+
+                // Extra Blue columns (b+1 to a)
+                if (diff > 0) {
+                    const extraGroup = document.createElement('div');
+                    extraGroup.className = "flex flex-wrap items-center justify-center gap-2.5";
+
+                    for (let i = b; i < a; i++) {
+                        const col = document.createElement('div');
+                        col.className = "flex flex-col items-center gap-2";
+                        col.appendChild(createCapsule(c, 'blue'));
+                        extraGroup.appendChild(col);
+                    }
+
+                    if (visMethod === 2) {
+                        // Method 2: Yellow dashed box enclosing the extra blue columns on top row
+                        const diffBox = document.createElement('div');
+                        diffBox.className = "border-2 border-dashed border-amber-400 bg-amber-400/10 rounded-2xl p-3 flex flex-col items-center justify-center gap-2 relative";
+
+                        const diffLabel = document.createElement('div');
+                        diffLabel.className = "text-amber-300 font-extrabold text-xs tracking-wide mt-1";
+                        diffLabel.innerText = `✨ 相差 (${a} - ${b}) = ${diff} ${unitName}，每${unitName} ${c} ${itemUnit}`;
+
+                        diffBox.appendChild(extraGroup);
+                        diffBox.appendChild(diffLabel);
+                        columnsContainer.appendChild(diffBox);
+                    } else {
+                        // Method 1: Extra blue columns without dashed box
+                        columnsContainer.appendChild(extraGroup);
+                    }
+                }
+
+                subWrapper.appendChild(columnsContainer);
+                container.appendChild(subWrapper);
+            }
+
+            // Calculations
+            const symbol = currentOp === 'add' ? '+' : '−';
+            const resA = a * c;
+            const resB = b * c;
+            const total = currentOp === 'add' ? (resA + resB) : (resA - resB);
+            const groupSum = currentOp === 'add' ? (a + b) : (a - b);
+
+            // Update Method 1 UI
+            document.getElementById('m1-op-text').innerText = currentOp === 'add' ? '相加' : '相減';
+            document.getElementById('m1-formula').innerText = `${a} × ${c} ${symbol} ${b} × ${c}`;
+            document.getElementById('m1-step').innerHTML = `= ${resA} ${symbol} ${resB} = <span class="text-xl text-indigo-900 font-black">${total}</span>`;
+
+            // Update Method 2 UI
+            document.getElementById('m2-op-text').innerText = currentOp === 'add' ? '合起來' : '相減';
+            document.getElementById('m2-formula').innerText = `( ${a} ${symbol} ${b} ) × ${c}`;
+            document.getElementById('m2-step').innerHTML = `= ${groupSum} × ${c} = <span class="text-xl text-emerald-900 font-black">${total}</span>`;
+
+            // Equality Statement
+            document.getElementById('equality-statement').innerText = 
+                `✨ 由此可知： ${a}×${c} ${symbol} ${b}×${c} = (${a}${symbol}${b})×${c} = ${total}`;
+        }
+
+        function createCapsule(c, colorScheme) {
+            const pkg = document.createElement('div');
+            const borderCol = colorScheme === 'blue' ? 'border-sky-400 bg-sky-950/60' : 'border-emerald-400 bg-emerald-950/60';
+            const dotCol = colorScheme === 'blue' ? 'bg-sky-400' : 'bg-emerald-400';
+
+            pkg.className = `${borderCol} border-2 rounded-2xl p-2 flex flex-col justify-center items-center gap-1 min-w-[36px] shadow-sm`;
+
+            const grid = document.createElement('div');
+            grid.className = "grid grid-cols-2 gap-1.5";
+
+            for (let k = 0; k < c; k++) {
+                const dot = document.createElement('div');
+                dot.className = `w-2.5 h-2.5 ${dotCol} rounded-full item-dot shadow-sm`;
+                grid.appendChild(dot);
+            }
+            pkg.appendChild(grid);
+            return pkg;
+        }
+
+        function loadMentalTopic(topicId) {
+            currentMentalTopic = topicId;
+            isDecomposed = false;
+
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`mental-btn-${i}`);
+                if (i === topicId) {
+                    btn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow";
+                } else {
+                    btn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300";
+                }
+            }
+
+            const data = mentalTopicsData[topicId];
+            document.getElementById('mental-title').innerText = data.title;
+            document.getElementById('mental-desc').innerText = data.desc;
+
+            // Standard Left Side
+            document.getElementById('std-step1-content').innerText = data.std.s1;
+            document.getElementById('std-step1-explain').innerText = data.std.s1_exp;
+            document.getElementById('std-step2-content').innerText = data.std.s2;
+            document.getElementById('std-step2-explain').innerText = data.std.s2_exp;
+            document.getElementById('std-step3-content').innerText = data.std.s3;
+            document.getElementById('std-step3-explain').innerText = data.std.s3_exp;
+
+            // Shortcut Right Side
+            document.getElementById('sc-step1-content').innerText = data.shortcut.s1;
+            document.getElementById('sc-step1-explain').innerText = data.shortcut.s1_exp;
+            document.getElementById('sc-step2-content').innerText = data.shortcut.s2;
+            document.getElementById('sc-step2-explain').innerText = data.shortcut.s2_exp;
+            document.getElementById('sc-step3-content').innerText = data.shortcut.s3;
+            document.getElementById('sc-step3-explain').innerText = data.shortcut.s3_exp;
+
+            resetDeomposeUI();
+        }
+
+        function resetDeomposeUI() {
+            for (let i = 1; i <= 3; i++) {
+                const card = document.getElementById(`sc-card-${i}`);
+                card.className = "shortcut-step opacity-30 blur-[1px] bg-indigo-50/50 rounded-2xl p-5 border-2 border-dashed border-indigo-200 shadow-sm relative flex flex-col justify-center";
+            }
+            const btn = document.getElementById('btn-decompose');
+            btn.className = "px-8 py-3.5 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-600 text-white rounded-2xl font-black text-base shadow-lg hover:shadow-indigo-500/30 transform hover:-translate-y-1 active:translate-y-0 transition duration-200 flex items-center justify-center gap-2 mx-auto";
+            btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-amber-300 text-xl"></i> 點我啟動：拆解數字魔法！`;
+        }
+
+        function triggerDecompose() {
+            isDecomposed = true;
+            for (let i = 1; i <= 3; i++) {
+                const card = document.getElementById(`sc-card-${i}`);
+                if (i === 3) {
+                    card.className = "shortcut-step opacity-100 blur-0 bg-emerald-50 rounded-2xl p-5 border-2 border-emerald-400 shadow-md relative flex flex-col justify-center transform scale-102 transition duration-300";
+                } else {
+                    card.className = "shortcut-step opacity-100 blur-0 bg-indigo-50 rounded-2xl p-5 border-2 border-indigo-400 shadow-sm relative flex flex-col justify-center transition duration-300";
+                }
+            }
+
+            const btn = document.getElementById('btn-decompose');
+            btn.className = "px-8 py-3.5 bg-emerald-600 text-white rounded-2xl font-black text-base shadow-lg flex items-center justify-center gap-2 mx-auto cursor-default";
+            btn.innerHTML = `<i class="fa-solid fa-circle-check text-amber-300 text-xl"></i> 巧算拆解完成！對照左右看看吧！`;
+        }
+
+        function calcCustomMental() {
+            const mult = parseInt(document.getElementById('custom-multiplier').value) || 0;
+            const res = (1000 + 1) * mult;
+            document.getElementById('custom-res').innerText = res;
+            document.getElementById('custom-detail').innerText = `解析：1000 × ${mult} + 1 × ${mult} = ${1000*mult} + ${mult} = ${res}`;
+        }
+
+        function selectQ1(choice) {
+            userSelections.q1 = choice;
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`q1-opt-${i}`);
+                if (i === choice) {
+                    btn.className = "q1-opt text-left p-3 rounded-xl border-2 border-indigo-500 bg-indigo-50 font-bold text-sm text-indigo-900 shadow-sm";
+                } else {
+                    btn.className = "q1-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700";
+                }
+            }
+        }
+
+        function selectQ3(choice) {
+            userSelections.q3 = choice;
+            for (let i = 1; i <= 3; i++) {
+                const btn = document.getElementById(`q3-opt-${i}`);
+                if (i === choice) {
+                    btn.className = "q3-opt text-left p-3 rounded-xl border-2 border-indigo-500 bg-indigo-50 font-bold text-sm text-indigo-900 shadow-sm";
+                } else {
+                    btn.className = "q3-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700";
+                }
+            }
+        }
+
+        function selectQ5(choice) {
+            userSelections.q5 = choice;
+            for (let i = 1; i <= 3; i++) {
+                const btn = document.getElementById(`q5-opt-${i}`);
+                if (i === choice) {
+                    btn.className = "q5-opt text-left p-3 rounded-xl border-2 border-indigo-500 bg-indigo-50 font-bold text-sm text-indigo-900 shadow-sm";
+                } else {
+                    btn.className = "q5-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700";
+                }
+            }
+        }
+
+        function submitQuiz() {
+            let totalScore = 0;
+
+            // Q1 Check
+            const fb1 = document.getElementById('q1-feedback');
+            fb1.classList.remove('hidden');
+            if (userSelections.q1 === null) {
+                fb1.className = "p-4 rounded-2xl text-sm font-bold pl-8 bg-amber-100 text-amber-900 border border-amber-300";
+                fb1.innerHTML = "未作答。";
+            } else if (userSelections.q1 === 3) {
+                fb1.className = "p-4 rounded-2xl text-sm font-bold pl-8 bg-emerald-100 text-emerald-900 border border-emerald-300";
+                fb1.innerHTML = "🎉 答對囉！<br>解析：(6×4)+5 代表 24+5=29，無法正確表達兩種扣子 5 包的分配關係。正確應為 (6+4)×5 或 6×5+4×5。";
+                totalScore += 20;
+            } else {
+                fb1.className = "p-4 rounded-2xl text-sm font-bold pl-8 bg-rose-100 text-rose-900 border border-rose-300";
+                fb1.innerHTML = "❌ 答案不太對喔！<br>解析：題目要選的是「無法」算出答案的選項。(A)、(B)、(D)皆可正確表達分配律，唯有 (C) 的算法不正確。";
+            }
+
+            // Q2 Check
+            const val2 = document.getElementById('q2-input').value.trim();
+            const fb2 = document.getElementById('q2-feedback');
+            fb2.classList.remove('hidden');
+            if (val2 === '') {
+                fb2.className = "p-4 rounded-2xl text-sm font-bold pl-8 bg-amber-100 text-amber-900 border border-amber-300";
+                fb2.innerHTML = "未作答。";
+            } else if (parseInt(val2) === 4600) {
+                fb2.className = "p-4 rounded-2xl text-sm font-bold pl-8 bg-emerald-100 text-emerald-900 border border-emerald-300";
+                fb2.innerHTML = "🎉 答對了！<br>解析：101×23 + 99×23 = (101 + 99) × 23 = 200 × 23 = 4600。";
+                document.getElementById('q2-blank1').innerText = "101 + 99 = 200";
+                totalScore += 20;
+            } else {
+                fb2.className = "p-4 rounded-2xl text-sm font-bold pl-8 bg-rose-100 text-rose-900 border border-rose-300";
+                fb2.innerHTML = "❌ 答案不太對喔！<br>解析：101 與 99 可以先相加湊成 200，再乘以 23 算算看。";
+            }
+
+            // Q3 Check
+            const fb3 = document.getElementById('q3-feedback');
+            fb3.classList.remove('hidden');
+            if (userSelections.q3 === null) {
+                fb3.className = "p-4 rounded-2xl text-sm font-bold pl-8 bg-amber-100 text-amber-900 border border-amber-300";
+                fb3.innerHTML = "未作答。";
+            } else if (userSelections.q3 === 1) {
+                fb3.className = "p-4 rounded-2xl text-sm font-bold pl-8 bg-emerald-100 text-emerald-900 border border-emerald-300";
+                fb3.innerHTML = "🎉 答對了！<br>解析：男生4排、女生3排，每排皆5人。相差排數為 (4 - 3) = 1 排，再乘以每排 5 人：5 × (4 - 3) = 5 人。";
+                totalScore += 20;
+            } else {
+                fb3.className = "p-4 rounded-2xl text-sm font-bold pl-8 bg-rose-100 text-rose-900 border border-rose-300";
+                fb3.innerHTML = "❌ 答案不太對喔！<br>解析：每排有 5 人，男生比女生多 (4 - 3) 排，簡化算式寫作 5 × (4 - 3)。";
+            }
+
+            // Q4 Check
+            const val4 = document.getElementById('q4-input').value.trim();
+            const fb4 = document.getElementById('q4-feedback');
+            fb4.classList.remove('hidden');
+            if (val4 === '') {
+                fb4.className = "p-4 rounded-2xl text-sm font-bold pl-8 bg-amber-100 text-amber-900 border border-amber-300";
+                fb4.innerHTML = "未作答。";
+            } else if (parseInt(val4) === 5000) {
+                fb4.className = "p-4 rounded-2xl text-sm font-bold pl-8 bg-emerald-100 text-emerald-900 border border-emerald-300";
+                fb4.innerHTML = "🎉 答對了！<br>解析：50×99 + 50 = 50×99 + 50×1 = 50 × (99 + 1) = 50 × 100 = 5000 元。";
+                totalScore += 20;
+            } else {
+                fb4.className = "p-4 rounded-2xl text-sm font-bold pl-8 bg-rose-100 text-rose-900 border border-rose-300";
+                fb4.innerHTML = "❌ 答案不太對喔！<br>解析：最後加進的 1 個 50 元看成 50×1，共有 (99 + 1) 個 50 元，即 50×100。";
+            }
+
+            // Q5 Check
+            const fb5 = document.getElementById('q5-feedback');
+            fb5.classList.remove('hidden');
+            if (userSelections.q5 === null) {
+                fb5.className = "p-4 rounded-2xl text-sm font-bold pl-8 bg-amber-100 text-amber-900 border border-amber-300";
+                fb5.innerHTML = "未作答。";
+            } else if (userSelections.q5 === 2) {
+                fb5.className = "p-4 rounded-2xl text-sm font-bold pl-8 bg-emerald-100 text-emerald-900 border border-emerald-300";
+                fb5.innerHTML = "🎉 答對了！<br>解析：兩班人數合起來為 (24 + 26) = 50 人，每人票價 250 元，總票價為 250 × (24 + 26) = 250 × 50 = 12500 元。";
+                totalScore += 20;
+            } else {
+                fb5.className = "p-4 rounded-2xl text-sm font-bold pl-8 bg-rose-100 text-rose-900 border border-rose-300";
+                fb5.innerHTML = "❌ 答案不太對喔！<br>解析：全班人數應先合起來 (24 + 26)，再一起乘以單價 250 元。";
+            }
+
+            document.getElementById('quiz-score').innerText = `${totalScore} / 100 分`;
+        }
+
+        function resetQuiz() {
+            userSelections = { q1: null, q3: null, q5: null };
+
+            // Clear option styles
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`q1-opt-${i}`);
+                if (btn) btn.className = "q1-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700";
+            }
+            for (let i = 1; i <= 3; i++) {
+                const btn3 = document.getElementById(`q3-opt-${i}`);
+                if (btn3) btn3.className = "q3-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700";
+                const btn5 = document.getElementById(`q5-opt-${i}`);
+                if (btn5) btn5.className = "q5-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700";
+            }
+
+            // Clear inputs
+            document.getElementById('q2-input').value = '';
+            document.getElementById('q4-input').value = '';
+            document.getElementById('q2-blank1').innerText = '?';
+
+            // Hide feedback
+            for (let i = 1; i <= 5; i++) {
+                const fb = document.getElementById(`q${i}-feedback`);
+                if (fb) {
+                    fb.classList.add('hidden');
+                    fb.innerHTML = '';
+                }
+            }
+
+            // Reset score
+            document.getElementById('quiz-score').innerText = `0 / 100 分`;
+        }
+    </script>
+</body>
+</html>

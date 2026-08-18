@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>幾分之幾圓與圓心角 - 互動學習網頁</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Noto Sans TC Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #5ba0fb 0%, #8caeef 35%, #e1b2ce 75%, #fcd3c1 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        /* 國小課本標準直式分數格式與垂直置中 */
+        .fraction-wrap {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            margin: 0 3px;
+            font-weight: 700;
+        }
+        .fraction-wrap .integer {
+            margin-right: 3px;
+            font-size: 1.1em;
+            line-height: 1;
+        }
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            text-align: center;
+            font-size: 0.95em;
+            line-height: 1.1;
+            margin: 0 2px;
+            font-weight: 700;
+        }
+        .fraction .num {
+            border-bottom: 2px solid currentColor;
+            padding: 0 3px 1px 3px;
+            text-align: center;
+        }
+        .fraction .den {
+            padding: 1px 3px 0 3px;
+            text-align: center;
+        }
+
+        /* 新海誠磨砂玻璃質感卡片 */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 30px rgba(71, 85, 105, 0.12);
+        }
+
+        /* 滑桿客製化 */
+        input[type=range] {
+            accent-color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="p-3 md:p-6 text-slate-800">
+
+    <div class="max-w-6xl mx-auto space-y-5">
+        
+        <!-- 頂部品牌 Logo 區域 -->
+        <div class="w-full max-w-6xl flex items-center justify-start mb-2 px-2">
+            <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+            <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+        </div>
+
+        <!-- 頂部頁頭標誌 -->
+        <div class="text-center space-y-2">
+            <div class="inline-flex items-center gap-2 bg-white/40 backdrop-blur-md px-5 py-1.5 rounded-full text-blue-900 font-bold text-sm shadow-sm border border-white/50">
+                <i class="fa-solid fa-graduation-cap text-blue-600"></i> 國小五上數學 10-3 互動學習網頁
+            </div>
+            <h1 class="text-3xl md:text-5xl font-black text-white tracking-wider drop-shadow-md">
+                幾分之幾圓與圓心角
+            </h1>
+            <p class="text-white/90 text-sm md:text-base font-medium drop-shadow-sm">
+                滑動參數、觀察切分與角度變化的連動效果，輕鬆理解圓心角與分數轉換！
+            </p>
+        </div>
+
+        <!-- 頁籤切換按鈕組 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+            <button onclick="switchTab(1)" id="tab-btn-1" class="tab-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all shadow-md bg-white text-blue-600 border-2 border-white">
+                <i class="fa-solid fa-chart-pie"></i> 1. 幾分之幾圓與切割
+            </button>
+            <button onclick="switchTab(2)" id="tab-btn-2" class="tab-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all shadow-md bg-white/70 text-slate-700 hover:bg-white border-2 border-transparent">
+                <i class="fa-solid fa-compass"></i> 2. 圓心角與分數換算
+            </button>
+            <button onclick="switchTab(3)" id="tab-btn-3" class="tab-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all shadow-md bg-white/70 text-slate-700 hover:bg-white border-2 border-transparent">
+                <i class="fa-solid fa-shapes"></i> 3. 扇形合成與繪製
+            </button>
+            <button onclick="switchTab(4)" id="tab-btn-4" class="tab-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all shadow-md bg-white/70 text-slate-700 hover:bg-white border-2 border-transparent">
+                <i class="fa-solid fa-pen-to-square"></i> 4. 自我評量
+            </button>
+        </div>
+
+        <!-- TAB 1: 幾分之幾圓與切割 -->
+        <div id="tab-content-1" class="tab-content glass-card rounded-3xl p-4 md:p-8 space-y-6">
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-rose-600 flex items-center gap-2">
+                        <i class="fa-regular fa-circle text-rose-500"></i> 幾分之幾圓的切割與命名
+                    </h2>
+                    <p class="text-slate-500 text-sm mt-1">調整圓分成的等分數與塗色份數，觀察塗色區域對應的分數。</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="bg-rose-100 text-rose-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-rose-200">
+                        課本概念：等分圓與扇形
+                    </span>
+                    <label class="flex items-center gap-2 text-sm font-semibold bg-white px-3 py-1.5 rounded-lg border border-slate-200 cursor-pointer shadow-sm hover:bg-slate-50">
+                        <input type="checkbox" id="showProtractor1" checked onchange="updateTab1()" class="rounded text-rose-500 focus:ring-rose-400">
+                        <span class="text-slate-700">顯示圓心角量角器刻度</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                <!-- 左側圓形繪製區 -->
+                <div class="lg:col-span-6 bg-rose-50/50 rounded-2xl p-5 border border-rose-100 flex flex-col items-center justify-center space-y-4">
+                    <div class="relative w-full max-w-[340px] aspect-square flex items-center justify-center">
+                        <svg id="svgTab1" viewBox="0 0 300 300" class="w-full h-full drop-shadow-md"></svg>
+                    </div>
+                    <div id="hintTab1" class="text-xs md:text-sm font-semibold text-rose-500 flex items-center gap-1 bg-white px-3 py-1.5 rounded-full shadow-sm border border-rose-100">
+                        <i class="fa-solid fa-arrow-turn-down text-rose-400 rotate-90"></i> 提示：突出亮色部分為其中的 <span id="hintDenNum">1</span> 等份扇形
+                    </div>
+                    <!-- 快選按鈕組 -->
+                    <div class="w-full space-y-2 text-center pt-2">
+                        <p class="text-xs font-bold text-slate-500">點擊下方按鈕或調整滑桿，選擇份數：</p>
+                        <div class="flex flex-wrap justify-center gap-2">
+                            <button onclick="setSplit1(2)" class="px-3 py-1 bg-white text-rose-600 rounded-lg text-xs font-bold border border-rose-200 hover:bg-rose-50 shadow-sm">2 等份</button>
+                            <button onclick="setSplit1(4)" class="px-3 py-1 bg-white text-rose-600 rounded-lg text-xs font-bold border border-rose-200 hover:bg-rose-50 shadow-sm">4 等份</button>
+                            <button onclick="setSplit1(6)" class="px-3 py-1 bg-white text-rose-600 rounded-lg text-xs font-bold border border-rose-200 hover:bg-rose-50 shadow-sm">6 等份</button>
+                            <button onclick="setSplit1(8)" class="px-3 py-1 bg-white text-rose-600 rounded-lg text-xs font-bold border border-rose-200 hover:bg-rose-50 shadow-sm">8 等份</button>
+                            <button onclick="setSplit1(10)" class="px-3 py-1 bg-white text-rose-600 rounded-lg text-xs font-bold border border-rose-200 hover:bg-rose-50 shadow-sm">10 等份</button>
+                            <button onclick="setSplit1(12)" class="px-3 py-1 bg-white text-rose-600 rounded-lg text-xs font-bold border border-rose-200 hover:bg-rose-50 shadow-sm">12 等份</button>
+                            <button onclick="setSplit1(360)" class="px-3 py-1 bg-amber-100 text-amber-700 rounded-lg text-xs font-bold border border-amber-300 hover:bg-amber-200 shadow-sm">★ 特殊：360等份</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側控制項與摘要 -->
+                <div class="lg:col-span-6 space-y-5">
+                    <!-- 滑桿1: 等分 (分母) -->
+                    <div class="bg-white p-4 rounded-2xl border border-rose-100 shadow-sm space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="font-bold text-slate-700 flex items-center gap-2">
+                                <i class="fa-solid fa-scissors text-rose-500"></i> 將圓分成幾等分（分母）：
+                            </label>
+                            <span id="denomVal1" class="text-2xl font-black text-rose-600">6</span>
+                        </div>
+                        <input type="range" id="denomSlider1" min="2" max="12" value="6" oninput="onDenomChange1(this.value)" class="w-full h-2 bg-rose-100 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-xs text-slate-400 font-semibold px-1">
+                            <span>2 等份</span>
+                            <span>6 等份</span>
+                            <span>12 等份</span>
+                        </div>
+                    </div>
+
+                    <!-- 滑桿2: 塗色 (分子) -->
+                    <div class="bg-white p-4 rounded-2xl border border-rose-100 shadow-sm space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="font-bold text-slate-700 flex items-center gap-2">
+                                <i class="fa-solid fa-paint-roller text-rose-500"></i> 其中的幾等份塗色（分子）：
+                            </label>
+                            <span id="numVal1" class="text-2xl font-black text-rose-600">1</span>
+                        </div>
+                        <input type="range" id="numSlider1" min="1" max="6" value="1" oninput="updateTab1()" class="w-full h-2 bg-rose-100 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- 重點卡片摘要 -->
+                    <div class="bg-rose-50/80 rounded-2xl p-5 border border-rose-200/60 space-y-4">
+                        <h3 class="font-bold text-rose-700 flex items-center gap-2">
+                            <i class="fa-regular fa-lightbulb text-amber-500 text-lg"></i> 學習重點摘要：
+                        </h3>
+                        <p class="text-base font-semibold text-slate-700 flex items-center flex-wrap gap-1 leading-loose">
+                            將圓分成 <span id="summaryDenom" class="text-rose-600 font-bold text-lg">6</span> 等分，其中的 <span id="summaryNum" class="text-rose-600 font-bold text-lg">1</span> 等份是 
+                            <span id="summaryFractionDisplay" class="inline-block px-1"></span> 個圓。
+                        </p>
+                        <div class="bg-white p-3 rounded-xl border border-rose-100 text-center font-bold text-slate-700 shadow-sm">
+                            圓心角算式：<span class="text-slate-800">360° ÷ <span id="calcDenom">6</span> × <span id="calcNum">1</span> = <span id="calcAngle" class="text-rose-600 text-xl font-black">60°</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: 圓心角與分數換算 -->
+        <div id="tab-content-2" class="tab-content glass-card rounded-3xl p-4 md:p-8 space-y-6 hidden">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-amber-600 flex items-center gap-2">
+                        <i class="fa-solid fa-compass text-amber-500"></i> 圓心角與幾分之幾圓的換算
+                    </h2>
+                    <p class="text-slate-500 text-sm mt-1">旋轉圓心角或輸入角度，探索 360° 全圓與扇形角度的比例關係。</p>
+                </div>
+                <div class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1.5 rounded-lg border border-amber-200">
+                    核心公式：圓心角 = 360° × 幾分之幾圓
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                <!-- 左側互動圓形控制區：白底、淺灰外框 -->
+                <div class="lg:col-span-5 bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex flex-col gap-2">
+                        <button onclick="setTab2Mode('A')" id="btnModeA" class="w-full py-2 px-3 rounded-xl font-bold text-sm border shadow-sm transition-all bg-amber-500 text-white border-amber-600">
+                            模式 A：圓心角 ➔ 幾分之幾圓
+                        </button>
+                        <button onclick="setTab2Mode('B')" id="btnModeB" class="w-full py-2 px-3 rounded-xl font-bold text-sm border shadow-sm transition-all bg-white text-emerald-600 border-emerald-300 hover:bg-emerald-50">
+                            模式 B：幾分之幾圓 ➔ 圓心角
+                        </button>
+                    </div>
+
+                    <div class="relative w-full max-w-[280px] aspect-square mx-auto flex items-center justify-center">
+                        <svg id="svgTab2" viewBox="0 0 300 300" class="w-full h-full drop-shadow-md"></svg>
+                    </div>
+                </div>
+
+                <!-- 右側控制項與推導思考 -->
+                <div class="lg:col-span-7 space-y-4">
+                    <!-- 模式 A 快選角度區 -->
+                    <div id="tab2QuickAngles" class="bg-amber-50/60 p-4 rounded-2xl border border-amber-200 space-y-2">
+                        <p class="text-xs font-bold text-amber-800 text-center">常用快捷選項：</p>
+                        <div class="grid grid-cols-5 gap-2">
+                            <button onclick="selectQuickAngle(30)" class="py-2 px-1 bg-white text-amber-700 font-bold rounded-xl border border-amber-200 hover:bg-amber-100 shadow-sm text-sm">30°</button>
+                            <button onclick="selectQuickAngle(36)" class="py-2 px-1 bg-white text-amber-700 font-bold rounded-xl border border-amber-200 hover:bg-amber-100 shadow-sm text-sm">36°</button>
+                            <button onclick="selectQuickAngle(45)" class="py-2 px-1 bg-white text-amber-700 font-bold rounded-xl border border-amber-200 hover:bg-amber-100 shadow-sm text-sm">45°</button>
+                            <button onclick="selectQuickAngle(60)" class="py-2 px-1 bg-white text-amber-700 font-bold rounded-xl border border-amber-200 hover:bg-amber-100 shadow-sm text-sm">60°</button>
+                            <button onclick="selectQuickAngle(72)" class="py-2 px-1 bg-white text-amber-700 font-bold rounded-xl border border-amber-200 hover:bg-amber-100 shadow-sm text-sm">72°</button>
+                            <button onclick="selectQuickAngle(90)" class="py-2 px-1 bg-white text-amber-700 font-bold rounded-xl border border-amber-200 hover:bg-amber-100 shadow-sm text-sm">90°</button>
+                            <button onclick="selectQuickAngle(120)" class="py-2 px-1 bg-white text-amber-700 font-bold rounded-xl border border-amber-200 hover:bg-amber-100 shadow-sm text-sm">120°</button>
+                            <button onclick="selectQuickAngle(180)" class="py-2 px-1 bg-white text-amber-700 font-bold rounded-xl border border-amber-200 hover:bg-amber-100 shadow-sm text-sm">180°</button>
+                            <button onclick="selectQuickAngle(270)" class="py-2 px-1 bg-white text-amber-700 font-bold rounded-xl border border-amber-200 hover:bg-amber-100 shadow-sm text-sm">270°</button>
+                            <button onclick="selectQuickAngle(360)" class="py-2 px-1 bg-white text-amber-700 font-bold rounded-xl border border-amber-200 hover:bg-amber-100 shadow-sm text-sm">360°</button>
+                        </div>
+                    </div>
+
+                    <!-- 模式 A 角度滑桿區 -->
+                    <div id="tab2AngleSliderBox" class="bg-amber-50/60 p-4 rounded-2xl border border-amber-200 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="font-bold text-amber-900 flex items-center gap-2">
+                                <i class="fa-solid fa-arrows-rotate text-amber-600"></i> 調整圓心角度數：
+                            </label>
+                            <span id="angleSliderVal2" class="text-2xl font-black text-amber-600">60°</span>
+                        </div>
+                        <input type="range" id="angleSlider2" min="1" max="360" value="60" oninput="onAngleSliderChange(this.value)" class="w-full h-2 bg-amber-200 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- 模式 B 快選分數區 -->
+                    <div id="tab2QuickFracs" class="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-200 space-y-3 hidden">
+                        <p class="text-xs font-bold text-emerald-800 text-center">常用快捷選項：</p>
+                        <div class="grid grid-cols-5 gap-2">
+                            <button onclick="selectQuickFrac(1,2)" class="p-2 bg-white text-emerald-800 rounded-xl border border-emerald-200 hover:bg-emerald-100 shadow-sm flex items-center justify-center min-h-[48px]">
+                                <span class="fraction"><span class="num">1</span><span class="den">2</span></span>
+                            </button>
+                            <button onclick="selectQuickFrac(1,3)" class="p-2 bg-white text-emerald-800 rounded-xl border border-emerald-200 hover:bg-emerald-100 shadow-sm flex items-center justify-center min-h-[48px]">
+                                <span class="fraction"><span class="num">1</span><span class="den">3</span></span>
+                            </button>
+                            <button onclick="selectQuickFrac(1,4)" class="p-2 bg-white text-emerald-800 rounded-xl border border-emerald-200 hover:bg-emerald-100 shadow-sm flex items-center justify-center min-h-[48px]">
+                                <span class="fraction"><span class="num">1</span><span class="den">4</span></span>
+                            </button>
+                            <button onclick="selectQuickFrac(1,5)" class="p-2 bg-white text-emerald-800 rounded-xl border border-emerald-200 hover:bg-emerald-100 shadow-sm flex items-center justify-center min-h-[48px]">
+                                <span class="fraction"><span class="num">1</span><span class="den">5</span></span>
+                            </button>
+                            <button onclick="selectQuickFrac(1,6)" class="p-2 bg-white text-emerald-800 rounded-xl border border-emerald-200 hover:bg-emerald-100 shadow-sm flex items-center justify-center min-h-[48px]">
+                                <span class="fraction"><span class="num">1</span><span class="den">6</span></span>
+                            </button>
+                            <button onclick="selectQuickFrac(1,8)" class="p-2 bg-white text-emerald-800 rounded-xl border border-emerald-200 hover:bg-emerald-100 shadow-sm flex items-center justify-center min-h-[48px]">
+                                <span class="fraction"><span class="num">1</span><span class="den">8</span></span>
+                            </button>
+                            <button onclick="selectQuickFrac(1,10)" class="p-2 bg-white text-emerald-800 rounded-xl border border-emerald-200 hover:bg-emerald-100 shadow-sm flex items-center justify-center min-h-[48px]">
+                                <span class="fraction"><span class="num">1</span><span class="den">10</span></span>
+                            </button>
+                            <button onclick="selectQuickFrac(1,12)" class="p-2 bg-white text-emerald-800 rounded-xl border border-emerald-200 hover:bg-emerald-100 shadow-sm flex items-center justify-center min-h-[48px]">
+                                <span class="fraction"><span class="num">1</span><span class="den">12</span></span>
+                            </button>
+                            <button onclick="selectQuickFrac(1,18)" class="p-2 bg-white text-emerald-800 rounded-xl border border-emerald-200 hover:bg-emerald-100 shadow-sm flex items-center justify-center min-h-[48px]">
+                                <span class="fraction"><span class="num">1</span><span class="den">18</span></span>
+                            </button>
+                            <button onclick="selectQuickFrac(1,36)" class="p-2 bg-white text-emerald-800 rounded-xl border border-emerald-200 hover:bg-emerald-100 shadow-sm flex items-center justify-center min-h-[48px]">
+                                <span class="fraction"><span class="num">1</span><span class="den">36</span></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 推導思考步驟區 -->
+                    <div id="tab2ThinkingBox" class="bg-amber-50/80 rounded-2xl p-5 border border-amber-200 space-y-4">
+                        <div id="thinkingHeader" class="flex justify-between items-center border-b border-amber-200/80 pb-2">
+                            <h3 id="thinkingTitle" class="font-bold text-amber-800 flex items-center gap-2">
+                                <i class="fa-solid fa-calculator text-amber-600"></i> 推導思考步驟
+                            </h3>
+                            <span id="thinkingSubtext" class="text-xs text-amber-600 font-semibold">一個圓的周角 = 360°</span>
+                        </div>
+
+                        <div id="stepThinkingDisplay" class="bg-white p-4 rounded-xl border border-amber-100 space-y-2 text-slate-700 font-semibold leading-relaxed shadow-sm">
+                            <!-- JS動態生成解題推導步驟 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: 扇形合成與繪製 -->
+        <div id="tab-content-3" class="tab-content glass-card rounded-3xl p-4 md:p-8 space-y-6 hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- 左側：1. 扇形拼合思考帽 -->
+                <div class="lg:col-span-6 space-y-4">
+                    <div class="space-y-1">
+                        <h2 class="text-2xl font-bold text-emerald-800 flex items-center gap-2">
+                            <i class="fa-solid fa-puzzle-piece text-emerald-600"></i> 1. 扇形拼合思考帽
+                        </h2>
+                        <p class="text-slate-500 text-sm">選擇兩個扇形拼在一起，看看圓心角如何相加！</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-emerald-50/50 p-3 rounded-2xl border border-emerald-300 shadow-sm text-emerald-800">
+                            <label class="text-xs font-bold block mb-1">扇形 A：</label>
+                            <select id="combineSector1" onchange="updateTab3Combine()" class="w-full bg-white p-2 rounded-xl font-bold text-emerald-900 border border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                                <option value="120" selected>1/3 圓</option>
+                                <option value="60">1/6 圓</option>
+                                <option value="90">1/4 圓</option>
+                                <option value="30">1/12 圓</option>
+                            </select>
+                        </div>
+                        <div class="bg-emerald-50/50 p-3 rounded-2xl border border-emerald-300 shadow-sm text-emerald-800">
+                            <label class="text-xs font-bold block mb-1">扇形 B：</label>
+                            <select id="combineSector2" onchange="updateTab3Combine()" class="w-full bg-white p-2 rounded-xl font-bold text-emerald-900 border border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                                <option value="60" selected>1/6 圓</option>
+                                <option value="120">1/3 圓</option>
+                                <option value="90">1/4 圓</option>
+                                <option value="30">1/12 圓</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- SVG 展示區 -->
+                    <div class="bg-white p-4 rounded-2xl border border-emerald-200 shadow-sm flex items-center justify-center min-h-[260px]">
+                        <svg id="svgTab3Combine" viewBox="0 0 300 300" class="w-full max-w-[240px] h-auto drop-shadow-md"></svg>
+                    </div>
+
+                    <!-- 合併算式卡片 -->
+                    <div id="combineMathDisplay" class="bg-emerald-50/90 p-4 rounded-2xl border border-emerald-200 font-bold text-emerald-900 space-y-3 shadow-sm">
+                        <!-- JS 動態寫入 -->
+                    </div>
+                </div>
+
+                <!-- 右側：2. 畫出指定的扇形 -->
+                <div class="lg:col-span-6 space-y-4">
+                    <div class="space-y-1">
+                        <h2 class="text-2xl font-bold text-sky-800 flex items-center gap-2">
+                            <i class="fa-solid fa-ruler-combined text-sky-600"></i> 2. 畫出指定的扇形
+                        </h2>
+                        <p class="text-slate-500 text-sm">依課本步驟，算出圓心角並在網格上繪出扇形。</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-sky-50/50 p-3 rounded-2xl border border-sky-300 shadow-sm">
+                            <label class="text-xs font-bold text-sky-800 block mb-1">指定半徑：</label>
+                            <select id="drawRadius" onchange="updateTab3Draw()" class="w-full bg-white p-2 rounded-xl font-bold text-sky-900 border border-sky-300 focus:outline-none focus:ring-2 focus:ring-sky-400">
+                                <option value="3">3 公分</option>
+                                <option value="6" selected>6 公分</option>
+                                <option value="9">9 公分</option>
+                            </select>
+                        </div>
+                        <div class="bg-sky-50/50 p-3 rounded-2xl border border-sky-300 shadow-sm">
+                            <label class="text-xs font-bold text-sky-800 block mb-1">指定大小：</label>
+                            <select id="drawFrac" onchange="updateTab3Draw()" class="w-full bg-white p-2 rounded-xl font-bold text-sky-900 border border-sky-300 focus:outline-none focus:ring-2 focus:ring-sky-400">
+                                <option value="1/12" selected>1/12 圓</option>
+                                <option value="1/9">1/9 圓</option>
+                                <option value="1/6">1/6 圓</option>
+                                <option value="1/4">1/4 圓</option>
+                                <option value="1/3">1/3 圓</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 網格預覽區 -->
+                    <div class="bg-white p-4 rounded-2xl border border-sky-200 shadow-sm flex items-center justify-center min-h-[220px] relative overflow-hidden">
+                        <svg id="svgTab3Grid" viewBox="0 0 300 240" class="w-full max-w-[280px] h-auto"></svg>
+                    </div>
+
+                    <!-- 繪圖步驟解析卡片 -->
+                    <div id="drawStepsDisplay" class="bg-sky-50/90 p-4 rounded-2xl border border-sky-200 text-sky-900 font-semibold space-y-2 shadow-sm">
+                        <!-- JS 動態寫入 -->
+                    </div>
+
+                    <button onclick="playDrawAnimation()" id="btnPlayDraw" class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 text-base">
+                        <i class="fa-solid fa-play"></i> 播放畫圖動畫
+                    </button>
+
+                    <!-- 動畫展示卡片 (固定內部最小高度與元件排版，防止畫面上下跳動) -->
+                    <div class="bg-white p-4 rounded-2xl border border-sky-200 shadow-sm flex flex-col items-center justify-start space-y-3 min-h-[300px]">
+                        <div class="h-8 flex items-center justify-center w-full">
+                            <div id="animStepBadge" class="hidden text-xs font-bold text-sky-800 bg-sky-100 px-3 py-1 rounded-full border border-sky-300 text-center"></div>
+                        </div>
+                        <svg id="svgTab3Anim" viewBox="0 0 300 240" class="w-full max-w-[240px] h-auto"></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: 自我評量 -->
+        <div id="tab-content-4" class="tab-content glass-card rounded-3xl p-4 md:p-8 space-y-6 hidden">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-purple-600 flex items-center gap-2">
+                        <i class="fa-solid fa-box-archive text-purple-500"></i> 自我評量
+                    </h2>
+                    <p class="text-slate-500 text-sm mt-1">共 5 題緊密結合課本重點的隨堂測驗，提供即時回饋與詳細解析。</p>
+                </div>
+                <div id="scoreBadge" class="bg-purple-100 text-purple-800 text-base font-black px-4 py-2 rounded-xl border border-purple-200 shadow-sm">
+                    得分：<span id="currentScore">0</span> / 100
+                </div>
+            </div>
+
+            <!-- 測驗題目清單 -->
+            <div class="space-y-6" id="quizContainer">
+                <!-- 5 題測驗由 JS 動態渲染 -->
+            </div>
+
+            <!-- 操作按鈕區 -->
+            <div class="flex flex-wrap justify-center gap-4 pt-4 border-t border-purple-100">
+                <button onclick="submitQuiz()" class="py-3 px-8 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-2xl shadow-md transition-all flex items-center gap-2 text-base">
+                    <i class="fa-solid fa-paper-plane"></i> 提交答案
+                </button>
+                <button onclick="resetQuiz()" class="py-3 px-8 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-2xl shadow-sm transition-all flex items-center gap-2 text-base">
+                    <i class="fa-solid fa-rotate-left"></i> 重新測驗
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 全局狀態變數
+        let currentTab = 1;
+        let tab2Mode = 'A'; // 'A' or 'B'
+        let currentAngle2 = 60;
+        let quizAnswers = {};
+        let quizScore = 0;
+
+        // 隨堂測驗題庫資料 (5題)
+        const quizData = [
+            {
+                id: 1,
+                title: "1. 幾分之幾圓的命名",
+                questionHtml: `把一個圓平分成 10 等份，裡面的 1 等份是幾分之幾圓？`,
+                options: [
+                    { id: 'A', textHtml: `<span class="fraction"><span class="num">1</span><span class="den">10</span></span> 圓` },
+                    { id: 'B', textHtml: `<span class="fraction"><span class="num">1</span><span class="den">360</span></span> 圓` },
+                    { id: 'C', textHtml: `<span class="fraction"><span class="num">10</span><span class="den">1</span></span> 圓` },
+                    { id: 'D', textHtml: `10 度` }
+                ],
+                correct: 'A',
+                explanationHtml: `將一個圓平分成 10 等份，每一份都是其中的 1 等份，所以表示為 <span class="fraction"><span class="num">1</span><span class="den">10</span></span> 個圓。`
+            },
+            {
+                id: 2,
+                title: "2. 幾分之幾圓求圓心角",
+                questionHtml: `求 <span class="fraction"><span class="num">1</span><span class="den">5</span></span> 圓的圓心角是多少度？`,
+                options: [
+                    { id: 'A', textHtml: `60 度` },
+                    { id: 'B', textHtml: `72 度` },
+                    { id: 'C', textHtml: `90 度` },
+                    { id: 'D', textHtml: `120 度` }
+                ],
+                correct: 'B',
+                explanationHtml: `圓周角為 360°，<span class="fraction"><span class="num">1</span><span class="den">5</span></span> 圓的圓心角算式為：360° × <span class="fraction"><span class="num">1</span><span class="den">5</span></span> = 72 度。`
+            },
+            {
+                id: 3,
+                title: "3. 圓心角求幾分之幾圓",
+                questionHtml: `圓心角 120 度的扇形，是幾分之幾圓？`,
+                options: [
+                    { id: 'A', textHtml: `<span class="fraction"><span class="num">1</span><span class="den">6</span></span> 圓` },
+                    { id: 'B', textHtml: `<span class="fraction"><span class="num">1</span><span class="den">4</span></span> 圓` },
+                    { id: 'C', textHtml: `<span class="fraction"><span class="num">1</span><span class="den">3</span></span> 圓` },
+                    { id: 'D', textHtml: `<span class="fraction"><span class="num">1</span><span class="den">2</span></span> 圓` }
+                ],
+                correct: 'C',
+                explanationHtml: `圓心角 120° 佔全圓 360° 的比例為 <span class="fraction"><span class="num">120</span><span class="den">360</span></span>，約分化簡後為 <span class="fraction"><span class="num">1</span><span class="den">3</span></span> 圓。`
+            },
+            {
+                id: 4,
+                title: "4. 扇形拼合思考",
+                questionHtml: `將 <span class="fraction"><span class="num">1</span><span class="den">3</span></span> 圓與 <span class="fraction"><span class="num">1</span><span class="den">6</span></span> 圓的扇形拼在一起，合併後的圓心角是多少度？`,
+                options: [
+                    { id: 'A', textHtml: `120 度` },
+                    { id: 'B', textHtml: `150 度` },
+                    { id: 'C', textHtml: `180 度` },
+                    { id: 'D', textHtml: `360 度` }
+                ],
+                correct: 'C',
+                explanationHtml: `<span class="fraction"><span class="num">1</span><span class="den">3</span></span> 圓的圓心角是 120°，<span class="fraction"><span class="num">1</span><span class="den">6</span></span> 圓的圓心角是 60°。兩者合併後的圓心角 = 120° + 60° = 180° (恰好是半圓)。`
+            },
+            {
+                id: 5,
+                title: "5. 畫指定扇形之圓心角",
+                questionHtml: `如果要畫一個半徑 6 公分、<span class="fraction"><span class="num">1</span><span class="den">12</span></span> 圓的扇形，請問量角器應該量出多少度的圓心角？`,
+                options: [
+                    { id: 'A', textHtml: `30 度` },
+                    { id: 'B', textHtml: `45 度` },
+                    { id: 'C', textHtml: `60 度` },
+                    { id: 'D', textHtml: `12 度` }
+                ],
+                correct: 'A',
+                explanationHtml: `<span class="fraction"><span class="num">1</span><span class="den">12</span></span> 圓的圓心角計算方式為：360° × <span class="fraction"><span class="num">1</span><span class="den">12</span></span> = 30 度。`
+            }
+        ];
+
+        // 數學工具函式：最大公因數 (GCD)
+        function gcd(a, b) {
+            return b === 0 ? a : gcd(b, a % b);
+        }
+
+        // 頁籤切換
+        function switchTab(tabNum) {
+            currentTab = tabNum;
+            for (let i = 1; i <= 4; i++) {
+                const content = document.getElementById(`tab-content-${i}`);
+                const btn = document.getElementById(`tab-btn-${i}`);
+                if (i === tabNum) {
+                    content.classList.remove('hidden');
+                    btn.className = "tab-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all shadow-md bg-white text-blue-600 border-2 border-white";
+                } else {
+                    content.classList.add('hidden');
+                    btn.className = "tab-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all shadow-md bg-white/70 text-slate-700 hover:bg-white border-2 border-transparent";
+                }
+            }
+        }
+
+        // --- TAB 1 邏輯 ---
+        function onDenomChange1(val) {
+            const den = parseInt(val);
+            const numSlider = document.getElementById('numSlider1');
+            const denomSlider = document.getElementById('denomSlider1');
+            
+            if (den > parseInt(denomSlider.max)) {
+                denomSlider.max = den;
+            } else if (den <= 12 && parseInt(denomSlider.max) > 12) {
+                denomSlider.max = 12;
+            }
+            
+            numSlider.max = den;
+            if (parseInt(numSlider.value) > den) {
+                numSlider.value = den;
+            }
+            updateTab1();
+        }
+
+        function setSplit1(val) {
+            const denomSlider = document.getElementById('denomSlider1');
+            denomSlider.max = val >= 360 ? val : 12;
+            denomSlider.value = val;
+            onDenomChange1(val);
+        }
+
+        function updateTab1() {
+            const den = parseInt(document.getElementById('denomSlider1').value);
+            let num = parseInt(document.getElementById('numSlider1').value);
+
+            if (num > den) {
+                num = den;
+                document.getElementById('numSlider1').value = num;
+            }
+
+            document.getElementById('denomVal1').innerText = den;
+            document.getElementById('numVal1').innerText = num;
+            document.getElementById('summaryDenom').innerText = den;
+            document.getElementById('summaryNum').innerText = num;
+            document.getElementById('hintDenNum').innerText = num;
+
+            document.getElementById('summaryFractionDisplay').innerHTML = `
+                <span class="fraction-wrap"><span class="fraction"><span class="num">${num}</span><span class="den">${den}</span></span></span>
+            `;
+
+            document.getElementById('calcDenom').innerText = den;
+            document.getElementById('calcNum').innerText = num;
+            const angle = Math.round((360 / den) * num);
+            document.getElementById('calcAngle').innerText = angle + "°";
+
+            renderTab1SVG(den, num);
+        }
+
+        function renderTab1SVG(den, num) {
+            const svg = document.getElementById('svgTab1');
+            const showProtractor = document.getElementById('showProtractor1').checked;
+            const cx = 150, cy = 150, r = 90;
+
+            let html = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>`;
+
+            const lineCount = den === 360 ? 180 : den;
+            if (den === 360) {
+                const subCount = 180;
+                for (let i = 0; i < subCount; i++) {
+                    const angleDeg = (360 / subCount) * i - 90;
+                    const rad = angleDeg * Math.PI / 180;
+                    const x2 = cx + r * Math.cos(rad);
+                    const y2 = cy + r * Math.sin(rad);
+                    // 所有切線均為相同之微細直線，取消主刻度加粗
+                    html += `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="#cbd5e1" stroke-width="0.6"/>`;
+                }
+            } else {
+                for (let i = 0; i < lineCount; i++) {
+                    const angleDeg = (360 / lineCount) * i - 90;
+                    const rad = angleDeg * Math.PI / 180;
+                    const x2 = cx + r * Math.cos(rad);
+                    const y2 = cy + r * Math.sin(rad);
+                    html += `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+                }
+            }
+
+            const totalAngle = (360 / den) * num;
+            if (totalAngle > 0) {
+                const startRad = -90 * Math.PI / 180;
+                const endRad = (totalAngle - 90) * Math.PI / 180;
+                const x1 = cx + r * Math.cos(startRad);
+                const y1 = cy + r * Math.sin(startRad);
+                const x2 = cx + r * Math.cos(endRad);
+                const y2 = cy + r * Math.sin(endRad);
+                const largeArc = totalAngle > 180 ? 1 : 0;
+
+                if (totalAngle === 360) {
+                    html += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#fca5a5" opacity="0.65" stroke="#e11d48" stroke-width="2.5"/>`;
+                } else {
+                    html += `<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z" fill="#fca5a5" opacity="0.65" stroke="#e11d48" stroke-width="2.5"/>`;
+                }
+
+                if (totalAngle < 360) {
+                    const midRad = (-90 + totalAngle / 2) * Math.PI / 180;
+                    const arcR = 30;
+                    const ax1 = cx + arcR * Math.cos(startRad);
+                    const ay1 = cy + arcR * Math.sin(startRad);
+                    const ax2 = cx + arcR * Math.cos(endRad);
+                    const ay2 = cy + arcR * Math.sin(endRad);
+                    html += `<path d="M ${ax1} ${ay1} A ${arcR} ${arcR} 0 ${largeArc} 1 ${ax2} ${ay2}" fill="none" stroke="#dc2626" stroke-width="2"/>`;
+
+                    const tx = cx + 52 * Math.cos(midRad);
+                    const ty = cy + 52 * Math.sin(midRad) + 5;
+                    html += `<text x="${tx}" y="${ty}" font-size="14" font-weight="900" fill="#b91c1c" text-anchor="middle">${Math.round(totalAngle)}°</text>`;
+                }
+            }
+
+            if (showProtractor) {
+                const pR = r + 2;
+                for (let a = 0; a < 360; a += 30) {
+                    const rad = (a - 90) * Math.PI / 180;
+                    const x1 = cx + pR * Math.cos(rad);
+                    const y1 = cy + pR * Math.sin(rad);
+                    const x2 = cx + (pR + 7) * Math.cos(rad);
+                    const y2 = cy + (pR + 7) * Math.sin(rad);
+                    html += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#64748b" stroke-width="1.5"/>`;
+
+                    const tx = cx + (pR + 18) * Math.cos(rad);
+                    const ty = cy + (pR + 18) * Math.sin(rad) + 4;
+                    html += `<text x="${tx}" y="${ty}" font-size="10" font-weight="bold" fill="#64748b" text-anchor="middle">${a}°</text>`;
+                }
+            }
+
+            html += `<circle cx="${cx}" cy="${cy}" r="4" fill="#991b1b"/>`;
+            svg.innerHTML = html;
+        }
+
+        // --- TAB 2 邏輯 ---
+        function setTab2Mode(mode) {
+            tab2Mode = mode;
+            const btnA = document.getElementById('btnModeA');
+            const btnB = document.getElementById('btnModeB');
+            const anglesBox = document.getElementById('tab2QuickAngles');
+            const sliderBox = document.getElementById('tab2AngleSliderBox');
+            const fracsBox = document.getElementById('tab2QuickFracs');
+            const thinkingBox = document.getElementById('tab2ThinkingBox');
+            const thinkingHeader = document.getElementById('thinkingHeader');
+            const thinkingTitle = document.getElementById('thinkingTitle');
+            const thinkingSubtext = document.getElementById('thinkingSubtext');
+
+            if (mode === 'A') {
+                btnA.className = "w-full py-2 px-3 rounded-xl font-bold text-sm border shadow-sm transition-all bg-amber-500 text-white border-amber-600";
+                btnB.className = "w-full py-2 px-3 rounded-xl font-bold text-sm border shadow-sm transition-all bg-white text-emerald-600 border-emerald-300 hover:bg-emerald-50";
+                
+                anglesBox.classList.remove('hidden');
+                sliderBox.classList.remove('hidden');
+                fracsBox.classList.add('hidden');
+
+                thinkingBox.className = "bg-amber-50/80 rounded-2xl p-5 border border-amber-200 space-y-4";
+                thinkingHeader.className = "flex justify-between items-center border-b border-amber-200/80 pb-2";
+                thinkingTitle.className = "font-bold text-amber-800 flex items-center gap-2";
+                thinkingSubtext.className = "text-xs text-amber-600 font-semibold";
+            } else {
+                btnB.className = "w-full py-2 px-3 rounded-xl font-bold text-sm border shadow-sm transition-all bg-emerald-600 text-white border-emerald-700";
+                btnA.className = "w-full py-2 px-3 rounded-xl font-bold text-sm border shadow-sm transition-all bg-white text-amber-600 border-amber-300 hover:bg-amber-50";
+                
+                anglesBox.classList.add('hidden');
+                sliderBox.classList.add('hidden');
+                fracsBox.classList.remove('hidden');
+
+                thinkingBox.className = "bg-emerald-50/80 rounded-2xl p-5 border border-emerald-200 space-y-4";
+                thinkingHeader.className = "flex justify-between items-center border-b border-emerald-200/80 pb-2";
+                thinkingTitle.className = "font-bold text-emerald-800 flex items-center gap-2";
+                thinkingSubtext.className = "text-xs text-emerald-600 font-semibold";
+            }
+            updateTab2();
+        }
+
+        function selectQuickAngle(angle) {
+            currentAngle2 = angle;
+            document.getElementById('angleSlider2').value = angle;
+            updateTab2();
+        }
+
+        function onAngleSliderChange(val) {
+            currentAngle2 = parseInt(val);
+            updateTab2();
+        }
+
+        function selectQuickFrac(num, den) {
+            currentAngle2 = Math.round((360 / den) * num);
+            document.getElementById('angleSlider2').value = currentAngle2;
+            updateTab2();
+        }
+
+        function updateTab2() {
+            document.getElementById('angleSliderVal2').innerText = currentAngle2 + "°";
+            renderTab2SVG(currentAngle2);
+            updateTab2Thinking(currentAngle2);
+        }
+
+        function renderTab2SVG(angle) {
+            const svg = document.getElementById('svgTab2');
+            const cx = 150, cy = 150, r = 100;
+
+            let html = '';
+
+            if (tab2Mode === 'A') {
+                html += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#fffdfa" stroke="#fdba74" stroke-width="2"/>`;
+                
+                for (let a = 0; a < 360; a += 15) {
+                    const rad = (a - 90) * Math.PI / 180;
+                    const len = (a % 30 === 0) ? 10 : 5;
+                    const x1 = cx + (r - len) * Math.cos(rad);
+                    const y1 = cy + (r - len) * Math.sin(rad);
+                    const x2 = cx + r * Math.cos(rad);
+                    const y2 = cy + r * Math.sin(rad);
+                    html += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#f97316" stroke-width="${a % 30 === 0 ? '1.8' : '1'}"/>`;
+                }
+
+                if (angle > 0) {
+                    if (angle === 360) {
+                        html += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#fdba74" opacity="0.85" stroke="#ea580c" stroke-width="2.5"/>`;
+                        html += `<line x1="${cx}" y1="${cy}" x2="${cx}" y2="${cy - r}" stroke="#ea580c" stroke-width="2.5"/>`;
+                    } else {
+                        const startRad = -90 * Math.PI / 180;
+                        const endRad = (angle - 90) * Math.PI / 180;
+                        const x1 = cx + r * Math.cos(startRad);
+                        const y1 = cy + r * Math.sin(startRad);
+                        const x2 = cx + r * Math.cos(endRad);
+                        const y2 = cy + r * Math.sin(endRad);
+                        const largeArc = angle > 180 ? 1 : 0;
+
+                        const pathData = `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+                        html += `<path d="${pathData}" fill="#fdba74" opacity="0.85" stroke="#ea580c" stroke-width="2.5"/>`;
+                    }
+
+                    const midRad = angle === 360 ? 0 : (-90 + angle / 2) * Math.PI / 180;
+                    const tx = cx + (r * (angle === 360 ? 0.35 : 0.55)) * Math.cos(midRad);
+                    const ty = cy + (r * (angle === 360 ? 0.35 : 0.55)) * Math.sin(midRad) + 5;
+                    html += `<text x="${tx}" y="${ty}" font-size="16" font-weight="900" fill="#c2410c" text-anchor="middle">${angle}°</text>`;
+                }
+
+                html += `<circle cx="${cx}" cy="${cy}" r="5" fill="#9a3412"/>`;
+            } else {
+                html += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>`;
+
+                const g = gcd(angle, 360);
+                const den = 360 / g;
+                if (den <= 36) {
+                    const slice = 360 / den;
+                    for (let i = 0; i < den; i++) {
+                        const rad = (i * slice - 90) * Math.PI / 180;
+                        html += `<line x1="${cx}" y1="${cy}" x2="${cx + r * Math.cos(rad)}" y2="${cy + r * Math.sin(rad)}" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+                    }
+                }
+
+                if (angle > 0) {
+                    if (angle === 360) {
+                        html += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#a7f3d0" opacity="0.85" stroke="#059669" stroke-width="2.5"/>`;
+                    } else {
+                        const startRad = -90 * Math.PI / 180;
+                        const endRad = (angle - 90) * Math.PI / 180;
+                        const x1 = cx + r * Math.cos(startRad);
+                        const y1 = cy + r * Math.sin(startRad);
+                        const x2 = cx + r * Math.cos(endRad);
+                        const y2 = cy + r * Math.sin(endRad);
+                        const largeArc = angle > 180 ? 1 : 0;
+
+                        const pathData = `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+                        html += `<path d="${pathData}" fill="#a7f3d0" opacity="0.85" stroke="#059669" stroke-width="2.5"/>`;
+                    }
+                }
+
+                html += `<circle cx="${cx}" cy="${cy}" r="5" fill="#064e3b"/>`;
+            }
+
+            svg.innerHTML = html;
+        }
+
+        function updateTab2Thinking(angle) {
+            const container = document.getElementById('stepThinkingDisplay');
+            const g = gcd(angle, 360);
+            const num = angle / g;
+            const den = 360 / g;
+
+            if (tab2Mode === 'A') {
+                container.innerHTML = `
+                    <p class="text-amber-800 font-bold mb-2">【角度 ➔ 幾分之幾圓】</p>
+                    <div class="flex items-center gap-1.5 flex-wrap text-slate-700 font-semibold text-base">
+                        <span>1 度是</span>
+                        <span class="fraction-wrap"><span class="fraction"><span class="num">1</span><span class="den">360</span></span></span>
+                        <span>個圓，圓心角 <strong>${angle}</strong> 度就是</span>
+                        <span class="fraction-wrap"><span class="fraction"><span class="num">${angle}</span><span class="den">360</span></span></span>
+                        <span>個圓。</span>
+                    </div>
+                    <div class="border-t border-dashed border-amber-300 my-3"></div>
+                    <div class="flex items-center gap-1.5 flex-wrap text-slate-700 font-semibold text-base">
+                        <span>約分化簡後為：</span>
+                        <span class="fraction-wrap"><span class="fraction"><span class="num">${num}</span><span class="den">${den}</span></span></span>
+                        <span>個圓。</span>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <p class="text-emerald-800 font-bold mb-2">【幾分之幾圓 ➔ 圓心角】</p>
+                    <div class="flex items-center gap-2 flex-wrap text-slate-700 font-semibold text-base">
+                        <span class="fraction-wrap"><span class="fraction"><span class="num">${num}</span><span class="den">${den}</span></span></span>
+                        <span>圓的圓心角 = 360° ×</span>
+                        <span class="fraction-wrap"><span class="fraction"><span class="num">${num}</span><span class="den">${den}</span></span></span>
+                        <span>= <strong class="text-emerald-600 font-black text-xl">${angle}</strong> 度。</span>
+                    </div>
+                `;
+            }
+        }
+
+        // --- TAB 3 邏輯 ---
+        function updateTab3Combine() {
+            const a1 = parseInt(document.getElementById('combineSector1').value);
+            const a2 = parseInt(document.getElementById('combineSector2').value);
+            const totalAngle = a1 + a2;
+
+            const g1 = gcd(a1, 360);
+            const num1 = a1 / g1, den1 = 360 / g1;
+
+            const g2 = gcd(a2, 360);
+            const num2 = a2 / g2, den2 = 360 / g2;
+
+            const commonDen = (den1 * den2) / gcd(den1, den2);
+            const cNum1 = num1 * (commonDen / den1);
+            const cNum2 = num2 * (commonDen / den2);
+            const sumNum = cNum1 + cNum2;
+
+            const gTot = gcd(totalAngle, 360);
+            const numTot = totalAngle / gTot, denTot = 360 / gTot;
+
+            const mathBox = document.getElementById('combineMathDisplay');
+
+            let fractionAddStep = '';
+            if (den1 === den2) {
+                fractionAddStep = `
+                    <span class="fraction-wrap"><span class="fraction"><span class="num">${num1}</span><span class="den">${den1}</span></span></span> 圓 +
+                    <span class="fraction-wrap"><span class="fraction"><span class="num">${num2}</span><span class="den">${den2}</span></span></span> 圓 =
+                    <span class="fraction-wrap"><span class="fraction"><span class="num">${sumNum}</span><span class="den">${commonDen}</span></span></span> 圓
+                `;
+            } else {
+                fractionAddStep = `
+                    <span class="fraction-wrap"><span class="fraction"><span class="num">${num1}</span><span class="den">${den1}</span></span></span> 圓 +
+                    <span class="fraction-wrap"><span class="fraction"><span class="num">${num2}</span><span class="den">${den2}</span></span></span> 圓 =
+                    <span class="fraction-wrap"><span class="fraction"><span class="num">${cNum1}</span><span class="den">${commonDen}</span></span></span> 圓 +
+                    <span class="fraction-wrap"><span class="fraction"><span class="num">${cNum2}</span><span class="den">${commonDen}</span></span></span> 圓 =
+                    <span class="fraction-wrap"><span class="fraction"><span class="num">${sumNum}</span><span class="den">${commonDen}</span></span></span> 圓
+                `;
+            }
+
+            let reducedText = '';
+            if (numTot !== sumNum || denTot !== commonDen) {
+                reducedText = ` (= <span class="fraction-wrap"><span class="fraction"><span class="num">${numTot}</span><span class="den">${denTot}</span></span></span> 圓)`;
+            }
+
+            mathBox.innerHTML = `
+                <div class="space-y-3">
+                    <p class="flex items-center gap-1 font-bold text-emerald-800 border-b border-emerald-200/80 pb-2">
+                        <i class="fa-solid fa-square-check text-emerald-600"></i> 合併後的圓心角算式：
+                    </p>
+                    
+                    <!-- 方法 1 -->
+                    <div class="bg-white/80 p-3 rounded-xl border border-emerald-200/80 space-y-1.5 text-slate-800">
+                        <p class="text-xs font-bold text-emerald-800">方法 1：先計算合成後的幾分之幾圓，再求圓心角</p>
+                        <div class="flex items-center gap-1.5 flex-wrap text-sm font-bold">
+                            ${fractionAddStep}${reducedText}
+                        </div>
+                        <div class="flex items-center gap-1.5 flex-wrap text-sm font-bold pt-1">
+                            <span class="fraction-wrap"><span class="fraction"><span class="num">${numTot}</span><span class="den">${denTot}</span></span></span>
+                            <span>圓的圓心角 = 360° ×</span>
+                            <span class="fraction-wrap"><span class="fraction"><span class="num">${numTot}</span><span class="den">${denTot}</span></span></span>
+                            <span>= <strong class="text-emerald-700 text-base">${totalAngle}°</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- 方法 2 -->
+                    <div class="bg-white/80 p-3 rounded-xl border border-emerald-200/80 space-y-1.5 text-slate-800">
+                        <p class="text-xs font-bold text-emerald-800">方法 2：分別算出圓心角後再相加</p>
+                        <div class="flex items-center gap-1.5 flex-wrap text-sm font-bold">
+                            <span class="fraction-wrap"><span class="fraction"><span class="num">${num1}</span><span class="den">${den1}</span></span></span>
+                            <span>圓的圓心角 = 360° ×</span>
+                            <span class="fraction-wrap"><span class="fraction"><span class="num">${num1}</span><span class="den">${den1}</span></span></span>
+                            <span>= ${a1}°</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 flex-wrap text-sm font-bold">
+                            <span class="fraction-wrap"><span class="fraction"><span class="num">${num2}</span><span class="den">${den2}</span></span></span>
+                            <span>圓的圓心角 = 360° ×</span>
+                            <span class="fraction-wrap"><span class="fraction"><span class="num">${num2}</span><span class="den">${den2}</span></span></span>
+                            <span>= ${a2}°</span>
+                        </div>
+                        <p class="text-sm font-bold text-slate-800 pt-1">
+                            ${a1}° + ${a2}° = <strong class="text-emerald-700 text-base">${totalAngle}°</strong>
+                        </p>
+                    </div>
+                </div>
+            `;
+
+            renderTab3CombineSVG(a1, a2);
+        }
+
+        function renderTab3CombineSVG(a1, a2) {
+            const svg = document.getElementById('svgTab3Combine');
+            const cx = 150, cy = 150, r = 100;
+
+            let html = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="2"/>`;
+
+            if (a1 > 0) {
+                const start1 = -90 * Math.PI / 180;
+                const end1 = (a1 - 90) * Math.PI / 180;
+                const x1 = cx + r * Math.cos(start1);
+                const y1 = cy + r * Math.sin(start1);
+                const x2 = cx + r * Math.cos(end1);
+                const y2 = cy + r * Math.sin(end1);
+                const l1 = a1 > 180 ? 1 : 0;
+                html += `<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${l1} 1 ${x2} ${y2} Z" fill="#f97316" opacity="0.85" stroke="#c2410c" stroke-width="2"/>`;
+            }
+
+            if (a2 > 0) {
+                const start2 = (a1 - 90) * Math.PI / 180;
+                const end2 = (a1 + a2 - 90) * Math.PI / 180;
+                const x1 = cx + r * Math.cos(start2);
+                const y1 = cy + r * Math.sin(start2);
+                const x2 = cx + r * Math.cos(end2);
+                const y2 = cy + r * Math.sin(end2);
+                const l2 = a2 > 180 ? 1 : 0;
+                html += `<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${l2} 1 ${x2} ${y2} Z" fill="#eab308" opacity="0.85" stroke="#a16207" stroke-width="2"/>`;
+            }
+
+            html += `<circle cx="${cx}" cy="${cy}" r="4" fill="#065f46"/>`;
+            svg.innerHTML = html;
+        }
+
+        function renderTab3GridSVG(radius, angle) {
+            const svg = document.getElementById('svgTab3Grid');
+            const cx = 115, cy = 180; // 精確對齊 15px 方格交點
+            const rCm = parseInt(radius);
+            const r = rCm * 15; // 1 公分 = 15 像素
+
+            let html = '';
+
+            // 畫 15px 背景方格網線
+            for (let x = 10; x <= 290; x += 15) {
+                html += `<line x1="${x}" y1="15" x2="${x}" y2="225" stroke="#e2e8f0" stroke-width="1"/>`;
+            }
+            for (let y = 15; y <= 225; y += 15) {
+                html += `<line x1="10" y1="${y}" x2="290" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+            }
+
+            const startRad = 0; // 水平始邊半徑
+            const endRad = -angle * Math.PI / 180;
+
+            const x1 = cx + r * Math.cos(startRad);
+            const y1 = cy + r * Math.sin(startRad);
+            const x2 = cx + r * Math.cos(endRad);
+            const y2 = cy + r * Math.sin(endRad);
+            const largeArc = angle > 180 ? 1 : 0;
+
+            if (angle === 360) {
+                html += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#fce7f3" stroke="#e11d48" stroke-width="2.5"/>`;
+            } else {
+                html += `<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 0 ${x2} ${y2} Z" fill="#fce7f3" stroke="#e11d48" stroke-width="2.5"/>`;
+            }
+
+            // 標記角度與半徑
+            const arcR = Math.min(25, r * 0.4);
+            const ax2 = cx + arcR * Math.cos(endRad);
+            const ay2 = cy + arcR * Math.sin(endRad);
+            if (angle < 360) {
+                html += `<path d="M ${cx + arcR} ${cy} A ${arcR} ${arcR} 0 ${largeArc} 0 ${ax2} ${ay2}" fill="none" stroke="#be123c" stroke-width="1.8"/>`;
+            }
+
+            const midRad = - (angle / 2) * Math.PI / 180;
+            const tx = cx + (arcR + 14) * Math.cos(midRad);
+            const ty = cy + (arcR + 14) * Math.sin(midRad) + 4;
+            html += `<text x="${tx}" y="${ty}" font-size="12" font-weight="900" fill="#9f1239" text-anchor="middle">${angle}°</text>`;
+            html += `<text x="${cx + r / 2}" y="${cy + 16}" font-size="12" font-weight="bold" fill="#be123c" text-anchor="middle">${rCm} cm</text>`;
+            html += `<circle cx="${cx}" cy="${cy}" r="4" fill="#9f1239"/>`;
+
+            svg.innerHTML = html;
+        }
+
+        function updateTab3Draw() {
+            const radius = document.getElementById('drawRadius').value;
+            const fracStr = document.getElementById('drawFrac').value;
+            const parts = fracStr.split('/');
+            const num = parseInt(parts[0]);
+            const den = parseInt(parts[1]);
+
+            const angle = Math.round(360 * (num / den));
+
+            const stepsBox = document.getElementById('drawStepsDisplay');
+            stepsBox.innerHTML = `
+                <p class="font-bold flex items-center gap-1.5 text-sky-800 border-b border-sky-200/80 pb-2">
+                    <i class="fa-solid fa-list-check"></i> 繪圖步驟解析：
+                </p>
+                <div class="space-y-2 text-sm leading-relaxed">
+                    <p><strong>步驟 1：</strong>先畫出一個半徑 <strong class="text-sky-900">${radius} 公分</strong> 的圓，並畫出一條始邊半徑。</p>
+                    <div class="flex items-center gap-1 flex-wrap font-semibold">
+                        <span><strong>步驟 2：</strong>算出</span>
+                        <span class="fraction-wrap"><span class="fraction"><span class="num">${num}</span><span class="den">${den}</span></span></span>
+                        <span>圓的圓心角：</span>
+                        <span class="text-sky-900 font-bold">360° × </span>
+                        <span class="fraction-wrap"><span class="fraction"><span class="num">${num}</span><span class="den">${den}</span></span></span>
+                        <span class="text-sky-900 font-bold">= ${angle}°</span><span>。</span>
+                    </div>
+                    <p><strong>步驟 3：</strong>用量角器量出 <strong class="text-sky-900">${angle}°</strong> 圓心角，畫出另一條半徑。</p>
+                    <p><strong>步驟 4：</strong>畫上圓弧。</p>
+                    <p class="text-emerald-700 font-bold"><strong>步驟 5：</strong>擦掉多餘的線，完成扇形繪製！</p>
+                </div>
+            `;
+
+            renderTab3GridSVG(radius, angle);
+            resetTab3AnimSVG();
+        }
+
+        function resetTab3AnimSVG() {
+            if (animTimer) clearTimeout(animTimer);
+            
+            const badge = document.getElementById('animStepBadge');
+            if (badge) {
+                badge.classList.add('hidden');
+                badge.innerText = '';
+            }
+
+            const btn = document.getElementById('btnPlayDraw');
+            if (btn) {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+
+            const svg = document.getElementById('svgTab3Anim');
+            if (svg) {
+                const cx = 150, cy = 120;
+                svg.innerHTML = `<circle cx="${cx}" cy="${cy}" r="4" fill="#dc2626"/>`;
+            }
+        }
+
+        function renderTab3AnimSVGStatic(radius, angle) {
+            const svg = document.getElementById('svgTab3Anim');
+            const cx = 150, cy = 120;
+            const rCm = parseInt(radius);
+            const r = rCm * 10;
+
+            const startRad = -90 * Math.PI / 180;
+            const endRad = (angle - 90) * Math.PI / 180;
+
+            const x1 = cx + r * Math.cos(startRad);
+            const y1 = cy + r * Math.sin(startRad);
+            const x2 = cx + r * Math.cos(endRad);
+            const y2 = cy + r * Math.sin(endRad);
+            const largeArc = angle > 180 ? 1 : 0;
+
+            let html = '';
+            if (angle === 360) {
+                html += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#38bdf8" opacity="0.65" stroke="#0284c7" stroke-width="2.5"/>`;
+            } else {
+                html += `<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z" fill="#38bdf8" opacity="0.65" stroke="#0284c7" stroke-width="2.5"/>`;
+            }
+
+            const arcR = Math.min(30, r * 0.5);
+            const ax1 = cx + arcR * Math.cos(startRad);
+            const ay1 = cy + arcR * Math.sin(startRad);
+            const ax2 = cx + arcR * Math.cos(endRad);
+            const ay2 = cy + arcR * Math.sin(endRad);
+            if (angle < 360) {
+                html += `<path d="M ${ax1} ${ay1} A ${arcR} ${arcR} 0 ${largeArc} 1 ${ax2} ${ay2}" fill="none" stroke="#ea580c" stroke-width="2"/>`;
+            }
+
+            const midRad = (-90 + angle / 2) * Math.PI / 180;
+            const tx = cx + (arcR + 15) * Math.cos(midRad);
+            const ty = cy + (arcR + 15) * Math.sin(midRad) + 4;
+            html += `<text x="${tx}" y="${ty}" font-size="13" font-weight="900" fill="#c2410c" text-anchor="middle">${angle}°</text>`;
+            html += `<text x="${cx + r / 2}" y="${cy - 8}" font-size="11" font-weight="bold" fill="#0284c7" text-anchor="middle">半徑 ${rCm}cm</text>`;
+            html += `<circle cx="${cx}" cy="${cy}" r="4" fill="#dc2626"/>`;
+
+            svg.innerHTML = html;
+        }
+
+        let animTimer = null;
+        function playDrawAnimation() {
+            if (animTimer) clearTimeout(animTimer);
+
+            const svg = document.getElementById('svgTab3Anim');
+            const badge = document.getElementById('animStepBadge');
+            const btn = document.getElementById('btnPlayDraw');
+
+            if (!badge || !svg || !btn) return;
+
+            const radius = document.getElementById('drawRadius').value;
+            const fracStr = document.getElementById('drawFrac').value;
+            const parts = fracStr.split('/');
+            const num = parseInt(parts[0]);
+            const den = parseInt(parts[1]);
+            const angle = Math.round(360 * (num / den));
+
+            const cx = 150, cy = 120;
+            const rCm = parseInt(radius);
+            const r = rCm * 10;
+
+            const startRad = -90 * Math.PI / 180;
+            const endRad = (angle - 90) * Math.PI / 180;
+            const x1 = cx + r * Math.cos(startRad);
+            const y1 = cy + r * Math.sin(startRad);
+            const x2 = cx + r * Math.cos(endRad);
+            const y2 = cy + r * Math.sin(endRad);
+            const largeArc = angle > 180 ? 1 : 0;
+
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            badge.classList.remove('hidden');
+
+            badge.innerText = `動畫開始...`;
+            badge.className = "text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full border border-slate-200";
+            svg.innerHTML = `<circle cx="${cx}" cy="${cy}" r="4" fill="#dc2626"/>`;
+
+            // 【步驟 1】
+            animTimer = setTimeout(() => {
+                badge.innerText = `步驟 1：先畫出一個半徑 ${radius} 公分的圓，並畫出一條始邊半徑。`;
+                badge.className = "text-xs font-bold text-sky-800 bg-sky-100 px-3 py-1 rounded-full border border-sky-300";
+
+                svg.innerHTML = `
+                    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#64748b" stroke-width="2"/>
+                    <line x1="${cx}" y1="${cy}" x2="${x1}" y2="${y1}" stroke="#0284c7" stroke-width="2.5"/>
+                    <text x="${cx + 10}" y="${cy - r / 2}" font-size="11" font-weight="bold" fill="#0284c7">半徑 ${radius}cm</text>
+                    <circle cx="${cx}" cy="${cy}" r="4" fill="#dc2626"/>
+                `;
+
+                // 【步驟 2】
+                animTimer = setTimeout(() => {
+                    badge.innerHTML = `步驟 2：算出 <span class="fraction-wrap"><span class="fraction"><span class="num">${num}</span><span class="den">${den}</span></span></span> 圓的圓心角：360° × <span class="fraction-wrap"><span class="fraction"><span class="num">${num}</span><span class="den">${den}</span></span></span> = ${angle}°。`;
+                    badge.className = "text-xs font-bold text-amber-800 bg-amber-100 px-3 py-1 rounded-full border border-amber-300";
+
+                    svg.innerHTML = `
+                        <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#64748b" stroke-width="2"/>
+                        <line x1="${cx}" y1="${cy}" x2="${x1}" y2="${y1}" stroke="#0284c7" stroke-width="2.5"/>
+                        <text x="${cx + 10}" y="${cy - r / 2}" font-size="11" font-weight="bold" fill="#0284c7">半徑 ${radius}cm</text>
+                        <!-- 黑點標註圓心角落點 -->
+                        <circle cx="${x2}" cy="${y2}" r="4.5" fill="#000000" stroke="#ffffff" stroke-width="1.5"/>
+                        <circle cx="${cx}" cy="${cy}" r="4" fill="#dc2626"/>
+                    `;
+
+                    // 【步驟 3】
+                    animTimer = setTimeout(() => {
+                        badge.innerText = `步驟 3：用量角器量出 ${angle}° 圓心角，畫出另一條半徑。`;
+                        badge.className = "text-xs font-bold text-indigo-800 bg-indigo-100 px-3 py-1 rounded-full border border-indigo-300";
+
+                        svg.innerHTML = `
+                            <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="3 3"/>
+                            <line x1="${cx}" y1="${cy}" x2="${x1}" y2="${y1}" stroke="#0284c7" stroke-width="2.5"/>
+                            <line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="#ea580c" stroke-width="2.5"/>
+                            <circle cx="${cx}" cy="${cy}" r="4" fill="#dc2626"/>
+                        `;
+
+                        // 【步驟 4】
+                        animTimer = setTimeout(() => {
+                            badge.innerText = `步驟 4：畫上圓弧。`;
+                            badge.className = "text-xs font-bold text-teal-800 bg-teal-100 px-3 py-1 rounded-full border border-teal-300";
+
+                            svg.innerHTML = `
+                                <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="3 3"/>
+                                <line x1="${cx}" y1="${cy}" x2="${x1}" y2="${y1}" stroke="#0284c7" stroke-width="2.5"/>
+                                <line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="#0284c7" stroke-width="2.5"/>
+                                <path d="M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2}" fill="none" stroke="#0284c7" stroke-width="3"/>
+                                <circle cx="${cx}" cy="${cy}" r="4" fill="#dc2626"/>
+                            `;
+
+                            // 【步驟 5】
+                            animTimer = setTimeout(() => {
+                                badge.innerHTML = `步驟 5：擦掉多餘的線，完成半徑 ${radius}cm 的 <span class="fraction-wrap"><span class="fraction"><span class="num">${num}</span><span class="den">${den}</span></span></span> 圓扇形！`;
+                                badge.className = "text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300 animate-bounce";
+
+                                renderTab3AnimSVGStatic(radius, angle);
+
+                                btn.disabled = false;
+                                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                            }, 2000);
+
+                        }, 2000);
+
+                    }, 2000);
+
+                }, 2000);
+
+            }, 1500);
+        }
+
+        // --- TAB 4 測驗邏輯 ---
+        function initQuiz() {
+            const container = document.getElementById('quizContainer');
+            if (!container) return;
+
+            quizAnswers = {};
+            quizScore = 0;
+            document.getElementById('currentScore').innerText = '0';
+
+            let html = '';
+            quizData.forEach((q) => {
+                html += `
+                    <div class="bg-white p-5 rounded-2xl border border-purple-100 shadow-sm space-y-4">
+                        <div class="flex justify-between items-center border-b border-purple-100 pb-2">
+                            <h3 class="font-bold text-purple-900 text-lg flex items-center gap-2">
+                                <span class="bg-purple-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-black">${q.id}</span>
+                                ${q.title}
+                            </h3>
+                            <span id="badge-q-${q.id}" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-500">未作答</span>
+                        </div>
+
+                        <p class="text-base font-semibold text-slate-800 flex items-center flex-wrap gap-1 leading-relaxed">
+                            ${q.questionHtml}
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            ${q.options.map(opt => `
+                                <button onclick="selectQuizOption(${q.id}, '${opt.id}')" id="btn-q-${q.id}-${opt.id}" 
+                                        class="quiz-opt-btn-${q.id} p-3 rounded-xl border border-slate-200 hover:border-purple-300 hover:bg-purple-50/50 flex items-center gap-3 text-left font-bold transition-all shadow-sm bg-white">
+                                    <span class="w-7 h-7 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-black shrink-0 border border-slate-200" id="opt-circle-${q.id}-${opt.id}">
+                                        ${opt.id}
+                                    </span>
+                                    <span class="flex items-center flex-wrap gap-1">${opt.textHtml}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+
+                        <div id="explanation-q-${q.id}" class="hidden p-4 rounded-xl border font-semibold text-sm leading-relaxed space-y-1">
+                            <!-- JS 動態寫入解析 -->
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function selectQuizOption(qId, selectedOpt) {
+            quizAnswers[qId] = selectedOpt;
+
+            const buttons = document.querySelectorAll(`.quiz-opt-btn-${qId}`);
+            buttons.forEach(btn => {
+                btn.className = `quiz-opt-btn-${qId} p-3 rounded-xl border border-slate-200 flex items-center gap-3 text-left font-bold transition-all shadow-sm bg-white`;
+            });
+
+            const targetBtn = document.getElementById(`btn-q-${qId}-${selectedOpt}`);
+            if (targetBtn) {
+                targetBtn.className = `quiz-opt-btn-${qId} p-3 rounded-xl border-2 border-purple-500 bg-purple-50 text-purple-900 flex items-center gap-3 text-left font-bold transition-all shadow-sm`;
+            }
+        }
+
+        function submitQuiz() {
+            let score = 0;
+
+            quizData.forEach(q => {
+                const userAns = quizAnswers[q.id];
+                const badge = document.getElementById(`badge-q-${q.id}`);
+                const expBox = document.getElementById(`explanation-q-${q.id}`);
+                const targetBtn = userAns ? document.getElementById(`btn-q-${q.id}-${userAns}`) : null;
+
+                const buttons = document.querySelectorAll(`.quiz-opt-btn-${q.id}`);
+                buttons.forEach(btn => {
+                    btn.className = `quiz-opt-btn-${q.id} p-3 rounded-xl border border-slate-200 flex items-center gap-3 text-left font-bold transition-all shadow-sm bg-white opacity-80`;
+                });
+
+                if (!userAns) {
+                    badge.className = "text-xs font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200";
+                    badge.innerText = "未作答";
+
+                    expBox.className = "p-4 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 font-semibold text-sm leading-relaxed space-y-1";
+                    expBox.innerHTML = `
+                        <p class="font-black text-amber-700 flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> 解析：未作答。</p>
+                    `;
+                } else if (userAns === q.correct) {
+                    score += 20;
+                    if (targetBtn) {
+                        targetBtn.className = `quiz-opt-btn-${q.id} p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 flex items-center gap-3 text-left font-bold transition-all shadow-sm`;
+                    }
+
+                    badge.className = "text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200";
+                    badge.innerText = "答對了！";
+
+                    expBox.className = "p-4 rounded-xl border border-emerald-200 bg-emerald-50/80 text-emerald-900 font-semibold text-sm leading-relaxed space-y-1";
+                    expBox.innerHTML = `
+                        <p class="font-black text-emerald-700 flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> 回饋與解析：答對了！</p>
+                        <p>${q.explanationHtml}</p>
+                    `;
+                } else {
+                    if (targetBtn) {
+                        targetBtn.className = `quiz-opt-btn-${q.id} p-3 rounded-xl border-2 border-rose-400 bg-rose-50 text-rose-900 flex items-center gap-3 text-left font-bold transition-all shadow-sm`;
+                    }
+
+                    badge.className = "text-xs font-bold px-3 py-1 rounded-full bg-rose-100 text-rose-700 border border-rose-200";
+                    badge.innerText = "答錯了";
+
+                    expBox.className = "p-4 rounded-xl border border-rose-200 bg-rose-50/80 text-rose-900 font-semibold text-sm leading-relaxed space-y-1";
+                    expBox.innerHTML = `
+                        <p class="font-black text-rose-700 flex items-center gap-1.5"><i class="fa-solid fa-circle-xmark"></i> 回饋與解析：答案不對喔！</p>
+                        <p>${q.explanationHtml}</p>
+                    `;
+                }
+
+                expBox.classList.remove('hidden');
+            });
+
+            quizScore = score;
+            document.getElementById('currentScore').innerText = quizScore;
+        }
+
+        function resetQuiz() {
+            initQuiz();
+        }
+
+        // 初始化全站狀態
+        window.onload = function() {
+            updateTab1();
+            updateTab2();
+            updateTab3Combine();
+            updateTab3Draw();
+            initQuiz();
+        };
+    </script>
+</body>
+</html>

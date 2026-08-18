@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>公因數與公倍數 - 魔法生活數學探究</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap');
+
+    body {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 50%, #fbc2eb 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: #2c3e50;
+    }
+
+    /* 新海誠風格玻璃質感卡片 */
+    .shinkai-card {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 1.5rem;
+      box-shadow: 0 10px 30px rgba(71, 120, 190, 0.15);
+    }
+
+    .shinkai-title {
+      background: linear-gradient(45deg, #1e3c72, #2a5298, #6a11cb);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .tab-btn {
+      transition: all 0.3s ease;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+      transform: translateY(-2px);
+    }
+
+    /* 雲朵浮動動畫背景裝飾 */
+    .cloud {
+      position: absolute;
+      opacity: 0.25;
+      pointer-events: none;
+      animation: floatCloud 35s linear infinite;
+    }
+
+    @keyframes floatCloud {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100vw); }
+    }
+
+    /* Canvas 容器動畫 */
+    .grid-box {
+      transition: all 0.2s ease;
+    }
+
+    /* Glow 光暈效果 */
+    .glow-success {
+      box-shadow: 0 0 25px #10B981, inset 0 0 15px #10B981;
+      animation: pulseGlow 1.5s infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 15px #10B981; }
+      100% { box-shadow: 0 0 30px #10B981, 0 0 10px #3B82F6; }
+    }
+  </style>
+</head>
+<body class="p-3 md:p-8 relative overflow-x-hidden">
+
+  <!-- 背景天空裝飾雲朵 -->
+  <div class="cloud top-5 w-64 h-32 bg-white rounded-full blur-xl"></div>
+  <div class="cloud top-1/3 w-96 h-48 bg-white rounded-full blur-2xl" style="animation-delay: -15s;"></div>
+
+  <div class="max-w-5xl mx-auto relative z-10">
+    <!-- 閒雲數學小棧 Logo 與標題 -->
+    <div class="w-full max-w-5xl flex items-center justify-start mb-4 px-2 fade-in">
+      <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+      <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+    </div>
+
+    <!-- 頁面標頭 Header -->
+    <header class="shinkai-card p-6 mb-6 text-center">
+      <div class="inline-block px-4 py-1 bg-blue-100 text-blue-700 text-sm rounded-full font-bold mb-2">
+        <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> 國小五上數學 4-3 互動學習網頁
+      </div>
+      <h1 class="text-3xl md:text-4xl font-black shinkai-title tracking-wide mb-2">
+        公因數與公倍數的魔法生活應用
+      </h1>
+      <p class="text-gray-600 font-medium text-sm md:text-base">
+        透過動態操作滑桿與圖形裁切，親眼看見「倍數積累」與「因數分割」的視覺奇蹟！
+      </p>
+    </header>
+
+    <!-- 功能分頁按鈕 Tab Navigation -->
+    <div class="flex flex-wrap justify-center gap-2 md:gap-4 mb-6">
+      <button onclick="switchTab('tab-lcm')" id="btn-tab-lcm" class="tab-btn active px-5 py-3 rounded-xl font-bold text-gray-700 flex items-center gap-2">
+        <i class="fa-solid fa-border-all"></i> 1. 拼正方形（公倍數）
+      </button>
+      <button onclick="switchTab('tab-gcd')" id="btn-tab-gcd" class="tab-btn px-5 py-3 rounded-xl font-bold text-gray-700 flex items-center gap-2">
+        <i class="fa-solid fa-scissors"></i> 2. 剪正方形（公因數）
+      </button>
+      <button onclick="switchTab('tab-grid')" id="btn-tab-grid" class="tab-btn px-5 py-3 rounded-xl font-bold text-gray-700 flex items-center gap-2">
+        <i class="fa-solid fa-list-ol"></i> 3. 數線與陣列亮顯
+      </button>
+      <button onclick="switchTab('tab-quiz')" id="btn-tab-quiz" class="tab-btn px-5 py-3 rounded-xl font-bold text-gray-700 flex items-center gap-2">
+        <i class="fa-solid fa-graduation-cap"></i> 4. 隨堂練習
+      </button>
+    </div>
+
+    <!-- 模組一：公倍數拼正方形 (LCM Tiling) -->
+    <section id="tab-lcm" class="shinkai-card p-6 mb-8">
+      <div class="border-b pb-4 mb-4">
+        <h2 class="text-2xl font-bold text-blue-800 flex items-center gap-2">
+          <i class="fa-solid fa-puzzle-piece text-amber-500"></i> 情境一：拼出正方形馬賽克牆（公倍數應用）
+        </h2>
+        <p class="text-sm text-gray-600 mt-1">
+          用長 <strong>8 cm</strong>、寬 <strong>6 cm</strong> 的長方形磁磚，最少需要幾塊才能拼成一個「正方形」？
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- 控制面板 -->
+        <div class="space-y-6 bg-white/60 p-5 rounded-2xl border border-white">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">
+              橫向排列數量（長）：<span id="lcm-cols-val" class="text-blue-600 text-xl font-black">1</span> 塊
+            </label>
+            <input type="range" id="lcm-cols" min="1" max="10" value="1" class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer" oninput="updateLCM()">
+            <div class="text-xs text-gray-500 mt-1">總長度 = 8 × <span class="lcm-c">1</span> = <span id="lcm-w-txt" class="font-bold text-blue-600">8</span> cm</div>
+          </div>
+
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">
+              縱向排列數量（寬）：<span id="lcm-rows-val" class="text-indigo-600 text-xl font-black">1</span> 塊
+            </label>
+            <input type="range" id="lcm-rows" min="1" max="10" value="1" class="w-full h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer" oninput="updateLCM()">
+            <div class="text-xs text-gray-500 mt-1">總高度 = 6 × <span class="lcm-r">1</span> = <span id="lcm-h-txt" class="font-bold text-indigo-600">6</span> cm</div>
+          </div>
+
+          <!-- 結果展示卡 -->
+          <div id="lcm-status" class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-center transition-all">
+            <div class="text-sm font-bold text-gray-600">目前拼出的形狀：</div>
+            <div id="lcm-result-dims" class="text-lg font-black text-gray-800 my-1">8 cm × 6 cm</div>
+            <div id="lcm-result-badge" class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-700">
+              尚非正方形 (長 ≠ 寬)
+            </div>
+          </div>
+        </div>
+
+        <!-- 畫布與圖像回饋 -->
+        <div class="md:col-span-2 flex flex-col items-center justify-center bg-sky-90/50 p-4 rounded-2xl border border-sky-100 min-h-[300px] relative overflow-hidden">
+          <div id="lcm-canvas-container" class="transition-all duration-300 p-1.5 rounded-lg bg-white/90 border-2 border-dashed border-red-400 flex items-center justify-center">
+            <div id="lcm-grid" class="grid gap-0 border-t border-l border-pink-300"></div>
+          </div>
+          <p class="text-xs text-gray-500 mt-3"><i class="fa-solid fa-circle-info mr-1"></i>每個小藍塊代表 8cm×6cm 的長方形瓷磚</p>
+
+          <!-- 觀察與計算區塊 -->
+          <div class="w-full mt-4 bg-white/90 p-4 rounded-2xl border border-blue-100 shadow-sm text-left">
+            <h3 class="font-bold text-gray-800 border-b pb-2 mb-3 text-base flex items-center gap-2">
+              <i class="fa-solid fa-calculator text-blue-500"></i> 觀察與計算
+            </h3>
+            
+            <div class="mb-3">
+              <div class="font-bold text-blue-700 mb-1"><span class="text-lg">8</span> 的倍數（橫向長度）：</div>
+              <div id="lcm-m8-list" class="flex flex-wrap gap-1.5 text-sm items-center"></div>
+            </div>
+
+            <div class="mb-3">
+              <div class="font-bold text-indigo-700 mb-1"><span class="text-lg">6</span> 的倍數（縱向高度）：</div>
+              <div id="lcm-m6-list" class="flex flex-wrap gap-1.5 text-sm items-center"></div>
+            </div>
+
+            <div class="mt-4 p-3 bg-emerald-100/80 rounded-xl border border-emerald-300 text-emerald-900 font-bold flex items-center justify-between">
+              <span class="text-base">最小公倍數：<span class="text-2xl text-red-600 font-black">24</span></span>
+              <span class="text-xs text-emerald-700 font-normal">正方形最小邊長 = 24 cm（最少需 12 塊瓷磚）</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 模組二：公因數剪正方形 (GCD Cutting) -->
+    <section id="tab-gcd" class="shinkai-card p-6 mb-8 hidden">
+      <div class="border-b pb-4 mb-4">
+        <h2 class="text-2xl font-bold text-teal-800 flex items-center gap-2">
+          <i class="fa-solid fa-scissors text-teal-500"></i> 情境二：裁切正方形紙卡（公因數應用）
+        </h2>
+        <p class="text-sm text-gray-600 mt-1">
+          有一張長 <strong>20 cm</strong>、寬 <strong>12 cm</strong> 的長方形紙卡，要剪成等大的正方形且剛好剪完，邊長可以是幾公分？
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- 控制面板 -->
+        <div class="space-y-6 bg-white/60 p-5 rounded-2xl border border-white">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">
+              正方形邊長：<span id="gcd-size-val" class="text-teal-600 text-xl font-black">1</span> cm
+            </label>
+            <input type="range" id="gcd-size" min="1" max="12" value="1" class="w-full h-2 bg-teal-200 rounded-lg appearance-none cursor-pointer" oninput="updateGCD()">
+          </div>
+
+          <div class="space-y-2 text-sm bg-teal-50/70 p-3 rounded-xl border border-teal-100">
+            <div class="flex justify-between">
+              <span>長度 20 cm 分割：</span>
+              <span id="gcd-calc-w" class="font-bold text-gray-800">20 ÷ 1 = 20 (整除)</span>
+            </div>
+            <div class="flex justify-between">
+              <span>寬度 12 cm 分割：</span>
+              <span id="gcd-calc-h" class="font-bold text-gray-800">12 ÷ 1 = 12 (整除)</span>
+            </div>
+          </div>
+
+          <!-- 驗證狀態 -->
+          <div id="gcd-status" class="p-4 rounded-xl bg-emerald-100 border border-emerald-300 text-center">
+            <div class="font-bold text-emerald-800"><i class="fa-solid fa-circle-check"></i> 可以完美剪完！</div>
+            <p class="text-xs text-emerald-600 mt-1"><span class="font-bold">1</span> 是 20 與 12 的公因數！</p>
+          </div>
+        </div>
+
+        <!-- 動態模擬網格 -->
+        <div class="md:col-span-2 flex flex-col items-center justify-center bg-teal-90/30 p-4 rounded-2xl border border-teal-100 min-h-[300px]">
+          <div id="gcd-paper" class="relative bg-amber-50 border-2 border-amber-400 rounded-lg shadow-md transition-all overflow-hidden box-content" style="width: 360px; height: 216px;">
+            <!-- 1cm x 1cm 底格 (長20格，寬12格，每格嚴格 18px x 18px) -->
+            <div id="gcd-base-grid" class="absolute inset-0 pointer-events-none opacity-40" style="display: grid; grid-template-columns: repeat(20, 18px); grid-template-rows: repeat(12, 18px); width: 360px; height: 216px;"></div>
+            <!-- 正方形裁切圖層 -->
+            <div id="gcd-cuts-layer" class="absolute inset-0 pointer-events-none"></div>
+          </div>
+          <div id="gcd-feedback-text" class="text-xs font-bold text-teal-700 mt-3">
+            成功分割為 20 × 12 = 240 個 1×1cm 小正方形！
+          </div>
+
+          <!-- 觀察與計算區塊 -->
+          <div class="w-full mt-4 bg-white/90 p-4 rounded-2xl border border-teal-100 shadow-sm text-left">
+            <h3 class="font-bold text-gray-800 border-b pb-2 mb-3 text-base flex items-center gap-2">
+              <i class="fa-solid fa-calculator text-teal-500"></i> 觀察與計算
+            </h3>
+
+            <div class="mb-3">
+              <div class="font-bold text-teal-800 mb-1"><span class="text-lg text-teal-700">20</span> 的因數：</div>
+              <div id="gcd-f20-list" class="flex flex-wrap gap-1.5 text-sm items-center"></div>
+            </div>
+
+            <div class="mb-3">
+              <div class="font-bold text-teal-800 mb-1"><span class="text-lg text-teal-700">12</span> 的因數：</div>
+              <div id="gcd-f12-list" class="flex flex-wrap gap-1.5 text-sm items-center"></div>
+            </div>
+
+            <div class="mt-4 p-3 bg-teal-100/80 rounded-xl border border-teal-300 text-teal-900 font-bold flex items-center justify-between">
+              <span class="text-base">最大公因數：<span class="text-2xl text-red-600 font-black">4</span></span>
+              <span class="text-xs text-teal-700 font-normal">正方形最大邊長 = 4 cm（可切出 15 個 4×4cm 正方形）</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 模組三：百數與陣列亮顯 (Grid/Timeline Multiples & Factors) -->
+    <section id="tab-grid" class="shinkai-card p-6 mb-8 hidden">
+      <div class="border-b pb-4 mb-4 flex flex-wrap justify-between items-center gap-4">
+        <div>
+          <h2 class="text-2xl font-bold text-indigo-800 flex items-center gap-2">
+            <i class="fa-solid fa-cubes text-purple-500"></i> 情境三：數值陣列互動探究 (1 ~ 60)
+          </h2>
+          <p class="text-sm text-gray-600 mt-1">選擇兩數與模式，觀察數線陣列中的「倍數」與「因數」亮顯規律</p>
+        </div>
+
+        <!-- 模式切換鈕 -->
+        <div class="flex gap-2 bg-indigo-50 p-1.5 rounded-xl border border-indigo-100">
+          <button onclick="setGridMode('multiples')" id="btn-mode-multiples" class="px-3 py-1.5 rounded-lg font-bold text-xs bg-indigo-600 text-white shadow-xs">
+            <i class="fa-solid fa-angles-right mr-1"></i> 公倍數模式
+          </button>
+          <button onclick="setGridMode('factors')" id="btn-mode-factors" class="px-3 py-1.5 rounded-lg font-bold text-xs text-gray-600 hover:bg-white transition-all">
+            <i class="fa-solid fa-grip mr-1"></i> 公因數模式
+          </button>
+        </div>
+      </div>
+
+      <!-- 控制面板與數字選擇 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 bg-white/60 p-4 rounded-2xl border border-white">
+        <div>
+          <label class="block font-bold text-gray-700 text-xs mb-1">數字 A (1 ~ 60)：</label>
+          <input type="number" id="grid-num-a" min="1" max="60" value="8" class="w-full px-3 py-1.5 rounded-xl border border-gray-300 font-bold text-blue-700" onchange="updateNumberGrid()">
+        </div>
+        <div>
+          <label class="block font-bold text-gray-700 text-xs mb-1">數字 B (1 ~ 60)：</label>
+          <input type="number" id="grid-num-b" min="1" max="60" value="12" class="w-full px-3 py-1.5 rounded-xl border border-gray-300 font-bold text-indigo-700" onchange="updateNumberGrid()">
+        </div>
+        <div>
+          <label class="block font-bold text-gray-700 text-xs mb-1">快速情境預設：</label>
+          <div class="flex flex-wrap gap-1">
+            <button onclick="setGridNums(8, 12, 'multiples')" class="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-lg font-bold hover:bg-blue-200">8 與 12 (倍數)</button>
+            <button onclick="setGridNums(20, 12, 'factors')" class="px-2 py-1 text-xs bg-teal-100 text-teal-700 rounded-lg font-bold hover:bg-teal-200">20 與 12 (因數)</button>
+            <button onclick="setGridNums(18, 20, 'factors')" class="px-2 py-1 text-xs bg-amber-100 text-amber-800 rounded-lg font-bold hover:bg-amber-200">18 與 20 (因數)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 圖例標示與結果統計 -->
+      <div class="flex flex-wrap justify-between items-center bg-white/80 p-3 rounded-xl mb-4 text-xs font-bold gap-2 border border-gray-100">
+        <div class="flex gap-2">
+          <span class="px-3 py-1 rounded-lg bg-red-100 text-red-700 border border-red-200"><span id="lbl-num-a">8</span> 的<span class="grid-mode-lbl">倍數</span></span>
+          <span class="px-3 py-1 rounded-lg bg-blue-100 text-blue-700 border border-blue-200"><span id="lbl-num-b">12</span> 的<span class="grid-mode-lbl">倍數</span></span>
+          <span class="px-3 py-1 rounded-lg bg-orange-200 text-orange-900 border border-orange-400">公<span class="grid-mode-lbl">倍數</span> (重疊)</span>
+        </div>
+        <div id="grid-result-summary" class="text-indigo-900 text-sm font-black"></div>
+      </div>
+
+      <div class="grid grid-cols-6 sm:grid-cols-10 gap-2 my-4" id="number-array">
+        <!-- 1~60 動態卡片 -->
+      </div>
+    </section>
+
+    <!-- 模組四：隨堂歷程測驗 (Quiz) -->
+    <section id="tab-quiz" class="shinkai-card p-6 mb-8 hidden">
+      <div class="border-b pb-4 mb-4 flex justify-between items-center">
+        <div>
+          <h2 class="text-2xl font-bold text-purple-800 flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square text-pink-500"></i> 隨堂練習
+          </h2>
+          <p class="text-sm text-gray-600 mt-1">選出正確的答案，即時自我檢測觀念！</p>
+        </div>
+        <div class="text-right">
+          <span class="text-xs text-gray-500">目前得分</span>
+          <div id="quiz-score" class="text-3xl font-black text-pink-600">0 / 100</div>
+        </div>
+      </div>
+
+      <div id="quiz-container" class="space-y-6">
+        <!-- 動態渲染 5 道測驗題 -->
+      </div>
+    </section>
+
+    <!-- 頁尾Footer -->
+    <footer class="text-center text-xs text-gray-500 py-4">
+    </footer>
+  </div>
+
+  <script>
+    // Tab 切換邏輯
+    function switchTab(tabId) {
+      document.querySelectorAll('section[id^="tab-"]').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.remove('hidden');
+      document.getElementById(`btn-${tabId}`).classList.add('active');
+
+      if(tabId === 'tab-lcm') updateLCM();
+      if(tabId === 'tab-gcd') updateGCD();
+    }
+
+    // --- 模組一：公倍數邏輯 ---
+    function updateLCM() {
+      const cols = parseInt(document.getElementById('lcm-cols').value);
+      const rows = parseInt(document.getElementById('lcm-rows').value);
+      
+      document.getElementById('lcm-cols-val').innerText = cols;
+      document.getElementById('lcm-rows-val').innerText = rows;
+      document.querySelectorAll('.lcm-c').forEach(el => el.innerText = cols);
+      document.querySelectorAll('.lcm-r').forEach(el => el.innerText = rows);
+
+      const width = cols * 8;
+      const height = rows * 6;
+
+      document.getElementById('lcm-w-txt').innerText = width;
+      document.getElementById('lcm-h-txt').innerText = height;
+      document.getElementById('lcm-result-dims').innerText = `${width} cm × ${height} cm`;
+
+      // 嚴格比例：1 cm = 5 px
+      const scale = 5;
+      const tileW = 8 * scale; // 40px
+      const tileH = 6 * scale; // 30px
+
+      const gridContainer = document.getElementById('lcm-grid');
+      const totalPixelWidth = cols * tileW;
+      const totalPixelHeight = rows * tileH;
+
+      gridContainer.style.width = `${totalPixelWidth}px`;
+      gridContainer.style.height = `${totalPixelHeight}px`;
+      gridContainer.style.display = 'grid';
+      gridContainer.style.gridTemplateColumns = `repeat(${cols}, ${tileW}px)`;
+      gridContainer.style.gridTemplateRows = `repeat(${rows}, ${tileH}px)`;
+      gridContainer.innerHTML = '';
+
+      const totalBlocks = cols * rows;
+      for (let i = 0; i < totalBlocks; i++) {
+        const block = document.createElement('div');
+        block.style.width = `${tileW}px`;
+        block.style.height = `${tileH}px`;
+        block.style.boxSizing = 'border-box';
+        block.className = 'bg-gradient-to-br from-sky-400 to-blue-600 border-r border-b border-pink-300 flex items-center justify-center text-[10px] text-white/90 font-bold select-none';
+        block.innerText = '8×6';
+        gridContainer.appendChild(block);
+      }
+
+      const canvasContainer = document.getElementById('lcm-canvas-container');
+      const statusBox = document.getElementById('lcm-status');
+      const badge = document.getElementById('lcm-result-badge');
+
+      if (width === height) {
+        canvasContainer.className = 'transition-all duration-300 p-1.5 rounded-lg bg-white/90 border-2 border-dashed border-emerald-500 flex items-center justify-center';
+        statusBox.className = 'p-4 rounded-xl bg-emerald-100 border border-emerald-400 text-center glow-success';
+        badge.className = 'inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-600 text-white';
+        badge.innerHTML = `🎉 成功拼成正方形！(邊長 ${width} cm，為 8 與 6 的公倍數)`;
+      } else {
+        canvasContainer.className = 'transition-all duration-300 p-1.5 rounded-lg bg-white/90 border-2 border-dashed border-red-400 flex items-center justify-center';
+        statusBox.className = 'p-4 rounded-xl bg-amber-50 border border-amber-200 text-center';
+        badge.className = 'inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-200 text-amber-800';
+        badge.innerText = `尚非正方形 (長 ${width} ≠ 寬 ${height})`;
+      }
+
+      // 更新觀察與計算 (8與6倍數列表)
+      renderLCMMultiplesList(width, height);
+    }
+
+    function renderLCMMultiplesList(curW, curH) {
+      const list8 = [8, 16, 24, 32, 40, 48, 56, 64, 72, 80];
+      const list6 = [6, 12, 18, 24, 30, 36, 42, 48, 54, 60];
+
+      const m8Container = document.getElementById('lcm-m8-list');
+      const m6Container = document.getElementById('lcm-m6-list');
+      m8Container.innerHTML = '';
+      m6Container.innerHTML = '';
+
+      list8.forEach((val, i) => {
+        const isCommon = (val % 6 === 0);
+        const isCurrent = (val === curW);
+        
+        let cls = "px-2 py-0.5 rounded-md text-gray-700 bg-gray-100";
+        if (isCommon) {
+          cls = "px-2 py-0.5 rounded-md bg-amber-100 text-red-600 border border-red-500 font-bold shadow-xs";
+        }
+        if (isCurrent) {
+          cls += " ring-2 ring-blue-500 font-black";
+        }
+
+        const span = document.createElement('span');
+        span.className = cls;
+        span.innerText = val;
+        m8Container.appendChild(span);
+        if (i < list8.length - 1) m8Container.appendChild(document.createTextNode('、'));
+      });
+
+      list6.forEach((val, i) => {
+        const isCommon = (val % 8 === 0);
+        const isCurrent = (val === curH);
+
+        let cls = "px-2 py-0.5 rounded-md text-gray-700 bg-gray-100";
+        if (isCommon) {
+          cls = "px-2 py-0.5 rounded-md bg-amber-100 text-red-600 border border-red-500 font-bold shadow-xs";
+        }
+        if (isCurrent) {
+          cls += " ring-2 ring-indigo-500 font-black";
+        }
+
+        const span = document.createElement('span');
+        span.className = cls;
+        span.innerText = val;
+        m6Container.appendChild(span);
+        if (i < list6.length - 1) m6Container.appendChild(document.createTextNode('、'));
+      });
+    }
+
+    // --- 模組二：公因數邏輯 ---
+    function initGCDGrid() {
+      const baseGrid = document.getElementById('gcd-base-grid');
+      if (!baseGrid || baseGrid.children.length > 0) return;
+      baseGrid.innerHTML = '';
+      for (let i = 0; i < 240; i++) {
+        const cell = document.createElement('div');
+        cell.style.boxSizing = 'border-box';
+        cell.className = 'border border-amber-300/60 w-[18px] h-[18px]';
+        baseGrid.appendChild(cell);
+      }
+    }
+
+    function updateGCD() {
+      initGCDGrid();
+      const size = parseInt(document.getElementById('gcd-size').value);
+      document.getElementById('gcd-size-val').innerText = size;
+
+      const divW = 20 % size === 0;
+      const divH = 12 % size === 0;
+
+      document.getElementById('gcd-calc-w').innerText = `20 ÷ ${size} = ${Math.floor(20/size)} ${divW ? '(整除)' : '... 餘 ' + (20%size)}`;
+      document.getElementById('gcd-calc-h').innerText = `12 ÷ ${size} = ${Math.floor(12/size)} ${divH ? '(整除)' : '... 餘 ' + (12%size)}`;
+
+      const cutsLayer = document.getElementById('gcd-cuts-layer');
+      const status = document.getElementById('gcd-status');
+      const feedback = document.getElementById('gcd-feedback-text');
+      cutsLayer.innerHTML = '';
+
+      // 嚴格像素比例：1 cm = 18 px
+      const scale = 18;
+      const boxPX = size * scale;
+
+      const cols = Math.floor(20 / size);
+      const rows = Math.floor(12 / size);
+
+      const validCutsArea = document.createElement('div');
+      validCutsArea.style.position = 'absolute';
+      validCutsArea.style.left = '0px';
+      validCutsArea.style.top = '0px';
+      validCutsArea.style.width = `${cols * boxPX}px`;
+      validCutsArea.style.height = `${rows * boxPX}px`;
+      validCutsArea.style.display = 'grid';
+      validCutsArea.style.gridTemplateColumns = `repeat(${cols}, ${boxPX}px)`;
+      validCutsArea.style.gridTemplateRows = `repeat(${rows}, ${boxPX}px)`;
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const tile = document.createElement('div');
+          tile.style.width = `${boxPX}px`;
+          tile.style.height = `${boxPX}px`;
+          tile.style.boxSizing = 'border-box';
+          tile.className = `border-2 ${divW && divH ? 'border-teal-600 bg-amber-200/20' : 'border-amber-600 bg-amber-200/15'} flex items-center justify-center text-[10px] font-bold text-amber-900 transition-all select-none`;
+          tile.innerText = `${size}×${size}`;
+          validCutsArea.appendChild(tile);
+        }
+      }
+      cutsLayer.appendChild(validCutsArea);
+
+      // 剩餘邊角料
+      const remW = 20 % size;
+      const remH = 12 % size;
+
+      if (remW > 0) {
+        const rightRem = document.createElement('div');
+        rightRem.style.position = 'absolute';
+        rightRem.style.left = `${cols * boxPX}px`;
+        rightRem.style.top = '0px';
+        rightRem.style.width = `${remW * scale}px`;
+        rightRem.style.height = `${rows * boxPX}px`;
+        rightRem.style.boxSizing = 'border-box';
+        rightRem.className = 'bg-rose-500/20 border-l-2 border-dashed border-rose-500 flex items-center justify-center text-[10px] text-rose-700 font-bold [writing-mode:vertical-lr]';
+        rightRem.innerText = `剩餘 ${remW}cm`;
+        cutsLayer.appendChild(rightRem);
+      }
+
+      if (remH > 0) {
+        const bottomRem = document.createElement('div');
+        bottomRem.style.position = 'absolute';
+        bottomRem.style.left = '0px';
+        bottomRem.style.top = `${rows * boxPX}px`;
+        bottomRem.style.width = `${cols * boxPX}px`;
+        bottomRem.style.height = `${remH * scale}px`;
+        bottomRem.style.boxSizing = 'border-box';
+        bottomRem.className = 'bg-rose-500/20 border-t-2 border-dashed border-rose-500 flex items-center justify-center text-[10px] text-rose-700 font-bold';
+        bottomRem.innerText = `剩餘 ${remH}cm`;
+        cutsLayer.appendChild(bottomRem);
+      }
+
+      if (remW > 0 && remH > 0) {
+        const cornerRem = document.createElement('div');
+        cornerRem.style.position = 'absolute';
+        cornerRem.style.left = `${cols * boxPX}px`;
+        cornerRem.style.top = `${rows * boxPX}px`;
+        cornerRem.style.width = `${remW * scale}px`;
+        cornerRem.style.height = `${remH * scale}px`;
+        cornerRem.style.boxSizing = 'border-box';
+        cornerRem.className = 'bg-rose-500/30 border-l-2 border-t-2 border-dashed border-rose-500 flex items-center justify-center text-[9px] text-rose-800 font-bold';
+        cornerRem.innerText = `${remW}×${remH}`;
+        cutsLayer.appendChild(cornerRem);
+      }
+
+      if (divW && divH) {
+        status.className = 'p-4 rounded-xl bg-emerald-100 border border-emerald-300 text-center';
+        status.innerHTML = `<div class="font-bold text-emerald-800"><i class="fa-solid fa-circle-check"></i> 可以完美整除剪完！</div>
+                            <p class="text-xs text-emerald-600 mt-1"><span class="font-bold">${size}</span> 是 20 與 12 的公因數！</p>`;
+        feedback.innerText = `成功裁切出 ${cols * rows} 個 ${size}×${size} cm 的正方形，完全無浪費！`;
+        feedback.className = 'text-xs font-bold text-emerald-700 mt-3';
+      } else {
+        status.className = 'p-4 rounded-xl bg-rose-100 border border-rose-300 text-center';
+        status.innerHTML = `<div class="font-bold text-rose-800"><i class="fa-solid fa-circle-xmark"></i> 無法整除剪完！</div>
+                            <p class="text-xs text-rose-600 mt-1"><span class="font-bold">${size}</span> 不是 20 與 12 的公因數</p>`;
+        feedback.innerText = `包含邊角料剩餘，無法剛好剪完！`;
+        feedback.className = 'text-xs font-bold text-rose-600 mt-3';
+      }
+
+      // 更新觀察與計算 (20與12因數列表)
+      renderGCDFactorsList(size);
+    }
+
+    function renderGCDFactorsList(curSize) {
+      const f20 = [1, 2, 4, 5, 10, 20];
+      const f12 = [1, 2, 3, 4, 6, 12];
+      const common = [1, 2, 4];
+
+      const f20Container = document.getElementById('gcd-f20-list');
+      const f12Container = document.getElementById('gcd-f12-list');
+      f20Container.innerHTML = '';
+      f12Container.innerHTML = '';
+
+      f20.forEach((val, i) => {
+        const isCommon = common.includes(val);
+        const isCurrent = (val === curSize);
+
+        let cls = "px-2 py-0.5 rounded-md text-gray-700 bg-gray-100";
+        if (isCommon) {
+          cls = "px-2 py-0.5 rounded-md bg-amber-100 text-red-600 border border-red-500 font-bold shadow-xs";
+        }
+        if (isCurrent) {
+          cls += " ring-2 ring-teal-600 font-black";
+        }
+
+        const span = document.createElement('span');
+        span.className = cls;
+        span.innerText = val;
+        f20Container.appendChild(span);
+        if (i < f20.length - 1) f20Container.appendChild(document.createTextNode('、'));
+      });
+
+      f12.forEach((val, i) => {
+        const isCommon = common.includes(val);
+        const isCurrent = (val === curSize);
+
+        let cls = "px-2 py-0.5 rounded-md text-gray-700 bg-gray-100";
+        if (isCommon) {
+          cls = "px-2 py-0.5 rounded-md bg-amber-100 text-red-600 border border-red-500 font-bold shadow-xs";
+        }
+        if (isCurrent) {
+          cls += " ring-2 ring-teal-600 font-black";
+        }
+
+        const span = document.createElement('span');
+        span.className = cls;
+        span.innerText = val;
+        f12Container.appendChild(span);
+        if (i < f12.length - 1) f12Container.appendChild(document.createTextNode('、'));
+      });
+    }
+
+    // --- 模組三：百數陣列互動探究 (公因數/公倍數模式) ---
+    let currentGridMode = 'multiples'; // 'multiples' or 'factors'
+
+    function setGridMode(mode) {
+      currentGridMode = mode;
+      const btnMul = document.getElementById('btn-mode-multiples');
+      const btnFac = document.getElementById('btn-mode-factors');
+
+      if (mode === 'multiples') {
+        btnMul.className = "px-3 py-1.5 rounded-lg font-bold text-xs bg-indigo-600 text-white shadow-xs";
+        btnFac.className = "px-3 py-1.5 rounded-lg font-bold text-xs text-gray-600 hover:bg-white transition-all";
+      } else {
+        btnFac.className = "px-3 py-1.5 rounded-lg font-bold text-xs bg-teal-600 text-white shadow-xs";
+        btnMul.className = "px-3 py-1.5 rounded-lg font-bold text-xs text-gray-600 hover:bg-white transition-all";
+      }
+
+      document.querySelectorAll('.grid-mode-lbl').forEach(el => {
+        el.innerText = (mode === 'multiples') ? '倍數' : '因數';
+      });
+
+      updateNumberGrid();
+    }
+
+    function setGridNums(numA, numB, mode) {
+      document.getElementById('grid-num-a').value = numA;
+      document.getElementById('grid-num-b').value = numB;
+      setGridMode(mode);
+    }
+
+    // 求最大公因數
+    function gcdCalc(a, b) {
+      return b === 0 ? a : gcdCalc(b, a % b);
+    }
+
+    // 求最小公倍數
+    function lcmCalc(a, b) {
+      return (a * b) / gcdCalc(a, b);
+    }
+
+    function updateNumberGrid() {
+      let numA = parseInt(document.getElementById('grid-num-a').value) || 1;
+      let numB = parseInt(document.getElementById('grid-num-b').value) || 1;
+
+      // 限制 1~60 範圍
+      numA = Math.max(1, Math.min(60, numA));
+      numB = Math.max(1, Math.min(60, numB));
+      document.getElementById('grid-num-a').value = numA;
+      document.getElementById('grid-num-b').value = numB;
+
+      document.getElementById('lbl-num-a').innerText = numA;
+      document.getElementById('lbl-num-b').innerText = numB;
+
+      const container = document.getElementById('number-array');
+      container.innerHTML = '';
+
+      const summary = document.getElementById('grid-result-summary');
+      const gcdVal = gcdCalc(numA, numB);
+      const lcmVal = lcmCalc(numA, numB);
+
+      if (currentGridMode === 'multiples') {
+        summary.innerText = `最小公倍數 [${numA}, ${numB}] = ${lcmVal <= 60 ? lcmVal : lcmVal + ' (超過60)'}`;
+      } else {
+        summary.innerText = `最大公因數 (${numA}, ${numB}) = ${gcdVal}`;
+      }
+
+      for (let i = 1; i <= 60; i++) {
+        let isA = false;
+        let isB = false;
+
+        if (currentGridMode === 'multiples') {
+          isA = (i % numA === 0);
+          isB = (i % numB === 0);
+        } else {
+          isA = (numA % i === 0);
+          isB = (numB % i === 0);
+        }
+
+        let bgClass = 'bg-white/80 text-gray-700 border-gray-200';
+        let badge = '';
+
+        if (isA && isB) {
+          bgClass = 'bg-orange-200 text-orange-950 border-orange-400 font-black ring-2 ring-orange-300 scale-105 z-10';
+          badge = `<span class="text-[9px] block leading-none opacity-90">${currentGridMode === 'multiples' ? '公倍數' : '公因數'}</span>`;
+        } else if (isA) {
+          bgClass = 'bg-red-100 text-red-800 font-bold border-red-300';
+        } else if (isB) {
+          bgClass = 'bg-blue-100 text-blue-800 font-bold border-blue-300';
+        }
+
+        const card = document.createElement('div');
+        card.className = `p-2 rounded-xl text-center border shadow-xs transition-all hover:scale-110 flex flex-col items-center justify-center h-12 ${bgClass}`;
+        card.innerHTML = `<span>${i}</span>${badge}`;
+        container.appendChild(card);
+      }
+    }
+
+    // --- 模組四：隨堂測驗資料與邏輯 ---
+    const quizData = [
+      {
+        q: "1. 軟糖數量不到 50 顆，每 8 顆裝一包剛好裝完，每 12 顆裝一包也剛好裝完。這些軟糖可能是幾顆？",
+        options: ["16 顆或 32 顆", "24 顆或 48 顆", "20 顆或 40 顆", "36 顆或 48 顆"],
+        ans: 1,
+        exp: "解析：求 8 與 12 在 50 以下的公倍數。8 的倍數有 8, 16, 24, 32, 40, 48...；12 的倍數有 12, 24, 36, 48...。公倍數為 24、48。"
+      },
+      {
+        q: "2. 甲班 42 人，乙班 36 人，兩班要分組檢查視力。每批人數相同且剛好分完，每批最多有幾人？",
+        options: ["4 人", "6 人", "8 人", "12 人"],
+        ans: 1,
+        exp: "解析：求 42 與 36 的「最大公因數」。42與36的最大公因數為 6，因此每批最多 6 人。"
+      },
+      {
+        q: "3. 用長 6 公分、寬 4 公分的長方形圖卡，拼出一個最小的正方形，這個正方形的邊長是多少公分？",
+        options: ["12 公分", "24 公分", "18 公分", "10 公分"],
+        ans: 0,
+        exp: "解析：正方形邊長為 6 和 4 的最小公倍數 [6, 4] = 12 公分。"
+      },
+      {
+        q: "4. 將長 24 公分、寬 20 公分的長方形紙卡，切割成一樣大的小正方形且剛好剪完，正方形邊長最多是幾公分？",
+        options: ["2 公分", "4 公分", "6 公分", "8 公分"],
+        ans: 1,
+        exp: "解析：求 24 與 20 的最大公因數 (24, 20) = 4 公分。"
+      },
+      {
+        q: "5. 餐廳提供芒果塔（每 8 天一次）與抹茶蛋糕（每 6 天一次）。今天同時供應，最少還要等幾天才會再次同時供應？",
+        options: ["14 天", "48 天", "24 天", "12 天"],
+        ans: 2,
+        exp: "解析：再次同時供應需經過 8 與 6 的最小公倍數天數，[8, 6] = 24 天。"
+      }
+    ];
+
+    let userSelections = new Array(quizData.length).fill(null);
+    let isQuizSubmitted = false;
+
+    function initQuiz() {
+      const container = document.getElementById('quiz-container');
+      container.innerHTML = '';
+      userSelections.fill(null);
+      isQuizSubmitted = false;
+      document.getElementById('quiz-score').innerText = '0 / 100';
+
+      quizData.forEach((q, idx) => {
+        const qEl = document.createElement('div');
+        qEl.className = 'bg-white/80 p-5 rounded-2xl border border-purple-100 shadow-sm';
+        
+        let optionsHTML = '';
+        q.options.forEach((opt, optIdx) => {
+          optionsHTML += `
+            <button onclick="selectOption(${idx}, ${optIdx})" id="btn-q${idx}-${optIdx}" class="w-full text-left p-3 rounded-xl border border-gray-200 hover:bg-purple-50 transition-all text-sm font-medium text-gray-700 flex items-center justify-between">
+              <span>${opt}</span>
+              <i class="fa-regular fa-circle text-gray-300" id="icon-q${idx}-${optIdx}"></i>
+            </button>
+          `;
+        });
+
+        qEl.innerHTML = `
+          <div class="font-bold text-gray-800 text-base mb-3">${q.q}</div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">${optionsHTML}</div>
+          <div id="exp-q${idx}" class="hidden p-3 rounded-xl text-xs bg-indigo-50 border border-indigo-200 text-indigo-800"></div>
+        `;
+        container.appendChild(qEl);
+      });
+
+      // 新增按鈕區塊
+      const btnContainer = document.createElement('div');
+      btnContainer.className = 'flex justify-center gap-4 mt-6 pt-4 border-t border-gray-200';
+      btnContainer.innerHTML = `
+        <button onclick="submitQuiz()" id="btn-submit-quiz" class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-md transition-all flex items-center gap-2">
+          <i class="fa-solid fa-paper-plane"></i> 提交答案
+        </button>
+        <button onclick="resetQuiz()" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl shadow-md transition-all flex items-center gap-2">
+          <i class="fa-solid fa-rotate-right"></i> 重新測驗
+        </button>
+      `;
+      container.appendChild(btnContainer);
+    }
+
+    function selectOption(qIdx, optIdx) {
+      if (isQuizSubmitted) return;
+      userSelections[qIdx] = optIdx;
+
+      // 重置該題所有選項樣式
+      quizData[qIdx].options.forEach((_, i) => {
+         const btn = document.getElementById(`btn-q${qIdx}-${i}`);
+         const icon = document.getElementById(`icon-q${qIdx}-${i}`);
+         btn.className = 'w-full text-left p-3 rounded-xl border border-gray-200 hover:bg-purple-50 transition-all text-sm font-medium text-gray-700 flex items-center justify-between';
+         icon.className = 'fa-regular fa-circle text-gray-300';
+      });
+
+      // 標示選取選項
+      const selectedBtn = document.getElementById(`btn-q${qIdx}-${optIdx}`);
+      const selectedIcon = document.getElementById(`icon-q${qIdx}-${optIdx}`);
+      selectedBtn.className = 'w-full text-left p-3 rounded-xl border-2 border-purple-500 bg-purple-50 text-purple-800 font-bold flex items-center justify-between';
+      selectedIcon.className = 'fa-solid fa-circle-dot text-purple-600';
+    }
+
+    function submitQuiz() {
+      if (isQuizSubmitted) return;
+      isQuizSubmitted = true;
+
+      let totalScore = 0;
+
+      quizData.forEach((q, qIdx) => {
+        const selectedOpt = userSelections[qIdx];
+        const expDiv = document.getElementById(`exp-q${qIdx}`);
+        expDiv.classList.remove('hidden');
+
+        if (selectedOpt === null) {
+           // 空白未作答：僅顯示「未作答。」，不提示正確答案
+           expDiv.className = 'p-3 rounded-xl text-xs bg-amber-100 border border-amber-300 text-amber-900 font-bold';
+           expDiv.innerText = '未作答。';
+        } else {
+           // 有作答
+           const isCorrect = (selectedOpt === q.ans);
+           if (isCorrect) totalScore += 20;
+
+           // 淡化未選的其他選項
+           q.options.forEach((_, i) => {
+               const btn = document.getElementById(`btn-q${qIdx}-${i}`);
+               btn.className = 'w-full text-left p-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-400 flex items-center justify-between opacity-60';
+           });
+
+           const selectedBtn = document.getElementById(`btn-q${qIdx}-${selectedOpt}`);
+           const selectedIcon = document.getElementById(`icon-q${qIdx}-${selectedOpt}`);
+
+           if (isCorrect) {
+             selectedBtn.className = 'w-full text-left p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800 font-bold flex items-center justify-between opacity-100';
+             selectedIcon.className = 'fa-solid fa-circle-check text-emerald-600';
+           } else {
+             selectedBtn.className = 'w-full text-left p-3 rounded-xl border-2 border-rose-500 bg-rose-50 text-rose-800 font-bold flex items-center justify-between opacity-100';
+             selectedIcon.className = 'fa-solid fa-circle-xmark text-rose-600';
+
+             // 答錯時標示出正確答案
+             const correctBtn = document.getElementById(`btn-q${qIdx}-${q.ans}`);
+             correctBtn.className = 'w-full text-left p-3 rounded-xl border-2 border-emerald-400 bg-emerald-50/50 text-emerald-800 flex items-center justify-between opacity-100';
+             const correctIcon = document.getElementById(`icon-q${qIdx}-${q.ans}`);
+             correctIcon.className = 'fa-solid fa-circle-check text-emerald-600';
+           }
+           // 顯示一般解析
+           expDiv.className = 'p-3 rounded-xl text-xs bg-indigo-50 border border-indigo-200 text-indigo-800';
+           expDiv.innerHTML = q.exp;
+        }
+      });
+
+      document.getElementById('quiz-score').innerText = `${totalScore} / 100`;
+      
+      // 停用提交按鈕
+      const submitBtn = document.getElementById('btn-submit-quiz');
+      submitBtn.disabled = true;
+      submitBtn.className = 'px-6 py-3 bg-purple-300 text-white font-bold rounded-xl shadow-none cursor-not-allowed flex items-center gap-2';
+    }
+
+    function resetQuiz() {
+      initQuiz();
+    }
+
+    // 頁面初始化
+    window.onload = function() {
+      updateLCM();
+      updateGCD();
+      updateNumberGrid();
+      initQuiz();
+    };
+  </script>
+</body>
+</html>

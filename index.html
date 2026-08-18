@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>閒雲數學小棧 - 國小五上數學單元目錄總覽</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Noto Sans TC -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            400: '#38bdf8',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'Inter', 'sans-serif'],
+                        rounded: ['Fredoka', '"Noto Sans TC"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #0369a1 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+        }
+
+        .glass-modal {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* 數學分數排版專用樣式 */
+        .math-frac {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            margin: 0 4px;
+            line-height: 1.2;
+        }
+        .math-frac-num {
+            border-bottom: 2px solid currentColor;
+            padding: 0 4px;
+        }
+        .math-frac-den {
+            padding: 0 4px;
+        }
+        .math-mixed {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* 確保模態框內容區域永遠集中且垂直居中 */
+        .preview-center-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            min-height: 380px;
+            text-align: center;
+            margin: auto;
+        }
+    </style>
+</head>
+<body class="p-3 md:p-6 custom-scrollbar">
+
+    <div class="max-w-6xl mx-auto flex flex-col items-center">
+
+        <!-- Header Bar with Google Drive Logo Image -->
+        <div class="w-full max-w-4xl flex items-center justify-start mb-4 px-2 fade-in">
+            <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+            <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+        </div>
+
+        <!-- Main Dashboard Header -->
+        <div class="w-full glass-card rounded-2xl p-6 md:p-8 mb-8 fade-in relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-10 -top-10 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 text-xs font-semibold tracking-wide border border-sky-400/30 mb-3">
+                        <i class="fa-solid fa-graduation-cap"></i> 國小五年級上學期 數學科
+                    </div>
+                    <h1 class="text-2xl md:text-4xl font-black text-white tracking-tight mb-2">
+                        五上數學各單元互動學習目錄
+                    </h1>
+                    <p class="text-slate-300 text-sm md:text-base max-w-2xl">
+                        統整五上數學所有單元之互動教學網頁。點擊「顯示單元網頁」即可展開各小節獨立學習連結，或開啟「簡易教具預覽」進行全互動式概念操作與觀察。
+                    </p>
+                </div>
+
+                <!-- Learning Progress Widget -->
+                <div class="flex items-center gap-4 bg-slate-900/60 p-4 rounded-xl border border-white/10 shrink-0">
+                    <div class="relative w-16 h-16 flex items-center justify-center">
+                        <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                            <path class="text-slate-700" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path id="progressCircle" class="text-sky-400 transition-all duration-700 ease-out" stroke-dasharray="0, 100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <span id="progressText" class="absolute text-sm font-bold text-sky-300">0%</span>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-400 font-medium">學習總進度</div>
+                        <div class="text-lg font-bold text-white"><span id="completedCount">0</span> / <span id="totalCount">10</span> 單元完成</div>
+                        <button onclick="resetProgress()" class="text-[11px] text-slate-400 hover:text-rose-300 underline transition-colors mt-0.5">重置學習紀錄</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls bar -->
+            <div class="mt-6 pt-6 border-t border-white/10 flex flex-col sm:flex-row gap-3 items-center justify-between">
+                <!-- Search Input -->
+                <div class="relative w-full sm:w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="searchInput" placeholder="搜尋單元名稱或小節..." oninput="filterUnits()"
+                           class="w-full bg-slate-900/80 text-sm text-white placeholder-slate-400 pl-10 pr-4 py-2 rounded-xl border border-white/15 focus:outline-none focus:border-sky-400 transition-colors">
+                </div>
+
+                <!-- Category Filters -->
+                <div class="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 custom-scrollbar">
+                    <button onclick="setCategoryFilter('all')" class="cat-btn active bg-sky-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition-all" data-cat="all">全部單元</button>
+                    <button onclick="setCategoryFilter('number')" class="cat-btn bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg font-medium transition-all" data-cat="number">數與運算</button>
+                    <button onclick="setCategoryFilter('geo')" class="cat-btn bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg font-medium transition-all" data-cat="geo">圖形幾何</button>
+                    <button onclick="setCategoryFilter('stat')" class="cat-btn bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg font-medium transition-all" data-cat="stat">統計與測量</button>
+                </div>
+
+                <!-- Action Button -->
+                <button onclick="openConfigModal()" class="w-full sm:w-auto text-xs bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 px-3 py-2 rounded-xl font-medium transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-gear"></i> 管理單元網址
+                </button>
+            </div>
+        </div>
+
+        <!-- Unit Cards Grid -->
+        <div id="unitsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full fade-in">
+            <!-- Dynamic Unit Cards Rendered Here -->
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 mb-6 text-center text-xs text-slate-400">
+            <p>© 閒雲數學小棧 - 國小數學數位學習平台 | 專為國小五年級學生設計之數位互動教學系統</p>
+        </footer>
+
+    </div>
+
+    <!-- Config Modal -->
+    <div id="configModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-modal w-full max-w-2xl rounded-2xl p-6 shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="flex items-center justify-between pb-4 border-b border-white/10">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-link text-sky-400"></i> 設定各單元與小節對應網址
+                </h3>
+                <button onclick="closeConfigModal()" class="text-slate-400 hover:text-white p-1 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <p class="text-xs text-slate-300 my-3">
+                在此填入您各單元與小節對應之獨立網頁網址（預設規範例如：`051/H051-01-1.html`）。
+            </p>
+
+            <div id="configInputsContainer" class="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar my-2">
+                <!-- Inputs rendered via JS -->
+            </div>
+
+            <div class="pt-4 border-t border-white/10 flex items-center justify-end gap-3">
+                <button onclick="closeConfigModal()" class="px-4 py-2 text-xs text-slate-300 hover:bg-slate-800 rounded-xl">取消</button>
+                <button onclick="saveUnitLinks()" class="px-5 py-2 text-xs font-bold bg-sky-500 hover:bg-sky-400 text-slate-950 rounded-xl shadow-lg transition-colors">
+                    <i class="fa-solid fa-floppy-disk mr-1"></i> 儲存網址設定
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Tool Preview Modal -->
+    <div id="previewModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 md:p-6 hidden">
+        <div class="glass-modal w-full max-w-3xl rounded-2xl p-5 md:p-6 shadow-2xl flex flex-col max-h-[95vh] relative overflow-hidden">
+            <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                <div class="flex items-center gap-3">
+                    <span id="previewUnitBadge" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-400/30">簡易教具預覽</span>
+                    <h3 id="previewUnitTitle" class="text-base md:text-lg font-bold text-white">單元標題</h3>
+                </div>
+                <button onclick="closePreviewModal()" class="text-slate-400 hover:text-white p-1 text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content Area (Enforced Vertical & Horizontal Centering) -->
+            <div class="my-4 flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center justify-center min-h-[420px] bg-slate-950/80 rounded-xl p-4 border border-white/10 relative" id="previewContent">
+                <!-- Interactive Tool Demo loaded here dynamically -->
+            </div>
+
+            <div class="pt-3 border-t border-white/10 flex items-center justify-end">
+                <button onclick="closePreviewModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs transition-all">
+                    關閉預覽
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-800 border border-sky-500/50 text-white text-xs px-4 py-3 rounded-xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-sky-400 text-base"></i>
+        <span id="toastMsg">設定已成功儲存</span>
+    </div>
+
+    <script>
+        // Grade 5 Math Curriculum Data Structure with 051/H051-prefix
+        const unitsData = [
+            {
+                id: 1,
+                unitNum: "第一單元",
+                title: "折線圖",
+                category: "stat",
+                icon: "fa-chart-line",
+                color: "from-blue-500 to-indigo-600",
+                badgeColor: "bg-blue-500/20 text-blue-300 border-blue-400/30",
+                desc: "報讀與製作折線圖，觀察資料持續變化趨勢，了解折線圖的橫軸、縱軸與標題意義。",
+                tags: ["統計圖表", "折線圖報讀", "動態繪製與趨勢"],
+                defaultUrl: "051/H051-01.html",
+                interactiveType: "lineChart",
+                subsections: [
+                    { id: "1-1", title: "生活中的統計圖", defaultUrl: "051/H051-01-1.html" },
+                    { id: "1-2", title: "製作折線圖", defaultUrl: "051/H051-01-2.html" }
+                ]
+            },
+            {
+                id: 2,
+                unitNum: "第二單元",
+                title: "倍數與因數",
+                category: "number",
+                icon: "fa-circle-nodes",
+                color: "from-indigo-500 to-purple-600",
+                badgeColor: "bg-indigo-500/20 text-indigo-300 border-indigo-400/30",
+                desc: "認識倍數與因數的概念，了解整除關係，並能列出一個數的所有因數與前幾倍數。",
+                tags: ["因數分解", "倍數檢驗", "彩虹對應圖"],
+                defaultUrl: "051/H051-02.html",
+                interactiveType: "factorsMultiples",
+                subsections: [
+                    { id: "2-1", title: "認識倍數", defaultUrl: "051/H051-02-1.html" },
+                    { id: "2-2", title: "認識因數", defaultUrl: "051/H051-02-2.html" },
+                    { id: "2-3", title: "倍數與因數的關係和應用", defaultUrl: "051/H051-02-3.html" }
+                ]
+            },
+            {
+                id: 3,
+                unitNum: "第三單元",
+                title: "平面圖形",
+                category: "geo",
+                icon: "fa-draw-polygon",
+                color: "from-purple-500 to-pink-600",
+                badgeColor: "bg-purple-500/20 text-purple-300 border-purple-400/30",
+                desc: "探索三角形三邊長關係、三角形內角和等於180度、平行四邊形/梯形性質與多邊形。",
+                tags: ["三邊關係", "內角和180°", "動態三角形與四邊形"],
+                defaultUrl: "051/H051-03.html",
+                interactiveType: "planeGeometry",
+                subsections: [
+                    { id: "3-1", title: "三角形的邊長關係", defaultUrl: "051/H051-03-1.html" },
+                    { id: "3-2", title: "三角形的內角和", defaultUrl: "051/H051-03-2.html" },
+                    { id: "3-3", title: "四邊形的性質", defaultUrl: "051/H051-03-3.html" },
+                    { id: "3-4", title: "認識多邊形", defaultUrl: "051/H051-03-4.html" }
+                ]
+            },
+            {
+                id: 4,
+                unitNum: "第四單元",
+                title: "公倍數與公因數",
+                category: "number",
+                icon: "fa-diagram-project",
+                color: "from-teal-500 to-emerald-600",
+                badgeColor: "bg-teal-500/20 text-teal-300 border-teal-400/30",
+                desc: "尋找兩數的公因數、最大公因數(GCD)以及公倍數、最小公倍數(LCM)並應用於生活解題。",
+                tags: ["公因數與GCD", "公倍數與LCM", "動態短除法演練"],
+                defaultUrl: "051/H051-04.html",
+                interactiveType: "commonFactors",
+                subsections: [
+                    { id: "4-1", title: "公倍數與最小公倍數", defaultUrl: "051/H051-04-1.html" },
+                    { id: "4-2", title: "公因數與最大公因數", defaultUrl: "051/H051-04-2.html" },
+                    { id: "4-3", title: "解題與應用", defaultUrl: "051/H051-04-3.html" }
+                ]
+            },
+            {
+                id: 5,
+                unitNum: "第五單元",
+                title: "立體形體",
+                category: "geo",
+                icon: "fa-cube",
+                color: "from-cyan-500 to-blue-600",
+                badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-400/30",
+                desc: "認識面的垂直與平行，角柱、圓柱、角錐、圓錐與球體的頂點、邊與面之要素構造。",
+                tags: ["垂直與平行", "角柱圓柱", "角錐圓錐", "3D幾何要素"],
+                defaultUrl: "051/H051-05.html",
+                interactiveType: "solidGeometry",
+                subsections: [
+                    { id: "5-1", title: "面的垂直與平行", defaultUrl: "051/H051-05-1.html" },
+                    { id: "5-2", title: "角柱與圓柱", defaultUrl: "051/H051-05-2.html" },
+                    { id: "5-3", title: "角錐與圓錐", defaultUrl: "051/H051-05-3.html" },
+                    { id: "5-4", title: "認識球", defaultUrl: "051/H051-05-4.html" }
+                ]
+            },
+            {
+                id: 6,
+                unitNum: "第六單元",
+                title: "整數四則運算",
+                category: "number",
+                icon: "fa-calculator",
+                color: "from-emerald-500 to-teal-700",
+                badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-400/30",
+                desc: "三步驟併式與逐次簡化，分配律 a×(b+c) 的運用、連除計算與平均問題計算。",
+                tags: ["併式與步驟", "乘法分配律", "連除性質", "動態運算示範"],
+                defaultUrl: "051/H051-06.html",
+                interactiveType: "arithmeticOps",
+                subsections: [
+                    { id: "6-1", title: "三步驟的併式與逐步求解", defaultUrl: "051/H051-06-1.html" },
+                    { id: "6-2", title: "分配律", defaultUrl: "051/H051-06-2.html" },
+                    { id: "6-3", title: "連除的計算", defaultUrl: "051/H051-06-3.html" },
+                    { id: "6-4", title: "平均問題", defaultUrl: "051/H051-06-4.html" }
+                ]
+            },
+            {
+                id: 7,
+                unitNum: "第七單元",
+                title: "擴、約分與加減",
+                category: "number",
+                icon: "fa-chart-pie",
+                color: "from-sky-500 to-blue-700",
+                badgeColor: "bg-sky-500/20 text-sky-300 border-sky-400/30",
+                desc: "利用擴分與約分保持分數數值不變，通分轉換為同分母分數，進行大小比較與異分母加減。",
+                tags: ["擴分與約分", "通分比較", "異分母加減", "動態派圖比較"],
+                defaultUrl: "051/H051-07.html",
+                interactiveType: "equivalentFractions",
+                subsections: [
+                    { id: "7-1", title: "擴分與約分", defaultUrl: "051/H051-07-1.html" },
+                    { id: "7-2", title: "通分與分數大小比較", defaultUrl: "051/H051-07-2.html" },
+                    { id: "7-3", title: "異分母分數的加減", defaultUrl: "051/H051-07-3.html" }
+                ]
+            },
+            {
+                id: 8,
+                unitNum: "第八單元",
+                title: "面積",
+                category: "geo",
+                icon: "fa-vector-square",
+                color: "from-blue-600 to-cyan-700",
+                badgeColor: "bg-blue-600/20 text-blue-300 border-blue-400/30",
+                desc: "理解平行四邊形(底×高)、三角形(底×高÷2)、梯形((上底+下底)×高÷2)的面積公式推導。",
+                tags: ["平行四邊形", "三角形面積", "梯形面積", "動態圖形拉伸計算"],
+                defaultUrl: "051/H051-08.html",
+                interactiveType: "areaFormulas",
+                subsections: [
+                    { id: "8-1", title: "平行四邊形的面積", defaultUrl: "051/H051-08-1.html" },
+                    { id: "8-2", title: "三角形的面積", defaultUrl: "051/H051-08-2.html" },
+                    { id: "8-3", title: "梯形的面積", defaultUrl: "051/H051-08-3.html" },
+                    { id: "8-4", title: "面積的變化與應用", defaultUrl: "051/H051-08-4.html" }
+                ]
+            },
+            {
+                id: 9,
+                unitNum: "第九單元",
+                title: "乘以幾分之一",
+                category: "number",
+                icon: "fa-divide",
+                color: "from-sky-600 to-indigo-700",
+                badgeColor: "bg-sky-600/20 text-sky-300 border-sky-400/30",
+                desc: "理解整數除以整數結果以分數表示，整數乘以單位分數(1/n)與除以整數(÷n)的等價意義。",
+                tags: ["整數除法作分數", "乘以幾分之一", "分組圖像示範"],
+                defaultUrl: "051/H051-09.html",
+                interactiveType: "multiplyUnitFraction",
+                subsections: [
+                    { id: "9-1", title: "分數表示整數相除的結果", defaultUrl: "051/H051-09-1.html" },
+                    { id: "9-2", title: "整數乘以幾分之一", defaultUrl: "051/H051-09-2.html" },
+                    { id: "9-3", title: "乘以1/2與除以2", defaultUrl: "051/H051-09-3.html" }
+                ]
+            },
+            {
+                id: 10,
+                unitNum: "第十單元",
+                title: "扇形",
+                category: "geo",
+                icon: "fa-pie-chart",
+                color: "from-blue-500 to-teal-600",
+                badgeColor: "bg-blue-500/20 text-blue-300 border-blue-400/30",
+                desc: "認識扇形組成（兩半徑與圓弧），量測圓心角，判讀幾分之幾圓（如 1/4圓對應 90°）。",
+                tags: ["認識扇形", "圓心角量測", "幾分之幾圓", "動態圓心角調整"],
+                defaultUrl: "051/H051-10.html",
+                interactiveType: "sectorsCircle",
+                subsections: [
+                    { id: "10-1", title: "認識扇形", defaultUrl: "051/H051-10-1.html" },
+                    { id: "10-2", title: "認識圓心角", defaultUrl: "051/H051-10-2.html" },
+                    { id: "10-3", title: "幾分之幾圖", defaultUrl: "051/H051-10-3.html" }
+                ]
+            }
+        ];
+
+        let unitUrls = {};
+        let completedUnits = {};
+        let expandedSubsections = {};
+        let currentFilter = 'all';
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSavedData();
+            renderUnits();
+            updateProgressStats();
+        });
+
+        function loadSavedData() {
+            try {
+                const savedUrls = localStorage.getItem('math5a_unit_urls');
+                if (savedUrls) {
+                    unitUrls = JSON.parse(savedUrls);
+                } else {
+                    unitsData.forEach(u => {
+                        unitUrls[u.id] = u.defaultUrl;
+                        if (u.subsections) {
+                            u.subsections.forEach(sub => {
+                                unitUrls[sub.id] = sub.defaultUrl;
+                            });
+                        }
+                    });
+                }
+
+                const savedCompleted = localStorage.getItem('math5a_completed_units');
+                if (savedCompleted) {
+                    completedUnits = JSON.parse(savedCompleted);
+                }
+            } catch (e) {
+                console.error("Local storage error", e);
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('math5a_unit_urls', JSON.stringify(unitUrls));
+            localStorage.setItem('math5a_completed_units', JSON.stringify(completedUnits));
+        }
+
+        function renderUnits() {
+            const grid = document.getElementById('unitsGrid');
+            grid.innerHTML = '';
+
+            const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            const filtered = unitsData.filter(unit => {
+                const matchesCat = (currentFilter === 'all') || (unit.category === currentFilter);
+                const matchesSearch = unit.title.toLowerCase().includes(searchVal) || 
+                                      unit.unitNum.toLowerCase().includes(searchVal) ||
+                                      unit.desc.toLowerCase().includes(searchVal) ||
+                                      unit.tags.some(t => t.toLowerCase().includes(searchVal)) ||
+                                      (unit.subsections && unit.subsections.some(s => s.id.toLowerCase().includes(searchVal) || s.title.toLowerCase().includes(searchVal)));
+                return matchesCat && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass text-3xl mb-2 opacity-50"></i>
+                        <p>找不到符合條件的單元或小節</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(unit => {
+                const isCompleted = !!completedUnits[unit.id];
+                const isExpanded = !!expandedSubsections[unit.id];
+
+                let subHtml = '';
+                if (unit.subsections && unit.subsections.length > 0) {
+                    subHtml = `
+                        <div id="sub_section_${unit.id}" class="${isExpanded ? 'block' : 'hidden'} mt-3 pt-3 border-t border-white/10 transition-all">
+                            <div class="text-[11px] font-bold text-sky-300/90 mb-2 flex items-center justify-between">
+                                <span><i class="fa-solid fa-layer-group mr-1"></i>小節學習頁面：</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-1.5">
+                                ${unit.subsections.map(sub => {
+                                    const subUrl = unitUrls[sub.id] || sub.defaultUrl;
+                                    return `
+                                        <a href="${subUrl}" target="_blank" title="${sub.id} ${sub.title}" 
+                                           class="px-2 py-1.5 bg-slate-900/90 hover:bg-sky-500/20 text-sky-200 hover:text-white border border-white/10 hover:border-sky-400/50 rounded-lg transition-all flex flex-col justify-center group/sub">
+                                            <span class="text-[10px] font-extrabold text-sky-400 group-hover/sub:text-sky-300">${sub.id}</span>
+                                            <span class="truncate w-full text-[11px] font-medium text-slate-300 group-hover/sub:text-white">${sub.title}</span>
+                                        </a>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                const card = document.createElement('div');
+                card.className = `glass-card rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden group ${isCompleted ? 'border-emerald-500/40 bg-slate-900/40' : ''}`;
+
+                card.innerHTML = `
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${unit.color} opacity-10 rounded-bl-full pointer-events-none group-hover:opacity-20 transition-opacity"></div>
+                    
+                    <div>
+                        <!-- Header / Unit Number -->
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="px-2.5 py-1 rounded-lg text-xs font-bold border ${unit.badgeColor}">
+                                ${unit.unitNum}
+                            </span>
+                            <button onclick="toggleCompleted('${unit.id}')" title="切換完成狀態" class="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full transition-all ${isCompleted ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30' : 'bg-slate-800 text-slate-400 hover:text-slate-200 border border-white/5'}">
+                                <i class="fa-solid ${isCompleted ? 'fa-circle-check text-emerald-400' : 'fa-circle'}"></i>
+                                <span>${isCompleted ? '已標記完成' : '標記完成'}</span>
+                            </button>
+                        </div>
+
+                        <!-- Title & Icon -->
+                        <div class="flex items-start gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br ${unit.color} flex items-center justify-center text-white text-lg shadow-md shrink-0 mt-0.5">
+                                <i class="fa-solid ${unit.icon}"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-white group-hover:text-sky-300 transition-colors">
+                                    ${unit.title}
+                                </h3>
+                                <p class="text-xs text-slate-300 mt-1 line-clamp-2 leading-relaxed">
+                                    ${unit.desc}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Tags -->
+                        <div class="flex flex-wrap gap-1.5 mb-3 mt-2">
+                            ${unit.tags.map(tag => `<span class="text-[11px] bg-slate-900/60 text-slate-300 px-2 py-0.5 rounded-md border border-white/5"># ${tag}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    <div>
+                        <!-- Main Action Buttons -->
+                        <div class="pt-3 border-t border-white/10 flex items-center gap-2">
+                            <button onclick="openPreview('${unit.id}')" class="flex-1 text-xs py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-all border border-white/10 flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-eye text-sky-400"></i> 簡易教具預覽
+                            </button>
+                            <button onclick="toggleSubsections('${unit.id}')" class="flex-1 text-xs py-2 px-3 bg-gradient-to-r ${unit.color} hover:brightness-110 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center">
+                                <span>顯示單元網頁</span>
+                            </button>
+                        </div>
+
+                        <!-- Subsections Area -->
+                        ${subHtml}
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function toggleSubsections(unitId) {
+            expandedSubsections[unitId] = !expandedSubsections[unitId];
+            const subElem = document.getElementById(`sub_section_${unitId}`);
+            if (subElem) {
+                if (expandedSubsections[unitId]) {
+                    subElem.classList.remove('hidden');
+                    subElem.classList.add('block');
+                } else {
+                    subElem.classList.add('hidden');
+                    subElem.classList.remove('block');
+                }
+            }
+        }
+
+        function toggleCompleted(unitId) {
+            completedUnits[unitId] = !completedUnits[unitId];
+            saveData();
+            renderUnits();
+            updateProgressStats();
+            showToast(completedUnits[unitId] ? "已將單元標記為完成！" : "已取消單元完成標記");
+        }
+
+        function updateProgressStats() {
+            const mainUnits = unitsData.filter(u => typeof u.id === 'number');
+            const total = mainUnits.length;
+            const completedCount = mainUnits.filter(u => completedUnits[u.id]).length;
+            const percent = Math.round((completedCount / total) * 100);
+
+            document.getElementById('totalCount').innerText = total;
+            document.getElementById('completedCount').innerText = completedCount;
+            document.getElementById('progressText').innerText = `${percent}%`;
+
+            const circle = document.getElementById('progressCircle');
+            circle.setAttribute('stroke-dasharray', `${percent}, 100`);
+        }
+
+        function resetProgress() {
+            completedUnits = {};
+            saveData();
+            renderUnits();
+            updateProgressStats();
+            showToast("學習紀錄已重置");
+        }
+
+        function setCategoryFilter(cat) {
+            currentFilter = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                if (btn.dataset.cat === cat) {
+                    btn.className = "cat-btn active bg-sky-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition-all shadow-md";
+                } else {
+                    btn.className = "cat-btn bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg font-medium transition-all";
+                }
+            });
+            renderUnits();
+        }
+
+        function filterUnits() {
+            renderUnits();
+        }
+
+        function openConfigModal() {
+            const container = document.getElementById('configInputsContainer');
+            container.innerHTML = '';
+
+            unitsData.forEach(u => {
+                const currentUrl = unitUrls[u.id] || u.defaultUrl;
+                const div = document.createElement('div');
+                div.className = "bg-slate-900/70 p-3.5 rounded-xl border border-white/10 flex flex-col gap-2.5";
+                
+                let subInputsHtml = '';
+                if (u.subsections && u.subsections.length > 0) {
+                    subInputsHtml = `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-white/5">
+                            ${u.subsections.map(sub => {
+                                const subUrl = unitUrls[sub.id] || sub.defaultUrl;
+                                return `
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-[11px] font-mono text-sky-300 w-12 font-bold shrink-0">${sub.id}</span>
+                                        <input type="text" id="url_input_${sub.id}" value="${subUrl}" placeholder="${sub.defaultUrl}"
+                                               class="w-full bg-slate-950 text-[11px] text-white px-2 py-1 rounded-lg border border-white/10 focus:outline-none focus:border-sky-400 font-mono">
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                }
+
+                div.innerHTML = `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div class="sm:w-1/3">
+                            <span class="text-xs font-bold text-sky-300">${u.unitNum}</span>
+                            <div class="text-sm font-semibold text-white truncate">${u.title}</div>
+                        </div>
+                        <input type="text" id="url_input_${u.id}" value="${currentUrl}" placeholder="網址，例如：051/H051-0${u.id}.html"
+                               class="sm:w-2/3 bg-slate-950 text-xs text-white px-3 py-2 rounded-lg border border-white/15 focus:outline-none focus:border-sky-400 font-mono">
+                    </div>
+                    ${subInputsHtml}
+                `;
+                container.appendChild(div);
+            });
+
+            document.getElementById('configModal').classList.remove('hidden');
+        }
+
+        function closeConfigModal() {
+            document.getElementById('configModal').classList.add('hidden');
+        }
+
+        function saveUnitLinks() {
+            unitsData.forEach(u => {
+                const input = document.getElementById(`url_input_${u.id}`);
+                if (input) {
+                    unitUrls[u.id] = input.value.trim() || u.defaultUrl;
+                }
+                if (u.subsections) {
+                    u.subsections.forEach(sub => {
+                        const subInput = document.getElementById(`url_input_${sub.id}`);
+                        if (subInput) {
+                            unitUrls[sub.id] = subInput.value.trim() || sub.defaultUrl;
+                        }
+                    });
+                }
+            });
+            saveData();
+            renderUnits();
+            closeConfigModal();
+            showToast("單元與小節網址設定已儲存");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        function openPreview(unitId) {
+            const unit = unitsData.find(u => String(u.id) === String(unitId));
+            if (!unit) return;
+
+            document.getElementById('previewUnitTitle').innerText = `${unit.unitNum}：${unit.title}`;
+
+            const contentArea = document.getElementById('previewContent');
+            contentArea.innerHTML = '';
+
+            switch (unit.interactiveType) {
+                case 'lineChart':
+                    contentArea.innerHTML = renderLineChartDemo();
+                    initLineChartLogic();
+                    break;
+                case 'factorsMultiples':
+                    contentArea.innerHTML = renderFactorsMultiplesDemo();
+                    initFactorsMultiplesLogic();
+                    break;
+                case 'planeGeometry':
+                    contentArea.innerHTML = renderPlaneGeometryDemo();
+                    initPlaneGeometryLogic();
+                    break;
+                case 'commonFactors':
+                    contentArea.innerHTML = renderCommonFactorsDemo();
+                    initCommonFactorsLogic();
+                    break;
+                case 'solidGeometry':
+                    contentArea.innerHTML = renderSolidGeometryDemo();
+                    initSolidGeometryLogic();
+                    break;
+                case 'arithmeticOps':
+                    contentArea.innerHTML = renderArithmeticOpsDemo();
+                    initArithmeticOpsLogic();
+                    break;
+                case 'equivalentFractions':
+                    contentArea.innerHTML = renderEquivalentFractionsDemo();
+                    initEquivalentFractionsLogic();
+                    break;
+                case 'areaFormulas':
+                    contentArea.innerHTML = renderAreaFormulasDemo();
+                    initAreaFormulasLogic();
+                    break;
+                case 'multiplyUnitFraction':
+                    contentArea.innerHTML = renderMultiplyUnitFractionDemo();
+                    initMultiplyUnitFractionLogic();
+                    break;
+                case 'sectorsCircle':
+                    contentArea.innerHTML = renderSectorsCircleDemo();
+                    initSectorsCircleLogic();
+                    break;
+                default:
+                    contentArea.innerHTML = `<div class="preview-center-wrapper"><p class="text-slate-400 text-sm">此單元互動教具載入中...</p></div>`;
+            }
+
+            document.getElementById('previewModal').classList.remove('hidden');
+        }
+
+        function closePreviewModal() {
+            document.getElementById('previewModal').classList.add('hidden');
+        }
+
+        function renderLineChartDemo() {
+            return `
+                <div class="preview-center-wrapper">
+                    <div class="text-xs text-sky-300 mb-2 font-bold flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-chart-line text-sky-400"></i> 動態調整 5 個月份數據，觀察折線圖變化與趨勢：
+                    </div>
+                    <div class="flex flex-wrap items-center justify-center gap-2 mb-3">
+                        <label class="text-[11px] text-slate-300">1月:<input type="number" id="lc_v1" value="20" min="5" max="50" class="w-12 bg-slate-900 text-sky-300 font-mono text-center font-bold px-1 py-0.5 rounded border border-white/20 text-xs"></label>
+                        <label class="text-[11px] text-slate-300">2月:<input type="number" id="lc_v2" value="25" min="5" max="50" class="w-12 bg-slate-900 text-sky-300 font-mono text-center font-bold px-1 py-0.5 rounded border border-white/20 text-xs"></label>
+                        <label class="text-[11px] text-slate-300">3月:<input type="number" id="lc_v3" value="38" min="5" max="50" class="w-12 bg-slate-900 text-sky-300 font-mono text-center font-bold px-1 py-0.5 rounded border border-white/20 text-xs"></label>
+                        <label class="text-[11px] text-slate-300">4月:<input type="number" id="lc_v4" value="30" min="5" max="50" class="w-12 bg-slate-900 text-sky-300 font-mono text-center font-bold px-1 py-0.5 rounded border border-white/20 text-xs"></label>
+                        <label class="text-[11px] text-slate-300">5月:<input type="number" id="lc_v5" value="45" min="5" max="50" class="w-12 bg-slate-900 text-sky-300 font-mono text-center font-bold px-1 py-0.5 rounded border border-white/20 text-xs"></label>
+                    </div>
+                    <div class="w-full max-w-md bg-slate-900/90 p-4 rounded-2xl border border-sky-500/30 relative h-52 flex flex-col justify-between items-center shadow-inner">
+                        <svg viewBox="0 0 300 140" class="w-full h-full overflow-visible" id="lc_svg">
+                        </svg>
+                    </div>
+                    <div id="lc_info" class="text-xs text-sky-200 bg-slate-900/80 px-4 py-2 rounded-xl border border-white/10 mt-3 max-w-md w-full">
+                        點擊或調整輸入框，即時觀察趨勢起伏。
+                    </div>
+                </div>
+            `;
+        }
+        function initLineChartLogic() {
+            const inputs = [
+                document.getElementById('lc_v1'),
+                document.getElementById('lc_v2'),
+                document.getElementById('lc_v3'),
+                document.getElementById('lc_v4'),
+                document.getElementById('lc_v5')
+            ];
+            const svg = document.getElementById('lc_svg');
+            const info = document.getElementById('lc_info');
+
+            const draw = () => {
+                const vals = inputs.map(inp => parseInt(inp.value) || 10);
+                const xCoords = [50, 100, 150, 200, 250];
+                // Y ranges from 5..50 mapped to 110..20
+                const getY = (v) => 120 - (v / 50) * 100;
+
+                const points = vals.map((v, i) => `${xCoords[i]},${getY(v)}`).join(' ');
+
+                let svgContent = `
+                    <line x1="30" y1="120" x2="280" y2="120" stroke="#475569" stroke-width="1.5"/>
+                    <line x1="30" y1="10" x2="30" y2="120" stroke="#475569" stroke-width="1.5"/>
+                    <polyline points="${points}" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                `;
+
+                const months = ["1月", "2月", "3月", "4月", "5月"];
+                vals.forEach((v, i) => {
+                    const cx = xCoords[i];
+                    const cy = getY(v);
+                    svgContent += `
+                        <circle cx="${cx}" cy="${cy}" r="5" fill="#f59e0b" class="cursor-pointer hover:r-7 transition-all">
+                            <title>${months[i]}: ${v}°C</title>
+                        </circle>
+                        <text x="${cx}" y="${cy - 9}" fill="#f59e0b" font-size="10" font-weight="bold" text-anchor="middle">${v}</text>
+                        <text x="${cx}" y="135" fill="#cbd5e1" font-size="10" text-anchor="middle">${months[i]}</text>
+                    `;
+                });
+
+                svg.innerHTML = svgContent;
+
+                const maxVal = Math.max(...vals);
+                const maxMonth = months[vals.indexOf(maxVal)];
+                info.innerHTML = `最高溫出現在 <b class="text-amber-300">${maxMonth} (${maxVal}°C)</b>。折線呈波浪起伏變化。`;
+            };
+
+            inputs.forEach(inp => { if (inp) inp.oninput = draw; });
+            draw();
+        }
+
+        function renderFactorsMultiplesDemo() {
+            return `
+                <div class="preview-center-wrapper">
+                    <div class="text-xs text-indigo-300 mb-2 font-bold"><i class="fa-solid fa-circle-nodes text-indigo-400 mr-1"></i>輸入正整數，動態剖析所有因數與倍數：</div>
+                    <div class="flex items-center justify-center gap-2 mb-3">
+                        <span class="text-xs text-slate-300">正整數 N：</span>
+                        <input type="number" id="u2Input" value="24" min="1" max="100" class="w-20 bg-slate-900 text-indigo-300 font-mono text-center font-bold px-2 py-1 rounded-lg border border-indigo-500/40 text-sm">
+                        <button id="u2CalcBtn" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg text-slate-200 border border-white/10 font-bold"><i class="fa-solid fa-calculator"></i> 分析</button>
+                    </div>
+                    <div id="u2ResultBox" class="text-xs text-indigo-200 font-mono bg-slate-900/90 p-4 rounded-xl border border-white/10 text-left max-w-md w-full space-y-2">
+                    </div>
+                </div>
+            `;
+        }
+        function initFactorsMultiplesLogic() {
+            const input = document.getElementById('u2Input');
+            const btn = document.getElementById('u2CalcBtn');
+            const box = document.getElementById('u2ResultBox');
+
+            const analyze = () => {
+                const n = parseInt(input.value) || 24;
+                let factors = [];
+                let pairs = [];
+                for(let i=1; i<=Math.sqrt(n); i++) {
+                    if(n % i === 0) {
+                        factors.push(i);
+                        if(i !== n/i) factors.push(n/i);
+                        pairs.push(`(${i} × ${n/i})`);
+                    }
+                }
+                factors.sort((a,b)=>a-b);
+                let multiples = [n, n*2, n*3, n*4, n*5];
+
+                box.innerHTML = `
+                    <div><b>${n} 的所有因數：</b> <span class="text-emerald-300 font-bold">${factors.join(', ')}</span> (共 ${factors.length} 個)</div>
+                    <div><b>因數乘積對：</b> <span class="text-sky-300 font-bold">${pairs.join(' , ')}</span></div>
+                    <div><b>${n} 的前 5 個倍數：</b> <span class="text-amber-300 font-bold">${multiples.join(', ')}...</span></div>
+                    <div class="text-[11px] text-slate-400 pt-1 border-t border-white/10">提示：如果 ${n} 能被 d 整除，則 d 就是 ${n} 的因數！</div>
+                `;
+            };
+            if(input) input.oninput = analyze;
+            if(btn) btn.onclick = analyze;
+            analyze();
+        }
+
+        function renderPlaneGeometryDemo() {
+            return `
+                <div class="preview-center-wrapper">
+                    <div class="text-xs text-purple-300 mb-2 font-bold"><i class="fa-solid fa-draw-polygon text-purple-400 mr-1"></i>動態調整三角形角度 (∠A 與 ∠B)，驗證內角和 (180°)：</div>
+                    <div class="flex items-center justify-center gap-3 mb-3">
+                        <label class="text-xs text-slate-300">∠A: <input type="range" id="pg_a" min="20" max="120" value="60" class="accent-purple-400 w-24"> <span id="pg_a_txt" class="font-bold text-amber-300">60°</span></label>
+                        <label class="text-xs text-slate-300">∠B: <input type="range" id="pg_b" min="20" max="120" value="60" class="accent-purple-400 w-24"> <span id="pg_b_txt" class="font-bold text-amber-300">60°</span></label>
+                    </div>
+                    <div class="bg-slate-900/90 p-4 rounded-2xl border border-purple-500/30 my-1 flex justify-center items-center relative h-40 w-full max-w-sm">
+                        <svg viewBox="0 0 200 120" class="w-52 h-36" id="pg_svg">
+                        </svg>
+                    </div>
+                    <div id="pg_desc" class="text-xs text-purple-200 bg-slate-900/80 px-4 py-2.5 rounded-xl border border-white/10 mt-2 max-w-md w-full text-left space-y-1">
+                    </div>
+                </div>
+            `;
+        }
+        function initPlaneGeometryLogic() {
+            const sliderA = document.getElementById('pg_a');
+            const sliderB = document.getElementById('pg_b');
+            const txtA = document.getElementById('pg_a_txt');
+            const txtB = document.getElementById('pg_b_txt');
+            const svg = document.getElementById('pg_svg');
+            const desc = document.getElementById('pg_desc');
+
+            const update = () => {
+                let degA = parseInt(sliderA.value) || 60;
+                let degB = parseInt(sliderB.value) || 60;
+                if (degA + degB >= 170) {
+                    degB = 170 - degA;
+                    sliderB.value = degB;
+                }
+                const degC = 180 - degA - degB;
+
+                txtA.innerText = `${degA}°`;
+                txtB.innerText = `${degB}°`;
+
+                // Calculate triangle coordinates roughly for display
+                const xA = 100, yA = 20;
+                const xB = 30, yB = 100;
+                const xC = 170, yC = 100;
+
+                svg.innerHTML = `
+                    <polygon points="${xA},${yA} ${xB},${yB} ${xC},${yC}" fill="rgba(217,70,239,0.2)" stroke="#d946ef" stroke-width="2.5"/>
+                    <text x="${xA}" y="${yA + 18}" fill="#f59e0b" font-size="11" font-weight="bold" text-anchor="middle">∠A = ${degA}°</text>
+                    <text x="${xB + 20}" y="${yB - 8}" fill="#f59e0b" font-size="11" font-weight="bold">∠B = ${degB}°</text>
+                    <text x="${xC - 45}" y="${yC - 8}" fill="#f59e0b" font-size="11" font-weight="bold">∠C = ${degC}°</text>
+                `;
+
+                let triType = "銳角三角形";
+                if (degA === 90 || degB === 90 || degC === 90) triType = "直角三角形";
+                else if (degA > 90 || degB > 90 || degC > 90) triType = "鈍角三角形";
+
+                desc.innerHTML = `
+                    <div>1. <b>內角和公式：</b>${degA}° + ${degB}° + <span class="text-amber-300 font-bold">${degC}°</span> = <span class="text-emerald-300 font-bold">180°</span></div>
+                    <div>2. <b>三角形分類：</b>屬於 <b class="text-sky-300">${triType}</b></div>
+                `;
+            };
+
+            if (sliderA) sliderA.oninput = update;
+            if (sliderB) sliderB.oninput = update;
+            update();
+        }
+
+        function renderCommonFactorsDemo() {
+            return `
+                <div class="preview-center-wrapper">
+                    <div class="text-xs text-teal-300 mb-2 font-bold"><i class="fa-solid fa-diagram-project text-teal-400 mr-1"></i>輸入兩正整數，動態短除法求 GCD 與 LCM：</div>
+                    <div class="flex items-center justify-center gap-2 mb-3">
+                        <input type="number" id="cf_a" value="12" min="2" max="99" class="w-16 bg-slate-900 text-teal-300 font-mono text-center font-bold px-2 py-1 rounded-lg border border-teal-500/40 text-sm">
+                        <span class="text-slate-300 text-xs font-bold">與</span>
+                        <input type="number" id="cf_b" value="18" min="2" max="99" class="w-16 bg-slate-900 text-teal-300 font-mono text-center font-bold px-2 py-1 rounded-lg border border-teal-500/40 text-sm">
+                        <button id="cf_calc_btn" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg text-slate-200 border border-white/10 font-bold"><i class="fa-solid fa-calculator"></i> 計算</button>
+                    </div>
+                    <div id="cf_steps_box" class="bg-slate-900/90 p-4 rounded-2xl border border-teal-500/30 font-mono text-sm inline-block text-left my-1 min-w-[220px]">
+                    </div>
+                    <div id="cf_res_box" class="text-xs text-teal-200 bg-slate-900/80 px-4 py-2.5 rounded-xl border border-white/10 mt-2 max-w-md w-full text-left space-y-1">
+                    </div>
+                </div>
+            `;
+        }
+        function initCommonFactorsLogic() {
+            const inpA = document.getElementById('cf_a');
+            const inpB = document.getElementById('cf_b');
+            const btn = document.getElementById('cf_calc_btn');
+            const stepsBox = document.getElementById('cf_steps_box');
+            const resBox = document.getElementById('cf_res_box');
+
+            const compute = () => {
+                let numA = parseInt(inpA.value) || 12;
+                let numB = parseInt(inpB.value) || 18;
+
+                let currA = numA;
+                let currB = numB;
+                let divisors = [];
+
+                let d = 2;
+                while (d <= Math.min(currA, currB)) {
+                    if (currA % d === 0 && currB % d === 0) {
+                        divisors.push(d);
+                        currA = currA / d;
+                        currB = currB / d;
+                    } else {
+                        d++;
+                    }
+                }
+
+                let stepsHtml = '';
+                let tempA = numA, tempB = numB;
+                divisors.forEach((div, idx) => {
+                    stepsHtml += `
+                        <div class="flex items-center space-x-2 my-1">
+                            <span class="text-amber-400 font-bold w-4 text-center">${div}</span>
+                            <span class="border-l-2 border-b-2 border-slate-400 pl-3 pr-2">${tempA} , ${tempB}</span>
+                        </div>
+                    `;
+                    tempA /= div;
+                    tempB /= div;
+                });
+                stepsHtml += `<div class="pl-8 text-cyan-300 font-bold my-1">${tempA} , ${tempB}</div>`;
+
+                stepsBox.innerHTML = stepsHtml;
+
+                const gcd = divisors.reduce((acc, v) => acc * v, 1);
+                const lcm = gcd * tempA * tempB;
+
+                resBox.innerHTML = `
+                    <div><b>最大公因數 (${numA}, ${numB})：</b> <span class="text-amber-300 font-bold">${divisors.join('×') || 1} = ${gcd}</span></div>
+                    <div><b>最小公倍數 [${numA}, ${numB}]：</b> <span class="text-emerald-300 font-bold">${[...divisors, tempA, tempB].join('×')} = ${lcm}</span></div>
+                `;
+            };
+
+            if (inpA) inpA.oninput = compute;
+            if (inpB) inpB.oninput = compute;
+            if (btn) btn.onclick = compute;
+            compute();
+        }
+
+        function renderSolidGeometryDemo() {
+            return `
+                <div class="preview-center-wrapper">
+                    <div class="text-xs text-cyan-300 mb-2 font-bold"><i class="fa-solid fa-cube text-cyan-400 mr-1"></i>切換立體形體，觀看要素結構（面、邊、頂點）：</div>
+                    <div class="flex flex-wrap justify-center gap-1.5 mb-3">
+                        <button onclick="selectSolidShape('cube')" id="sb_cube" class="px-2.5 py-1 bg-cyan-600 text-white rounded-lg text-xs font-bold shadow">正方體</button>
+                        <button onclick="selectSolidShape('cuboid')" id="sb_cuboid" class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg text-xs font-bold border border-white/10">長方體</button>
+                        <button onclick="selectSolidShape('triPrism')" id="sb_triPrism" class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg text-xs font-bold border border-white/10">三角柱</button>
+                        <button onclick="selectSolidShape('triPyramid')" id="sb_triPyramid" class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg text-xs font-bold border border-white/10">四角錐</button>
+                    </div>
+                    <div id="solidSvgBox" class="bg-slate-900/90 p-3 rounded-2xl border border-cyan-500/30 my-1 flex justify-center items-center relative h-36 w-full max-w-xs">
+                    </div>
+                    <div id="solidInfoBox" class="grid grid-cols-3 gap-2 mt-2 text-xs w-full max-w-xs">
+                    </div>
+                </div>
+            `;
+        }
+        function selectSolidShape(type) {
+            const svgBox = document.getElementById('solidSvgBox');
+            const infoBox = document.getElementById('solidInfoBox');
+            
+            const btns = ['cube', 'cuboid', 'triPrism', 'triPyramid'];
+            btns.forEach(b => {
+                const btn = document.getElementById(`sb_${b}`);
+                if (btn) {
+                    if (b === type) btn.className = "px-2.5 py-1 bg-cyan-600 text-white rounded-lg text-xs font-bold shadow";
+                    else btn.className = "px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg text-xs font-bold border border-white/10";
+                }
+            });
+
+            if (type === 'cube' || type === 'cuboid') {
+                svgBox.innerHTML = `
+                    <svg viewBox="0 0 160 110" class="w-36 h-28">
+                        <polygon points="30,35 90,35 90,95 30,95" fill="rgba(56, 189, 248, 0.2)" stroke="#38bdf8" stroke-width="1.5"/>
+                        <polygon points="90,35 130,15 130,75 90,95" fill="rgba(56, 189, 248, 0.3)" stroke="#38bdf8" stroke-width="1.5"/>
+                        <polygon points="30,35 70,15 130,15 90,35" fill="rgba(56, 189, 248, 0.4)" stroke="#38bdf8" stroke-width="1.5"/>
+                        <line x1="30" y1="95" x2="70" y2="75" stroke="#38bdf8" stroke-width="1" stroke-dasharray="3,3"/>
+                        <line x1="70" y1="75" x2="130" y2="75" stroke="#38bdf8" stroke-width="1" stroke-dasharray="3,3"/>
+                        <line x1="70" y1="75" x2="70" y2="15" stroke="#38bdf8" stroke-width="1" stroke-dasharray="3,3"/>
+                    </svg>
+                `;
+                infoBox.innerHTML = `
+                    <div class="bg-slate-900/80 p-2 rounded-xl border border-white/10">面：<span class="text-cyan-300 font-bold">6 個</span></div>
+                    <div class="bg-slate-900/80 p-2 rounded-xl border border-white/10">邊：<span class="text-cyan-300 font-bold">12 條</span></div>
+                    <div class="bg-slate-900/80 p-2 rounded-xl border border-white/10">頂點：<span class="text-cyan-300 font-bold">8 個</span></div>
+                `;
+            } else if (type === 'triPrism') {
+                svgBox.innerHTML = `
+                    <svg viewBox="0 0 160 110" class="w-36 h-28">
+                        <polygon points="40,30 100,30 70,90" fill="rgba(56, 189, 248, 0.2)" stroke="#38bdf8" stroke-width="1.5"/>
+                        <polygon points="100,30 140,15 110,75 70,90" fill="rgba(56, 189, 248, 0.3)" stroke="#38bdf8" stroke-width="1.5"/>
+                    </svg>
+                `;
+                infoBox.innerHTML = `
+                    <div class="bg-slate-900/80 p-2 rounded-xl border border-white/10">面：<span class="text-cyan-300 font-bold">5 個</span></div>
+                    <div class="bg-slate-900/80 p-2 rounded-xl border border-white/10">邊：<span class="text-cyan-300 font-bold">9 條</span></div>
+                    <div class="bg-slate-900/80 p-2 rounded-xl border border-white/10">頂點：<span class="text-cyan-300 font-bold">6 個</span></div>
+                `;
+            } else {
+                svgBox.innerHTML = `
+                    <svg viewBox="0 0 160 110" class="w-36 h-28">
+                        <polygon points="80,15 20,85 110,85" fill="rgba(56, 189, 248, 0.2)" stroke="#38bdf8" stroke-width="1.5"/>
+                        <polygon points="80,15 110,85 140,65" fill="rgba(56, 189, 248, 0.3)" stroke="#38bdf8" stroke-width="1.5"/>
+                    </svg>
+                `;
+                infoBox.innerHTML = `
+                    <div class="bg-slate-900/80 p-2 rounded-xl border border-white/10">面：<span class="text-cyan-300 font-bold">5 個</span></div>
+                    <div class="bg-slate-900/80 p-2 rounded-xl border border-white/10">邊：<span class="text-cyan-300 font-bold">8 條</span></div>
+                    <div class="bg-slate-900/80 p-2 rounded-xl border border-white/10">頂點：<span class="text-cyan-300 font-bold">5 個</span></div>
+                `;
+            }
+        }
+        function initSolidGeometryLogic() {
+            selectSolidShape('cube');
+        }
+
+        function renderArithmeticOpsDemo() {
+            return `
+                <div class="preview-center-wrapper">
+                    <div class="text-xs text-emerald-300 mb-2 font-bold"><i class="fa-solid fa-calculator text-emerald-400 mr-1"></i>乘法分配律 a × (b + c) 動態拆解器：</div>
+                    <div class="flex items-center justify-center gap-1.5 mb-3">
+                        <span class="text-xs text-slate-300">a:</span>
+                        <input type="number" id="ao_a" value="25" min="1" max="99" class="w-12 bg-slate-900 text-emerald-300 font-mono text-center font-bold px-1 py-0.5 rounded border border-white/20 text-xs">
+                        <span class="text-xs text-slate-300">× ( b:</span>
+                        <input type="number" id="ao_b" value="40" min="1" max="99" class="w-12 bg-slate-900 text-emerald-300 font-mono text-center font-bold px-1 py-0.5 rounded border border-white/20 text-xs">
+                        <span class="text-xs text-slate-300">+ c:</span>
+                        <input type="number" id="ao_c" value="4" min="1" max="99" class="w-12 bg-slate-900 text-emerald-300 font-mono text-center font-bold px-1 py-0.5 rounded border border-white/20 text-xs">
+                        <span class="text-xs text-slate-300">)</span>
+                    </div>
+                    <div id="ao_formula_box" class="bg-slate-900/90 p-4 rounded-2xl border border-emerald-500/30 my-2 font-mono text-sm text-amber-300 font-bold max-w-md w-full">
+                    </div>
+                    <div id="ao_steps_box" class="text-xs text-slate-200 bg-slate-900/80 p-3 rounded-xl border border-white/10 max-w-md w-full text-left space-y-1">
+                    </div>
+                </div>
+            `;
+        }
+        function initArithmeticOpsLogic() {
+            const inpA = document.getElementById('ao_a');
+            const inpB = document.getElementById('ao_b');
+            const inpC = document.getElementById('ao_c');
+            const fBox = document.getElementById('ao_formula_box');
+            const sBox = document.getElementById('ao_steps_box');
+
+            const update = () => {
+                const a = parseInt(inpA.value) || 25;
+                const b = parseInt(inpB.value) || 40;
+                const c = parseInt(inpC.value) || 4;
+
+                const p1 = a * b;
+                const p2 = a * c;
+                const total = p1 + p2;
+
+                fBox.innerText = `${a} × ( ${b} + ${c} ) = ${a} × ${b} + ${a} × ${c}`;
+                sBox.innerHTML = `
+                    <div>1. 分開相乘：${a} × ${b} = <span class="text-emerald-300 font-bold">${p1}</span>，${a} × ${c} = <span class="text-emerald-300 font-bold">${p2}</span></div>
+                    <div>2. 兩積相加：${p1} + ${p2} = <span class="text-amber-300 font-bold">${total}</span></div>
+                `;
+            };
+
+            if (inpA) inpA.oninput = update;
+            if (inpB) inpB.oninput = update;
+            if (inpC) inpC.oninput = update;
+            update();
+        }
+
+        function renderEquivalentFractionsDemo() {
+            return `
+                <div class="preview-center-wrapper">
+                    <div class="text-xs text-sky-300 mb-2 font-bold"><i class="fa-solid fa-chart-pie text-sky-400 mr-1"></i>擴分與約分：調整倍數放大分子與分母：</div>
+                    <div class="flex items-center justify-center gap-2 mb-3">
+                        <span class="text-xs text-slate-300">基準分數：1/2，擴分倍數 (k)：</span>
+                        <input type="range" id="ef_k" min="1" max="5" value="2" class="w-32 accent-sky-400">
+                        <span id="ef_k_txt" class="font-mono font-bold text-amber-300 text-sm">2 倍</span>
+                    </div>
+                    <div id="ef_frac_display" class="flex justify-center items-center space-x-4 my-2 text-xl font-bold font-mono">
+                    </div>
+                    <div id="ef_pies" class="flex justify-center gap-4 my-2">
+                    </div>
+                    <div class="text-xs text-sky-200 bg-slate-900/80 px-4 py-2 rounded-xl border border-white/10 mt-1 max-w-md w-full">
+                        分子與分母同乘相同倍數，代表分割越細，但整體佔比面積完全不變。
+                    </div>
+                </div>
+            `;
+        }
+        function initEquivalentFractionsLogic() {
+            const sliderK = document.getElementById('ef_k');
+            const txtK = document.getElementById('ef_k_txt');
+            const display = document.getElementById('ef_frac_display');
+            const pies = document.getElementById('ef_pies');
+
+            const update = () => {
+                const k = parseInt(sliderK.value) || 2;
+                txtK.innerText = `${k} 倍`;
+
+                const num = 1 * k;
+                const den = 2 * k;
+
+                display.innerHTML = `
+                    <div class="math-frac text-sky-300"><span class="math-frac-num">1</span><span class="math-frac-den">2</span></div>
+                    <span class="text-slate-400">=</span>
+                    <div class="math-frac text-amber-300"><span class="math-frac-num">1 × ${k}</span><span class="math-frac-den">2 × ${k}</span></div>
+                    <span class="text-slate-400">=</span>
+                    <div class="math-frac text-emerald-300"><span class="math-frac-num">${num}</span><span class="math-frac-den">${den}</span></div>
+                `;
+
+                pies.innerHTML = `
+                    <div class="flex flex-col items-center">
+                        <div class="w-14 h-14 rounded-full border-2 border-sky-400" style="background: conic-gradient(#38bdf8 180deg, transparent 0)"></div>
+                        <span class="text-[10px] text-slate-300 mt-1">1/2 圓</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-14 h-14 rounded-full border-2 border-emerald-400" style="background: conic-gradient(#34d399 180deg, transparent 0)"></div>
+                        <span class="text-[10px] text-slate-300 mt-1">${num}/${den} 圓</span>
+                    </div>
+                `;
+            };
+
+            if (sliderK) sliderK.oninput = update;
+            update();
+        }
+
+        function renderAreaFormulasDemo() {
+            return `
+                <div class="preview-center-wrapper">
+                    <div class="text-xs text-cyan-300 mb-2 font-bold"><i class="fa-solid fa-vector-square text-cyan-400 mr-1"></i>切換圖形並拉動數據，計算面積：</div>
+                    <div class="flex justify-center gap-2 mb-3">
+                        <button onclick="selectAreaShape('pgram')" id="ab_pgram" class="px-2.5 py-1 bg-sky-600 text-white rounded-lg text-xs font-bold shadow">平行四邊形</button>
+                        <button onclick="selectAreaShape('triangle')" id="ab_triangle" class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg text-xs font-bold border border-white/10">三角形</button>
+                        <button onclick="selectAreaShape('trapezoid')" id="ab_trapezoid" class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg text-xs font-bold border border-white/10">梯形</button>
+                    </div>
+                    <div class="flex items-center justify-center gap-3 mb-2">
+                        <label class="text-xs text-slate-300">底/下底: <input type="range" id="af_b" min="4" max="20" value="10" class="w-20 accent-cyan-400"> <span id="af_b_txt" class="font-bold text-amber-300">10</span></label>
+                        <label class="text-xs text-slate-300">高: <input type="range" id="af_h" min="2" max="15" value="6" class="w-20 accent-cyan-400"> <span id="af_h_txt" class="font-bold text-amber-300">6</span></label>
+                    </div>
+                    <div id="af_calc_res" class="bg-slate-900/90 p-3 rounded-2xl border border-cyan-500/30 font-mono text-sm text-amber-300 font-bold max-w-sm w-full">
+                    </div>
+                </div>
+            `;
+        }
+        let currentAreaType = 'pgram';
+        function selectAreaShape(type) {
+            currentAreaType = type;
+            ['pgram', 'triangle', 'trapezoid'].forEach(t => {
+                const btn = document.getElementById(`ab_${t}`);
+                if (btn) {
+                    if (t === type) btn.className = "px-2.5 py-1 bg-sky-600 text-white rounded-lg text-xs font-bold shadow";
+                    else btn.className = "px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg text-xs font-bold border border-white/10";
+                }
+            });
+            if (typeof updateAreaCalc === 'function') updateAreaCalc();
+        }
+        function initAreaFormulasLogic() {
+            const inpB = document.getElementById('af_b');
+            const inpH = document.getElementById('af_h');
+            const txtB = document.getElementById('af_b_txt');
+            const txtH = document.getElementById('af_h_txt');
+            const res = document.getElementById('af_calc_res');
+
+            window.updateAreaCalc = () => {
+                const b = parseInt(inpB.value) || 10;
+                const h = parseInt(inpH.value) || 6;
+                txtB.innerText = b;
+                txtH.innerText = h;
+
+                if (currentAreaType === 'pgram') {
+                    const area = b * h;
+                    res.innerHTML = `平行四邊形面積 = 底 × 高<br><span class="text-emerald-300">${b} × ${h} = ${area}</span>`;
+                } else if (currentAreaType === 'triangle') {
+                    const area = (b * h) / 2;
+                    res.innerHTML = `三角形面積 = 底 × 高 ÷ 2<br><span class="text-emerald-300">${b} × ${h} ÷ 2 = ${area}</span>`;
+                } else {
+                    const topB = Math.max(2, Math.floor(b / 2));
+                    const area = ((topB + b) * h) / 2;
+                    res.innerHTML = `梯形面積 = (上底 + 下底) × 高 ÷ 2<br><span class="text-emerald-300">(${topB} + ${b}) × ${h} ÷ 2 = ${area}</span>`;
+                }
+            };
+
+            if (inpB) inpB.oninput = window.updateAreaCalc;
+            if (inpH) inpH.oninput = window.updateAreaCalc;
+            selectAreaShape('pgram');
+        }
+
+        function renderMultiplyUnitFractionDemo() {
+            return `
+                <div class="preview-center-wrapper">
+                    <div class="text-xs text-indigo-300 mb-2 font-bold"><i class="fa-solid fa-divide text-indigo-400 mr-1"></i>整數乘以 1/n 等同於整數除以 n：</div>
+                    <div class="flex items-center justify-center gap-2 mb-3">
+                        <span class="text-xs text-slate-300">總數：</span>
+                        <input type="number" id="muf_val" value="24" min="4" max="60" step="2" class="w-16 bg-slate-900 text-indigo-300 font-mono text-center font-bold px-2 py-1 rounded-lg border border-indigo-500/40 text-sm">
+                        <span class="text-xs text-slate-300">平分成 n 份 (1/n)：</span>
+                        <input type="number" id="muf_n" value="4" min="2" max="10" class="w-12 bg-slate-900 text-indigo-300 font-mono text-center font-bold px-2 py-1 rounded-lg border border-indigo-500/40 text-sm">
+                    </div>
+                    <div id="muf_math_box" class="bg-slate-900/90 p-4 rounded-2xl border border-indigo-500/30 font-mono text-base flex items-center justify-center space-x-2 my-2">
+                    </div>
+                    <div id="muf_vis_grid" class="flex flex-wrap gap-1.5 justify-center max-w-sm my-2">
+                    </div>
+                </div>
+            `;
+        }
+        function initMultiplyUnitFractionLogic() {
+            const inpVal = document.getElementById('muf_val');
+            const inpN = document.getElementById('muf_n');
+            const mBox = document.getElementById('muf_math_box');
+            const vGrid = document.getElementById('muf_vis_grid');
+
+            const update = () => {
+                const total = parseInt(inpVal.value) || 24;
+                const n = parseInt(inpN.value) || 4;
+                const res = (total / n).toFixed(1).replace('.0', '');
+
+                mBox.innerHTML = `
+                    <span class="text-white font-bold">${total} × </span>
+                    <div class="math-frac text-sky-300 font-bold"><span class="math-frac-num">1</span><span class="math-frac-den">${n}</span></div>
+                    <span class="text-slate-300"> = ${total} ÷ ${n} = </span>
+                    <span class="text-amber-300 font-black text-xl">${res}</span>
+                `;
+
+                let gridHtml = '';
+                const perGroup = Math.ceil(total / n);
+                for (let i = 0; i < total; i++) {
+                    const groupIdx = Math.floor(i / perGroup);
+                    const isSelected = groupIdx === 0;
+                    gridHtml += `
+                        <div class="w-6 h-6 rounded-md ${isSelected ? 'bg-amber-400 text-slate-950 font-bold' : 'bg-slate-800 text-slate-400'} flex items-center justify-center text-[10px]">
+                            ${i+1}
+                        </div>
+                    `;
+                }
+                vGrid.innerHTML = gridHtml;
+            };
+
+            if (inpVal) inpVal.oninput = update;
+            if (inpN) inpN.oninput = update;
+            update();
+        }
+
+        function renderSectorsCircleDemo() {
+            return `
+                <div class="preview-center-wrapper">
+                    <div class="text-xs text-teal-300 mb-2 font-bold"><i class="fa-solid fa-pie-chart text-teal-400 mr-1"></i>滑動調整圓心角，觀察扇形與幾分之幾圓：</div>
+                    <div class="flex items-center justify-center gap-2 mb-3">
+                        <span class="text-xs text-slate-300">圓心角：</span>
+                        <input type="range" id="sc_deg" min="10" max="360" step="5" value="90" class="w-44 accent-teal-400">
+                        <span id="sc_deg_txt" class="font-mono font-bold text-amber-300 text-sm w-12">90°</span>
+                    </div>
+                    <div class="flex justify-center items-center space-x-6 my-2">
+                        <svg viewBox="0 0 100 100" class="w-28 h-28" id="sc_svg">
+                        </svg>
+                        <div id="sc_info" class="text-left text-xs space-y-1">
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        function initSectorsCircleLogic() {
+            const sliderDeg = document.getElementById('sc_deg');
+            const txtDeg = document.getElementById('sc_deg_txt');
+            const svg = document.getElementById('sc_svg');
+            const info = document.getElementById('sc_info');
+
+            const draw = () => {
+                const deg = parseInt(sliderDeg.value) || 90;
+                txtDeg.innerText = `${deg}°`;
+
+                const rad = (deg * Math.PI) / 180;
+                const cx = 50, cy = 50, r = 45;
+                const x2 = cx + r * Math.cos(rad);
+                const y2 = cy + r * Math.sin(rad);
+
+                const largeArc = deg > 180 ? 1 : 0;
+
+                let pathStr = '';
+                if (deg >= 360) {
+                    pathStr = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="rgba(56, 189, 248, 0.4)" stroke="#38bdf8" stroke-width="2"/>`;
+                } else {
+                    pathStr = `
+                        <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#475569" stroke-width="1.5"/>
+                        <path d="M ${cx} ${cy} L ${cx+r} ${cy} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z" fill="rgba(56, 189, 248, 0.4)" stroke="#38bdf8" stroke-width="2"/>
+                    `;
+                }
+
+                svg.innerHTML = `
+                    ${pathStr}
+                    <circle cx="${cx}" cy="${cy}" r="3" fill="#f59e0b"/>
+                `;
+
+                const fracVal = (deg / 360).toFixed(2);
+                info.innerHTML = `
+                    <div>圓心角：<span class="text-amber-300 font-bold">${deg}°</span></div>
+                    <div>比例：<span class="math-frac text-sky-300"><span class="math-frac-num">${deg}</span><span class="math-frac-den">360</span></span></div>
+                    <div>約等於：<span class="text-emerald-300 font-bold">${fracVal} 圓</span></div>
+                `;
+            };
+
+            if (sliderDeg) sliderDeg.oninput = draw;
+            draw();
+        }
+    </script>
+</body>
+</html>

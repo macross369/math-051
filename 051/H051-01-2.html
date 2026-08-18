@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>折線圖動態探究館 - 新海誠風互動教學網頁</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Noto Sans TC', 'sans-serif'],
+                    },
+                    colors: {
+                        shinkai: {
+                            sky: '#3a86ff',
+                            dusk: '#8338ec',
+                            sunset: '#ff006e',
+                            sun: '#ffbe0b',
+                            cloud: '#fb5607',
+                            bg1: '#0f172a',
+                            bg2: '#1e1b4b',
+                            card: 'rgba(255, 255, 255, 0.88)'
+                        }
+                    },
+                    boxShadow: {
+                        'shinkai-glow': '0 0 25px rgba(56, 189, 248, 0.4)',
+                        'pink-glow': '0 0 20px rgba(244, 63, 94, 0.3)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #0b132b 0%, #1c2541 35%, #3a506b 70%, #5bc0be 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        /* SVG Graph Styling */
+        .grid-line { stroke: #e2e8f0; stroke-width: 1; stroke-dasharray: 4 4; }
+        .axis-line { stroke: #334155; stroke-width: 2.5; stroke-linecap: round; }
+        .chart-line-1 { stroke: #ec4899; stroke-width: 3.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .point-1 { fill: #f43f5e; stroke: #ffffff; stroke-width: 2; transition: all 0.2s; }
+        .point-1:hover { r: 8; cursor: pointer; }
+        
+        .cloud-shape {
+            position: absolute;
+            opacity: 0.15;
+            pointer-events: none;
+            filter: blur(20px);
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(147,197,253,0) 70%);
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-800 antialiased relative overflow-x-hidden pb-12">
+
+    <!-- Background Art Elements -->
+    <div class="cloud-shape w-96 h-96 -top-20 -left-20 bg-sky-300"></div>
+    <div class="cloud-shape w-80 h-80 top-1/3 -right-20 bg-purple-400"></div>
+    <div class="cloud-shape w-[500px] h-[500px] bottom-10 left-10 bg-pink-300"></div>
+
+    <header class="w-full pt-8 pb-6 px-4 text-center text-white relative z-10">
+        <div class="max-w-5xl mx-auto">
+            <!-- 頁面最上方左上角：閒雲數學小棧 Logo -->
+            <div class="w-full max-w-4xl flex items-center justify-start mb-4 px-2 fade-in">
+                <img src="https://lh3.googleusercontent.com/d/1qUdM3yxfDP9U8S1PAlYScLXLG9riPxMt" alt="閒雲數學小棧Logo" class="h-8 w-auto mr-3 object-contain drop-shadow-md rounded-full bg-white/30 p-1" onerror="this.src='https://placehold.co/40x40/ffffff/333333?text=Logo'">
+                <span class="text-xl md:text-2xl font-bold text-white drop-shadow-lg tracking-wider" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">閒雲數學小棧</span>
+            </div>
+
+            <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full text-sky-200 text-sm font-medium mb-3 border border-white/20">
+                <i class="fa-solid fa-cloud-sun-rain text-amber-300"></i>
+                <span>國小五上數學 1-2 互動學習網頁</span>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-sky-200 via-pink-200 to-amber-100 drop-shadow-md">
+                折線圖的動態奇幻之旅
+            </h1>
+            <p class="mt-3 text-sky-100/90 text-sm md:text-base max-w-2xl mx-auto font-light">
+                移動滑桿、切換要素，一起探索資料變化的秘密軌跡！
+            </p>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 relative z-10">
+        <div class="flex flex-wrap justify-center gap-2 md:gap-3 mb-8" id="tabContainer">
+            <button onclick="switchTab('unit1')" id="tab-unit1" class="tab-btn px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-md flex items-center gap-2 bg-white text-indigo-900 shadow-shinkai-glow">
+                <i class="fa-solid fa-pen-ruler"></i> 單元一：製作折線圖
+            </button>
+            <button onclick="switchTab('unit2')" id="tab-unit2" class="tab-btn px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-md flex items-center gap-2 bg-white/20 text-white hover:bg-white/30">
+                <i class="fa-solid fa-wave-square"></i> 單元二：波浪線(省略符號)
+            </button>
+            <button onclick="switchTab('unit3')" id="tab-unit3" class="tab-btn px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-md flex items-center gap-2 bg-white/20 text-white hover:bg-white/30">
+                <i class="fa-solid fa-chart-line"></i> 單元三：複式折線圖
+            </button>
+            <button onclick="switchTab('unit4')" id="tab-unit4" class="tab-btn px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-md flex items-center gap-2 bg-white/20 text-white hover:bg-white/30">
+                <i class="fa-solid fa-lightbulb"></i> 單元四：橫軸迷思辨析
+            </button>
+            <button onclick="switchTab('unit5')" id="tab-unit5" class="tab-btn px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-md flex items-center gap-2 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-900 hover:brightness-110">
+                <i class="fa-solid fa-circle-question"></i> 隨堂素養小測驗
+            </button>
+        </div>
+
+        <section id="unit1" class="tab-content block">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-5 glass-panel rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center gap-2 text-indigo-900 font-bold text-lg mb-4 border-b border-indigo-100 pb-2">
+                        <i class="fa-solid fa-sliders text-sky-600"></i>
+                        <span>1. 繪製折線圖要素檢核與動態操控</span>
+                    </div>
+                    
+                    <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                        妮妮正在幫柴犬「旺旺」繪製 2~16 個月大時的體重統計表。請勾選要素並拉動滑桿，觀察圖形如何逐步組合完成！
+                    </p>
+
+                    <div class="space-y-2.5 mb-6 bg-sky-50/70 p-4 rounded-xl border border-sky-100">
+                        <span class="text-xs font-bold text-sky-900 block mb-1">【繪圖步驟拆解】</span>
+                        <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer hover:text-indigo-600">
+                            <input type="checkbox" id="u1-chk-title" onchange="updateUnit1Chart()" class="w-4 h-4 text-sky-600 rounded">
+                            <span>① 標註圖表標題（旺旺的體重折線圖）</span>
+                        </label>
+                        <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer hover:text-indigo-600">
+                            <input type="checkbox" id="u1-chk-xaxis" onchange="updateUnit1Chart()" class="w-4 h-4 text-sky-600 rounded">
+                            <span>② 標註橫軸項目與單位 (月齡/個月)</span>
+                        </label>
+                        <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer hover:text-indigo-600">
+                            <input type="checkbox" id="u1-chk-yaxis" onchange="updateUnit1Chart()" class="w-4 h-4 text-sky-600 rounded">
+                            <span>③ 標註縱軸刻度與單位 (體重/公斤)</span>
+                        </label>
+                        <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer hover:text-indigo-600">
+                            <input type="checkbox" id="u1-chk-points" onchange="updateUnit1Chart()" class="w-4 h-4 text-sky-600 rounded">
+                            <span>④ 依對應資料標示位置點</span>
+                        </label>
+                        <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer hover:text-indigo-600">
+                            <input type="checkbox" id="u1-chk-lines" onchange="updateUnit1Chart()" class="w-4 h-4 text-sky-600 rounded">
+                            <span>⑤ 依順序用直線將相鄰點連接起來</span>
+                        </label>
+                    </div>
+
+                    <div class="bg-amber-50/80 p-4 rounded-xl border border-amber-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-xs font-bold text-amber-900">【探究操作】調整 8 個月時旺旺的體重：</label>
+                            <span id="u1-weight-val" class="text-sm font-black text-rose-600 bg-amber-100 px-2 py-0.5 rounded">7 kg</span>
+                        </div>
+                        <input type="range" id="u1-weight-slider" min="3" max="9" value="7" step="1" oninput="updateUnit1Chart()" class="w-full accent-rose-500 cursor-pointer">
+                        <p class="text-[11px] text-amber-700 mt-1">💡 嘗試拉動數值，觀察「趨勢線段」的斜率變化！</p>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-7 glass-panel rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h2 class="font-bold text-slate-800 text-base">即時畫布呈現</h2>
+                            <span class="text-xs bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full font-medium">單一折線圖</span>
+                        </div>
+                        <div class="w-full aspect-[4/3] bg-white rounded-xl shadow-inner p-2 border border-slate-200 relative overflow-hidden">
+                            <svg id="unit1-svg" class="w-full h-full" viewBox="0 0 540 390"></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="unit2" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-5 glass-panel rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center gap-2 text-indigo-900 font-bold text-lg mb-4 border-b border-indigo-100 pb-2">
+                        <i class="fa-solid fa-wave-square text-rose-500"></i>
+                        <span>2. 省略符號（波浪線）魔法觀測</span>
+                    </div>
+
+                    <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                        丹丹家 112 年各月份用電量都高達 <strong>400 度至 680 度</strong>。如果從 0 度開始刻度，畫面會被壓縮得很厲害！
+                    </p>
+
+                    <div class="bg-gradient-to-r from-sky-50 to-indigo-50 p-5 rounded-2xl border border-sky-200 shadow-sm text-center mb-5">
+                        <p class="text-xs font-bold text-slate-700 mb-3">請切換以下兩種繪製模式：</p>
+                        <button id="u2-toggle-btn" onclick="toggleUnit2Wave()" class="w-full py-3 px-4 rounded-xl font-bold text-sm text-white shadow-lg transition-all bg-gradient-to-r from-slate-600 to-indigo-600 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span id="u2-btn-text">當前模式：從0開始(無波浪符號)</span>
+                        </button>
+                    </div>
+
+                    <div id="u2-explain-box" class="p-4 rounded-xl text-xs space-y-2 bg-amber-50 border border-amber-200 text-amber-950"></div>
+                </div>
+
+                <div class="lg:col-span-7 glass-panel rounded-2xl p-6 shadow-xl">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="font-bold text-slate-800 text-base">即時畫布呈現</h2>
+                        <span id="u2-mode-badge" class="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full font-bold">從 0 開始（壓縮）</span>
+                    </div>
+                    <div class="w-full aspect-[4/3] bg-white rounded-xl shadow-inner p-2 border border-slate-200">
+                        <svg id="unit2-svg" class="w-full h-full" viewBox="0 0 540 390"></svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="unit3" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-4 glass-panel rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center gap-2 text-indigo-900 font-bold text-lg mb-4 border-b border-indigo-100 pb-2">
+                        <i class="fa-solid fa-layer-group text-sky-600"></i>
+                        <span>3. 基隆與澎湖降雨日數對比</span>
+                    </div>
+
+                    <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                        當我們要比較兩個地方（如基隆與澎湖）同一時間的降雨變化時，可以用<strong>兩種不同顏色的折線</strong>畫在同一張圖上！
+                    </p>
+
+                    <div class="space-y-3 bg-white/80 p-4 rounded-xl border border-slate-200 mb-5">
+                        <span class="text-xs font-bold text-slate-700 block">【圖例與顯示切換】</span>
+                        <label class="flex items-center justify-between p-2 rounded-lg bg-orange-50 cursor-pointer border border-orange-200">
+                            <span class="text-xs font-bold text-amber-900 flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> 基隆市降雨日數
+                            </span>
+                            <input type="checkbox" id="u3-chk-keelung" checked onchange="updateUnit3Chart()" class="w-4 h-4 accent-amber-500">
+                        </label>
+                        <label class="flex items-center justify-between p-2 rounded-lg bg-sky-50 cursor-pointer border border-sky-200">
+                            <span class="text-xs font-bold text-sky-900 flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-sky-600 inline-block"></span> 澎湖縣降雨日數
+                            </span>
+                            <input type="checkbox" id="u3-chk-penghu" checked onchange="updateUnit3Chart()" class="w-4 h-4 accent-sky-600">
+                        </label>
+                    </div>
+
+                    <div class="bg-indigo-50/80 p-4 rounded-xl border border-indigo-100">
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-bold text-indigo-900 block">【數據探究】拉動選擇月份：</label>
+                            <span id="u3-selected-month-label" class="text-xs font-black text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded">1月</span>
+                        </div>
+                        <input type="range" id="u3-month-slider" min="0" max="11" value="0" step="1" oninput="updateUnit3Chart()" class="w-full accent-indigo-600 cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-500 px-0.5 mt-1 font-medium">
+                            <span>1月</span><span>2月</span><span>3月</span><span>4月</span><span>5月</span><span>6月</span><span>7月</span><span>8月</span><span>9月</span><span>10月</span><span>11月</span><span>12月</span>
+                        </div>
+                        <div id="u3-info-card" class="mt-3 p-3 bg-white rounded-lg border border-indigo-100 text-xs text-slate-700 space-y-1"></div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-8 glass-panel rounded-2xl p-6 shadow-xl">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="font-bold text-slate-800 text-base">即時畫布呈現</h2>
+                        <div class="flex gap-3 text-xs">
+                            <span class="flex items-center gap-1"><span class="w-3 h-1 bg-amber-500 rounded"></span>基隆</span>
+                            <span class="flex items-center gap-1"><span class="w-3 h-1 bg-sky-600 rounded"></span>澎湖</span>
+                        </div>
+                    </div>
+                    <div class="w-full aspect-[16/10] bg-white rounded-xl shadow-inner p-2 border border-slate-200">
+                        <svg id="unit3-svg" class="w-full h-full" viewBox="0 0 580 370"></svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="unit4" class="tab-content hidden">
+            <div class="space-y-6">
+                <div class="glass-panel rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center gap-2 text-indigo-900 font-bold text-lg mb-2">
+                        <i class="fa-solid fa-lightbulb text-amber-500"></i>
+                        <span>4. 素養迷思：橫軸該放什麼？</span>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        上自然課時，老師指導同學加熱 100 毫升的水並觀察水溫變化。下圖是皮皮和丹丹分別畫出的折線圖，點擊卡片觀察哪一位的畫法才是正確的！
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div id="u4-card-pipi" onclick="selectUnit4Card('pipi')" 
+                        class="bg-white rounded-2xl p-5 border-2 border-slate-200 shadow-md cursor-pointer transition-all hover:shadow-xl relative">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-lg">皮皮畫的圖</span>
+                            <span id="u4-badge-pipi" class="hidden px-2.5 py-1 bg-rose-500 text-white text-xs font-bold rounded-lg">
+                                <i class="fa-solid fa-xmark mr-1"></i>觀念不正確
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-600 font-medium mb-3">
+                            橫軸項目寫著：<span class="font-bold text-slate-800">測量學生 (A, B, C, D, E)</span>
+                        </p>
+                        <div class="w-full max-h-[220px] aspect-[16/10] bg-slate-50/50 rounded-xl p-2 border border-slate-100 flex items-center justify-center overflow-visible">
+                            <svg id="unit4-svg-pipi" class="w-full h-full" viewBox="0 0 460 240"></svg>
+                        </div>
+                    </div>
+
+                    <div id="u4-card-dandan" onclick="selectUnit4Card('dandan')" 
+                        class="bg-white rounded-2xl p-5 border-2 border-slate-200 shadow-md cursor-pointer transition-all hover:shadow-xl relative">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="px-3 py-1 bg-indigo-100 text-indigo-800 text-xs font-bold rounded-lg">丹丹畫的圖</span>
+                            <span id="u4-badge-dandan" class="hidden px-2.5 py-1 bg-emerald-500 text-white text-xs font-bold rounded-lg">
+                                <i class="fa-solid fa-check mr-1"></i>完全正確！
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-600 font-medium mb-3">
+                            橫軸項目寫著：<span class="font-bold text-slate-800">加熱時間 (2, 4, 6, 8, 10 分鐘)</span>
+                        </p>
+                        <div class="w-full max-h-[220px] aspect-[16/10] bg-slate-50/50 rounded-xl p-2 border border-slate-100 flex items-center justify-center overflow-visible">
+                            <svg id="unit4-svg-dandan" class="w-full h-full" viewBox="0 0 460 240"></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="u4-feedback-banner" class="p-4 rounded-2xl border transition-all text-sm font-medium flex items-start gap-3 bg-sky-50/80 border-sky-200 text-indigo-950">
+                    <i id="u4-feedback-icon" class="fa-solid fa-circle-question text-sky-500 text-xl mt-0.5"></i>
+                    <div>
+                        <p id="u4-feedback-title" class="font-bold mb-1">點擊上方卡片試試看！</p>
+                        <p id="u4-feedback-desc" class="text-xs text-slate-600">妮妮覺得皮皮和丹丹都畫對了，你同意妮妮的看法嗎？</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="unit5" class="tab-content hidden">
+            <div class="max-w-4xl mx-auto glass-panel rounded-2xl p-6 md:p-8 shadow-2xl">
+                <div class="flex flex-wrap justify-between items-center border-b border-slate-200 pb-4 mb-6">
+                    <div>
+                        <h2 class="text-2xl font-black text-indigo-950 flex items-center gap-2">
+                            <i class="fa-solid fa-award text-amber-500"></i>
+                            <span>折線圖觀念大挑戰</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">請回答下列 5 道情境思考題，即時檢視學習成效！</p>
+                    </div>
+                    <div class="bg-indigo-50 px-4 py-2 rounded-xl border border-indigo-100 text-right">
+                        <span class="text-xs text-indigo-600 block font-bold">總得分</span>
+                        <span id="quiz-score" class="text-2xl font-black text-indigo-900">0 / 100</span>
+                    </div>
+                </div>
+
+                <div id="quiz-questions-list" class="space-y-8"></div>
+
+                <div class="mt-8 pt-6 border-t border-slate-200 text-center">
+                    <button onclick="checkQuizAnswers()" class="px-8 py-3.5 bg-gradient-to-r from-sky-500 via-indigo-600 to-purple-600 text-white font-black text-base rounded-2xl shadow-lg hover:shadow-shinkai-glow hover:scale-105 active:scale-95 transition-all">
+                        <i class="fa-solid fa-paper-plane mr-2"></i>提交答案
+                    </button>
+                    <button onclick="resetQuiz()" class="ml-3 px-5 py-3.5 bg-slate-200 text-slate-700 font-bold text-base rounded-2xl hover:bg-slate-300 transition-all">
+                        重新測驗
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-indigo-900', 'shadow-shinkai-glow');
+                btn.classList.add('bg-white/20', 'text-white');
+            });
+
+            document.getElementById(tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById('tab-' + tabId);
+            if (activeBtn && tabId !== 'unit5') {
+                activeBtn.classList.add('bg-white', 'text-indigo-900', 'shadow-shinkai-glow');
+                activeBtn.classList.remove('bg-white/20', 'text-white');
+            }
+        }
+
+        // ================= UNIT 1 LOGIC =================
+        const unit1Data = {
+            months: [2, 4, 6, 8, 10, 12, 14, 16],
+            weights: [2, 4, 5, 7, 8, 8, 8, 8]
+        };
+
+        function updateUnit1Chart() {
+            const showTitle = document.getElementById('u1-chk-title').checked;
+            const showXAxis = document.getElementById('u1-chk-xaxis').checked;
+            const showYAxis = document.getElementById('u1-chk-yaxis').checked;
+            const showPoints = document.getElementById('u1-chk-points').checked;
+            const showLines = document.getElementById('u1-chk-lines').checked;
+            
+            const customW8 = parseInt(document.getElementById('u1-weight-slider').value);
+            document.getElementById('u1-weight-val').innerText = customW8 + ' kg';
+
+            const weights = [...unit1Data.weights];
+            weights[3] = customW8;
+
+            const svg = document.getElementById('unit1-svg');
+            svg.innerHTML = '';
+
+            const paddingLeft = 65, paddingRight = 115, paddingTop = 40, paddingBottom = 75;
+            const width = 540, height = 390;
+            const chartW = width - paddingLeft - paddingRight;
+            const chartH = height - paddingTop - paddingBottom;
+            const axisY = height - paddingBottom;
+
+            const totalXSteps = unit1Data.months.length + 1;
+            const stepW = chartW / totalXSteps;
+            const getX = (idx) => paddingLeft + (idx + 1) * stepW;
+            const getY = (val) => axisY - (val / 10) * chartH;
+
+            let html = '';
+            
+            for (let i = 0; i <= 10; i += 2) {
+                const y = getY(i);
+                html += `<line x1="${paddingLeft}" y1="${y}" x2="${width - paddingRight}" y2="${y}" class="grid-line" />`;
+                if (showYAxis) {
+                    html += `<text x="${paddingLeft - 10}" y="${y + 4}" font-size="12" text-anchor="end" fill="#475569" font-weight="bold">${i}</text>`;
+                }
+            }
+
+            html += `<line x1="${paddingLeft}" y1="${axisY}" x2="${width - paddingRight}" y2="${axisY}" class="axis-line" />`;
+            html += `<line x1="${paddingLeft}" y1="${paddingTop - 10}" x2="${paddingLeft}" y2="${axisY}" class="axis-line" />`;
+
+            unit1Data.months.forEach((m, idx) => {
+                const x = getX(idx);
+                if (showXAxis) {
+                    html += `<text x="${x}" y="${axisY + 20}" font-size="12" text-anchor="middle" fill="#475569" font-weight="bold">${m}</text>`;
+                }
+                html += `<line x1="${x}" y1="${axisY}" x2="${x}" y2="${axisY + 5}" stroke="#334155" stroke-width="1.5" />`;
+            });
+
+            if (showYAxis) {
+                const yLabelX = paddingLeft - 22;
+                html += `<text x="${yLabelX}" y="${paddingTop - 30}" font-size="12" font-weight="bold" fill="#0369a1" text-anchor="middle">體重</text>`;
+                html += `<text x="${yLabelX}" y="${paddingTop - 15}" font-size="11" fill="#64748b" text-anchor="middle">（公斤）</text>`;
+            }
+            if (showXAxis) {
+                const xLabelX = width - paddingRight + 45;
+                html += `<text x="${xLabelX}" y="${axisY - 2}" font-size="12" font-weight="bold" fill="#0369a1" text-anchor="middle">月齡</text>`;
+                html += `<text x="${xLabelX}" y="${axisY + 13}" font-size="11" fill="#64748b" text-anchor="middle">（個月）</text>`;
+            }
+
+            if (showLines) {
+                let pointsStr = weights.map((w, idx) => `${getX(idx)},${getY(w)}`).join(' ');
+                html += `<polyline points="${pointsStr}" class="chart-line-1" />`;
+            }
+
+            if (showPoints) {
+                weights.forEach((w, idx) => {
+                    const cx = getX(idx);
+                    const cy = getY(w);
+                    html += `<circle cx="${cx}" cy="${cy}" r="5" class="point-1" />`;
+                    html += `<text x="${cx}" y="${cy - 10}" font-size="11" font-weight="bold" text-anchor="middle" fill="#be123c">${w}</text>`;
+                });
+            }
+
+            if (showTitle) {
+                const titleY = height - 16;
+                html += `<rect x="${width/2 - 95}" y="${titleY - 18}" width="190" height="26" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>`;
+                html += `<text x="${width/2}" y="${titleY}" font-size="13" font-weight="900" text-anchor="middle" fill="#1e1b4b">旺旺的體重折線圖</text>`;
+            }
+
+            svg.innerHTML = html;
+        }
+
+        // ================= UNIT 2 LOGIC =================
+        let unit2WithWave = false;
+        const unit2Data = {
+            months: ['2月', '4月', '6月', '8月', '10月', '12月'],
+            degrees: [500, 420, 460, 680, 620, 540]
+        };
+
+        function toggleUnit2Wave() {
+            unit2WithWave = !unit2WithWave;
+            const btnText = document.getElementById('u2-btn-text');
+            const badge = document.getElementById('u2-mode-badge');
+            const btn = document.getElementById('u2-toggle-btn');
+            
+            if (unit2WithWave) {
+                btnText.innerText = '當前模式：使用「波浪號 〰️ 省略」';
+                badge.innerText = '已放大起伏細節';
+                badge.className = 'text-xs bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full font-bold';
+                btn.className = 'w-full py-3 px-4 rounded-xl font-bold text-sm text-white shadow-lg transition-all bg-gradient-to-r from-rose-500 to-pink-600 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2';
+            } else {
+                btnText.innerText = '當前模式：從0開始(無波浪符號)';
+                badge.innerText = '從 0 開始（壓縮）';
+                badge.className = 'text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full font-bold';
+                btn.className = 'w-full py-3 px-4 rounded-xl font-bold text-sm text-white shadow-lg transition-all bg-gradient-to-r from-slate-600 to-indigo-600 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2';
+            }
+            updateUnit2Chart();
+        }
+
+        function updateUnit2Chart() {
+            const svg = document.getElementById('unit2-svg');
+            const explain = document.getElementById('u2-explain-box');
+            svg.innerHTML = '';
+
+            const paddingLeft = 65, paddingRight = 115, paddingTop = 40, paddingBottom = 75;
+            const width = 540, height = 390;
+            const chartW = width - paddingLeft - paddingRight;
+            const chartH = height - paddingTop - paddingBottom;
+            const axisY = height - paddingBottom;
+
+            const totalXSteps = unit2Data.months.length + 1.8;
+            const stepW = chartW / totalXSteps;
+            const getX = (idx) => paddingLeft + (idx + 1) * stepW;
+
+            let getY, yTicks;
+
+            if (unit2WithWave) {
+                yTicks = [0, 400, 500, 600, 700];
+                getY = (val) => {
+                    if (val === 0) return axisY;
+                    return axisY - 30 - ((val - 400) / 300) * (chartH - 30);
+                };
+                explain.className = "p-4 rounded-xl text-xs space-y-1 bg-emerald-50 border border-emerald-200 text-emerald-950";
+                explain.innerHTML = `
+                    <p class="font-bold text-emerald-900"><i class="fa-solid fa-circle-check mr-1"></i>使用省略符號的優點：</p>
+                    <p>將 0~400 度之間的空白區域省略後，能<strong>放大顯示 400~700 度之間的變化幅度</strong>，讓用電量的上升與下降更清晰易讀！</p>
+                `;
+            } else {
+                yTicks = [0, 100, 200, 300, 400, 500, 600, 700];
+                getY = (val) => axisY - (val / 700) * chartH;
+                explain.className = "p-4 rounded-xl text-xs space-y-1 bg-amber-50 border border-amber-200 text-amber-950";
+                explain.innerHTML = `
+                    <p class="font-bold text-amber-900"><i class="fa-solid fa-triangle-exclamation mr-1"></i>不使用省略符號時：</p>
+                    <p>因刻度需涵蓋 0~700，折線被壓縮在上方狹窄空間，<strong>很難觀察到各月之間的具體差異</strong>。</p>
+                `;
+            }
+
+            let html = '';
+
+            yTicks.forEach(val => {
+                const y = getY(val);
+                html += `<line x1="${paddingLeft}" y1="${y}" x2="${width - paddingRight}" y2="${y}" class="grid-line" />`;
+                html += `<text x="${paddingLeft - 10}" y="${y + 4}" font-size="11" text-anchor="end" fill="#475569" font-weight="bold">${val}</text>`;
+            });
+
+            html += `<line x1="${paddingLeft}" y1="${axisY}" x2="${width - paddingRight}" y2="${axisY}" class="axis-line" />`;
+            html += `<line x1="${paddingLeft}" y1="${paddingTop - 10}" x2="${paddingLeft}" y2="${axisY}" class="axis-line" />`;
+
+            if (unit2WithWave) {
+                const waveY = axisY - 15;
+                let wavePath = `M ${paddingLeft} ${waveY}`;
+                const endX = width - paddingRight;
+                const waveW = 12;
+                let currX = paddingLeft;
+                
+                while (currX < endX) {
+                    const nextX = Math.min(currX + waveW, endX);
+                    const midX = (currX + nextX) / 2;
+                    wavePath += ` Q ${midX} ${waveY - 4} ${nextX} ${waveY}`;
+                    currX = nextX;
+                }
+                
+                let wavePath2 = `M ${paddingLeft} ${waveY + 6}`;
+                currX = paddingLeft;
+                while (currX < endX) {
+                    const nextX = Math.min(currX + waveW, endX);
+                    const midX = (currX + nextX) / 2;
+                    wavePath2 += ` Q ${midX} ${waveY + 2} ${nextX} ${waveY + 6}`;
+                    currX = nextX;
+                }
+
+                html += `<path d="${wavePath}" stroke="#e11d48" stroke-width="2" fill="none" opacity="0.85" />`;
+                html += `<path d="${wavePath2}" stroke="#e11d48" stroke-width="2" fill="none" opacity="0.85" />`;
+            }
+
+            unit2Data.months.forEach((m, idx) => {
+                const x = getX(idx);
+                html += `<text x="${x}" y="${axisY + 20}" font-size="11" text-anchor="middle" fill="#475569" font-weight="bold">${m}</text>`;
+                html += `<line x1="${x}" y1="${axisY}" x2="${x}" y2="${axisY + 5}" stroke="#334155" stroke-width="1.5" />`;
+            });
+
+            const yLabelX = paddingLeft - 22;
+            html += `<text x="${yLabelX}" y="${paddingTop - 30}" font-size="12" font-weight="bold" fill="#0369a1" text-anchor="middle">用電量</text>`;
+            html += `<text x="${yLabelX}" y="${paddingTop - 15}" font-size="11" fill="#64748b" text-anchor="middle">（度）</text>`;
+
+            const xLabelX = width - paddingRight + 45;
+            html += `<text x="${xLabelX}" y="${axisY - 2}" font-size="12" font-weight="bold" fill="#0369a1" text-anchor="middle">收費</text>`;
+            html += `<text x="${xLabelX}" y="${axisY + 13}" font-size="11" fill="#64748b" text-anchor="middle">月份</text>`;
+
+            let pointsStr = unit2Data.degrees.map((d, idx) => `${getX(idx)},${getY(d)}`).join(' ');
+            html += `<polyline points="${pointsStr}" class="chart-line-1" />`;
+
+            unit2Data.degrees.forEach((d, idx) => {
+                const cx = getX(idx);
+                const cy = getY(d);
+                html += `<circle cx="${cx}" cy="${cy}" r="5" class="point-1" />`;
+                html += `<text x="${cx}" y="${cy - 8}" font-size="11" font-weight="bold" text-anchor="middle" fill="#be123c">${d}</text>`;
+            });
+
+            const titleY = height - 16;
+            html += `<text x="${width/2}" y="${titleY}" font-size="13" font-weight="900" text-anchor="middle" fill="#1e1b4b">民國112年丹丹家用電量折線圖</text>`;
+
+            svg.innerHTML = html;
+        }
+
+        // ================= UNIT 3 LOGIC =================
+        const unit3Data = {
+            months: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+            keelung: [14, 13, 20, 20, 18, 9, 7, 9, 15, 19, 19, 24],
+            penghu:  [2,  4,  5,  8,  9, 4, 4, 11, 1,  0,  4,  4]
+        };
+
+        function updateUnit3Chart() {
+            const showKeelung = document.getElementById('u3-chk-keelung').checked;
+            const showPenghu = document.getElementById('u3-chk-penghu').checked;
+            const selectedMonthIdx = parseInt(document.getElementById('u3-month-slider').value);
+
+            document.getElementById('u3-selected-month-label').innerText = unit3Data.months[selectedMonthIdx];
+
+            const svg = document.getElementById('unit3-svg');
+            const infoCard = document.getElementById('u3-info-card');
+            svg.innerHTML = '';
+
+            const kVal = unit3Data.keelung[selectedMonthIdx];
+            const pVal = unit3Data.penghu[selectedMonthIdx];
+            const diff = Math.abs(kVal - pVal);
+            const monthName = unit3Data.months[selectedMonthIdx];
+
+            infoCard.innerHTML = `
+                <p class="font-bold text-indigo-900 border-b border-indigo-100 pb-1">📊 ${monthName} 降雨日數分析：</p>
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <div>基隆市：<strong class="text-amber-600">${kVal} 天</strong></div>
+                    <div>澎湖縣：<strong class="text-sky-600">${pVal} 天</strong></div>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-1">相差：<span class="font-bold text-rose-600">${diff} 天</span> (${kVal > pVal ? '基隆較多' : (pVal > kVal ? '澎湖較多' : '兩地相同')})</p>
+            `;
+
+            const paddingLeft = 55, paddingRight = 75, paddingTop = 40, paddingBottom = 75;
+            const width = 580, height = 370;
+            const chartW = width - paddingLeft - paddingRight;
+            const chartH = height - paddingTop - paddingBottom;
+            const axisY = height - paddingBottom;
+
+            const totalXSteps = unit3Data.months.length + 1;
+            const stepW = chartW / totalXSteps;
+            const getX = (idx) => paddingLeft + (idx + 1) * stepW;
+            const getY = (val) => axisY - (val / 25) * chartH;
+
+            let html = '';
+
+            for (let i = 0; i <= 25; i += 5) {
+                const y = getY(i);
+                html += `<line x1="${paddingLeft}" y1="${y}" x2="${width - paddingRight}" y2="${y}" class="grid-line" />`;
+                html += `<text x="${paddingLeft - 8}" y="${y + 4}" font-size="11" text-anchor="end" fill="#475569" font-weight="bold">${i}</text>`;
+            }
+
+            html += `<line x1="${paddingLeft}" y1="${axisY}" x2="${width - paddingRight}" y2="${axisY}" class="axis-line" />`;
+            html += `<line x1="${paddingLeft}" y1="${paddingTop - 10}" x2="${paddingLeft}" y2="${axisY}" class="axis-line" />`;
+
+            const selX = getX(selectedMonthIdx);
+            html += `<rect x="${selX - 12}" y="${paddingTop}" width="24" height="${chartH}" fill="#e0e7ff" opacity="0.6" rx="4" />`;
+
+            unit3Data.months.forEach((m, idx) => {
+                const x = getX(idx);
+                const isSel = idx === selectedMonthIdx;
+                html += `<text x="${x}" y="${axisY + 18}" font-size="11" text-anchor="middle" fill="${isSel ? '#4338ca' : '#475569'}" font-weight="${isSel ? '900' : 'normal'}">${m}</text>`;
+                html += `<line x1="${x}" y1="${axisY}" x2="${x}" y2="${axisY + 5}" stroke="#334155" stroke-width="1.5" />`;
+            });
+
+            const yLabelX = paddingLeft - 22;
+            html += `<text x="${yLabelX}" y="${paddingTop - 30}" font-size="11" font-weight="bold" fill="#0369a1" text-anchor="middle">降雨日數</text>`;
+            html += `<text x="${yLabelX}" y="${paddingTop - 15}" font-size="10" fill="#64748b" text-anchor="middle">（日）</text>`;
+
+            const xLabelX = width - paddingRight + 35;
+            html += `<text x="${xLabelX}" y="${axisY - 2}" font-size="11" font-weight="bold" fill="#0369a1" text-anchor="middle">月份</text>`;
+
+            if (showKeelung) {
+                let pts = unit3Data.keelung.map((v, i) => `${getX(i)},${getY(v)}`).join(' ');
+                html += `<polyline points="${pts}" stroke="#f59e0b" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
+                unit3Data.keelung.forEach((v, i) => {
+                    const cx = getX(i), cy = getY(v);
+                    html += `<circle cx="${cx}" cy="${cy}" r="${i===selectedMonthIdx?7:4}" fill="#f59e0b" stroke="#ffffff" stroke-width="2"/>`;
+                });
+            }
+
+            if (showPenghu) {
+                let pts = unit3Data.penghu.map((v, i) => `${getX(i)},${getY(v)}`).join(' ');
+                html += `<polyline points="${pts}" stroke="#0284c7" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
+                unit3Data.penghu.forEach((v, i) => {
+                    const cx = getX(i), cy = getY(v);
+                    html += `<circle cx="${cx}" cy="${cy}" r="${i===selectedMonthIdx?7:4}" fill="#0284c7" stroke="#ffffff" stroke-width="2"/>`;
+                });
+            }
+
+            const titleY = height - 16;
+            html += `<rect x="${width/2 - 130}" y="${titleY - 18}" width="260" height="26" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>`;
+            html += `<text x="${width/2}" y="${titleY}" font-size="13" font-weight="900" text-anchor="middle" fill="#1e1b4b">某年基隆與澎湖降雨日數折線圖</text>`;
+
+            svg.innerHTML = html;
+        }
+
+        // ================= UNIT 4 LOGIC =================
+        let unit4SelectedCard = null;
+
+        function selectUnit4Card(who) {
+            unit4SelectedCard = who;
+            
+            const cardPipi = document.getElementById('u4-card-pipi');
+            const cardDandan = document.getElementById('u4-card-dandan');
+            const badgePipi = document.getElementById('u4-badge-pipi');
+            const badgeDandan = document.getElementById('u4-badge-dandan');
+            
+            const banner = document.getElementById('u4-feedback-banner');
+            const icon = document.getElementById('u4-feedback-icon');
+            const title = document.getElementById('u4-feedback-title');
+            const desc = document.getElementById('u4-feedback-desc');
+
+            if (who === 'pipi') {
+                cardPipi.className = "bg-rose-50/40 rounded-2xl p-5 border-2 border-rose-500 shadow-lg cursor-pointer transition-all relative";
+                cardDandan.className = "bg-white rounded-2xl p-5 border-2 border-slate-200 shadow-md cursor-pointer transition-all hover:shadow-xl relative opacity-75";
+                
+                badgePipi.classList.remove('hidden');
+                badgeDandan.classList.add('hidden');
+
+                banner.className = "p-4 rounded-2xl border transition-all text-sm font-medium flex items-start gap-3 bg-rose-50 border-rose-200 text-rose-950";
+                icon.className = "fa-solid fa-triangle-exclamation text-rose-500 text-xl mt-0.5";
+                title.innerText = "❌ 皮皮畫錯了！";
+                desc.innerText = "皮皮將橫軸寫成「測量學生（A, B, C...）」，人名不是連續的時間順序，無法呈現「隨著加熱時間變長，水溫如何變化」的趨勢！";
+            } else if (who === 'dandan') {
+                cardDandan.className = "bg-emerald-50/40 rounded-2xl p-5 border-2 border-emerald-500 shadow-lg cursor-pointer transition-all relative";
+                cardPipi.className = "bg-white rounded-2xl p-5 border-2 border-slate-200 shadow-md cursor-pointer transition-all hover:shadow-xl relative opacity-75";
+
+                badgeDandan.classList.remove('hidden');
+                badgePipi.classList.add('hidden');
+
+                banner.className = "p-4 rounded-2xl border transition-all text-sm font-medium flex items-start gap-3 bg-emerald-50 border-emerald-200 text-emerald-950";
+                icon.className = "fa-solid fa-circle-check text-emerald-500 text-xl mt-0.5";
+                title.innerText = "🎉 丹丹才是正確的！";
+                desc.innerText = "折線圖的核心是用來觀察「隨時間（加熱時間）變化的連續趨勢」。橫軸放加熱時間（2分、4分、6分...），才能真正看出水溫上升的情形！";
+            }
+        }
+
+        function renderUnit4SingleSVG(svgId, mode) {
+            const svg = document.getElementById(svgId);
+            if (!svg) return;
+            svg.innerHTML = '';
+
+            const paddingLeft = 55, paddingRight = 105, paddingTop = 35, paddingBottom = 60;
+            const width = 460, height = 240;
+            const chartW = width - paddingLeft - paddingRight;
+            const chartH = height - paddingTop - paddingBottom;
+            const axisY = height - paddingBottom;
+
+            const labels = mode === 'pipi' 
+                ? ['A', 'B', 'C', 'D', 'E'] 
+                : ['2', '4', '6', '8', '10'];
+            
+            const temps = [25, 31, 37, 43, 49];
+
+            const totalXSteps = labels.length + 1;
+            const stepW = chartW / totalXSteps;
+            const getX = (idx) => paddingLeft + (idx + 1) * stepW;
+            const getY = (val) => axisY - (val / 50) * chartH;
+
+            let html = '';
+
+            for (let i = 0; i <= 50; i += 10) {
+                const y = getY(i);
+                html += `<line x1="${paddingLeft}" y1="${y}" x2="${width - paddingRight}" y2="${y}" stroke="#e2e8f0" stroke-width="1" />`;
+                html += `<text x="${paddingLeft - 8}" y="${y + 4}" font-size="11" text-anchor="end" fill="#334155" font-weight="bold">${i}</text>`;
+            }
+
+            html += `<line x1="${paddingLeft}" y1="${axisY}" x2="${width - paddingRight}" y2="${axisY}" stroke="#334155" stroke-width="2" />`;
+            html += `<line x1="${paddingLeft}" y1="${paddingTop - 5}" x2="${paddingLeft}" y2="${axisY}" stroke="#334155" stroke-width="2" />`;
+
+            const yLabelX = paddingLeft - 22;
+            html += `<text x="${yLabelX}" y="${paddingTop - 20}" font-size="11" font-weight="bold" fill="#0369a1" text-anchor="middle">水溫</text>`;
+            html += `<text x="${yLabelX}" y="${paddingTop - 7}" font-size="10" fill="#64748b" text-anchor="middle">（℃）</text>`;
+
+            labels.forEach((lbl, idx) => {
+                const x = getX(idx);
+                html += `<text x="${x}" y="${axisY + 16}" font-size="11" text-anchor="middle" fill="#1e293b" font-weight="bold">${lbl}</text>`;
+                html += `<line x1="${x}" y1="${axisY}" x2="${x}" y2="${axisY + 4}" stroke="#334155" stroke-width="1.5" />`;
+            });
+
+            const xLabelX = width - paddingRight + 45;
+            if (mode === 'pipi') {
+                html += `<text x="${xLabelX}" y="${axisY - 2}" font-size="11" font-weight="bold" fill="#0369a1" text-anchor="middle">測量學生</text>`;
+            } else {
+                html += `<text x="${xLabelX}" y="${axisY - 2}" font-size="11" font-weight="bold" fill="#0369a1" text-anchor="middle">加熱時間</text>`;
+                html += `<text x="${xLabelX}" y="${axisY + 13}" font-size="10" fill="#64748b" text-anchor="middle">（分鐘）</text>`;
+            }
+
+            let pts = temps.map((t, idx) => `${getX(idx)},${getY(t)}`).join(' ');
+            const strokeColor = mode === 'pipi' ? '#4f46e5' : '#a855f7';
+
+            html += `<polyline points="${pts}" stroke="${strokeColor}" stroke-width="3" fill="none" stroke-linecap="round" />`;
+
+            temps.forEach((t, idx) => {
+                const cx = getX(idx), cy = getY(t);
+                html += `<circle cx="${cx}" cy="${cy}" r="4" fill="${strokeColor}" stroke="#ffffff" stroke-width="1.5"/>`;
+            });
+
+            const titleY = height - 12;
+            html += `<text x="${width/2}" y="${titleY}" font-size="12" font-weight="900" text-anchor="middle" fill="#0f172a">100毫升的水加熱時間和水溫變化折線圖</text>`;
+
+            svg.innerHTML = html;
+        }
+
+        function updateUnit4Chart() {
+            renderUnit4SingleSVG('unit4-svg-pipi', 'pipi');
+            renderUnit4SingleSVG('unit4-svg-dandan', 'dandan');
+        }
+
+        // ================= UNIT 5 QUIZ LOGIC =================
+        const quizData = [
+            {
+                q: "1. 繪製折線圖時，如果要表現某事物「隨時間改變」的趨勢，橫軸通常應該填寫什麼？",
+                options: ["事物分類或個人姓名", "連續的時間項目（如月份、年份、分鐘）", "任意隨機排列的數據", "數據的最高值與最低值"],
+                ans: 1,
+                exp: "解析：折線圖的核心是用來表現「連續時間推移」下的資料變化趨勢，因此橫軸宜放置時間項目。"
+            },
+            {
+                q: "2. 丹丹家每月的用電度數都在 400~680 度之間。在繪製折線圖時，使用「波浪符號（省略符號）」的主要目的是什麼？",
+                options: ["節省畫紙的大小", "省略掉用電度數最高的月份", "省略 0 到 400 度間不必要的空白，放大變化起伏細節", "代表數據記錄有錯誤"],
+                ans: 2,
+                exp: "解析：當資料數值遠大於 0 且變化集中在特定區間時，使用省略符號可以避免圖形被壓縮，清楚展現起伏。"
+            },
+            {
+                q: "3. 在「基隆與澎湖全年降雨日數」的複式折線圖中，澎湖 10 月的降雨日數為 0 天。繪製時應該如何處理？",
+                options: ["直接跳過 10 月，將 9 月與 11 月的點連起來", "在 10 月對應縱軸 0 的位置標點，並依順序連線", "將 10 月塗黑不畫線", "隨便塗一個位置代表 0"],
+                ans: 1,
+                exp: "解析：數值為 0 代表該時間點的資料為 0，必須在刻度 0 的位置標點並依序連接，不可以漏掉！"
+            },
+            {
+                q: "4. 下列哪一種資料最適合用「折線圖」來呈現？",
+                options: ["全班同學最喜歡的體育運動種類統計", "小明今年 1 月至 12 月的每月身高成長紀錄", "水果店裡蘋果、香蕉、西瓜的庫存數量", "學校各社團的人數統計"],
+                ans: 1,
+                exp: "解析：身高成長紀錄屬於「同一個人在連續時間內的動態變化」，最適合使用折線圖！"
+            },
+            {
+                q: "5. 觀察「基隆與澎湖降雨日數折線圖」，基隆的降雨日數從 4 月到 7 月呈現什麼變化趨勢？",
+                options: ["逐漸增加", "逐漸減少", "保持完全不變", "先增加後減少"],
+                ans: 1,
+                exp: "解析：查看基隆數據（4月:20天 ➔ 5月:18天 ➔ 6月:9天 ➔ 7月:7天），折線線段一路向下，代表逐漸減少。"
+            }
+        ];
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-questions-list');
+            container.innerHTML = quizData.map((item, qIdx) => `
+                <div class="bg-white/80 rounded-xl p-5 border border-slate-200 shadow-sm" id="q-card-${qIdx}">
+                    <p class="font-bold text-slate-800 text-sm md:text-base mb-3">${item.q}</p>
+                    <div class="space-y-2 mb-3">
+                        ${item.options.map((opt, oIdx) => `
+                            <label class="flex items-center gap-3 p-2.5 rounded-lg border border-slate-200 hover:bg-sky-50/80 cursor-pointer transition-all text-xs md:text-sm text-slate-700">
+                                <input type="radio" name="quiz-q-${qIdx}" value="${oIdx}" class="w-4 h-4 text-sky-600">
+                                <span>${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                    <div id="q-feedback-${qIdx}" class="hidden p-3 rounded-lg text-xs font-medium mt-2"></div>
+                </div>
+            `).join('');
+        }
+
+        function checkQuizAnswers() {
+            let correctCount = 0;
+
+            quizData.forEach((item, qIdx) => {
+                const selected = document.querySelector(`input[name="quiz-q-${qIdx}"]:checked`);
+                const feedbackBox = document.getElementById(`q-feedback-${qIdx}`);
+                feedbackBox.classList.remove('hidden');
+
+                if (!selected) {
+                    feedbackBox.className = "p-3 rounded-lg text-xs font-bold bg-amber-100 text-amber-900 border border-amber-200";
+                    feedbackBox.innerHTML = "未作答。";
+                } else if (parseInt(selected.value) === item.ans) {
+                    correctCount++;
+                    feedbackBox.className = "p-3 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-200";
+                    feedbackBox.innerHTML = `<i class="fa-solid fa-circle-check mr-1 text-emerald-600"></i>回答正確！ ${item.exp}`;
+                } else {
+                    feedbackBox.className = "p-3 rounded-lg text-xs font-bold bg-rose-100 text-rose-900 border border-rose-200";
+                    feedbackBox.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1 text-rose-600"></i>回答錯誤。 ${item.exp}`;
+                }
+            });
+
+            const score = (correctCount / quizData.length) * 100;
+            document.getElementById('quiz-score').innerText = `${score} / 100`;
+        }
+
+        function resetQuiz() {
+            document.getElementById('quiz-score').innerText = "0 / 100";
+            renderQuiz();
+        }
+
+        window.onload = function() {
+            updateUnit1Chart();
+            updateUnit2Chart();
+            updateUnit3Chart();
+            updateUnit4Chart();
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
