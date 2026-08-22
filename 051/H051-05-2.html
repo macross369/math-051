@@ -138,7 +138,7 @@
                     <i class="fa-solid fa-layer-group mr-1"></i> 柱體 vs 錐體分類
                 </button>
                 <button id="tab3-btn" onclick="switchTab('tab3')" class="px-4 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-indigo-600">
-                    <i class="fa-solid fa-graduation-cap mr-1"></i> 觀念大闖關
+                    <i class="fa-solid fa-graduation-cap mr-1"></i> 隨堂測驗
                 </button>
             </nav>
         </div>
@@ -314,13 +314,13 @@
             </div>
         </section>
 
-        <!-- TAB 3: 觀念大闖關 (5題評量) -->
+        <!-- TAB 3: 隨堂測驗 (5題評量) -->
         <section id="tab3" class="hidden space-y-6">
             <div class="glass-card rounded-3xl p-6 md:p-8">
                 <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-200/80 pb-6 mb-6 gap-4">
                     <div>
                         <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full">歷程性評量</span>
-                        <h2 class="text-2xl font-bold text-slate-800 mt-2">5-2 觀念大檢測</h2>
+                        <h2 class="text-2xl font-bold text-slate-800 mt-2">隨堂測驗</h2>
                         <p class="text-slate-600 text-sm">回答下列 5 道主題測驗，即時獲得對錯分析與關聯觀念指引！</p>
                     </div>
                     <!-- 得分顯示 -->
@@ -335,13 +335,13 @@
                     <!-- Questions will be dynamically built here -->
                 </div>
 
-                <!-- 提交與重測按鈕 -->
-                <div class="mt-8 pt-6 border-t border-slate-200/80 flex justify-end space-x-4">
-                    <button onclick="submitQuiz()" class="px-5 py-2.5 rounded-xl shinkai-btn text-white font-semibold text-sm shadow hover:shadow-lg transition">
-                        <i class="fa-solid fa-paper-plane mr-1"></i> 提交答案
+                <!-- 提交與重測按鈕 (大小相等，並排置中) -->
+                <div class="mt-8 pt-6 border-t border-slate-200/80 flex justify-center items-center gap-4">
+                    <button onclick="submitQuiz()" class="w-40 py-2.5 rounded-xl shinkai-btn text-white font-semibold text-sm shadow hover:shadow-lg transition flex items-center justify-center">
+                        <i class="fa-solid fa-paper-plane mr-1.5"></i> 提交答案
                     </button>
-                    <button onclick="resetQuiz()" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-600 font-semibold text-sm hover:bg-slate-100">
-                        重新測驗
+                    <button onclick="resetQuiz()" class="w-40 py-2.5 rounded-xl border border-slate-300 text-slate-600 font-semibold text-sm hover:bg-slate-100 transition flex items-center justify-center">
+                        <i class="fa-solid fa-rotate-left mr-1.5"></i> 重新測驗
                     </button>
                 </div>
             </div>

@@ -196,7 +196,7 @@
                 <i class="fa-solid fa-flask mr-2"></i>3. 自由實驗室
             </button>
             <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn px-4 md:px-5 py-2.5 rounded-2xl font-bold text-sm md:text-base transition-all duration-300 opacity-70 hover:opacity-100 text-slate-700 glass-card">
-                <i class="fa-solid fa-circle-check mr-2"></i>4. 觀念大挑戰
+                <i class="fa-solid fa-circle-check mr-2"></i>4. 隨堂測驗
             </button>
         </nav>
 
@@ -391,7 +391,7 @@
             <div class="glass-card rounded-3xl p-6">
                 <div class="flex items-center justify-between mb-6 border-b border-slate-200 pb-4">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-clipboard-question text-emerald-500 mr-2"></i>單元觀念檢測站</h2>
+                        <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-clipboard-question text-emerald-500 mr-2"></i>隨堂測驗</h2>
                         <p class="text-xs text-slate-500 mt-1">共 5 題，測試你對「移多補少」與「平均數算式」的理解！</p>
                     </div>
                     <div class="bg-emerald-100 text-emerald-800 px-4 py-1.5 rounded-2xl font-bold text-sm" id="score-badge">
@@ -403,11 +403,11 @@
                 </div>
 
                 <div class="mt-8 flex flex-wrap justify-center gap-4">
-                    <button onclick="checkAllAnswers()" class="px-8 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold rounded-2xl shadow-xl transition transform active:scale-95 text-base">
-                        <i class="fa-solid fa-paper-plane mr-2"></i> 提交答案
+                    <button onclick="checkAllAnswers()" class="px-8 py-3.5 w-44 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold rounded-2xl shadow-xl transition transform active:scale-95 text-base flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> 提交答案
                     </button>
-                    <button onclick="resetQuiz()" class="px-8 py-3.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-2xl shadow-md transition transform active:scale-95 text-base">
-                        <i class="fa-solid fa-rotate-left mr-2"></i> 重新測驗
+                    <button onclick="resetQuiz()" class="px-8 py-3.5 w-44 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-2xl shadow-md transition transform active:scale-95 text-base flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> 重新測驗
                     </button>
                 </div>
             </div>
@@ -1048,15 +1048,16 @@
 
         function resetQuiz() {
             quizQuestions.forEach(q => {
-                const selectedInputs = document.querySelectorAll(`input[name="q-${q.id}"]`);
-                selectedInputs.forEach(input => input.checked = false);
+                const inputs = document.querySelectorAll(`input[name="q-${q.id}"]`);
+                inputs.forEach(input => input.checked = false);
+                
                 const feedbackDiv = document.getElementById(`feedback-${q.id}`);
                 if (feedbackDiv) {
                     feedbackDiv.classList.add('hidden');
                     feedbackDiv.innerHTML = '';
                 }
             });
-            document.getElementById('score-badge').innerText = '得分: 0 / 100';
+            document.getElementById('score-badge').innerText = `得分: 0 / 100`;
         }
 
         window.onload = function() {

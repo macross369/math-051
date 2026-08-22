@@ -1170,16 +1170,16 @@
             const form = document.getElementById('quiz-form');
             form.innerHTML = quizData.map((q, idx) => `
                 <div class="p-5 bg-white rounded-xl border border-slate-200 shadow-sm" id="q-card-${idx}">
-                    <p class="font-bold text-slate-800 text-sm md:text-base mb-3">${q.question}</p>
-                    <div class="space-y-2">
+                    <p class="font-bold text-slate-800 text-lg md:text-xl mb-4">${q.question}</p>
+                    <div class="space-y-3">
                         ${q.options.map((opt, oIdx) => `
-                            <label class="flex items-center gap-3 p-2.5 rounded-lg border border-slate-100 hover:bg-rose-50 cursor-pointer transition-colors text-sm">
-                                <input type="radio" name="q${idx}" value="${oIdx}" class="accent-rose-500 w-4 h-4">
-                                <span>${opt}</span>
+                            <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-100 hover:bg-rose-50 cursor-pointer transition-colors text-base md:text-lg">
+                                <input type="radio" name="q${idx}" value="${oIdx}" class="accent-rose-500 w-5 h-5">
+                                <span class="font-medium">${opt}</span>
                             </label>
                         `).join('')}
                     </div>
-                    <div id="q-feedback-${idx}" class="hidden mt-3 p-3 rounded-lg text-xs leading-relaxed"></div>
+                    <div id="q-feedback-${idx}" class="hidden mt-3 p-3 rounded-lg text-sm md:text-base leading-relaxed"></div>
                 </div>
             `).join('');
         }
@@ -1195,19 +1195,19 @@
                 if (!selected) {
                     // 未作答狀態：黃色系提示，僅顯示 "未作答。"
                     card.className = "p-5 bg-amber-50/50 rounded-xl border-2 border-amber-300 shadow-sm";
-                    feedback.className = "mt-3 p-3 rounded-lg text-xs leading-relaxed bg-amber-100 text-amber-900 border border-amber-200 font-bold";
+                    feedback.className = "mt-3 p-3 rounded-lg text-sm md:text-base leading-relaxed bg-amber-100 text-amber-900 border border-amber-200 font-bold";
                     feedback.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> 未作答。`;
                 } else if (parseInt(selected.value) === q.answer) {
                     // 答對狀態
                     score += 20;
                     card.className = "p-5 bg-emerald-50/50 rounded-xl border-2 border-emerald-400 shadow-sm";
-                    feedback.className = "mt-3 p-3 rounded-lg text-xs leading-relaxed bg-emerald-100 text-emerald-900 border border-emerald-200";
-                    feedback.innerHTML = `<strong class="text-emerald-700"><i class="fa-solid fa-circle-check mr-1"></i> 答對了！</strong><br>${q.explain}`;
+                    feedback.className = "mt-3 p-3 rounded-lg text-sm md:text-base leading-relaxed bg-emerald-100 text-emerald-900 border border-emerald-200";
+                    feedback.innerHTML = `<strong class="text-emerald-700 text-base md:text-lg"><i class="fa-solid fa-circle-check mr-1"></i> 答對了！</strong><br>${q.explain}`;
                 } else {
                     // 答錯狀態
                     card.className = "p-5 bg-rose-50/50 rounded-xl border-2 border-rose-300 shadow-sm";
-                    feedback.className = "mt-3 p-3 rounded-lg text-xs leading-relaxed bg-rose-100 text-rose-900 border border-rose-200";
-                    feedback.innerHTML = `<strong class="text-rose-700"><i class="fa-solid fa-circle-xmark mr-1"></i> 答錯了！正確答案為：${q.options[q.answer]}</strong><br>${q.explain}`;
+                    feedback.className = "mt-3 p-3 rounded-lg text-sm md:text-base leading-relaxed bg-rose-100 text-rose-900 border border-rose-200";
+                    feedback.innerHTML = `<strong class="text-rose-700 text-base md:text-lg"><i class="fa-solid fa-circle-xmark mr-1"></i> 答錯了！正確答案為：${q.options[q.answer]}</strong><br>${q.explain}`;
                 }
             });
 

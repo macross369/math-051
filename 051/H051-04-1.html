@@ -142,7 +142,7 @@
                 <i class="fa-solid fa-wand-magic-sparkles"></i> 💡 魔法解題策略
             </button>
             <button onclick="switchTab('quiz')" id="tab-btn-quiz" class="tab-btn px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all bg-white/10 text-slate-300 hover:bg-white/20">
-                <i class="fa-solid fa-circle-check"></i> 📝 隨堂練習
+                <i class="fa-solid fa-circle-check"></i> 📝 隨堂測驗
             </button>
         </div>
 
@@ -512,7 +512,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-white/10 pb-4">
                     <div>
                         <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-clipboard-question text-amber-300"></i> 隨堂練習 (5題)
+                            <i class="fa-solid fa-clipboard-question text-amber-300"></i> 隨堂測驗
                         </h2>
                         <p class="text-slate-300 text-sm mt-1">
                             檢測你對「倍數、公倍數與最小公倍數」的理解程度！
@@ -530,13 +530,13 @@
                     <!-- JS 將動態渲染 5 個測驗卡片 -->
                 </div>
 
-                <!-- 重設測驗與提交按鈕 -->
-                <div class="flex flex-wrap justify-center gap-4 pt-6">
-                    <button onclick="resetQuiz()" class="px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold transition text-sm inline-flex items-center gap-2">
-                        <i class="fa-solid fa-rotate-right"></i> 重新測驗
-                    </button>
-                    <button id="btn-submit-quiz" onclick="submitQuiz()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-900 font-bold transition text-sm inline-flex items-center gap-2 shadow-lg shadow-amber-500/20">
+                <!-- 提交答案與重設測驗按鈕 (等寬等高並排置中) -->
+                <div class="flex items-center justify-center gap-4 pt-6">
+                    <button id="btn-submit-quiz" onclick="submitQuiz()" class="w-40 sm:w-48 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-900 font-bold transition text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20">
                         <i class="fa-solid fa-paper-plane"></i> 提交答案
+                    </button>
+                    <button onclick="resetQuiz()" class="w-40 sm:w-48 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold transition text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> 重新測驗
                     </button>
                 </div>
             </div>

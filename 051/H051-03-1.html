@@ -125,7 +125,7 @@
                     <i class="fa-solid fa-compass-drafting text-amber-400"></i> 2. 動態幾何實驗室
                 </button>
                 <button id="tab-btn-3" onclick="switchTab(3)" class="tab-btn px-5 py-3 rounded-xl font-bold text-sm md:text-base flex items-center gap-2 border border-transparent text-slate-300 hover:text-white">
-                    <i class="fa-solid fa-graduation-cap text-pink-400"></i> 3. 觀念小試身手
+                    <i class="fa-solid fa-graduation-cap text-pink-400"></i> 3. 隨堂測驗
                 </button>
             </div>
         </nav>
@@ -414,13 +414,13 @@
             </div>
         </div>
 
-        <!-- TAB 3: 觀念小試身手 (測驗) -->
+        <!-- TAB 3: 隨堂測驗 -->
         <div id="tab-content-3" class="hidden">
             <section class="glass-panel rounded-2xl p-6 md:p-8">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-white/10">
                     <div>
                         <h2 class="text-2xl font-black text-amber-300 flex items-center gap-2">
-                            <i class="fa-solid fa-graduation-cap"></i> 觀念小試身手（歷程性評量）
+                            <i class="fa-solid fa-graduation-cap"></i> 隨堂測驗
                         </h2>
                         <p class="text-xs text-slate-300 mt-1">測驗你是否真正掌握「三角形邊長關係」的核心概念！請選擇答案後點擊下方「提交答案」。</p>
                     </div>
@@ -537,11 +537,11 @@
                 </div>
 
                 <!-- Quiz Action Buttons -->
-                <div class="flex flex-wrap justify-center gap-4 pt-6 border-t border-white/10 mt-8">
-                    <button id="btn-submit-quiz" onclick="submitQuiz()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-base flex items-center gap-2 shadow-lg hover:scale-105 transition">
+                <div class="flex flex-wrap justify-center items-center gap-4 pt-6 border-t border-white/10 mt-8">
+                    <button id="btn-submit-quiz" onclick="submitQuiz()" class="w-48 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-base flex items-center justify-center gap-2 shadow-lg hover:scale-105 transition">
                         <i class="fa-solid fa-paper-plane"></i> 提交答案
                     </button>
-                    <button id="btn-reset-quiz" onclick="resetQuiz()" class="px-6 py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-base flex items-center gap-2 border border-white/10 shadow transition hover:scale-105">
+                    <button id="btn-reset-quiz" onclick="resetQuiz()" class="w-48 py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-base flex items-center justify-center gap-2 border border-white/10 shadow transition hover:scale-105">
                         <i class="fa-solid fa-rotate-right"></i> 重新測驗
                     </button>
                 </div>
@@ -1015,7 +1015,7 @@
             // Toggle submit button state
             const submitBtn = document.getElementById('btn-submit-quiz');
             submitBtn.disabled = true;
-            submitBtn.className = "px-6 py-3 rounded-xl bg-slate-600 text-slate-400 font-bold text-base flex items-center gap-2 cursor-not-allowed opacity-60";
+            submitBtn.className = "w-48 py-3 rounded-xl bg-slate-600 text-slate-400 font-bold text-base flex items-center justify-center gap-2 cursor-not-allowed opacity-60";
         }
 
         // Reset Quiz to initial state
@@ -1041,7 +1041,7 @@
             // Re-enable submit button
             const submitBtn = document.getElementById('btn-submit-quiz');
             submitBtn.disabled = false;
-            submitBtn.className = "px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-base flex items-center gap-2 shadow-lg hover:scale-105 transition";
+            submitBtn.className = "w-48 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-base flex items-center justify-center gap-2 shadow-lg hover:scale-105 transition";
         }
 
         window.onload = function () {

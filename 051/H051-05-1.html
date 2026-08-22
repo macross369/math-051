@@ -116,7 +116,7 @@
                     <i class="fa-solid fa-house-laptop mr-1"></i> 生活實例觀察
                 </button>
                 <button onclick="setMode('quiz')" id="tab-quiz" class="px-4 py-2 rounded-lg text-sm font-bold text-slate-600 hover:bg-white/80 transition-all">
-                    <i class="fa-solid fa-graduation-cap mr-1"></i> 歷程評量
+                    <i class="fa-solid fa-graduation-cap mr-1"></i> 隨堂測驗
                 </button>
             </div>
         </header>
@@ -446,12 +446,12 @@
             </div>
         </div>
 
-        <!-- 視圖 4：歷程評量 -->
+        <!-- 視圖 4：隨堂測驗 -->
         <div id="view-quiz" class="hidden grid-cols-1 gap-6">
             <div class="shinkai-card p-6 max-w-3xl mx-auto w-full flex flex-col gap-6">
                 <div class="flex items-center justify-between border-b border-slate-200 pb-3">
                     <span class="font-black text-lg text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-pen-to-square text-indigo-500"></i> 概念隨堂檢測
+                        <i class="fa-solid fa-pen-to-square text-indigo-500"></i> 隨堂測驗
                     </span>
                     <span class="text-xs font-bold bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full">共 5 題（滿分 100 分）</span>
                 </div>
@@ -475,10 +475,10 @@
 
                 <!-- 按鈕區：提交答案與重新測驗 -->
                 <div class="flex items-center justify-center gap-4 pt-4 border-t border-slate-200">
-                    <button id="btn-submit-quiz" onclick="submitQuiz()" class="px-6 py-2.5 rounded-xl btn-shinkai font-bold text-sm shadow-md flex items-center gap-2">
+                    <button id="btn-submit-quiz" onclick="submitQuiz()" class="w-40 py-2.5 rounded-xl btn-shinkai font-bold text-sm shadow-md flex items-center justify-center gap-2">
                         <i class="fa-solid fa-paper-plane"></i> 提交答案
                     </button>
-                    <button id="btn-reset-quiz" onclick="resetQuiz()" class="px-6 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm transition flex items-center gap-2">
+                    <button id="btn-reset-quiz" onclick="resetQuiz()" class="w-40 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm transition flex items-center justify-center gap-2">
                         <i class="fa-solid fa-rotate-right"></i> 重新測驗
                     </button>
                 </div>

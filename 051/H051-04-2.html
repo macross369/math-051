@@ -109,7 +109,7 @@
                     </div>
                     <div>
                         <h1 class="text-2xl font-black bg-gradient-to-r from-sky-700 via-indigo-700 to-purple-700 bg-clip-text text-transparent">
-                            公因數與最大公因數．探索實驗室
+                            公因數與最大公因數
                         </h1>
                         <p class="text-xs text-slate-500 font-medium">國小五上數學 4-2 互動學習網頁</p>
                     </div>
@@ -124,7 +124,7 @@
                         <i class="fa-solid fa-circle-nodes mr-1.5"></i>因數與韋恩圖
                     </button>
                     <button onclick="switchTab('quiz')" id="tab-quiz" class="px-4 py-2 rounded-lg text-slate-600 hover:text-sky-600 transition">
-                        <i class="fa-solid fa-pen-to-square mr-1.5"></i>自我評量
+                        <i class="fa-solid fa-pen-to-square mr-1.5"></i>隨堂測驗
                     </button>
                 </nav>
             </div>
@@ -372,7 +372,7 @@
         <section id="sec-quiz" class="space-y-6 hidden">
             <div class="shinkai-glass rounded-2xl p-6 border border-white/60 flex justify-between items-center">
                 <div>
-                    <h2 class="text-xl font-bold text-slate-800">自我評量 (共 5 題，滿分 100 分)</h2>
+                    <h2 class="text-xl font-bold text-slate-800">隨堂測驗</h2>
                     <p class="text-xs text-slate-500 mt-1">作答完成後請點擊「提交答案」進行自動批改與檢視解析！</p>
                 </div>
                 <div id="quizScoreBadge" class="bg-sky-500 text-white font-black px-4 py-2 rounded-xl text-lg shadow">
@@ -386,10 +386,10 @@
 
             <!-- 操作按鈕區 -->
             <div class="flex items-center justify-center gap-4 pt-4">
-                <button onclick="submitQuiz()" id="btnSubmitQuiz" class="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-base shadow-md transition flex items-center gap-2 cursor-pointer">
+                <button onclick="submitQuiz()" id="btnSubmitQuiz" class="w-44 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-base shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-paper-plane"></i> 提交答案
                 </button>
-                <button onclick="resetQuiz()" id="btnResetQuiz" class="px-6 py-3 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-base shadow-md transition flex items-center gap-2 cursor-pointer">
+                <button onclick="resetQuiz()" id="btnResetQuiz" class="w-44 py-3 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-base shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-rotate-left"></i> 重新測驗
                 </button>
             </div>

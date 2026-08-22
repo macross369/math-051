@@ -156,7 +156,7 @@
                     <i class="fa-solid fa-calculator mr-1.5"></i>除法判定倍數
                 </button>
                 <button onclick="switchTab('tab-quiz')" id="btn-tab-quiz" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 hover:bg-white/10 text-sky-200">
-                    <i class="fa-solid fa-pen-to-square mr-1.5"></i>歷程評量 (5題)
+                    <i class="fa-solid fa-pen-to-square mr-1.5"></i>隨堂測驗
                 </button>
             </nav>
         </div>
@@ -438,13 +438,13 @@
             </div>
         </section>
 
-        <!-- MODULE 4: 歷程性評量 (5題隨堂測驗) -->
+        <!-- MODULE 4: 隨堂測驗 -->
         <section id="tab-quiz" class="tab-content hidden space-y-6">
             <div class="glass-card rounded-3xl p-6 lg:p-8">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                     <div>
-                        <span class="px-3 py-1 bg-amber-500/30 text-amber-200 rounded-full text-xs font-semibold uppercase tracking-wider border border-amber-400/30">自我自我檢測</span>
-                        <h2 class="text-2xl font-bold text-white mt-1">倍數小達人 - 歷程性評量 (5題)</h2>
+                        <span class="px-3 py-1 bg-amber-500/30 text-amber-200 rounded-full text-xs font-semibold uppercase tracking-wider border border-amber-400/30">自我檢測</span>
+                        <h2 class="text-2xl font-bold text-white mt-1">隨堂測驗</h2>
                         <p class="text-sm text-amber-100/70">完成測驗即可即時獲得評分與詳細解說喔！</p>
                     </div>
 
@@ -590,13 +590,15 @@
                         <div id="q5-feedback" class="hidden text-xs p-3 rounded-xl ml-8"></div>
                     </div>
 
-                    <!-- Submit Button -->
-                    <div class="flex justify-end gap-3 pt-4">
-                        <button type="button" onclick="resetQuiz()" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm transition">
-                            重新測驗
+                    <!-- Action Buttons -->
+                    <div class="flex justify-center items-center gap-4 pt-6 max-w-md mx-auto w-full">
+                        <button type="submit" class="w-1/2 py-3.5 rounded-xl bg-gradient-to-r from-amber-400 via-pink-500 to-purple-600 text-white font-bold text-base hover:brightness-110 transition shadow-lg flex items-center justify-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-paper-plane text-sm"></i>
+                            <span>提交答案</span>
                         </button>
-                        <button type="submit" class="px-8 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-pink-500 text-slate-900 font-bold hover:brightness-110 transition shadow-lg">
-                            提交答案
+                        <button type="button" onclick="resetQuiz()" class="w-1/2 py-3.5 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 font-bold text-base border border-slate-600/80 transition shadow-md flex items-center justify-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-rotate-right text-sm"></i>
+                            <span>重新測驗</span>
                         </button>
                     </div>
                 </form>

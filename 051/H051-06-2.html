@@ -100,7 +100,7 @@
                         <i class="fa-solid fa-wand-magic-sparkles"></i> 2. 巧算拆解魔法
                     </button>
                     <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 text-white/90 hover:text-white">
-                        <i class="fa-solid fa-trophy"></i> 3. 闖關評量
+                        <i class="fa-solid fa-trophy"></i> 3. 隨堂測驗
                     </button>
                 </nav>
             </div>
@@ -406,7 +406,7 @@
         <section id="sec-quiz" class="hidden space-y-6">
             <div class="glass-card rounded-3xl p-6 border-l-8 border-amber-500 flex justify-between items-center">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-800">闖關評量</h2>
+                    <h2 class="text-lg font-bold text-slate-800">隨堂測驗</h2>
                     <p class="text-sm text-slate-600">答題後點擊「提交答案」即可獲得專業即時回饋，檢視自己的學習效果！</p>
                 </div>
                 <div class="text-right">
@@ -427,16 +427,16 @@
                         </p>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-8">
-                        <button onclick="selectQ1(1)" id="q1-opt-1" class="q1-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                        <button onclick="selectQ1(1)" id="q1-opt-1" class="q1-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-base text-slate-700">
                             (A) 6 × 5 + 4 × 5
                         </button>
-                        <button onclick="selectQ1(2)" id="q1-opt-2" class="q1-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                        <button onclick="selectQ1(2)" id="q1-opt-2" class="q1-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-base text-slate-700">
                             (B) ( 6 + 4 ) × 5
                         </button>
-                        <button onclick="selectQ1(3)" id="q1-opt-3" class="q1-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                        <button onclick="selectQ1(3)" id="q1-opt-3" class="q1-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-base text-slate-700">
                             (C) ( 6 × 4 ) + 5
                         </button>
-                        <button onclick="selectQ1(4)" id="q1-opt-4" class="q1-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                        <button onclick="selectQ1(4)" id="q1-opt-4" class="q1-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-base text-slate-700">
                             (D) 6 + 4 的 5 倍
                         </button>
                     </div>
@@ -452,7 +452,7 @@
                         </p>
                     </div>
                     <div class="flex flex-wrap items-center gap-3 pl-8">
-                        <input type="number" id="q2-input" placeholder="請輸入最終答案" class="px-4 py-2 border-2 border-slate-300 rounded-xl focus:border-indigo-500 outline-none text-sm font-bold font-mono">
+                        <input type="number" id="q2-input" placeholder="請輸入最終答案" class="px-4 py-2 border-2 border-slate-300 rounded-xl focus:border-indigo-500 outline-none text-base font-bold font-mono">
                     </div>
                     <div id="q2-feedback" class="hidden p-4 rounded-2xl text-sm font-bold pl-8"></div>
                 </div>
@@ -466,13 +466,13 @@
                         </p>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-8">
-                        <button onclick="selectQ3(1)" id="q3-opt-1" class="q3-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                        <button onclick="selectQ3(1)" id="q3-opt-1" class="q3-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-base text-slate-700">
                             (A) 5 × ( 4 - 3 ) = 5 人
                         </button>
-                        <button onclick="selectQ3(2)" id="q3-opt-2" class="q3-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                        <button onclick="selectQ3(2)" id="q3-opt-2" class="q3-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-base text-slate-700">
                             (B) ( 5 - 4 ) × 3 = 3 人
                         </button>
-                        <button onclick="selectQ3(3)" id="q3-opt-3" class="q3-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                        <button onclick="selectQ3(3)" id="q3-opt-3" class="q3-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-base text-slate-700">
                             (C) 5 × 4 + 5 × 3 = 35 人
                         </button>
                     </div>
@@ -488,7 +488,7 @@
                         </p>
                     </div>
                     <div class="flex flex-wrap items-center gap-3 pl-8">
-                        <input type="number" id="q4-input" placeholder="請輸入金額 (元)" class="px-4 py-2 border-2 border-slate-300 rounded-xl focus:border-indigo-500 outline-none text-sm font-bold font-mono">
+                        <input type="number" id="q4-input" placeholder="請輸入金額 (元)" class="px-4 py-2 border-2 border-slate-300 rounded-xl focus:border-indigo-500 outline-none text-base font-bold font-mono">
                     </div>
                     <div id="q4-feedback" class="hidden p-4 rounded-2xl text-sm font-bold pl-8"></div>
                 </div>
@@ -502,13 +502,13 @@
                         </p>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-8">
-                        <button onclick="selectQ5(1)" id="q5-opt-1" class="q5-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                        <button onclick="selectQ5(1)" id="q5-opt-1" class="q5-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-base text-slate-700">
                             (A) 250 × 24 + 26 = 6026 元
                         </button>
-                        <button onclick="selectQ5(2)" id="q5-opt-2" class="q5-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                        <button onclick="selectQ5(2)" id="q5-opt-2" class="q5-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-base text-slate-700">
                             (B) 250 × ( 24 + 26 ) = 12500 元
                         </button>
-                        <button onclick="selectQ5(3)" id="q5-opt-3" class="q5-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700">
+                        <button onclick="selectQ5(3)" id="q5-opt-3" class="q5-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-base text-slate-700">
                             (C) ( 250 + 24 ) × 26 = 7124 元
                         </button>
                     </div>
@@ -950,9 +950,9 @@
             for (let i = 1; i <= 4; i++) {
                 const btn = document.getElementById(`q1-opt-${i}`);
                 if (i === choice) {
-                    btn.className = "q1-opt text-left p-3 rounded-xl border-2 border-indigo-500 bg-indigo-50 font-bold text-sm text-indigo-900 shadow-sm";
+                    btn.className = "q1-opt text-left p-3 rounded-xl border-2 border-indigo-500 bg-indigo-50 font-bold text-base text-indigo-900 shadow-sm";
                 } else {
-                    btn.className = "q1-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700";
+                    btn.className = "q1-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-base text-slate-700";
                 }
             }
         }
@@ -962,9 +962,9 @@
             for (let i = 1; i <= 3; i++) {
                 const btn = document.getElementById(`q3-opt-${i}`);
                 if (i === choice) {
-                    btn.className = "q3-opt text-left p-3 rounded-xl border-2 border-indigo-500 bg-indigo-50 font-bold text-sm text-indigo-900 shadow-sm";
+                    btn.className = "q3-opt text-left p-3 rounded-xl border-2 border-indigo-500 bg-indigo-50 font-bold text-base text-indigo-900 shadow-sm";
                 } else {
-                    btn.className = "q3-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700";
+                    btn.className = "q3-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-base text-slate-700";
                 }
             }
         }
@@ -974,9 +974,9 @@
             for (let i = 1; i <= 3; i++) {
                 const btn = document.getElementById(`q5-opt-${i}`);
                 if (i === choice) {
-                    btn.className = "q5-opt text-left p-3 rounded-xl border-2 border-indigo-500 bg-indigo-50 font-bold text-sm text-indigo-900 shadow-sm";
+                    btn.className = "q5-opt text-left p-3 rounded-xl border-2 border-indigo-500 bg-indigo-50 font-bold text-base text-indigo-900 shadow-sm";
                 } else {
-                    btn.className = "q5-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700";
+                    btn.className = "q5-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-base text-slate-700";
                 }
             }
         }
@@ -1071,13 +1071,13 @@
             // Clear option styles
             for (let i = 1; i <= 4; i++) {
                 const btn = document.getElementById(`q1-opt-${i}`);
-                if (btn) btn.className = "q1-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700";
+                if (btn) btn.className = "q1-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-base text-slate-700";
             }
             for (let i = 1; i <= 3; i++) {
                 const btn3 = document.getElementById(`q3-opt-${i}`);
-                if (btn3) btn3.className = "q3-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700";
+                if (btn3) btn3.className = "q3-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-base text-slate-700";
                 const btn5 = document.getElementById(`q5-opt-${i}`);
-                if (btn5) btn5.className = "q5-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-sm text-slate-700";
+                if (btn5) btn5.className = "q5-opt text-left p-3 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium text-base text-slate-700";
             }
 
             // Clear inputs

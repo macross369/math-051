@@ -14,8 +14,8 @@
   <style>
     body {
       font-family: 'Noto Sans TC', sans-serif;
-      /* 新海誠風格：湛藍天空到夕照雲彩的柔和漸層 */
-      background: linear-[#e0f2fe] linear-gradient(135deg, #bae6fd 0%, #e0e7ff 45%, #fce7f3 100%);
+      /* 溫暖質感的米白色底色 */
+      background: #faf7f2;
       min-height: 100vh;
     }
 
@@ -111,7 +111,7 @@
 
   <main class="max-w-6xl mx-auto px-4">
     <!-- 標籤頁導覽 -->
-    <div class="flex flex-wrap border-b border-sky-200/80 mb-6 bg-white/40 p-1.5 rounded-2xl backdrop-blur-md gap-1">
+    <div class="flex flex-wrap border-b border-sky-200/80 mb-6 bg-white/60 p-1.5 rounded-2xl backdrop-blur-md gap-1">
       <button onclick="switchTab('tab1')" id="btn-tab1" class="tab-btn flex-1 min-w-[140px] py-3 px-4 text-center rounded-xl font-medium text-slate-600 hover:text-sky-600 transition-all shinkai-tab-active">
         <i class="fa-solid fa-pie-chart mr-2"></i>1. 異分母真分數加減
       </button>
@@ -122,7 +122,7 @@
         <i class="fa-solid fa-ruler-horizontal mr-2"></i>3. 分數數線與大小比較
       </button>
       <button onclick="switchTab('tab4')" id="btn-tab4" class="tab-btn flex-1 min-w-[140px] py-3 px-4 text-center rounded-xl font-medium text-slate-600 hover:text-sky-600 transition-all">
-        <i class="fa-solid fa-pen-to-square mr-2"></i>4. 歷程性自主評量
+        <i class="fa-solid fa-pen-to-square mr-2"></i>4. 隨堂測驗
       </button>
     </div>
 
@@ -170,11 +170,11 @@
               </div>
 
               <!-- 運算符號切換 -->
-              <div class="flex items-center justify-between bg-slate-100 p-2 rounded-xl mt-6">
+              <div class="flex items-center justify-between bg-slate-100/80 p-2 rounded-xl mt-6">
                 <span class="text-sm font-medium text-slate-700 pl-2">切換題型運算：</span>
                 <div class="flex gap-2">
                   <button onclick="setTab1Op('+')" id="btn-op-add" class="px-3 py-1.5 rounded-lg text-sm font-bold bg-sky-600 text-white shadow">加法 (+)</button>
-                  <button onclick="setTab1Op('-')" id="btn-op-sub" class="px-3 py-1.5 rounded-lg text-sm font-bold bg-white text-slate-600 hover:bg-slate-200">減法 (-)</button>
+                  <button onclick="setTab1Op('-')" id="btn-op-sub" class="px-3 py-1.5 rounded-lg text-sm font-bold bg-sky-50 text-slate-600 hover:bg-slate-200">減法 (-)</button>
                 </div>
               </div>
             </div>
@@ -183,16 +183,16 @@
 
         <!-- 即時圖形繪製區 -->
         <div class="lg:col-span-7 space-y-6">
-          <div class="shinkai-card p-6 rounded-2xl bg-[#1e1e2f] border-slate-700">
-            <h3 class="text-lg font-bold text-white mb-4 flex items-center justify-between border-b border-slate-600 pb-3">
-              <span><i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> 動態面積切割擴分視覺化</span>
+          <div class="shinkai-card p-6 rounded-2xl">
+            <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center justify-between border-b border-slate-200 pb-3">
+              <span><i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i> 動態面積切割擴分視覺化</span>
               <span id="t1-status-badge" class="text-xs bg-amber-500 text-black px-2.5 py-1 rounded-full font-bold">尚未通分</span>
             </h3>
 
             <!-- 圖示區：地塊 1 -->
             <div class="mb-5">
               <div class="flex justify-between items-center text-sm font-bold mb-2">
-                <span class="text-sky-300 flex items-center">分數 A (地瓜葉)：<span id="t1-frac1-equiv" class="ml-2"></span></span>
+                <span class="text-sky-700 flex items-center">分數 A (地瓜葉)：<span id="t1-frac1-equiv" class="ml-2"></span></span>
               </div>
               <div id="t1-grid1" class="w-full"></div>
             </div>
@@ -200,22 +200,22 @@
             <!-- 圖示區：地塊 2 -->
             <div class="mb-5">
               <div class="flex justify-between items-center text-sm font-bold mb-2">
-                <span class="text-pink-400 flex items-center">分數 B (相差量)：<span id="t1-frac2-equiv" class="ml-2"></span></span>
+                <span class="text-pink-600 flex items-center">分數 B (相差量)：<span id="t1-frac2-equiv" class="ml-2"></span></span>
               </div>
               <div id="t1-grid2" class="w-full"></div>
             </div>
 
             <!-- 合併/計算結果區 -->
-            <div class="pt-4 border-t border-slate-600">
+            <div class="pt-4 border-t border-slate-200">
               <div class="flex justify-between items-center text-sm font-bold mb-2">
-                <span class="text-emerald-400 flex items-center">通分後運算結果：</span>
-                <span id="t1-result-equiv" class="text-base text-emerald-300"></span>
+                <span class="text-emerald-700 flex items-center">通分後運算結果：</span>
+                <span id="t1-result-equiv" class="text-base text-emerald-700"></span>
               </div>
               <div id="t1-grid-result" class="w-full"></div>
             </div>
 
             <!-- 文字推導過程 -->
-            <div id="t1-step-explanation" class="mt-4 p-3 bg-slate-800/80 rounded-xl border border-slate-600 text-sm font-medium text-slate-300 leading-relaxed flex items-center">
+            <div id="t1-step-explanation" class="mt-4 p-3 bg-sky-50/80 rounded-xl border border-sky-100 text-sm font-medium text-slate-700 leading-relaxed flex items-center">
             </div>
           </div>
         </div>
@@ -240,7 +240,7 @@
             </p>
 
             <div class="space-y-4">
-              <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col items-center">
+              <div class="bg-sky-50/80 p-4 rounded-xl border border-sky-100 flex flex-col items-center">
                 <div class="text-xs font-bold text-slate-500 mb-2">題目算式：</div>
                 <div id="t2-formula-display" class="flex items-center justify-center text-xl font-bold gap-2 text-slate-800">
                   <!-- JS 會填入 -->
@@ -254,10 +254,10 @@
                   <button onclick="setTab2Step(1)" id="t2-btn-step1" class="py-2 px-3 rounded-xl border text-left text-sm font-medium transition-all bg-sky-500 text-white border-sky-600 shadow-sm">
                     步驟 1：進行通分 (公分母 10)
                   </button>
-                  <button onclick="setTab2Step(2)" id="t2-btn-step2" class="py-2 px-3 rounded-xl border text-left text-sm font-medium transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50">
+                  <button onclick="setTab2Step(2)" id="t2-btn-step2" class="py-2 px-3 rounded-xl border text-left text-sm font-medium transition-all bg-sky-50/70 text-slate-700 border-sky-200 hover:bg-sky-100/80">
                     步驟 2：分數不夠減，向整數借位拆解
                   </button>
-                  <button onclick="setTab2Step(3)" id="t2-btn-step3" class="py-2 px-3 rounded-xl border text-left text-sm font-medium transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50">
+                  <button onclick="setTab2Step(3)" id="t2-btn-step3" class="py-2 px-3 rounded-xl border text-left text-sm font-medium transition-all bg-sky-50/70 text-slate-700 border-sky-200 hover:bg-sky-100/80">
                     步驟 3：劃掉抵消 (整數減整數、分數減分數)
                   </button>
                 </div>
@@ -268,7 +268,7 @@
 
         <!-- 帶分數紙條視覺化 -->
         <div class="lg:col-span-7 space-y-6">
-          <div class="shinkai-card p-6 rounded-2xl bg-white/90">
+          <div class="shinkai-card p-6 rounded-2xl">
             <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center justify-between border-b border-slate-200 pb-3">
               <span><i class="fa-solid fa-tape text-sky-500"></i> 實體紙帶對齊與借位模型</span>
               <span id="t2-step-tag" class="text-xs bg-sky-100 text-sky-800 px-2.5 py-1 rounded-full font-bold">通分階段</span>
@@ -307,7 +307,7 @@
             </div>
 
             <!-- 說明步驟詳解卡 -->
-            <div class="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+            <div class="mt-4 p-4 bg-sky-50/80 rounded-xl border border-sky-100 space-y-2">
               <div class="text-sm font-bold text-slate-800 flex items-center gap-2">
                 <i class="fa-solid fa-lightbulb text-amber-500"></i> 計算解析：
               </div>
@@ -341,7 +341,7 @@
         </div>
 
         <!-- 數線區塊：未點選是/不是前即常駐顯示基礎數線 -->
-        <div class="bg-white/90 p-6 rounded-xl border border-slate-200 overflow-x-auto mb-6">
+        <div class="bg-sky-50/70 backdrop-blur-md p-6 rounded-xl border border-sky-100 overflow-x-auto mb-6">
           <div class="min-w-[650px]">
             <svg id="t3-svg-numberline" width="100%" height="160" viewBox="0 0 700 160" class="overflow-visible">
             </svg>
@@ -366,7 +366,7 @@
             <p class="mb-2">常有同學直覺認為「分子 4 在 2 和 5 之間，分母 5 在 3 和 7 之間」就以為數值在中間，這是<b>常見錯誤迷思</b>！</p>
             
             <!-- 動態顯示的通分演算過程 -->
-            <div id="t3-lcd-explanation" class="hidden mt-3 p-4 bg-white/80 rounded-xl border border-amber-300/60 shadow-inner">
+            <div id="t3-lcd-explanation" class="hidden mt-3 p-4 bg-amber-100/60 rounded-xl border border-amber-300/60 shadow-inner">
               <p class="font-bold text-amber-900 mb-2">正確通分驗證（公分母 105）：</p>
               <div class="space-y-1 text-slate-800 pl-2">
                 <div class="flex items-center gap-2">• <span id="t3-proof-f1"></span> = <span id="t3-proof-eq1"></span></div>
@@ -380,99 +380,99 @@
       </div>
     </section>
 
-    <!-- TAB 4: 歷程性自主評量 (保留結構) -->
+    <!-- TAB 4: 隨堂測驗 -->
     <section id="tab4" class="tab-content hidden">
       <div class="shinkai-card p-6 rounded-2xl">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-4 mb-6">
           <div>
             <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-              <i class="fa-solid fa-square-check text-emerald-500"></i> 歷程性自主評量 (5 題小測驗)
+              <i class="fa-solid fa-square-check text-emerald-500"></i> 隨堂測驗
             </h2>
           </div>
-          <div class="bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200 font-bold text-emerald-800 text-sm">
+          <div class="bg-emerald-100/80 px-4 py-2 rounded-xl border border-emerald-200 font-bold text-emerald-800 text-sm">
             目前得分：<span id="quiz-score-display" class="text-xl text-emerald-600">0</span> / 100
           </div>
         </div>
         <form id="quiz-form" class="space-y-6" onsubmit="event.preventDefault(); checkQuiz();">
           
           <!-- 題目 1 -->
-          <div class="p-5 rounded-xl bg-white/80 border border-slate-200 space-y-3 shadow-sm hover:shadow-md transition">
-             <div class="font-bold text-slate-800 text-base flex items-center flex-wrap gap-2 leading-loose border-b border-slate-100 pb-2">
+          <div class="p-5 rounded-xl bg-sky-50/60 backdrop-blur-sm border border-sky-100 space-y-3 shadow-sm hover:shadow-md transition">
+             <div class="font-bold text-slate-800 text-base flex items-center flex-wrap gap-2 leading-loose border-b border-sky-100 pb-2">
               <span class="bg-sky-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shrink-0 mt-0.5 mr-1">1</span>
               計算 <span id="q1-f1"></span> <i class="fa-solid fa-plus text-xs text-slate-400 mx-1"></i> <span id="q1-f2"></span> 時，通分後最小公分母為何？
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pl-8 pt-2">
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border hover:bg-sky-50 cursor-pointer transition"><input type="radio" name="q1" value="15"> 15</label>
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border hover:bg-sky-50 cursor-pointer transition"><input type="radio" name="q1" value="18"> 18</label>
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border hover:bg-sky-50 cursor-pointer transition"><input type="radio" name="q1" value="36"> 36</label>
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border hover:bg-sky-50 cursor-pointer transition"><input type="radio" name="q1" value="54"> 54</label>
+              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-sky-100 bg-white/70 hover:bg-sky-100/80 cursor-pointer transition"><input type="radio" name="q1" value="15"> 15</label>
+              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-sky-100 bg-white/70 hover:bg-sky-100/80 cursor-pointer transition"><input type="radio" name="q1" value="18"> 18</label>
+              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-sky-100 bg-white/70 hover:bg-sky-100/80 cursor-pointer transition"><input type="radio" name="q1" value="36"> 36</label>
+              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-sky-100 bg-white/70 hover:bg-sky-100/80 cursor-pointer transition"><input type="radio" name="q1" value="54"> 54</label>
             </div>
             <div id="q1-feedback" class="hidden text-sm p-3 rounded-xl font-medium pl-8 mt-2"></div>
           </div>
 
           <!-- 題目 2 -->
-          <div class="p-5 rounded-xl bg-white/80 border border-slate-200 space-y-3 shadow-sm hover:shadow-md transition">
-             <div class="font-bold text-slate-800 text-base flex items-center flex-wrap gap-2 leading-loose border-b border-slate-100 pb-2">
+          <div class="p-5 rounded-xl bg-sky-50/60 backdrop-blur-sm border border-sky-100 space-y-3 shadow-sm hover:shadow-md transition">
+             <div class="font-bold text-slate-800 text-base flex items-center flex-wrap gap-2 leading-loose border-b border-sky-100 pb-2">
               <span class="bg-sky-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shrink-0 mt-0.5 mr-1">2</span>
               算算看： <span id="q2-f1"></span> <i class="fa-solid fa-plus text-xs text-slate-400 mx-1"></i> <span id="q2-f2"></span> <i class="fa-solid fa-equals text-xs text-slate-400 mx-1"></i> ？
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pl-8 pt-2">
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border hover:bg-sky-50 cursor-pointer transition"><input type="radio" name="q2" value="opt1"><span id="q2-opt1"></span></label>
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border hover:bg-sky-50 cursor-pointer transition"><input type="radio" name="q2" value="opt2"><span id="q2-opt2"></span></label>
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border hover:bg-sky-50 cursor-pointer transition"><input type="radio" name="q2" value="opt3"><span id="q2-opt3"></span></label>
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border hover:bg-sky-50 cursor-pointer transition"><input type="radio" name="q2" value="opt4"><span id="q2-opt4"></span></label>
+              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-sky-100 bg-white/70 hover:bg-sky-100/80 cursor-pointer transition"><input type="radio" name="q2" value="opt1"><span id="q2-opt1"></span></label>
+              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-sky-100 bg-white/70 hover:bg-sky-100/80 cursor-pointer transition"><input type="radio" name="q2" value="opt2"><span id="q2-opt2"></span></label>
+              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-sky-100 bg-white/70 hover:bg-sky-100/80 cursor-pointer transition"><input type="radio" name="q2" value="opt3"><span id="q2-opt3"></span></label>
+              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-sky-100 bg-white/70 hover:bg-sky-100/80 cursor-pointer transition"><input type="radio" name="q2" value="opt4"><span id="q2-opt4"></span></label>
             </div>
             <div id="q2-feedback" class="hidden text-sm p-3 rounded-xl font-medium pl-8 mt-2"></div>
           </div>
 
           <!-- 題目 3 -->
-          <div class="p-5 rounded-xl bg-white/80 border border-slate-200 space-y-3 shadow-sm hover:shadow-md transition">
-             <div class="font-bold text-slate-800 text-base flex items-center flex-wrap gap-2 leading-loose border-b border-slate-100 pb-2">
+          <div class="p-5 rounded-xl bg-sky-50/60 backdrop-blur-sm border border-sky-100 space-y-3 shadow-sm hover:shadow-md transition">
+             <div class="font-bold text-slate-800 text-base flex items-center flex-wrap gap-2 leading-loose border-b border-sky-100 pb-2">
               <span class="bg-sky-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shrink-0 mt-0.5 mr-1">3</span>
               帶分數借位減法： <span id="q3-f1"></span> <i class="fa-solid fa-minus text-xs text-slate-400 mx-1"></i> <span id="q3-f2"></span> <i class="fa-solid fa-equals text-xs text-slate-400 mx-1"></i> ？
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pl-8 pt-2">
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border hover:bg-sky-50 cursor-pointer transition"><input type="radio" name="q3" value="opt1"><span id="q3-opt1"></span></label>
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border hover:bg-sky-50 cursor-pointer transition"><input type="radio" name="q3" value="opt2"><span id="q3-opt2"></span></label>
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border hover:bg-sky-50 cursor-pointer transition"><input type="radio" name="q3" value="opt3"><span id="q3-opt3"></span></label>
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border hover:bg-sky-50 cursor-pointer transition"><input type="radio" name="q3" value="opt4"><span id="q3-opt4"></span></label>
+              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-sky-100 bg-white/70 hover:bg-sky-100/80 cursor-pointer transition"><input type="radio" name="q3" value="opt1"><span id="q3-opt1"></span></label>
+              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-sky-100 bg-white/70 hover:bg-sky-100/80 cursor-pointer transition"><input type="radio" name="q3" value="opt2"><span id="q3-opt2"></span></label>
+              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-sky-100 bg-white/70 hover:bg-sky-100/80 cursor-pointer transition"><input type="radio" name="q3" value="opt3"><span id="q3-opt3"></span></label>
+              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-sky-100 bg-white/70 hover:bg-sky-100/80 cursor-pointer transition"><input type="radio" name="q3" value="opt4"><span id="q3-opt4"></span></label>
             </div>
             <div id="q3-feedback" class="hidden text-sm p-3 rounded-xl font-medium pl-8 mt-2"></div>
           </div>
 
           <!-- 題目 4 -->
-          <div class="p-5 rounded-xl bg-white/80 border border-slate-200 space-y-3 shadow-sm hover:shadow-md transition">
-             <div class="font-bold text-slate-800 text-base flex items-center flex-wrap gap-2 leading-loose border-b border-slate-100 pb-2">
+          <div class="p-5 rounded-xl bg-sky-50/60 backdrop-blur-sm border border-sky-100 space-y-3 shadow-sm hover:shadow-md transition">
+             <div class="font-bold text-slate-800 text-base flex items-center flex-wrap gap-2 leading-loose border-b border-sky-100 pb-2">
               <span class="bg-sky-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shrink-0 mt-0.5 mr-1">4</span>
               大小比較： <span id="q4-f1"></span> 與 <span id="q4-f2"></span> 哪一個分數比較大？
             </div>
             <div class="grid grid-cols-2 gap-3 pl-8 pt-2">
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border hover:bg-sky-50 cursor-pointer transition"><input type="radio" name="q4" value="opt1"><span id="q4-opt1"></span></label>
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border hover:bg-sky-50 cursor-pointer transition"><input type="radio" name="q4" value="opt2"><span id="q4-opt2"></span></label>
+              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-sky-100 bg-white/70 hover:bg-sky-100/80 cursor-pointer transition"><input type="radio" name="q4" value="opt1"><span id="q4-opt1"></span></label>
+              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-sky-100 bg-white/70 hover:bg-sky-100/80 cursor-pointer transition"><input type="radio" name="q4" value="opt2"><span id="q4-opt2"></span></label>
             </div>
             <div id="q4-feedback" class="hidden text-sm p-3 rounded-xl font-medium pl-8 mt-2"></div>
           </div>
 
           <!-- 題目 5 -->
-          <div class="p-5 rounded-xl bg-white/80 border border-slate-200 space-y-3 shadow-sm hover:shadow-md transition">
-             <div class="font-bold text-slate-800 text-base flex items-center flex-wrap gap-2 leading-loose border-b border-slate-100 pb-2">
+          <div class="p-5 rounded-xl bg-sky-50/60 backdrop-blur-sm border border-sky-100 space-y-3 shadow-sm hover:shadow-md transition">
+             <div class="font-bold text-slate-800 text-base flex items-center flex-wrap gap-2 leading-loose border-b border-sky-100 pb-2">
               <span class="bg-sky-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shrink-0 mt-0.5 mr-1">5</span>
               應用題：哥哥喝了 <span id="q5-f1"></span> 公升的果汁，妹妹喝了 <span id="q5-f2"></span> 公升的果汁，兩人共喝了多少公升？
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pl-8 pt-2">
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border hover:bg-sky-50 cursor-pointer transition"><input type="radio" name="q5" value="opt1"><span id="q5-opt1"></span></label>
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border hover:bg-sky-50 cursor-pointer transition"><input type="radio" name="q5" value="opt2"><span id="q5-opt2"></span></label>
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border hover:bg-sky-50 cursor-pointer transition"><input type="radio" name="q5" value="opt3"><span id="q5-opt3"></span></label>
-              <label class="flex items-center gap-2 p-2.5 rounded-lg border hover:bg-sky-50 cursor-pointer transition"><input type="radio" name="q5" value="opt4"><span id="q5-opt4"></span></label>
+              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-sky-100 bg-white/70 hover:bg-sky-100/80 cursor-pointer transition"><input type="radio" name="q5" value="opt1"><span id="q5-opt1"></span></label>
+              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-sky-100 bg-white/70 hover:bg-sky-100/80 cursor-pointer transition"><input type="radio" name="q5" value="opt2"><span id="q5-opt2"></span></label>
+              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-sky-100 bg-white/70 hover:bg-sky-100/80 cursor-pointer transition"><input type="radio" name="q5" value="opt3"><span id="q5-opt3"></span></label>
+              <label class="flex items-center gap-2 p-2.5 rounded-lg border border-sky-100 bg-white/70 hover:bg-sky-100/80 cursor-pointer transition"><input type="radio" name="q5" value="opt4"><span id="q5-opt4"></span></label>
             </div>
             <div id="q5-feedback" class="hidden text-sm p-3 rounded-xl font-medium pl-8 mt-2"></div>
           </div>
           
-          <div class="flex justify-center gap-4 pt-4">
-            <button type="submit" class="shinkai-btn-primary px-8 py-3 rounded-2xl text-white font-bold text-lg flex items-center gap-2">
+          <div class="flex flex-wrap justify-center items-center gap-4 pt-4">
+            <button type="submit" class="shinkai-btn-primary w-44 sm:w-48 py-3 rounded-2xl text-white font-bold text-lg flex items-center justify-center gap-2 shadow-md">
               <i class="fa-solid fa-paper-plane"></i> 提交答案
             </button>
-            <button type="button" onclick="resetQuiz()" class="bg-slate-500 hover:bg-slate-600 px-8 py-3 rounded-2xl text-white font-bold text-lg flex items-center gap-2 transition shadow">
+            <button type="button" onclick="resetQuiz()" class="bg-slate-500 hover:bg-slate-600 w-44 sm:w-48 py-3 rounded-2xl text-white font-bold text-lg flex items-center justify-center gap-2 transition shadow-md">
               <i class="fa-solid fa-rotate-left"></i> 重新測驗
             </button>
           </div>
@@ -572,24 +572,88 @@
       const container = document.getElementById(containerId);
       container.innerHTML = '';
       // 外部大框框
-      container.className = `flex w-full h-10 border-2 border-slate-500 rounded-md overflow-hidden shadow-sm bg-[#2a2a3b]`;
+      container.className = `flex w-full h-10 border-2 border-slate-400 rounded-md overflow-hidden shadow-sm bg-slate-100`;
 
       for (let i = 0; i < origDen; i++) {
         const block = document.createElement('div');
         let bg = i < origNum ? colorClass : 'bg-transparent';
         // 每個原始等分的區塊，使用實線分隔
-        block.className = `flex-1 flex border-r-2 border-slate-500 last:border-r-0 ${bg} relative`;
+        block.className = `flex-1 flex border-r-2 border-slate-400 last:border-r-0 ${bg} relative`;
 
         // 如果擴分 multiplier > 1，在原區塊內繪製細分虛線
         if (mult > 1) {
           for (let j = 0; j < mult; j++) {
             const subDiv = document.createElement('div');
             // 內部分割線
-            subDiv.className = `flex-1 border-r border-dashed border-white/40 last:border-r-0`;
+            subDiv.className = `flex-1 border-r border-dashed border-slate-600/40 last:border-r-0`;
             block.appendChild(subDiv);
           }
         }
         container.appendChild(block);
+      }
+    }
+
+    function updateTab1() {
+      const f1 = { num: 5, den: 6 };
+      const f2 = { num: 1, den: 9 };
+      const cdIdx = parseInt(document.getElementById('t1-common-denom').value);
+      
+      const mults = [1, 3, 6, 9]; 
+      const mults2 = [1, 2, 4, 6]; 
+      const mult = mults[cdIdx - 1];
+      const mult2 = mults2[cdIdx - 1];
+
+      const targetDen = cdIdx === 1 ? 6 : 6 * mult;
+      const targetDen2 = cdIdx === 1 ? 9 : 9 * mult2;
+
+      document.getElementById('t1-f1-display').innerHTML = makeFractionHTML(f1.num, f1.den);
+      document.getElementById('t1-f2-display').innerHTML = makeFractionHTML(f2.num, f2.den);
+      document.getElementById('t1-op-display').innerHTML = t1Op === '+' ? '<i class="fa-solid fa-plus mx-2"></i>' : '<i class="fa-solid fa-minus mx-2"></i>';
+
+      const cdValLabel = document.getElementById('t1-cd-val');
+      const badge = document.getElementById('t1-status-badge');
+
+      if (cdIdx === 1) {
+        cdValLabel.innerText = "尚未通分 (原分母 6 與 9)";
+        badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> 尚未通分';
+        badge.className = "text-xs bg-amber-500 text-black px-2.5 py-1 rounded-full font-bold flex items-center gap-1";
+      } else {
+        cdValLabel.innerText = `通分分母 = ${targetDen}`;
+        badge.innerHTML = `<i class="fa-solid fa-check"></i> 成功細分為 ${targetDen} 等份`;
+        badge.className = "text-xs bg-emerald-500 text-black px-2.5 py-1 rounded-full font-bold flex items-center gap-1";
+      }
+
+      const eqNum1 = f1.num * mult;
+      const eqDen1 = f1.den * mult;
+      const eqNum2 = f2.num * mult2;
+      const eqDen2 = f2.den * mult2;
+
+      let f1Text = cdIdx === 1 ? `6等分中的 5份` : `${eqDen1}等分中的 ${eqNum1}份 (${makeFractionHTML(f1.num, f1.den)} = ${makeFractionHTML(eqNum1, eqDen1)})`;
+      let f2Text = cdIdx === 1 ? `9等分中的 1份` : `${eqDen2}等分中的 ${eqNum2}份 (${makeFractionHTML(f2.num, f2.den)} = ${makeFractionHTML(eqNum2, eqDen2)})`;
+      
+      document.getElementById('t1-frac1-equiv').innerHTML = f1Text;
+      document.getElementById('t1-frac2-equiv').innerHTML = f2Text;
+
+      // 使用新版渲染法
+      renderSubdividedGrid('t1-grid1', f1.num, f1.den, mult, 'bg-sky-400');
+      renderSubdividedGrid('t1-grid2', f2.num, f2.den, mult2, 'bg-pink-400');
+
+      const resNum = t1Op === '+' ? (eqNum1 + eqNum2) : (eqNum1 - eqNum2);
+      const resDen = eqDen1;
+
+      if (cdIdx === 1) {
+        document.getElementById('t1-result-equiv').innerHTML = "單位不同，無法直接運算";
+        document.getElementById('t1-grid-result').innerHTML = "<div class='text-slate-500 text-sm mt-2'>請拖動滑桿尋找公倍數，將兩條分數棒裁切成相同大小的小格子。</div>";
+        document.getElementById('t1-step-explanation').innerHTML = "<i class='fa-solid fa-circle-info text-sky-500 mr-2 text-lg'></i> 請移動滑桿選擇公倍數，將兩個分數擴分為相同分母。";
+      } else {
+        document.getElementById('t1-result-equiv').innerHTML = `${makeFractionHTML(eqNum1, eqDen1)} ${t1Op === '+' ? '+' : '-'} ${makeFractionHTML(eqNum2, eqDen2)} = ${makeFractionHTML(resNum, resDen)}`;
+        // 結果列為了展現總數，將原始區塊視為1個大單位直接劃分
+        renderSubdividedGrid('t1-grid-result', resNum, resDen, 1, 'bg-emerald-400');
+        
+        let stepTxt = `<div><b>計算解說：</b><br>1. 6 和 9 的選擇公倍數 <b>${eqDen1}</b> 進行通分切割。<br>`;
+        stepTxt += `2. ${makeFractionHTML(f1.num, f1.den)} 擴分為 ${makeFractionHTML(eqNum1, eqDen1)}，${makeFractionHTML(f2.num, f2.den)} 擴分為 ${makeFractionHTML(eqNum2, eqDen2)}。<br>`;
+        stepTxt += `3. 單位(格子大小)相同後，分子直接${t1Op === '+' ? '相加' : '相減'}：${eqNum1} ${t1Op === '+' ? '+' : '-'} ${eqNum2} = <b>${resNum}</b>。</div>`;
+        document.getElementById('t1-step-explanation').innerHTML = `<i class='fa-solid fa-lightbulb text-amber-500 mr-3 text-2xl'></i> ${stepTxt}`;
       }
     }
 

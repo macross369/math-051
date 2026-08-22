@@ -445,11 +445,14 @@
         </div>
 
         <!-- 底部功能按鈕：提交答案與重新測驗 -->
-        <div class="mt-8 pt-4 border-t border-slate-200/80 flex flex-wrap gap-4 justify-center">
-          <button onclick="submitQuiz()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2 text-base cursor-pointer">
+        <div class="mt-8 pt-4 border-t border-slate-200/80 flex flex-wrap gap-4 justify-center items-center">
+          <!-- 提交答案 (置左，大小相等，配色鮮明) -->
+          <button onclick="submitQuiz()" class="w-44 md:w-48 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 text-base cursor-pointer">
             <i class="fa-solid fa-paper-plane"></i> 提交答案
           </button>
-          <button onclick="resetQuiz()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3.5 px-6 rounded-xl shadow transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2 text-base cursor-pointer">
+          
+          <!-- 重新測驗 (置右，大小相等，配色優雅) -->
+          <button onclick="resetQuiz()" class="w-44 md:w-48 bg-slate-600 hover:bg-slate-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 text-base cursor-pointer">
             <i class="fa-solid fa-rotate-right"></i> 重新測驗
           </button>
         </div>

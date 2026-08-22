@@ -100,7 +100,7 @@
                     🧊 3D 形體探索與大比拼
                 </button>
                 <button id="tabBtn2" onclick="switchTab('quiz')" class="tab-btn px-5 py-2.5 rounded-xl font-bold text-sm sm:text-base border border-white/20 glass-card text-slate-200 flex items-center gap-2">
-                    📝 隨堂自我挑戰測驗
+                    📝 隨堂測驗
                 </button>
             </div>
         </header>
@@ -337,7 +337,7 @@
                 <div class="flex items-center justify-between border-b border-white/10 pb-4">
                     <div>
                         <h2 class="text-2xl font-bold text-yellow-200 flex items-center gap-2">
-                            📝 隨堂自我挑戰測驗
+                            📝 隨堂測驗
                         </h2>
                         <p class="text-xs text-slate-300 mt-1">一次完成 5 題測驗，點擊下方「提交答案」進行評分（滿分 100 分）</p>
                     </div>
@@ -359,12 +359,12 @@
                 </div>
 
                 <!-- Bottom Action Buttons -->
-                <div class="flex flex-wrap sm:flex-nowrap justify-end items-center gap-4 pt-6 border-t border-white/10">
-                    <button id="btnResetQuiz" onclick="resetQuiz()" class="w-full sm:w-auto px-6 py-2.5 font-bold rounded-xl glass-card-sm hover:bg-white/20 text-slate-200 border border-white/20 transition text-sm flex items-center justify-center gap-2">
-                        🔄 重新測驗
-                    </button>
-                    <button id="btnSubmitQuiz" onclick="submitQuiz()" class="w-full sm:w-auto px-8 py-2.5 font-bold rounded-xl bg-gradient-to-r from-pink-500 to-indigo-600 hover:from-pink-400 hover:to-indigo-500 text-white shadow-lg transition text-sm flex items-center justify-center gap-2">
+                <div class="flex items-center justify-center gap-4 pt-6 border-t border-white/10">
+                    <button id="btnSubmitQuiz" onclick="submitQuiz()" class="w-44 py-2.5 font-bold rounded-xl bg-gradient-to-r from-pink-500 to-indigo-600 hover:from-pink-400 hover:to-indigo-500 text-white shadow-lg transition text-sm flex items-center justify-center gap-2">
                         📥 提交答案
+                    </button>
+                    <button id="btnResetQuiz" onclick="resetQuiz()" class="w-44 py-2.5 font-bold rounded-xl glass-card-sm hover:bg-white/20 text-slate-200 border border-white/20 transition text-sm flex items-center justify-center gap-2">
+                        🔄 重新測驗
                     </button>
                 </div>
             </div>

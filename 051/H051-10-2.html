@@ -133,7 +133,7 @@
                 <i class="fa-solid fa-compass-drafting"></i> 圓心角量測與計算
             </button>
             <button onclick="switchTab('tab3')" id="btn-tab3" class="tab-btn px-5 py-3 rounded-2xl font-bold transition-all shadow-sm flex items-center gap-2 bg-white/70 text-slate-700 hover:bg-white">
-                <i class="fa-solid fa-pen-to-square"></i> 自我檢測
+                <i class="fa-solid fa-pen-to-square"></i> 隨堂測驗
             </button>
         </nav>
 
@@ -377,13 +377,13 @@
             </div>
         </section>
 
-        <!-- ==================== 主題三：隨堂小試身手 (5題) ==================== -->
+        <!-- ==================== 主題三：隨堂測驗 (5題) ==================== -->
         <section id="tab3" class="tab-content hidden">
             <div class="shinkai-card rounded-3xl p-6 mb-6">
                 <div class="flex flex-col md:flex-row justify-between items-center pb-4 border-b border-slate-200/60 mb-6 gap-2">
                     <div>
                         <h2 class="text-2xl font-black text-indigo-950 flex items-center gap-2">
-                            <i class="fa-solid fa-clipboard-question text-indigo-600"></i> 圓心角概念自我檢測
+                            <i class="fa-solid fa-clipboard-question text-indigo-600"></i> 隨堂測驗
                         </h2>
                         <p class="text-xs text-slate-500 mt-1">請完成以下 5 道題目，點擊提交即可獲得即時解析與成績！</p>
                     </div>
@@ -475,12 +475,12 @@
                         </div>
                         <div id="feedback-q5" class="hidden text-xs p-3 rounded-xl mt-2 font-medium"></div>
                     </div>
-                    <div class="flex flex-wrap justify-center gap-4 pt-4">
-                        <button type="submit" class="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg transition hover:scale-105 active:scale-95 text-base">
-                            <i class="fa-solid fa-paper-plane mr-1"></i> 提交答案
+                    <div class="flex flex-wrap justify-center items-center gap-4 pt-4">
+                        <button type="submit" class="w-44 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg transition hover:scale-105 active:scale-95 text-base flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> 提交答案
                         </button>
-                        <button type="button" onclick="resetQuiz()" class="px-8 py-3.5 bg-slate-500 hover:bg-slate-600 text-white font-bold rounded-2xl shadow-lg transition hover:scale-105 active:scale-95 text-base">
-                            <i class="fa-solid fa-rotate-left mr-1"></i> 重新測驗
+                        <button type="button" onclick="resetQuiz()" class="w-44 py-3.5 bg-slate-500 hover:bg-slate-600 text-white font-bold rounded-2xl shadow-lg transition hover:scale-105 active:scale-95 text-base flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-rotate-left"></i> 重新測驗
                         </button>
                     </div>
                 </form>

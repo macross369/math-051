@@ -115,7 +115,7 @@
                 <i class="fa-solid fa-scissors"></i> 2. 球體切面與切位置探究
             </button>
             <button id="tab3-btn" onclick="switchTab('tab3')" class="tab-btn bg-white/80 text-slate-700 hover:bg-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center gap-2">
-                <i class="fa-solid fa-list-check"></i> 3. 隨堂歷程性評量
+                <i class="fa-solid fa-list-check"></i> 3. 隨堂測驗
             </button>
         </div>
 
@@ -298,7 +298,7 @@
                 <div class="flex justify-between items-center pb-4 mb-6 border-b border-slate-200">
                     <div>
                         <h2 class="text-xl font-bold text-indigo-950 flex items-center gap-2">
-                            <i class="fa-solid fa-graduation-cap text-indigo-600"></i> 隨堂小測驗：學習概念評量
+                            <i class="fa-solid fa-graduation-cap text-indigo-600"></i> 隨堂測驗
                         </h2>
                         <p class="text-xs text-slate-500 mt-1">共 5 題，請選出正確答案，即時獲得反饋並進行修正！</p>
                     </div>
@@ -314,13 +314,15 @@
                     <!-- Dynamic Questions injected via JS -->
                 </div>
 
-                <div class="mt-8 pt-4 border-t border-slate-200 flex justify-between items-center">
-                    <button onclick="resetQuiz()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">
-                        <i class="fa-solid fa-rotate-left mr-1"></i> 重新作答
-                    </button>
-                    <button onclick="submitQuiz()" class="shinkai-btn px-6 py-2.5 rounded-xl text-xs font-bold">
-                        <i class="fa-solid fa-paper-plane mr-1"></i> 提交所有答案
-                    </button>
+                <div class="mt-8 pt-4 border-t border-slate-200 flex justify-center items-center">
+                    <div class="grid grid-cols-2 gap-4 w-full max-w-md">
+                        <button onclick="submitQuiz()" class="shinkai-btn py-2.5 rounded-xl text-xs font-bold w-full flex items-center justify-center gap-1 shadow-md">
+                            <i class="fa-solid fa-paper-plane"></i> 提交答案
+                        </button>
+                        <button onclick="resetQuiz()" class="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition w-full flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-rotate-left"></i> 重新測驗
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>

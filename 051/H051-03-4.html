@@ -134,7 +134,7 @@
           <i class="fa-solid fa-hand-pointer"></i> 模組二：多邊形連連看配對
         </button>
         <button onclick="switchTab('quiz')" id="btn-quiz" class="tab-btn px-5 py-2.5 rounded-2xl font-bold text-sm transition shadow-md bg-white text-gray-700 hover:bg-sky-50 flex items-center gap-2">
-          <i class="fa-solid fa-clipboard-question"></i> 模組三：自我挑戰
+          <i class="fa-solid fa-clipboard-question"></i> 隨堂測驗
         </button>
       </nav>
     </header>
@@ -396,7 +396,7 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b pb-4 gap-2">
           <div>
             <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-              <i class="fa-solid fa-clipboard-question text-sky-600"></i> 模組三：自我挑戰
+              <i class="fa-solid fa-clipboard-question text-sky-600"></i> 隨堂測驗
             </h2>
             <p class="text-sm text-gray-600 mt-1">
               完成下列 5 題觀念挑戰題，檢視自己是否掌握了多邊形的關鍵特徵！
@@ -486,11 +486,11 @@
           </div>
         </div>
 
-        <div class="mt-8 text-center flex flex-col sm:flex-row justify-center gap-4">
-          <button id="submit-btn" onclick="submitQuiz()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-md transition inline-flex items-center justify-center gap-2">
+        <div class="mt-8 flex flex-row justify-center items-center gap-4">
+          <button id="submit-btn" onclick="submitQuiz()" class="w-40 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-md transition inline-flex items-center justify-center gap-2">
             <i class="fa-solid fa-paper-plane"></i> 提交答案
           </button>
-          <button id="reset-btn" onclick="resetQuiz()" class="px-6 py-3 bg-slate-500 hover:bg-slate-600 text-white font-bold rounded-2xl shadow-md transition inline-flex items-center justify-center gap-2">
+          <button id="reset-btn" onclick="resetQuiz()" class="w-40 py-3 bg-slate-500 hover:bg-slate-600 text-white font-bold rounded-2xl shadow-md transition inline-flex items-center justify-center gap-2">
             <i class="fa-solid fa-rotate-right"></i> 重新測驗
           </button>
         </div>

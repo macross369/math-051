@@ -120,7 +120,7 @@
                     <i class="fa-solid fa-sliders"></i> 3. 面積動態實驗室
                 </button>
                 <button onclick="switchTab('tab4')" id="btn-tab4" class="tab-btn px-4 py-2.5 bg-white/70 text-indigo-900 hover:bg-white rounded-2xl font-bold text-sm md:text-base transition-all duration-300 flex items-center gap-2">
-                    <i class="fa-solid fa-graduation-cap"></i> 4. 歷程評量
+                    <i class="fa-solid fa-graduation-cap"></i> 4. 隨堂測驗
                 </button>
             </div>
         </div>
@@ -402,13 +402,13 @@
             </div>
         </section>
 
-        <!-- TAB 4: 歷程評量 -->
+        <!-- TAB 4: 隨堂測驗 -->
         <section id="tab4" class="tab-content hidden">
             <div class="shinkai-glass rounded-3xl p-6 md:p-8">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-4 border-b border-indigo-100 gap-4">
                     <div>
                         <h3 class="text-xl md:text-2xl font-black text-indigo-950 flex items-center gap-2">
-                            <i class="fa-solid fa-clipboard-question text-indigo-600"></i> 歷程評量
+                            <i class="fa-solid fa-clipboard-question text-indigo-600"></i> 隨堂測驗
                         </h3>
                         <p class="text-xs md:text-sm text-slate-600 mt-1">請完成以下 5 題測驗，按下「提交答案」後即可獲得即時得分與詳細解析！</p>
                     </div>
@@ -558,11 +558,11 @@
                     </div>
 
                     <!-- Action Buttons at Bottom -->
-                    <div class="flex flex-wrap justify-center gap-4 pt-4 border-t border-indigo-100">
-                        <button onclick="submitQuiz()" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-2xl shadow-lg transition transform hover:-translate-y-0.5 flex items-center gap-2">
+                    <div class="flex justify-center items-center gap-4 pt-4 border-t border-indigo-100">
+                        <button onclick="submitQuiz()" class="w-44 sm:w-48 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-2xl shadow-lg transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
                             <i class="fa-solid fa-paper-plane"></i> 提交答案
                         </button>
-                        <button onclick="resetQuiz()" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl border border-slate-300 transition flex items-center gap-2">
+                        <button onclick="resetQuiz()" class="w-44 sm:w-48 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl border border-slate-300 transition flex items-center justify-center gap-2">
                             <i class="fa-solid fa-rotate-right"></i> 重新測驗
                         </button>
                     </div>
