@@ -255,7 +255,7 @@
               <button onclick="setAngleFromPreset(90)" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-sky-50 hover:border-sky-300 text-slate-700 text-sm font-bold shadow-sm transition flex-1 mx-1">90°</button>
               <button onclick="setAngleFromPreset(180)" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-sky-50 hover:border-sky-300 text-slate-700 text-sm font-bold shadow-sm transition flex-1 mx-1">180°</button>
               <button onclick="setAngleFromPreset(240)" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-sky-50 hover:border-sky-300 text-slate-700 text-sm font-bold shadow-sm transition flex-1 mx-1">240°</button>
-              <button onclick="setAngleFromPreset(360)" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-sky-50 hover:border-sky-300 text-slate-700 text-sm font-bold shadow-sm transition flex-1 mx-1">360°</button>
+              <button onclick="setAngleFromPreset(359)" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-sky-50 hover:border-sky-300 text-slate-700 text-sm font-bold shadow-sm transition flex-1 mx-1">359°</button>
             </div>
           </div>
 
@@ -827,13 +827,15 @@
 
     if (angleRange) {
       angleRange.addEventListener('input', (e) => {
-        setAngleFromPreset(parseInt(e.target.value), false);
+        let val = parseInt(e.target.value);
+        if (val > 359) val = 359;
+        setAngleFromPreset(val, false);
       });
     }
 
     function setAngleFromPreset(val, updateSlider = true) {
       currentAngle = val;
-      if (updateSlider) angleRange.value = val;
+      if (updateSlider && angleRange) angleRange.value = val;
       angleValue.textContent = currentAngle + '°';
       fractionAngleText.textContent = currentAngle + '°';
       updateFanGraphics();
@@ -846,31 +848,26 @@
       
       if(infoAngleText) infoAngleText.textContent = deg + '°';
 
-      if (deg === 360) {
-        currentFractionDisplay.innerHTML = '<span class="font-bold">1 (整圓)</span>';
-        if (infoFractionDisplay) infoFractionDisplay.innerHTML = '<span class="font-bold text-3xl">1</span> <span class="text-lg font-bold text-emerald-700 mt-2">圓</span>';
-      } else {
-        const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
-        const g = gcd(deg, 360);
-        const num = deg / g;
-        const den = 360 / g;
-        currentFractionDisplay.innerHTML = `
-          <span class="fraction-body">
-            <span class="numerator">${num}</span>
-            <span class="denominator">${den}</span>
-          </span>
-        `;
-        if (infoFractionDisplay) {
-          infoFractionDisplay.innerHTML = `
-            <span class="math-fraction text-3xl">
-              <span class="fraction-body">
-                <span class="numerator border-b-[3px] border-emerald-600 pb-0.5">${num}</span>
-                <span class="denominator pt-0.5">${den}</span>
-              </span>
+      const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+      const g = gcd(deg, 360);
+      const num = deg / g;
+      const den = 360 / g;
+      currentFractionDisplay.innerHTML = `
+        <span class="fraction-body">
+          <span class="numerator">${num}</span>
+          <span class="denominator">${den}</span>
+        </span>
+      `;
+      if (infoFractionDisplay) {
+        infoFractionDisplay.innerHTML = `
+          <span class="math-fraction text-3xl">
+            <span class="fraction-body">
+              <span class="numerator border-b-[3px] border-emerald-600 pb-0.5">${num}</span>
+              <span class="denominator pt-0.5">${den}</span>
             </span>
-            <span class="text-xl font-bold text-emerald-700 mt-2 ml-1 block">圓</span>
-          `;
-        }
+          </span>
+          <span class="text-xl font-bold text-emerald-700 mt-2 ml-1 block">圓</span>
+        `;
       }
     }
 
@@ -914,31 +911,26 @@
 
       const largeArcFlag = currentAngle > 180 ? 1 : 0;
 
-      const sectorPath = currentAngle === 360
-        ? `M ${cx - r} ${cy} A ${r} ${r} 0 1 0 ${cx + r} ${cy} A ${r} ${r} 0 1 0 ${cx - r} ${cy}`
-        : `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
+      const sectorPath = `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
 
       const fanSector = document.getElementById('fanSector');
       if (fanSector) fanSector.setAttribute('d', sectorPath);
 
-      // 套用模式樣式 (摺扇 / 幾何)
       const fanBones = document.getElementById('fanBones');
       const labelVertex = document.getElementById('labelVertex');
       
       if (currentDisplayMode === 'fan') {
-        // 摺扇模式外觀
-        fanSector.setAttribute('fill', '#fef08a'); // 金黃色扇面
-        fanSector.setAttribute('stroke', '#ca8a04'); // 橘黃色邊框
+        fanSector.setAttribute('fill', '#fef08a');
+        fanSector.setAttribute('stroke', '#ca8a04');
         fanSector.setAttribute('stroke-width', '3');
         labelVertex.textContent = "扇釘 (頂點)";
         labelVertex.setAttribute('fill', '#78350f');
         
-        // 動態生成扇骨
+        // 清空並重新繪製扇骨，嚴格限制只在角度區間內生成
         fanBones.innerHTML = '';
-        if (currentAngle > 0) {
-          const numBones = Math.max(2, Math.floor(currentAngle / 20)); // 約每 20 度一根扇骨
-          const startI = (currentAngle === 360) ? 0 : 1;
-          for (let i = startI; i < numBones; i++) {
+        if (currentAngle > 10) {
+          const numBones = Math.max(2, Math.floor(currentAngle / 20));
+          for (let i = 1; i < numBones; i++) {
             const angle = startAngle + (currentAngle * (i / numBones));
             const rad = (angle * Math.PI) / 180;
             const bx = cx + r * Math.cos(rad);
@@ -946,28 +938,32 @@
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             line.setAttribute('x1', cx); line.setAttribute('y1', cy);
             line.setAttribute('x2', bx); line.setAttribute('y2', by);
-            line.setAttribute('stroke', '#b45309'); // 深橘色扇骨
+            line.setAttribute('stroke', '#b45309');
             line.setAttribute('stroke-width', '1.5');
             fanBones.appendChild(line);
           }
         }
       } else {
-        // 幾何模式外觀
-        fanSector.setAttribute('fill', 'rgba(56, 189, 248, 0.35)'); // 天空藍透明
+        fanSector.setAttribute('fill', 'rgba(56, 189, 248, 0.35)');
         fanSector.setAttribute('stroke', '#0284c7');
         fanSector.setAttribute('stroke-width', '3');
         labelVertex.textContent = "圓心 (頂點)";
         labelVertex.setAttribute('fill', '#dc2626');
-        fanBones.innerHTML = ''; // 清除扇骨
+        fanBones.innerHTML = '';
       }
 
       const radiusA = document.getElementById('radiusA');
       const radiusB = document.getElementById('radiusB');
       if (radiusA && radiusB) {
-        radiusA.setAttribute('x1', cx); radiusA.setAttribute('y1', cy);
-        radiusA.setAttribute('x2', x1); radiusA.setAttribute('y2', y1);
-        radiusB.setAttribute('x1', cx); radiusB.setAttribute('y1', cy);
-        radiusB.setAttribute('x2', x2); radiusB.setAttribute('y2', y2);
+        radiusA.setAttribute('x1', cx);
+        radiusA.setAttribute('y1', cy);
+        radiusA.setAttribute('x2', x1);
+        radiusA.setAttribute('y2', y1);
+        
+        radiusB.setAttribute('x1', cx);
+        radiusB.setAttribute('y1', cy);
+        radiusB.setAttribute('x2', x2);
+        radiusB.setAttribute('y2', y2);
       }
 
       // 控制外圈虛線圓與名稱標籤的顯示與隱藏
@@ -984,14 +980,13 @@
       }
 
       const centerPoint = document.getElementById('centerPoint');
-      
       if (centerPoint) {
         if (highlightMode === 'vertex') {
-          centerPoint.setAttribute('fill', '#ef4444'); // 強制亮紅色點
+          centerPoint.setAttribute('fill', '#ef4444');
           centerPoint.setAttribute('r', '12');
         } else {
           if (currentDisplayMode === 'fan') {
-            centerPoint.setAttribute('fill', '#78350f'); // 扇釘顏色
+            centerPoint.setAttribute('fill', '#78350f');
             centerPoint.setAttribute('r', '8');
           } else {
             centerPoint.setAttribute('fill', '#ef4444');
@@ -1002,19 +997,14 @@
 
       if (radiusA && radiusB) {
         let strokeColor = currentDisplayMode === 'fan' ? '#ca8a04' : '#2563eb';
-        if (currentAngle === 360) {
-          radiusA.style.display = 'none';
-          radiusB.style.display = 'none';
-        } else if (highlightMode === 'radius') {
-          radiusA.style.display = 'block';
-          radiusB.style.display = 'block';
-          radiusA.setAttribute('stroke', '#3b82f6'); // 強制亮藍色邊
+        radiusA.style.display = 'block';
+        radiusB.style.display = 'block';
+        if (highlightMode === 'radius') {
+          radiusA.setAttribute('stroke', '#3b82f6');
           radiusA.setAttribute('stroke-width', '7');
           radiusB.setAttribute('stroke', '#3b82f6');
           radiusB.setAttribute('stroke-width', '7');
         } else {
-          radiusA.style.display = 'block';
-          radiusB.style.display = 'block';
           radiusA.setAttribute('stroke', strokeColor);
           radiusA.setAttribute('stroke-width', currentDisplayMode === 'fan' ? '3' : '4');
           radiusB.setAttribute('stroke', strokeColor);
@@ -1024,60 +1014,45 @@
 
       const fanArcHighlight = document.getElementById('fanArcHighlight');
       if (fanArcHighlight) {
-        const arcPath = currentAngle === 360
-          ? `M ${cx - r} ${cy} A ${r} ${r} 0 1 0 ${cx + r} ${cy} A ${r} ${r} 0 1 0 ${cx - r} ${cy}`
-          : `M ${x1} ${y1} A ${r} ${r} 0 ${largeArcFlag} 1 ${x2} ${y2}`;
-        
+        const arcPath = `M ${x1} ${y1} A ${r} ${r} 0 ${largeArcFlag} 1 ${x2} ${y2}`;
         fanArcHighlight.setAttribute('d', arcPath);
-        
         if (highlightMode === 'arc') {
-          fanArcHighlight.setAttribute('stroke', '#22c55e'); // 強制僅亮綠色弧 (不干擾半徑)
+          fanArcHighlight.setAttribute('stroke', '#22c55e');
           fanArcHighlight.setAttribute('stroke-width', '6');
         } else {
           fanArcHighlight.setAttribute('stroke', 'transparent');
         }
       }
 
-      // 計算文字標籤不重疊的座標
       const labelRadiusA = document.getElementById('labelRadiusA');
       const labelRadiusB = document.getElementById('labelRadiusB');
       const labelArc = document.getElementById('labelArc');
 
       if (labelRadiusA && labelRadiusB && labelArc) {
-        // 半徑 A (起始邊) 文字位置 (往外推)
         const midRadA = startRad;
-        // 為了不重疊，將文字法向量推移
         const normX_A = Math.cos(midRadA - Math.PI/2);
         const normY_A = Math.sin(midRadA - Math.PI/2);
         labelRadiusA.setAttribute('x', cx + (r/2) * Math.cos(midRadA) + normX_A * 20);
         labelRadiusA.setAttribute('y', cy + (r/2) * Math.sin(midRadA) + normY_A * 20 + 5);
 
-        // 半徑 B (結束邊) 文字位置
         const midRadB = endRad;
         const normX_B = Math.cos(midRadB + Math.PI/2);
         const normY_B = Math.sin(midRadB + Math.PI/2);
         labelRadiusB.setAttribute('x', cx + (r/2) * Math.cos(midRadB) + normX_B * 20);
         labelRadiusB.setAttribute('y', cy + (r/2) * Math.sin(midRadB) + normY_B * 20 + 5);
 
-        // 弧標籤位置 (往外推)
         const midArcAngle = startRad + (endRad - startRad) / 2;
         labelArc.setAttribute('x', cx + (r + 25) * Math.cos(midArcAngle));
         labelArc.setAttribute('y', cy + (r + 25) * Math.sin(midArcAngle) + 5);
 
-        // 在摺扇模式下隱藏「弧」與「半徑」標籤；幾何模式下 360° 時隱藏「半徑」標籤
         if (currentDisplayMode === 'fan') {
           labelRadiusA.style.display = 'none';
           labelRadiusB.style.display = 'none';
           labelArc.style.display = 'none';
         } else {
           labelArc.style.display = 'block';
-          if (currentAngle === 360) {
-            labelRadiusA.style.display = 'none';
-            labelRadiusB.style.display = 'none';
-          } else {
-            labelRadiusA.style.display = 'block';
-            labelRadiusB.style.display = 'block';
-          }
+          labelRadiusA.style.display = 'block';
+          labelRadiusB.style.display = 'block';
         }
       }
     }
